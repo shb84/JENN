@@ -1,0 +1,2 @@
+training,test,model_name,num_outputs,num_inputs,num_samples,num_epochs,num_iterations,mini_batch_size,alpha,lambda,gamma,beta1,beta2,hidden_layer_activation,hidden_layer_dimensions
+rastrigin_4D_6931_samples.csv,rastrigin_4D_110903_samples.csv,nn_rastrigin_4D_6931_samples,1,4,6931,500,10,1028,0.5,0.1,0,0.9,0.99,tanh,"24, 12"
