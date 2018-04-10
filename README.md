@@ -1,2 +1,2 @@
 # GENN
-Gradient-Enhanced Neural Network
+[[Gradient-Enhanced Neural Network | GENN.pdf]]
