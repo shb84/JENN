@@ -20,7 +20,7 @@ def load_csv(file: str = None, inputs: [str] = None, outputs: [str] = None, part
 
     :param: file: csv filename containing training data (with headers as first row)
     :param: inputs: labels of the inputs, e.g. ["X[0]", "X[1]", "X[2]"]
-    :param: outputs: labels of the inputs, e.g. ["Y[0]", "Y[1]", "Y[2]"]
+    :param: outputs: labels of the outputs, e.g. ["Y[0]", "Y[1]", "Y[2]"]
     :param: partials: labels of the partials, e.g. [ ["J[0][0]", "J[0][1]", "J[0][2]"],
                                                      ["J[1][0]", "J[1][1]", "J[1][2]"],
                                                      ["J[2][0]", "J[2][1]", "J[2][2]"] ]

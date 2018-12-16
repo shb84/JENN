@@ -8,10 +8,10 @@ setuptools.setup(
     version="1.0.0.dev1",
     author="Steven H. Berguin",
     author_email="stevenberguin@gmail.com",
-    description="Gradient Enhanced Neural Network (GENN)",
+    description="Gradient Enhanced Neural Network (genn)",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/shb84/GENN.git",
+    url="https://github.com/shb84/genn.git",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
