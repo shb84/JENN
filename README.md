@@ -8,6 +8,19 @@ the response and the prediction error dydx - f’(x) of the partial derivatives.
 is better accuracy with fewer training points, compared to regular neural networks without gradient-enhancement. GENN
 applies to regression (single-output or multi-output), but not classification since there is no gradient in that case.
 This particular implementation is fully vectorized and uses Adam optimization, mini-batch, and L2-norm regularization.
+Batch norm is not implemented and, therefore, very deep networks might suffer from exploding or vanisging gradients.
+This would be a useful addition for those who would like to contribute.
+
+----
+
+# Installation
+
+GENN is still in development mode. Therefore, in order to install it:
+
+     pip install -e git+https://github.com/shb84/GENN.git#egg=genn
+
+The algorithm was written in Python 3.6.4 :: Anaconda, Inc. and implemented using numpy=1.14.0. However, in addition,
+certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading CSV files and plotting.
 
 ----
 
@@ -43,4 +56,4 @@ This code used the code by Prof. Andrew Ng in the
 as a starting point. In then built
 upon it to include additional features such as line search and some others, but most of all, it was modified to be
 include a gradient-enhanced formulation. The author would like to thank Andrew Ng for offering the fundamentals of deep
-learning on Coursera, which took a complicated subject and explained it in simple terms that made it accessible to all.
+learning on Coursera, which took a complicated subject and explained it in simple terms that made it accessible to laymen.
