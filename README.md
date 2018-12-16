@@ -39,7 +39,7 @@ quantification by means of Monte Carlo simulation, which would’ve been computa
 # Acknowledgement
 
 This code used the code by Prof. Andrew Ng in the
-[Coursera Deep Learning specialization](https://www.coursera.org/specializations/deep-learning)
+[Coursera Deep Learning Specialization](https://www.coursera.org/specializations/deep-learning)
 as a starting point. In then built
 upon it to include additional features such as line search and some others, but most of all, it was modified to be
 include a gradient-enhanced formulation. The author would like to thank Andrew Ng for offering the fundamentals of deep
