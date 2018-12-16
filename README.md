@@ -8,8 +8,10 @@ the response and the prediction error dydx - f’(x) of the partial derivatives.
 is better accuracy with fewer training points, compared to regular neural networks without gradient-enhancement. GENN
 applies to regression (single-output or multi-output), but not classification since there is no gradient in that case.
 This particular implementation is fully vectorized and uses Adam optimization, mini-batch, and L2-norm regularization.
-Batch norm is not implemented and, therefore, very deep networks might suffer from exploding or vanisging gradients.
+Batch norm is not implemented and, therefore, very deep networks might suffer from exploding and vanishing gradients.
 This would be a useful addition for those who would like to contribute.
+
+Checkout demo/ for tutorial in the form of jupyter notebooks.
 
 ----
 
