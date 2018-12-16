@@ -11,7 +11,7 @@ This particular implementation is fully vectorized and uses Adam optimization, m
 Batch norm is not implemented and, therefore, very deep networks might suffer from exploding and vanishing gradients.
 This would be a useful addition for those who would like to contribute.
 
-Checkout demo/ for tutorial in the form of jupyter notebooks.
+*Checkout demo for tutorials in the form of jupyter notebooks*
 
 ----
 
