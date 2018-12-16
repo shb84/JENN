@@ -36,10 +36,9 @@ quantification by means of Monte Carlo simulation, which would’ve been computa
 
 ----
 
-# ACKNOWLEDGEMENT
+# Acknowledgement
 
-THIS CODE USED THE CODE BY ANDREW NG IN THE COURSERA DEEP LEARNING SPECIALIZATION AS A STARTING POINT. IT THEN BUILT
-UPON IT TO INCLUDE ADDITIONAL FEATURES SUCH AS LINE SEARCH, OBJECT ORIENTED, ETC... BUT, MOST OF ALL, IT WAS MODIFIED TO
-INCLUDE A GRADIENT-ENHANCED FORMULATION. THE AUTHOR WOULD LIKE TO THANK ANDREW NG FOR OFFERING THE FUNDAMENTALS OF DEEP
-LEARNING ON COURSERA, WHICH TOOK SOMETHING COMPLICATED AND EXPLAINED IN CLEAR, SIMPLE TERMS THAT MADE IT ACCESSIBLE TO
-NON-SPECIALISTS.
+This code used the code by Prof. Andrew Ng in Courser'a Deep Learning specialization as a starting point. In then built
+upon it to include additional features such as line search and some others, but most of all, it was modified to be
+include a gradient-enhanced formulation. The author would like to thank Andrew Ng for offering the fundamentals of deep
+learning on Coursera, which took a complicated subject and explained it in simple terms that made it accessible to all.
