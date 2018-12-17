@@ -11,8 +11,6 @@ This particular implementation is fully vectorized and uses Adam optimization, m
 Batch norm is not implemented and, therefore, very deep networks might suffer from exploding and vanishing gradients.
 This would be a useful addition for those who would like to contribute.
 
-*Checkout demo for tutorials in the form of jupyter notebooks*
-
 ----
 
 # Installation
@@ -28,17 +26,26 @@ certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading
 
 # Usage
 
+**Checkout demo for more detailed tutorials in the form of jupyter notebooks**
+
+    # Load modules
+    from genn.model import GENN
+    from genn.data import load_csv
+    import pickle
+
     # Read in training data
     X_train, Y_train, J_train = load_csv(file='train_data.csv',
                                          inputs=["X[0]", "X[1]"],
                                          outputs=["Y[0]"],
                                          partials=[["J[0][0]", "J[0][1]"]])
 
-    # Train model
+    # Initialize model (i.e. specify network architecture)
     model = GENN.initialize(n_x=X_train.shape[0],
                             n_y=Y_train.shape[0],
                             deep=2,
                             wide=12)
+
+    # Train model
     model.train(X=X_train,
                 Y=Y_train,
                 J=J_train,
@@ -52,8 +59,11 @@ certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading
                 num_epochs=100,
                 silent=True)
 
+    # Plot and print convergence history
     model.plot_training_history()
     model.print_training_history()
+
+    # Print and store trained parameters
     model.print_parameters()
 
     # Read in test data
@@ -62,15 +72,23 @@ certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading
                                       outputs=["Y[0]"],
                                       partials=[["J[0][0]", "J[0][1]"]])
 
-    # Check accuracy of model
+    # Check prediction accuracy of model
     model.goodness_of_fit(X_test, Y_test)  # model.goodness_of_fit(X_test, Y_test, J_test, partial=1)
 
     # Predict response and gradient
     Y_pred = model.evaluate(X_test)
     J_pred = model.gradient(X_test)
 
-    # Save trained parameters and load into a new model
+    # Store trained parameters and save as pkl file for re-use
     trained_parameters = model.parameters
+    output = open('trained_parameters.pkl', 'wb')
+    pickle.dump(trained_parameters, output)
+    output.close()
+
+    # Assume you are starting a new script and want to reload a previously trained model:
+    pkl_file = open('trained_parameters.pkl', 'rb')
+    trained_parameters = pickle.load(pkl_file)
+    pkl_file.close()
     new_model = GENN.initialize().load_parameters(trained_parameters)  # new_model is now the same model
 
 ----
