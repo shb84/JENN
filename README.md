@@ -65,6 +65,7 @@ certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading
 
     # Print and store trained parameters
     model.print_parameters()
+    trained_parameters = model.parameters
 
     # Read in test data
     X_test, Y_test, J_test = load_csv(file='test_data.csv',
@@ -79,8 +80,7 @@ certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading
     Y_pred = model.evaluate(X_test)
     J_pred = model.gradient(X_test)
 
-    # Store trained parameters and save as pkl file for re-use
-    trained_parameters = model.parameters
+    # Save as pkl file for re-use
     output = open('trained_parameters.pkl', 'wb')
     pickle.dump(trained_parameters, output)
     output.close()
