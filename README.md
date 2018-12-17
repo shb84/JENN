@@ -37,6 +37,13 @@ certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading
                                          inputs=["X[0]", "X[1]"],
                                          outputs=["Y[0]"],
                                          partials=[["J[0][0]", "J[0][1]"]])
+
+
+    X_test, Y_test, J_test = load_csv(file='test_data.csv',
+                                      inputs=["X[0]", "X[1]"],
+                                      outputs=["Y[0]"],
+                                      partials=[["J[0][0]", "J[0][1]"]])
+                                      
     model = GENN.initialize(n_x=X_train.shape[0],
                             n_y=Y_train.shape[0],
                             deep=2,
@@ -60,11 +67,6 @@ certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading
     model.print_parameters()
 
     trained_parameters = model.parameters
-
-    X_test, Y_test, J_test = load_csv(file='test_data.csv',
-                                      inputs=["X[0]", "X[1]"],
-                                      outputs=["Y[0]"],
-                                      partials=[["J[0][0]", "J[0][1]"]])
 
     model.goodness_of_fit(X_test, Y_test)  # model.goodness_of_fit(X_test, Y_test, J_test, partial=1)
 
