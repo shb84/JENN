@@ -189,8 +189,8 @@ class GENN:
 
                 # Optimization (learn parameters by minimizing prediction error)
                 optimizer = Adam.initialize(initial_guess=self._parameters,
-                                            cost_function=lambda p: self.cost(p, self.activations, X, Y, J, lambd, gamma),
-                                            grad_function=lambda p: self.grad(p, self.activations, X, Y, J, lambd, gamma),
+                                            cost_function=lambda p: self._cost(p, self.activations, X, Y, J, lambd, gamma),
+                                            grad_function=lambda p: self._grad(p, self.activations, X, Y, J, lambd, gamma),
                                             learning_rate=alpha, beta1=beta1, beta2=beta2)
                 self._parameters = optimizer.optimize(max_iter=num_iterations, is_print=is_print)
 
@@ -316,8 +316,8 @@ class GENN:
         self._n_x, self._m = X.shape
         self._n_y = Y.shape[0]
 
-    def cost(self, parameters: dict, activations: list, x: tensor,
-             y_true: tensor = None, dy_true: tensor = None, lambd: float = 0., gamma: float = 0.) -> float:
+    def _cost(self, parameters: dict, activations: list, x: tensor,
+              y_true: tensor = None, dy_true: tensor = None, lambd: float = 0., gamma: float = 0.) -> float:
         """
         Cost function for training
 
@@ -336,8 +336,8 @@ class GENN:
         cost = lse(y_true, y_pred, lambd, w, dy_true, dy_pred, gamma)
         return cost
 
-    def grad(self, parameters: dict, activations: list, x: tensor,
-             y_true: tensor = None, dy_true: tensor = None, lambd: float = 0., gamma: float = 0.) -> dict:
+    def _grad(self, parameters: dict, activations: list, x: tensor,
+              y_true: tensor = None, dy_true: tensor = None, lambd: float = 0., gamma: float = 0.) -> dict:
         """
         Gradient of cost function for training
 
