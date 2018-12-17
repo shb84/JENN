@@ -26,6 +26,55 @@ certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading
 
 ----
 
+# Usage
+
+    # Read in training data
+    X_train, Y_train, J_train = load_csv(file='train_data.csv',
+                                         inputs=["X[0]", "X[1]"],
+                                         outputs=["Y[0]"],
+                                         partials=[["J[0][0]", "J[0][1]"]])
+
+    # Train model
+    model = GENN.initialize(n_x=X_train.shape[0],
+                            n_y=Y_train.shape[0],
+                            deep=2,
+                            wide=12)
+    model.train(X=X_train,
+                Y=Y_train,
+                J=J_train,
+                alpha=0.05,
+                lambd=0.10,
+                gamma=1.0,
+                beta1=0.90,
+                beta2=0.99,
+                mini_batch_size=64,
+                num_iterations=10,
+                num_epochs=100,
+                silent=True)
+
+    model.plot_training_history()
+    model.print_training_history()
+    model.print_parameters()
+
+    # Read in test data
+    X_test, Y_test, J_test = load_csv(file='test_data.csv',
+                                      inputs=["X[0]", "X[1]"],
+                                      outputs=["Y[0]"],
+                                      partials=[["J[0][0]", "J[0][1]"]])
+
+    # Check accuracy of model
+    model.goodness_of_fit(X_test, Y_test)  # model.goodness_of_fit(X_test, Y_test, J_test, partial=1)
+
+    # Predict response and gradient
+    Y_pred = model.evaluate(X_test)
+    J_pred = model.gradient(X_test)
+
+    # Save trained parameters and load into a new model
+    trained_parameters = model.parameters
+    new_model = GENN.initialize().load_parameters(trained_parameters)  # new_model is now the same model
+
+----
+
 # Limitations
 
 Gradient-enhanced methods only apply to the special use-case of computer aided design, where data is synthetically
