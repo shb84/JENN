@@ -28,24 +28,20 @@ certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading
 
 **Checkout demo for more detailed tutorials in the form of jupyter notebooks**
 
-    # Load modules
+
     from genn.model import GENN
     from genn.data import load_csv
     import pickle
 
-    # Read in training data
     X_train, Y_train, J_train = load_csv(file='train_data.csv',
                                          inputs=["X[0]", "X[1]"],
                                          outputs=["Y[0]"],
                                          partials=[["J[0][0]", "J[0][1]"]])
-
-    # Initialize model (i.e. specify network architecture)
     model = GENN.initialize(n_x=X_train.shape[0],
                             n_y=Y_train.shape[0],
                             deep=2,
                             wide=12)
 
-    # Train model
     model.train(X=X_train,
                 Y=Y_train,
                 J=J_train,
@@ -59,26 +55,21 @@ certain support functions require pandas=0.23.4 and matplotlib=2.1.2 for reading
                 num_epochs=100,
                 silent=True)
 
-    # Plot and print convergence history
     model.plot_training_history()
     model.print_training_history()
-
-    # Print and store trained parameters
     model.print_parameters()
+
     trained_parameters = model.parameters
 
-    # Read in test data
     X_test, Y_test, J_test = load_csv(file='test_data.csv',
                                       inputs=["X[0]", "X[1]"],
                                       outputs=["Y[0]"],
                                       partials=[["J[0][0]", "J[0][1]"]])
 
-    # Check prediction accuracy of model
     model.goodness_of_fit(X_test, Y_test)  # model.goodness_of_fit(X_test, Y_test, J_test, partial=1)
 
-    # Predict response and gradient
-    Y_pred = model.evaluate(X_test)
-    J_pred = model.gradient(X_test)
+    Y_pred = model.evaluate(X_test)  # predict response
+    J_pred = model.gradient(X_test)  # predict jacobian
 
     # Save as pkl file for re-use
     output = open('trained_parameters.pkl', 'wb')
