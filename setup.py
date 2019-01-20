@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="genn",
-    version="1.0.0.dev1",
+    version="0.1.0",
     author="Steven H. Berguin",
     author_email="stevenberguin@gmail.com",
     description="Gradient Enhanced Neural Network (genn)",
