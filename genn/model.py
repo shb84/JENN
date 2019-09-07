@@ -9,14 +9,14 @@ This package is distributed under the MIT license.
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from smt.surrogate_models.neural_net.data import random_mini_batches
-from smt.surrogate_models.neural_net.optimizer import Adam
-from smt.surrogate_models.neural_net.activation import Tanh, Linear
-from smt.surrogate_models.neural_net.bwd_prop import L_model_backward
-from smt.surrogate_models.neural_net.fwd_prop import L_model_forward, L_grads_forward
-from smt.surrogate_models.neural_net.loss import lse
-from smt.surrogate_models.neural_net.metrics import rsquare
-from smt.surrogate_models.neural_net.data import normalize_data, load_csv
+from genn.data import random_mini_batches
+from genn.optimizer import Adam
+from genn.activation import Tanh, Linear
+from genn.bwd_prop import L_model_backward
+from genn.fwd_prop import L_model_forward, L_grads_forward
+from genn.loss import lse
+from genn.metrics import rsquare
+from genn.data import normalize_data, load_csv
 
 tensor = np.ndarray
 

@@ -7,7 +7,6 @@ This package is distributed under the MIT license.
 """
 
 import numpy as np
-from smt.surrogate_models.neural_net.activation import Activation
 
 tensor = np.ndarray
 
