@@ -41,7 +41,10 @@ def initialize_back_prop(AL: tensor, Y: tensor, AL_prime: tensor, Y_prime: tenso
     n_y, _ = AL.shape  # number layers, number examples
     Y = Y.reshape(AL.shape)
     dAL = AL - Y  # derivative of loss function w.r.t. to activations: dAL = d(L)/dAL
-    dAL_prime = AL_prime - Y_prime  # derivative of loss function w.r.t. to partials: dAL_prime = d(L)/d(AL_prime)
+    if Y_prime:
+        dAL_prime = AL_prime - Y_prime  # derivative of loss function w.r.t. to partials: dAL_prime = d(L)/d(AL_prime)
+    else:
+        dAL_prime = np.zeros(AL_prime.shape)
 
     return dAL, dAL_prime
 

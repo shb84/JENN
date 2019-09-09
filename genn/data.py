@@ -84,6 +84,37 @@ def load_csv(file: str = None, inputs: [str] = None, outputs: [str] = None, part
     return X, Y, J
 
 
+def split_data(X: tensor, Y: tensor, J: tensor = None, test_size: float = 0.33, seed: int = None) -> tuple:
+    """
+    Split the data into a test set and training set
+
+    :param: X: np ndarray of size (n_x, m) containing input features of the training data
+    :param: Y: np ndarray of size (n_y, m) containing output values of the training data
+    :param: J: np ndarray of size (n_y, n_x, m) where m = number of examples
+                                                    n_y = number of outputs
+                                                    n_x = number of inputs
+    :param test_size: float, fraction of data to hold back for testing
+    :param seed: int, random seed
+    :return: (X_train, Y_train, J_train), (X_test, Y_test, J_test)
+    """
+    np.random.seed(seed)
+    n_total = X.shape[1]
+    n_test = int(round(test_size * n_total, 0))
+    test = np.random.randint(low=0, high=n_total, size=n_test).tolist()
+    train = list(set(range(n_total)).difference(set(test)))
+    X_train = X[:, train]
+    Y_train = Y[:, train]
+    X_test = X[:, test]
+    Y_test = Y[:, test]
+    if J is not None:
+        J_train = J[:, :, train]
+        J_test = J[:, :, test]
+    else:
+        J_train = None
+        J_test = None
+    return (X_train, Y_train, J_train), (X_test, Y_test, J_test)
+
+
 def random_mini_batches(X: tensor, Y: tensor, J: tensor, mini_batch_size: int = 64, seed: int = None) -> list:
     """
     Creates a list of random minibatches from (X, Y)

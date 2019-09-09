@@ -96,7 +96,10 @@ class GENN:
     def training_data(self):
         X = self._X_norm * self._scale_factors['x'][1] + self._scale_factors['x'][0]
         Y = self._Y_norm * self._scale_factors['y'][1] + self._scale_factors['y'][0]
-        J = self._J_norm * self._scale_factors['y'][1] / self._scale_factors['x'][1]
+        if self._J_norm:
+            J = self._J_norm * self._scale_factors['y'][1] / self._scale_factors['x'][1]
+        else:
+            J = None
         return X, Y, J
 
     def __init__(self, **kwargs):
@@ -168,6 +171,9 @@ class GENN:
         :param seed: random seed in case user wants to ensure repeatability
         :param silent: don't print anything
         """
+        if J is None:
+            gamma = 0.  # turn off gradient enhancement
+
         self._load_training_data(X, Y, J)
 
         if not mini_batch_size:
