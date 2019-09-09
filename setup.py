@@ -1,7 +1,13 @@
 import setuptools
+	
+# To use a consistent encoding
+from codecs import open
+from os import path
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+here = path.abspath(path.dirname(__file__))
+
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setuptools.setup(
     name="genn",
