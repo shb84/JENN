@@ -96,10 +96,7 @@ class GENN:
     def training_data(self):
         X = self._X_norm * self._scale_factors['x'][1] + self._scale_factors['x'][0]
         Y = self._Y_norm * self._scale_factors['y'][1] + self._scale_factors['y'][0]
-        if self._J_norm:
-            J = self._J_norm * self._scale_factors['y'][1] / self._scale_factors['x'][1]
-        else:
-            J = None
+        J = self._J_norm * self._scale_factors['y'][1] / self._scale_factors['x'][1]
         return X, Y, J
 
     def __init__(self, **kwargs):

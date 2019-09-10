@@ -66,18 +66,27 @@ def load_csv(file: str = None, inputs: [str] = None, outputs: [str] = None, part
 
     X = np.zeros((n_x, m))
     for i, x_label in enumerate(inputs):
-        X[i, :] = data[x_label]
+        try:
+            X[i, :] = data[x_label]
+        except ValueError:
+            X[i, :] = np.nan
 
     Y = np.zeros((n_y, m))
     for i, y_label in enumerate(outputs):
-        Y[i, :] = data[y_label]
+        try:
+            Y[i, :] = data[y_label]
+        except ValueError:
+            Y[i, :] = np.nan
 
     if partials:
         J = np.zeros((n_y, n_x, m))
         if partials:
             for i, response in enumerate(partials):
                 for j, dy_label in enumerate(response):
-                    J[i][j] = data[dy_label]
+                    try:
+                        J[i][j] = data[dy_label]
+                    except ValueError:
+                        J[i][j] = np.nan
     else:
         J = None
 
