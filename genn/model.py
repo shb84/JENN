@@ -169,7 +169,7 @@ class GENN:
         :param silent: don't print anything
         """
         if J is None:
-            gamma = 0.  # turn off gradient enhancement
+            gamma = 0.
 
         self._load_training_data(X, Y, J)
 
@@ -431,8 +431,8 @@ class GENN:
         # Plot
         ax1 = fig.add_subplot(spec[0, 0])
         ax1.plot(y, y)
-        ax1.scatter(test, test_pred, s=20, c='r')
         ax1.scatter(train, train_pred, s=100, c='k', marker="+")
+        ax1.scatter(test, test_pred, s=20, c='r')
         plt.legend(["perfect", "test", "train"])
         plt.xlabel("actual")
         plt.ylabel("predicted")
