@@ -259,7 +259,7 @@ class GENN:
         """
         if not MATPLOTLIB_INSTALLED:
             raise ImportError("Matplotlib must be installed.")
-        
+
         if self.training_history:
             if len(self.training_history.keys()) > 1:
                 x_label = 'epoch'
@@ -392,7 +392,7 @@ class GENN:
         return J
 
     def goodness_of_fit(self, X_test: tensor, Y_test: tensor, J_test: tensor = None,
-                        response: int = 0, partial: int = 0) -> dict():
+                        response: int = 0, partial: int = 0, show_plot=True) -> dict():
 
         assert X_test.shape[1] == Y_test.shape[1]
         assert Y_test.shape[0] == Y_test.shape[0]
@@ -434,32 +434,33 @@ class GENN:
         y = np.linspace(min(np.min(test), np.min(train)), max(np.max(test), np.max(train)), 100)
 
         # Prepare to plot
-        if not MATPLOTLIB_INSTALLED:
-            raise ImportError("Matplotlib must be installed.")
+        if show_plot:
+            if not MATPLOTLIB_INSTALLED:
+                raise ImportError("Matplotlib must be installed.")
 
-        fig = plt.figure(figsize=(12, 6))
-        fig.suptitle(title, fontsize=16)
-        spec = gridspec.GridSpec(ncols=2, nrows=1, wspace=0.25)
+            fig = plt.figure(figsize=(12, 6))
+            fig.suptitle(title, fontsize=16)
+            spec = gridspec.GridSpec(ncols=2, nrows=1, wspace=0.25)
 
-        # Plot
-        ax1 = fig.add_subplot(spec[0, 0])
-        ax1.plot(y, y)
-        ax1.scatter(train, train_pred, s=100, c='k', marker="+")
-        ax1.scatter(test, test_pred, s=20, c='r')
-        plt.legend(["perfect", "test", "train"])
-        plt.xlabel("actual")
-        plt.ylabel("predicted")
-        plt.title("RSquare = " + str(metrics['R_squared']))
+            # Plot
+            ax1 = fig.add_subplot(spec[0, 0])
+            ax1.plot(y, y)
+            ax1.scatter(train, train_pred, s=100, c='k', marker="+")
+            ax1.scatter(test, test_pred, s=20, c='r')
+            plt.legend(["perfect", "test", "train"])
+            plt.xlabel("actual")
+            plt.ylabel("predicted")
+            plt.title("RSquare = " + str(metrics['R_squared']))
 
-        ax2 = fig.add_subplot(spec[0, 1])
-        error = (test_pred - test).T
-        weights = np.ones(error.shape) / test_pred.shape[1]
-        ax2.hist(error, weights=weights, facecolor='g', alpha=0.75)
-        plt.xlabel('Absolute Prediction Error')
-        plt.ylabel('Probability')
-        plt.title('$\mu$=' + str(metrics['avg_error']) + ', $\sigma=$' + str(metrics['std_error']))
-        plt.grid(True)
-        plt.show()
+            ax2 = fig.add_subplot(spec[0, 1])
+            error = (test_pred - test).T
+            weights = np.ones(error.shape) / test_pred.shape[1]
+            ax2.hist(error, weights=weights, facecolor='g', alpha=0.75)
+            plt.xlabel('Absolute Prediction Error')
+            plt.ylabel('Probability')
+            plt.title('$\mu$=' + str(metrics['avg_error']) + ', $\sigma=$' + str(metrics['std_error']))
+            plt.grid(True)
+            plt.show()
 
         return metrics
 
