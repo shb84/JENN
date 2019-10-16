@@ -6,9 +6,16 @@ Author: Steven H. Berguin <stevenberguin@gmail.com>
 This package is distributed under the MIT license.
 """
 
+from importlib.util import find_spec
+
+if find_spec("matplotlib"):
+    import matplotlib.pyplot as plt
+    import matplotlib.gridspec as gridspec
+    MATPLOTLIB_INSTALLED = True
+else:
+    MATPLOTLIB_INSTALLED = False
+
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 from genn.data import random_mini_batches
 from genn.optimizer import Adam
 from genn.activation import Tanh, Linear
@@ -250,6 +257,9 @@ class GENN:
         """
         Plot the convergence history of the neural network learning algorithm
         """
+        if not MATPLOTLIB_INSTALLED:
+            raise ImportError("Matplotlib must be installed.")
+
         if self.training_history:
             if len(self.training_history.keys()) > 1:
                 x_label = 'epoch'
@@ -382,7 +392,7 @@ class GENN:
         return J
 
     def goodness_of_fit(self, X_test: tensor, Y_test: tensor, J_test: tensor = None,
-                        response: int = 0, partial: int = 0) -> dict():
+                        response: int = 0, partial: int = 0, show_plot=True) -> dict():
 
         assert X_test.shape[1] == Y_test.shape[1]
         assert Y_test.shape[0] == Y_test.shape[0]
@@ -424,29 +434,33 @@ class GENN:
         y = np.linspace(min(np.min(test), np.min(train)), max(np.max(test), np.max(train)), 100)
 
         # Prepare to plot
-        fig = plt.figure(figsize=(12, 6))
-        fig.suptitle(title, fontsize=16)
-        spec = gridspec.GridSpec(ncols=2, nrows=1, wspace=0.25)
+        if show_plot:
+            if not MATPLOTLIB_INSTALLED:
+                raise ImportError("Matplotlib must be installed.")
 
-        # Plot
-        ax1 = fig.add_subplot(spec[0, 0])
-        ax1.plot(y, y)
-        ax1.scatter(train, train_pred, s=100, c='k', marker="+")
-        ax1.scatter(test, test_pred, s=20, c='r')
-        plt.legend(["perfect", "test", "train"])
-        plt.xlabel("actual")
-        plt.ylabel("predicted")
-        plt.title("RSquare = " + str(metrics['R_squared']))
+            fig = plt.figure(figsize=(12, 6))
+            fig.suptitle(title, fontsize=16)
+            spec = gridspec.GridSpec(ncols=2, nrows=1, wspace=0.25)
 
-        ax2 = fig.add_subplot(spec[0, 1])
-        error = (test_pred - test).T
-        weights = np.ones(error.shape) / test_pred.shape[1]
-        ax2.hist(error, weights=weights, facecolor='g', alpha=0.75)
-        plt.xlabel('Absolute Prediction Error')
-        plt.ylabel('Probability')
-        plt.title('$\mu$=' + str(metrics['avg_error']) + ', $\sigma=$' + str(metrics['std_error']))
-        plt.grid(True)
-        plt.show()
+            # Plot
+            ax1 = fig.add_subplot(spec[0, 0])
+            ax1.plot(y, y)
+            ax1.scatter(train, train_pred, s=100, c='k', marker="+")
+            ax1.scatter(test, test_pred, s=20, c='r')
+            plt.legend(["perfect", "test", "train"])
+            plt.xlabel("actual")
+            plt.ylabel("predicted")
+            plt.title("RSquare = " + str(metrics['R_squared']))
+
+            ax2 = fig.add_subplot(spec[0, 1])
+            error = (test_pred - test).T
+            weights = np.ones(error.shape) / test_pred.shape[1]
+            ax2.hist(error, weights=weights, facecolor='g', alpha=0.75)
+            plt.xlabel('Absolute Prediction Error')
+            plt.ylabel('Probability')
+            plt.title('$\mu$=' + str(metrics['avg_error']) + ', $\sigma=$' + str(metrics['std_error']))
+            plt.grid(True)
+            plt.show()
 
         return metrics
 
