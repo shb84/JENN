@@ -6,9 +6,16 @@ Author: Steven H. Berguin <stevenberguin@gmail.com>
 This package is distributed under the MIT license.
 """
 
+from importlib.util import find_spec
+
+if find_spec("matplotlib"):
+    import matplotlib.pyplot as plt
+    import matplotlib.gridspec as gridspec
+    MATPLOTLIB_INSTALLED = True
+else:
+    MATPLOTLIB_INSTALLED = False
+
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 from genn.data import random_mini_batches
 from genn.optimizer import Adam
 from genn.activation import Tanh, Linear
@@ -250,6 +257,9 @@ class GENN:
         """
         Plot the convergence history of the neural network learning algorithm
         """
+        if not MATPLOTLIB_INSTALLED:
+            raise ImportError("Matplotlib must be installed.")
+        
         if self.training_history:
             if len(self.training_history.keys()) > 1:
                 x_label = 'epoch'
@@ -424,6 +434,9 @@ class GENN:
         y = np.linspace(min(np.min(test), np.min(train)), max(np.max(test), np.max(train)), 100)
 
         # Prepare to plot
+        if not MATPLOTLIB_INSTALLED:
+            raise ImportError("Matplotlib must be installed.")
+
         fig = plt.figure(figsize=(12, 6))
         fig.suptitle(title, fontsize=16)
         spec = gridspec.GridSpec(ncols=2, nrows=1, wspace=0.25)

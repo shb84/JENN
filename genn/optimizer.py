@@ -6,8 +6,15 @@ Author: Steven H. Berguin <stevenberguin@gmail.com>
 This package is distributed under the MIT license.
 """
 
+from importlib.util import find_spec
+
+if find_spec("matplotlib"):
+    from matplotlib import pyplot as plt
+    MATPLOTLIB_INSTALLED = True
+else:
+    MATPLOTLIB_INSTALLED = False
+
 import numpy as np
-import matplotlib.pyplot as plt
 
 tensor = np.ndarray
 
@@ -333,6 +340,9 @@ def main(use_adam: bool = True):
         for j in range(0, m):
             Y[i, j] = f({'x1': np.array([X1[i, j]]),
                          'x2': np.array([X2[i, j]])})
+
+    if not MATPLOTLIB_INSTALLED:
+        raise ImportError("Matplotlib must be installed.")
 
     # Plot
     x1_his = np.array([design['x1'] for design in optimizer.design_history]).squeeze()

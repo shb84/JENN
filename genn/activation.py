@@ -6,8 +6,15 @@ Author: Steven H. Berguin <stevenberguin@gmail.com>
 This package is distributed under the MIT license.
 """
 
+from importlib.util import find_spec
+
+if find_spec("matplotlib"):
+    from matplotlib import pyplot as plt
+    MATPLOTLIB_INSTALLED = True
+else:
+    MATPLOTLIB_INSTALLED = False
+
 import numpy as np
-import matplotlib.pyplot as plt
 
 tensor = np.ndarray
 
@@ -112,6 +119,9 @@ class Linear(Activation):
 
 
 if __name__ == "__main__":
+    if not MATPLOTLIB_INSTALLED:
+        raise ImportError("Matplotlib must be installed.")
+
     x = np.linspace(-10, 10, 100)
     activations = {'tanh': Tanh(), 'sigmoid': Sigmoid(), 'relu': Relu()}
     for name, activation in activations.items():
