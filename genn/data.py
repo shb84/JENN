@@ -51,7 +51,7 @@ def load_csv(file: str = None, inputs: [str] = None, outputs: [str] = None, part
                 Note 3: to retrieve the i^th example for dY2/dX1: J[1][0][i] for all i = 1,...,m
 
     """
-     if not PANDAS_INSTALLED:
+    if not PANDAS_INSTALLED:
         raise ImportError("Pandas must be installed.")
 
     if not file:
