@@ -6,8 +6,15 @@ Author: Steven H. Berguin <stevenberguin@gmail.com>
 This package is distributed under the MIT license.
 """
 
+from importlib.util import find_spec
+
+if find_spec("pandas"):
+    import pandas as pd
+    PANDAS_INSTALLED = True
+else:
+    PANDAS_INSTALLED = False
+
 import numpy as np
-import pandas as pd
 import os
 import math
 
@@ -44,6 +51,9 @@ def load_csv(file: str = None, inputs: [str] = None, outputs: [str] = None, part
                 Note 3: to retrieve the i^th example for dY2/dX1: J[1][0][i] for all i = 1,...,m
 
     """
+     if not PANDAS_INSTALLED:
+        raise ImportError("Pandas must be installed.")
+
     if not file:
         raise Exception("No file specified")
     else:
