@@ -8,12 +8,6 @@ This package is distributed under the MIT license.
 
 from importlib.util import find_spec
 
-if find_spec("pandas"):
-    import pandas as pd
-    PANDAS_INSTALLED = True
-else:
-    PANDAS_INSTALLED = False
-
 import numpy as np
 import os
 import math
@@ -21,23 +15,20 @@ import math
 tensor = np.ndarray
 
 
-def load_csv(file: str = None, inputs: [str] = None, outputs: [str] = None, partials: [str] = None) -> tuple:
+def load_csv(file=None, inputs=None, outputs=None, partials=None):
     """
-    Load neural net training data from CSV file
-
+    Load neural net training data from CSV file using numpy
     :param: file: csv filename containing training data (with headers as first row)
     :param: inputs: labels of the inputs, e.g. ["X[0]", "X[1]", "X[2]"]
-    :param: outputs: labels of the outputs, e.g. ["Y[0]", "Y[1]", "Y[2]"]
+    :param: outputs: labels of the inputs, e.g. ["Y[0]", "Y[1]", "Y[2]"]
     :param: partials: labels of the partials, e.g. [ ["J[0][0]", "J[0][1]", "J[0][2]"],
                                                      ["J[1][0]", "J[1][1]", "J[1][2]"],
                                                      ["J[2][0]", "J[2][1]", "J[2][2]"] ]
-
                 Note 1: the name convention doesn't matter, but the order of the list does. Specifically,
                         the elements of the Jacobian should be listed in the same order as the elements of
                         the matrix reading from left to right, top to bottom (as shown above)
                 Note 2: if the user does not provide partials (partials=None), then the model will switch to just
                         a regular, fully connected neural net without gradient-enhancement.
-
     :return: (X, Y, J): (np.ndarray, np.ndarray, np.ndarray) where
         X -- matrix of shape (n_x, m) where n_x = no. of inputs, m = no. of training examples
         Y -- matrix of shape (n_y, m) where n_y = no. of outputs
@@ -47,23 +38,20 @@ def load_csv(file: str = None, inputs: [str] = None, outputs: [str] = None, part
                                                                      dY2/dX1 = J[1][0]
                                                                      dY2/dX2 = J[1][1]
                                                                      ...
-
                 Note 3: to retrieve the i^th example for dY2/dX1: J[1][0][i] for all i = 1,...,m
-
     """
-    if not PANDAS_INSTALLED:
-        raise ImportError("Pandas must be installed.")
-
     if not file:
         raise Exception("No file specified")
     else:
         exists = os.path.isfile(file)
         if exists:
-            data = pd.read_csv(file)
+            headers = np.genfromtxt(file, delimiter=",", max_rows=1, dtype=str).tolist()
+            data = np.genfromtxt(file, delimiter=",", skip_header=1)
+            index = lambda header: headers.index(header)
         else:
             raise Exception("The file " + file + " does not exist")
 
-    n_x = len(inputs)   # number of inputs
+    n_x = len(inputs)  # number of inputs
     n_y = len(outputs)  # number of outputs
 
     # Check that there are inputs and outputs
@@ -72,31 +60,22 @@ def load_csv(file: str = None, inputs: [str] = None, outputs: [str] = None, part
     if n_y == 0:
         raise Exception("No outputs specified")
 
-    m = data[inputs[0]].size  # number of examples
+    m = data[:, index(inputs[0])].size  # number of examples
 
     X = np.zeros((n_x, m))
     for i, x_label in enumerate(inputs):
-        try:
-            X[i, :] = data[x_label]
-        except ValueError:
-            X[i, :] = np.nan
+        X[i, :] = data[:, index(x_label)]
 
     Y = np.zeros((n_y, m))
     for i, y_label in enumerate(outputs):
-        try:
-            Y[i, :] = data[y_label]
-        except ValueError:
-            Y[i, :] = np.nan
+        Y[i, :] = data[:, index(y_label)]
 
     if partials:
         J = np.zeros((n_y, n_x, m))
         if partials:
             for i, response in enumerate(partials):
                 for j, dy_label in enumerate(response):
-                    try:
-                        J[i][j] = data[dy_label]
-                    except ValueError:
-                        J[i][j] = np.nan
+                    J[i][j] = data[:, index(dy_label)]
     else:
         J = None
 
