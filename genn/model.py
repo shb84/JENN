@@ -175,10 +175,16 @@ class GENN:
         :param seed: random seed in case user wants to ensure repeatability
         :param silent: don't print anything
         """
+        if len(Y.shape) == 1:
+            Y.reshape((1, -1))
+
+        if len(X.shape) == 1:
+            X.reshape((1, -1))
+
         if J is None:
             gamma = 0.
             n_x, m = X.shape
-            n_y = Y.shape[0]
+            n_y, _ = Y
             J = np.zeros((n_y, n_x, m))  # J won't affect cost function since gamma = 0
 
         self._load_training_data(X, Y, J)
