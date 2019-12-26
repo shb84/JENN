@@ -26,10 +26,7 @@ GENN is still in development mode. Therefore, in order to install it:
      pip install git+https://github.com/shb84/GENN.git#egg=genn
 
 The algorithm was written in Python 3.6.4 :: Anaconda, Inc. and implemented
-using numpy=1.14.0. However, in addition, certain support functions require
-pandas=0.23.4 and matplotlib=2.1.2 for reading CSV files and plotting.  These
-two packages are optional imports and are not required to utilize the training 
-and prediction capabilities of GENN.
+using numpy=1.14.0. In addition, for convenience, matplotlib=2.1.2 was used to plot goodness of fit.
 
 ----
 
