@@ -178,7 +178,7 @@ class GENN:
         if J is None:
             gamma = 0.
             n_x, m = X.shape
-            n_y, _ = Y.shape
+            n_y = Y.shape[0]
             J = np.zeros((n_y, n_x, m))  # J won't affect cost function since gamma = 0
 
         self._load_training_data(X, Y, J)
