@@ -176,10 +176,10 @@ class GENN:
         :param silent: don't print anything
         """
         if len(Y.shape) == 1:
-            Y.reshape((1, -1))
+            Y = Y.reshape((1, -1))
 
         if len(X.shape) == 1:
-            X.reshape((1, -1))
+            X = X.reshape((1, -1))
 
         if J is None:
             gamma = 0.
