@@ -177,6 +177,9 @@ class GENN:
         """
         if J is None:
             gamma = 0.
+            n_x, m = X.shape
+            n_y, _ = Y.shape
+            J = np.zeros((n_y, n_x, m))  # J won't affect cost function since gamma = 0
 
         self._load_training_data(X, Y, J)
 
@@ -211,7 +214,7 @@ class GENN:
                 if not silent:
                     print("epoch = {:d}, mini-batch = {:d}, avg cost = {:6.3f}".format(e, b, avg_cost))
 
-    def evaluate(self, X: tensor):
+    def predict(self, X: tensor):
         """
         Predict output(s) given inputs X.
 
@@ -404,12 +407,12 @@ class GENN:
 
         number_test_examples = Y_test.shape[1]
 
-        Y_pred_test = self.evaluate(X_test)
+        Y_pred_test = self.predict(X_test)
         J_pred_test = self.gradient(X_test)
 
         X_train, Y_train, J_train = self.training_data
 
-        Y_pred_train = self.evaluate(X_train)
+        Y_pred_train = self.predict(X_train)
         J_pred_train = self.gradient(X_train)
 
         if type(J_test) == tensor:
@@ -507,5 +510,10 @@ def main():
 if __name__ == "__main__":
     main()
 
-    # TODO: implement batch-norm
+    # TODO:
+    #  implement batch-norm,
+    #  unit tests,
+    #  improve documentation,
+    #  transpose inputs to make more like sklearn,
+    #  add environment.yml to help user get setup
 
