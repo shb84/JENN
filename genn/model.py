@@ -125,7 +125,7 @@ class GENN:
             setattr(self, name, value)
 
     @classmethod
-    def initialize(cls, n_x: int = None, n_y: int = None, deep: int = 2, wide: int = 12):
+    def initialize(cls, n_x: int = 1, n_y: int = 1, deep: int = 2, wide: int = 12):
         layer_dims = [n_x] + [wide] * deep + [n_y]
         parameters = initialize_parameters(layer_dims)
         activations = [Tanh()] * deep + [Linear()]
@@ -136,7 +136,7 @@ class GENN:
                       "_n_y": n_y}
         return cls(**attributes)
 
-    def load_parameters(self, parameters):
+    def load_parameters(self, parameters, scale_factors):
         L = len(parameters) // 2
         deep = L - 1
         wide = parameters['W1'].shape[0]
@@ -145,6 +145,7 @@ class GENN:
         self._layer_dims = [self._n_x] + [wide] * deep + [self._n_y]
         self._activations = [Tanh()] * deep + [Linear()]
         self._parameters = parameters
+        self._scale_factors = scale_factors
 
     def train(self, X: tensor, Y: tensor, J: tensor = None,
               num_iterations: int = 100, mini_batch_size: int = None, num_epochs: int = 1,
@@ -512,7 +513,10 @@ if __name__ == "__main__":
 
     # TODO:
     #  implement batch-norm,
-    #  unit tests,
+    #  unit tests:  (1) Re-load trained model
+    #               (2) Run with / without GENN (check defaults work)
+    #               (3) SISO, MIMO
+    #               (4) Put manual V&V test functions in actual unit tests
     #  improve documentation,
     #  transpose inputs to make more like sklearn,
     #  add environment.yml to help user get setup

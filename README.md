@@ -72,6 +72,7 @@ using numpy=1.14.0. In addition, for convenience, matplotlib=2.1.2 was used to p
     model.print_parameters()
 
     trained_parameters = model.parameters
+    scale_factors = model.scale_factors
 
     model.goodness_of_fit(X_test, Y_test)  # model.goodness_of_fit(X_test, Y_test, J_test, partial=1)
 
@@ -80,14 +81,14 @@ using numpy=1.14.0. In addition, for convenience, matplotlib=2.1.2 was used to p
 
     # Save as pkl file for re-use
     output = open('trained_parameters.pkl', 'wb')
-    pickle.dump(trained_parameters, output)
+    pickle.dump((trained_parameters, scale_factors), output)
     output.close()
 
     # Assume you are starting a new script and want to reload a previously trained model:
     pkl_file = open('trained_parameters.pkl', 'rb')
-    trained_parameters = pickle.load(pkl_file)
+    trained_parameters, scale_factors = pickle.load(pkl_file)
     pkl_file.close()
-    new_model = GENN.initialize().load_parameters(trained_parameters)  # new_model is now the same model
+    new_model = GENN.initialize().load_parameters(trained_parameters, scale_factors)  # new_model is now the same model
 
 ----
 
