@@ -1,11 +1,6 @@
 import numpy as np
-from sklearn.neural_network.gradient_enhanced._optimizer import (Backtracking,
-                                                                 ADAM, GD,
-                                                                 ADAMOptimizer,
-                                                                 Optimizer)
-from sklearn.neural_network.gradient_enhanced.tests.test_problems import (linear,
-                                                                          rosenbrock,
-                                                                          parabola)
+from genn._optimizer import Backtracking, ADAM, GD, ADAMOptimizer, Optimizer
+from genn.tests.test_problems import linear, rosenbrock, parabola
 from importlib.util import find_spec
 
 if find_spec("matplotlib"):

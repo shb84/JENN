@@ -1,0 +1,11 @@
+name: genn
+channels:
+- conda-forge
+- defaults
+dependencies:
+- numpy
+- matplotlib
+- jupyterlab
+- pip
+- pip:
+    - pyDOE2

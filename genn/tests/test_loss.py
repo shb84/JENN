@@ -1,6 +1,4 @@
-from sklearn.neural_network.gradient_enhanced._loss import (squared_loss,
-                                                            gradient_enhancement,
-                                                            regularization)
+from genn._loss import squared_loss, gradient_enhancement, regularization
 
 import numpy as np
 

@@ -21,12 +21,19 @@ contribute.
 
 # Installation
 
-GENN is still in development mode. Therefore, in order to install it:
+Setup new conda environment (optional): 
+    
+    conda env create -f environment.yml 
+    conda activate genn 
+
+Install from git repo:
 
      pip install git+https://github.com/shb84/GENN.git#egg=genn
 
-The algorithm was written in Python 3.6.4 :: Anaconda, Inc. and implemented
-using numpy=1.14.0. In addition, for convenience, matplotlib=2.1.2 was used to plot goodness of fit.
+The algorithm was written in Python 3 and requires only numpy. However, 
+for plotting, Matplotlib is required. In addition, some examples 
+depend on pyDOE2 (for generating synthetic data) and the notebooks 
+require Jupyter to be installed. 
 
 ----
 
@@ -34,61 +41,64 @@ using numpy=1.14.0. In addition, for convenience, matplotlib=2.1.2 was used to p
 
 **Checkout demo for more detailed tutorials in the form of jupyter notebooks**
 
-
-    from genn.model import GENN
-    from genn.data import load_csv
+    from genn import GENN
     import pickle
 
-    X_train, Y_train, J_train = load_csv(file='train_data.csv',
-                                         inputs=["X[0]", "X[1]"],
-                                         outputs=["Y[0]"],
-                                         partials=[["J[0][0]", "J[0][1]"]])
+    def synthetic_data(): 
+        f = lambda x: x * np.sin(x)
+        df_dx = lambda x: np.sin(x) + x * np.cos(x) 
 
-    X_test, Y_test, J_test = load_csv(file='test_data.csv',
-                                      inputs=["X[0]", "X[1]"],
-                                      outputs=["Y[0]"],
-                                      partials=[["J[0][0]", "J[0][1]"]])
+        # Domain 
+        lb = -np.pi
+        ub = np.pi
 
-    model = GENN.initialize(n_x=X_train.shape[0],
-                            n_y=Y_train.shape[0],
-                            deep=2,
-                            wide=12)
+        # Training data 
+        m = 4    # number of training examples
+        n_x = 1  # number of inputs
+        n_y = 1  # number of outputs
+        X_train = np.linspace(lb, ub, m).reshape((m, n_x))
+        Y_train = f(X_train).reshape((m, n_y))
+        J_train = df_dx(X_train).reshape((m, n_y, n_x))
 
-    model.train(X=X_train,
-                Y=Y_train,
-                J=J_train,
-                alpha=0.05,
-                lambd=0.10,
-                gamma=1.0,
-                beta1=0.90,
-                beta2=0.99,
-                mini_batch_size=64,
-                num_iterations=10,
-                num_epochs=100,
-                silent=True)
+        # Test data 
+        m = 30  # number of test examples
+        X_test = lb + np.random.rand(m, 1).reshape((m, n_x)) * (ub - lb)
+        Y_test = f(X_test).reshape((m, n_y))
+        J_test = df_dx(X_test).reshape((m, n_y, n_x))
 
-    model.plot_training_history()
-    model.print_training_history()
-    model.print_parameters()
+        return X_train, Y_train, J_train, X_test, Y_test, J_test
 
-    trained_parameters = model.parameters
-    scale_factors = model.scale_factors
+    # Generate synthetic data for this example 
+    X_train, Y_train, J_train, X_test, Y_test, J_test = synthetic_data() 
 
-    model.goodness_of_fit(X_test, Y_test)  # model.goodness_of_fit(X_test, Y_test, J_test, partial=1)
+    # Initialize model (gamma = 1 implies gradient enhancement)
+    model = GENN(hidden_layer_sizes=(12,), activation='tanh',
+                 num_epochs=1, max_iter=200, batch_size=None,
+                 learning_rate='backtracking', random_state=None, tol=1e-6,
+                 learning_rate_init=0.05, alpha=0.1, gamma=1, verbose=False)
 
-    Y_pred = model.evaluate(X_test)  # predict response
-    J_pred = model.gradient(X_test)  # predict jacobian
+    # Train neural net 
+    model.fit(X_train, Y_train, J_train) 
+
+    # Plot training history 
+    history = model.training_history(show_plot=True)
+
+    # Visualize fit quality 
+    model.goodness_fit(X_test, Y_test)
+
+    # Predict
+    Y_pred = model.predict(X_train)
+    J_pred = model.gradient(X_train)
 
     # Save as pkl file for re-use
-    output = open('trained_parameters.pkl', 'wb')
-    pickle.dump((trained_parameters, scale_factors), output)
-    output.close()
+    file = open('model.pkl', 'wb')
+    pickle.dump(model, file)
+    file.close()
 
     # Assume you are starting a new script and want to reload a previously trained model:
-    pkl_file = open('trained_parameters.pkl', 'rb')
-    trained_parameters, scale_factors = pickle.load(pkl_file)
+    pkl_file = open('model.pkl', 'rb')
+    model = pickle.load(pkl_file)
     pkl_file.close()
-    new_model = GENN.initialize().load_parameters(trained_parameters, scale_factors)  # new_model is now the same model
 
 ----
 
