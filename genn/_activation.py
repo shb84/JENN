@@ -5,7 +5,6 @@ Author: Steven H. Berguin <stevenberguin@gmail.com>
 
 This package is distributed under the MIT license.
 """
-
 from importlib.util import find_spec
 
 if find_spec("matplotlib"):
@@ -19,11 +18,17 @@ import numpy as np
 tensor = np.ndarray
 
 
-class Activation:
+class Singleton:
 
-    def __init__(self, **kwargs):
-        for name, value in kwargs.items():
-            setattr(self, name, value)
+    _instance = None
+
+    def __new__(cls):
+        if not cls._instance:
+            cls._instance = object.__new__(cls)
+        return cls._instance
+
+
+class Activation(Singleton):
 
     def evaluate(self, z):
         """
@@ -32,7 +37,7 @@ class Activation:
         :param z: a scalar or numpy array of any size
         :return: activation value at z
         """
-        pass
+        raise NotImplementedError
 
     def first_derivative(self, z):
         """
@@ -41,7 +46,7 @@ class Activation:
         :param z: a scalar or numpy array of any size
         :return: gradient at z
         """
-        pass
+        raise NotImplementedError
 
     def second_derivative(self, z):
         """
@@ -50,7 +55,7 @@ class Activation:
         :param z: a scalar or numpy array of any size
         :return: second derivative at z
         """
-        pass
+        raise NotImplementedError
 
 
 class Sigmoid(Activation):
@@ -116,6 +121,12 @@ class Linear(Activation):
 
     def second_derivative(self, z):
         return np.zeros(z.shape)
+
+
+ACTIVATIONS = {'identity': Linear(),
+               'tanh': Tanh(),
+               'logistic': Sigmoid(),
+               'relu': Relu()}
 
 
 if __name__ == "__main__":

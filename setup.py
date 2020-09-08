@@ -11,7 +11,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setuptools.setup(
     name="genn",
-    version="0.1.0",
+    version="0.1.1",
     author="Steven H. Berguin",
     author_email="stevenberguin@gmail.com",
     description="Gradient Enhanced Neural Network (genn)",
