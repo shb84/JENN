@@ -1,4 +1,4 @@
-from sklearn.neural_network.gradient_enhanced._model import GENN
+from genn._model import GENN
 import numpy as np
 
 
@@ -14,12 +14,12 @@ def test_L_model_backward():
     J = (2 * X).reshape((-1, 1, 1))
 
     model = GENN(hidden_layer_sizes=(3,), is_finite_difference=False,
-                 num_epochs=1, max_iter=10, alpha=0, gamma=0, seed=0)
+                 num_epochs=1, max_iter=10, alpha=0, gamma=0, random_state=0)
 
     model.fit(X.copy(), Y.copy(), J.copy())
 
     model_FD = GENN(hidden_layer_sizes=(3,), is_finite_difference=True,
-                 num_epochs=1, max_iter=10, alpha=0, gamma=0, seed=0)
+                 num_epochs=1, max_iter=10, alpha=0, gamma=0, random_state=0)
 
     model_FD.fit(X.copy(), Y.copy(), J.copy())
 

@@ -84,7 +84,7 @@ require Jupyter to be installed.
     history = model.training_history(show_plot=True)
 
     # Visualize fit quality 
-    model.goodness_fit(X_test, Y_test)
+    r_square = model.goodness_fit(X_test, Y_test)
 
     # Predict
     Y_pred = model.predict(X_train)
