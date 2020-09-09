@@ -104,7 +104,7 @@ def test_model_rastrigin(verbose=False, plot=False):
         ub = 1.5
 
         # Training Data
-        X_train = lb + (ub - lb) * lhs(2, samples=100, criterion='maximin',
+        X_train = lb + (ub - lb) * lhs(2, samples=50, criterion='maximin',
                                        iterations=100, random_state=5)
         Y_train, J_train = rastrigin(X_train)
 
@@ -114,7 +114,7 @@ def test_model_rastrigin(verbose=False, plot=False):
         Y_test, J_test = rastrigin(X_test)
 
         model = GENN(hidden_layer_sizes=(12, 2), activation='tanh',
-                     num_epochs=1, max_iter=2000, normalize=True,
+                     num_epochs=1, max_iter=200, normalize=True,
                      is_finite_difference=False,
                      learning_rate='backtracking', random_state=0, tol=1e-6,
                      learning_rate_init=0.05, alpha=0.01, gamma=1,
@@ -203,11 +203,11 @@ def test_sinusoid(verbose=False, plot=False, is_genn: bool = True):
 
 
 def run_tests():
-    test_model_rastrigin(verbose=False, plot=False)
-    test_sinusoid(verbose=False, plot=False, is_genn=True)
-    test_parameter_shape()
-    test_forward_prop()
-    test_model_parabola(verbose=False, plot=False)
+    test_model_rastrigin(verbose=True, plot=True)
+    # test_sinusoid(verbose=False, plot=False, is_genn=True)
+    # test_parameter_shape()
+    # test_forward_prop()
+    # test_model_parabola(verbose=False, plot=False)
 
     # import cProfile
     # cProfile.run('test_model(verbose=False)')

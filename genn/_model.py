@@ -28,7 +28,7 @@ class GENN:
                  solver: str = 'adam',
                  alpha: float = 0.0001,
                  gamma: int = 1,
-                 batch_size: int or str = 'auto',
+                 batch_size: int = None,
                  learning_rate: str = "constant",
                  learning_rate_init: float = 0.001,
                  num_epochs: int = 1,
@@ -269,11 +269,13 @@ class GENN:
             if X.shape[0] != Y.shape[0]:
                 raise ValueError(msg)
 
+        # Transpose
         X = X.T
         Y = Y.T
         if J is not None:
             J = J.T
 
+        # Normalize
         self._mu_x = np.array([[0]])
         self._sigma_x = np.array([[1]])
         self._mu_y = np.array([[0]])
@@ -354,8 +356,6 @@ class GENN:
             J = np.zeros((n_y, n_x, m))
 
         batch_size = self.batch_size
-        if self.batch_size == 'auto':
-            batch_size = min(200, m)
 
         for e in range(self.num_epochs):
             batches = mini_batches(X, batch_size, seed=self.random_state,
@@ -507,8 +507,8 @@ class GENN:
         Y_norm = L_model_forward(X_norm, self._W, self._b, self._a,
                                  store_cache=False)
 
-        Y = (self._sigma_y + EPS) * Y_norm + self._mu_y
-        return Y.T
+        Y = (self._sigma_y + EPS) * Y_norm.T + self._mu_y
+        return Y
 
     def gradient(self, X: np.ndarray):
         """
@@ -544,7 +544,10 @@ class GENN:
         J_norm = L_grads_forward(X_norm, self._W, self._b, self._a,
                                  store_cache=False)
 
-        J = J_norm * self._sigma_y / self._sigma_x
+        J = np.zeros(J_norm.shape)
+        for i in range(0, self._n_y):
+            for j in range(0, self._n_x):
+                J[i, j] = J_norm[i, j] * self._sigma_y[i] / self._sigma_x[j]
 
         return J.T
 

@@ -115,13 +115,14 @@ def cost(W: List[np.ndarray], b: List[np.ndarray], a: List[str],
         db = d(cost)/db = derivative of cost w.r.t. neural net biases
 
     """
+
     # Predict
     Y_pred, caches = L_model_forward(X, W, b, a)
     J_pred, J_caches = L_grads_forward(X, W, b, a)
 
     # Cost function
     c = 0
-    c = c + squared_loss(Y_pred, Y)
+    c = c + squared_loss(Y, Y_pred)
     c = c + regularization(W, X.shape[1], lambd)
     if J is not None:
         c = c + gradient_enhancement(J_pred, J, gamma)
