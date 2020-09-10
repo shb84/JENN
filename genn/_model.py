@@ -507,8 +507,8 @@ class GENN:
         Y_norm = L_model_forward(X_norm, self._W, self._b, self._a,
                                  store_cache=False)
 
-        Y = (self._sigma_y + EPS) * Y_norm.T + self._mu_y
-        return Y
+        Y = (self._sigma_y + EPS) * Y_norm + self._mu_y
+        return Y.T
 
     def gradient(self, X: np.ndarray):
         """
@@ -554,19 +554,22 @@ class GENN:
     def goodness_fit(self, x: np.ndarray, y_true: np.ndarray,
                      show_plot: bool = True, title: str = None,
                      legend: str = None) -> float:
+        # TODO: this method seems to hang if user provides wrong shape, but
+        #       no message is generated to say what this issue was
         y_pred = self.predict(x)
         if show_plot:
             goodness_of_fit(y_pred, y_true, title, legend)
         return rsquare(y_pred, y_true)
 
-    def training_history(self, show_plot: bool = False):
+    def training_history(self, show_plot: bool = False,
+                         title: str = 'Training History'):
 
         if not MATPLOTLIB_INSTALLED and show_plot:
             raise ImportError("Matplotlib must be installed.")
 
         if not self.training_history:
             return None
-
+        # TODO: this doesn't work for epochs > 1 or batches > 1
         if show_plot:
             epochs = list(self._cost_history.keys())
             if len(epochs) > 1:
@@ -593,5 +596,6 @@ class GENN:
                 plt.plot(np.arange(cost.size), cost)
                 plt.xlabel('iteration')
                 plt.ylabel('cost')
+            plt.title(title)
 
         return self._cost_history
