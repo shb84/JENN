@@ -8,9 +8,6 @@ This package is distributed under the MIT license.
 import numpy as np
 from typing import List
 
-from ._fwd_prop import L_model_forward, L_grads_forward
-from ._bwd_prop import L_model_backward
-
 
 def regularization(w: List[np.ndarray], m: int, alpha: float = 0.) -> np.float:
     """
@@ -89,48 +86,3 @@ def squared_loss(y_true: np.ndarray, y_pred: np.ndarray) -> np.float:
 
     return 1. / m * cost
 
-
-def cost(W: List[np.ndarray], b: List[np.ndarray], a: List[str],
-         X: np.ndarray, Y: np.ndarray, J: np.ndarray = None,
-         lambd: float = 0, gamma: float = 0, is_grad: bool = True):
-    """
-    
-    Parameters
-    ----------
-    W: List[np.ndarray]
-    b: List[np.ndarray]
-    a: List[str]
-    X: np.ndarray
-    Y: np.ndarray
-    J: np.ndarray
-    lambd: float
-    gamma: float
-    is_grad: bool
-
-    Return
-    ------
-    c, dW, db : Tuple[np.float, np.ndarray, np.ndarray]
-        c = cost
-        dW = d(cost)/dW = derivative of cost w.r.t. neural net weights
-        db = d(cost)/db = derivative of cost w.r.t. neural net biases
-
-    """
-
-    # Predict
-    Y_pred, caches = L_model_forward(X, W, b, a)
-    J_pred, J_caches = L_grads_forward(X, W, b, a)
-
-    # Cost function
-    c = 0
-    c = c + squared_loss(Y, Y_pred)
-    c = c + regularization(W, X.shape[1], lambd)
-    if J is not None:
-        c = c + gradient_enhancement(J_pred, J, gamma)
-
-    # Cost function gradient
-    dW = []
-    db = []
-    if is_grad:
-        dW, db = L_model_backward(Y_pred, Y, caches,
-                                  J_pred, J, J_caches, lambd, gamma)
-    return c, dW, db

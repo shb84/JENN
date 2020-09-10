@@ -8,7 +8,7 @@ def linear(x: List[np.ndarray], a: float = 1, b: float = 0,
     x = x[0]
     y = a * np.sum(x) + b
     y = y.reshape(1, 1)
-    dydx = np.array([a] * x.ndim).reshape(1, x.ndim)
+    dydx = np.array([a] * x.ndim).reshape(x.shape)
     return y, [dydx]
 
 
@@ -17,7 +17,7 @@ def parabola(x: List[np.ndarray], x0: float = 0
     x = x[0]
     y = (x - x0) ** 2
     y = y.reshape(1, 1)
-    dydx = (2 * (x - x0)).reshape(1, -1)
+    dydx = (2 * (x - x0)).reshape(x.shape)
     return y, [dydx]
 
 
@@ -26,7 +26,7 @@ def rosenbrock(x: List[np.ndarray]) -> Tuple[np.ndarray, List[np.ndarray]]:
     x2 = x[0][1]
     y = (1 - x1) ** 2 + 100 * (x2 - x1 ** 2) ** 2
     y = y.reshape(1, 1)
-    dydx = np.zeros((2, 1))
+    dydx = np.zeros(x[0].shape)
     dydx[0] = -2 * (1 - x1) - 400 * x1 * (x2 - x1 ** 2)
     dydx[1] = 200 * (x2 - x1 ** 2)
     return y, [dydx]

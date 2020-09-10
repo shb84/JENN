@@ -22,7 +22,7 @@ EPS = np.finfo(float).eps  # small number to avoid division by zero
 
 
 def mini_batches(X: np.ndarray, batch_size: int,
-                 shuffle: bool = True, seed: int = None) -> list:
+                 shuffle: bool = True, random_state: int = None) -> list:
     """
     Create randomized mini-batches by returning a list of tuples, where
     each tuple contains the indices of the training data points associated with
@@ -41,7 +41,7 @@ def mini_batches(X: np.ndarray, batch_size: int,
             Shuffle data points
             Default = True 
             
-        seed: int 
+        random_state: int 
             Random seed (set to make runs repeatable)
             Default = None  
 
@@ -52,7 +52,7 @@ def mini_batches(X: np.ndarray, batch_size: int,
             is in the interval [1, m]
     """
 
-    np.random.seed(seed)
+    np.random.seed(random_state)
 
     batches = []
     m = X.shape[1]
@@ -252,76 +252,125 @@ def goodness_of_fit(y_pred: np.ndarray, y_true: np.ndarray,
     plt.show()
 
 
-def normalize_data(X: np.ndarray,
-                   Y: np.ndarray,
-                   J: np.ndarray = None) -> tuple:
-    """
-    Normalize training data to help with optimization,
-        i.e. X_norm = (X - mu_x) / sigma_x where X is as below
-             Y_norm = (Y - mu_y) / sigma_y where Y is as below
-             J_norm = J * sigma_x/sigma_y
+class DataConverter:
+    """ Helper class to normalize and denormalize data """
 
-    Concretely, normalizing training data is essential because the neural
-    learns by minimizing a cost function. Normalizing the data therefore
-    rescales the problem in a way that aides the optimizer.
+    def X(self, X_norm: np.ndarray):
+        """
+        Return denormalized inputs: X = X_norm * sigma_x + mu_x
+
+        Parameters
+        ----------
+        X_norm: np.ndarray
+            Normalized input, shape (n_x, m) where n_x = no. of inputs
+                                                   m = no. of training examples
+        """
+        return X_norm * self._sigma_x + self._mu_x
+
+    def Y(self, Y_norm: np.ndarray):
+        """
+        Return denormalized outputs: Y = Y_norm * sigma_y + mu_y
+
+        Parameters
+        ----------
+        Y_norm: np.ndarray
+            Normalized output, shape (n_y, m) where n_y = no. of outputs
+                                                   m = no. of training examples
+        """
+        return Y_norm * self._sigma_y + self._mu_y
+
+    def J(self, J_norm: np.ndarray):
+        """
+        Return denormalized Jacobian: J_norm = J_norm * sigma_y / sigma_x
+
+        Parameters
+        ----------
+        J_norm: np.ndarray
+            Normalized Jacobian, shape (n_y, n_x, m) where
+                                                   n_y = no. of outputs
+                                                   n_x = no. of inputs
+                                                   m = no. of training examples
+        """
+        n_x = J_norm.shape[1]
+        return J_norm * self._sigma_y / self._sigma_x.T.reshape(1, n_x, 1)
+
+    def X_norm(self, X: np.ndarray):
+        """
+        Return normalized inputs: X_norm = (X - mu_x) / sigma_y
+
+        Parameters
+        ----------
+        X: np.ndarray
+            Input, shape (n_x, m) where n_x = no. of inputs
+                                        m = no. of training examples
+        """
+        return (X - self._mu_x) / self._sigma_x
+
+    def Y_norm(self, Y: np.ndarray):
+        """
+        Return normalized outputs: Y_norm = (Y - mu_y) / sigma_y
+
+        Parameters
+        ----------
+        Y: np.ndarray
+            Output, shape (n_y, m) where n_y = no. of outputs
+                                         m = no. of training examples
+        """
+        return (Y - self._mu_y) / self._sigma_y
+
+    def J_norm(self, J: np.ndarray):
+        """
+        Return normalized Jacobian: J_norm = J * sigma_x / sigma_y
+
+        Parameters
+        ----------
+        J: np.ndarray
+            Jacobian, shape (n_y, n_x, m) where    n_y = no. of outputs
+                                                   n_x = no. of inputs
+                                                   m = no. of training examples
+        """
+        if J is not None:
+            n_x = J.shape[1]
+            return J * self._sigma_x.T.reshape(1, n_x, 1) / self._sigma_y
+
+    def __init__(self,
+                 mu_x: np.ndarray, sigma_x: np.ndarray,
+                 mu_y: np.ndarray, sigma_y: np.ndarray):
+        """
+        X_norm = (X - mu_x) / sigma_y
+        Y_norm = (Y - mu_y) / sigma_y
+
+        Parameters
+        ----------
+        mu_x: np.ndarray
+            Array of shape (n_x, 1) where n_x = no. of inputs
+
+        mu_y: np.ndarray
+            Array of shape (n_y, 1) where n_y = no. of outputs
+
+        sigma_x: np.ndarray
+            Array of shape (n_x, 1) where n_x = no. of inputs
+
+        sigma_y: np.ndarray
+            Array of shape (n_y, 1) where n_y = no. of outputs
+        """
+        self._mu_x = mu_x
+        self._mu_y = mu_y
+        self._sigma_x = sigma_x
+        self._sigma_y = sigma_y
+
+
+def scale_factor(array: np.ndarray) -> tuple:
+    """
+    Find mu and sigma such that X_norm = (X - mu) / sigma
 
     Parameters
     ----------
-    X: np.ndarray
-        Input features of shape (n_x, m) where n_x = no. of inputs
-                                               m = no. of training examples
-
-    Y: np.ndarray
-        Output labels of shape (n_y, m) where n_y = no. of outputs
-
-    J: np.ndarray
-        Jacobian of shape (n_y, n_x, m) representing the partials of Y w.r.t. X
-            dY1/dX1 = J[0][0]
-            dY1/dX2 = J[0][1]
-            ...
-            dY2/dX1 = J[1][0]
-            dY2/dX2 = J[1][1]
-            ...
-            N.B. To retrieve the i^th example for dY2/dX1: J[1][0][i]
-                 for all i = 1,...,m
-
-    Returns
-    -------
-        X_norm, Y_norm, J_norm, mu_x, sigma_x, mu_y, sigma_y: tuple
-            Normalized data and associated scale factors
+    array: np.ndarray
+        Input features of shape (n, m) where n = dimensionality
+                                             m = number of examples
     """
-    # Initialize
-    X_norm = np.zeros(X.shape)
-    Y_norm = np.zeros(Y.shape)
-    if J is not None:
-        J_norm = np.zeros(J.shape)
-    else:
-        J_norm = None
+    mu = np.mean(array, axis=1).reshape((-1, 1))
+    sigma = np.std(array, axis=1).reshape((-1, 1))
+    return mu, sigma
 
-    # Dimensions
-    n_x, m = X.shape
-    n_y, _ = Y.shape
-
-    # Normalize inputs
-    mu_x = np.zeros((n_x, 1))
-    sigma_x = np.ones((n_x, 1))
-    for i in range(0, n_x):
-        mu_x[i] = np.mean(X[i])
-        sigma_x[i] = np.std(X[i])
-        X_norm[i] = (X[i] - mu_x[i]) / sigma_x[i]
-
-    # Normalize outputs
-    mu_y = np.zeros((n_y, 1))
-    sigma_y = np.ones((n_y, 1))
-    for i in range(0, n_y):
-        mu_y[i] = np.mean(Y[i])
-        sigma_y[i] = np.std(Y[i])
-        Y_norm[i] = (Y[i] - mu_y[i]) / sigma_y[i]
-
-    # Normalize partials
-    if J is not None:
-        for i in range(0, n_y):
-            for j in range(0, n_x):
-                J_norm[i, j] = J[i, j] * sigma_x[j] / sigma_y[i]
-
-    return X_norm, Y_norm, J_norm, mu_x, sigma_x, mu_y, sigma_y

@@ -1,4 +1,5 @@
 from genn._model import GENN
+from genn._utils import rsquare
 import numpy as np
 
 from importlib.util import find_spec
@@ -41,7 +42,7 @@ def test_forward_prop():
     assert np.allclose(y_pred, y_true)
 
     # Partials
-    dydx_pred = model.gradient(X).ravel()
+    dydx_pred = model.jacobian(X).ravel()
     dydx_true = np.array([4, 4, 4, 4])
     assert np.allclose(dydx_pred, dydx_true)
 
@@ -66,7 +67,7 @@ def test_parameter_shape():
     assert model._b[2].shape == (1, 1)
 
 
-def test_model_parabola(verbose=False, plot=False):
+def test_model_parabola(verbose=False, show_plot=False):
     """
     Very simple test: fit a parabola. This test ensures that
     the model mechanics are working.
@@ -78,22 +79,24 @@ def test_model_parabola(verbose=False, plot=False):
 
     # Basic neural net (no gradient-enhancement)
     model = GENN(hidden_layer_sizes=(3, 3), activation='tanh',
-                 num_epochs=1, max_iter=1000, normalize=True,
+                 num_epochs=1, max_iter=1000,
                  learning_rate_init=0.05, alpha=0.01, gamma=0, verbose=verbose)
     model.fit(X, Y, J)
-    r_square = model.goodness_fit(X, Y, show_plot=plot, title='NN')
-    assert r_square > 0.99
+    if show_plot:
+        model.goodness_fit(X, Y, title='NN')
+    assert rsquare(Y, model.predict(X)) > 0.99
 
     # Gradient-enhanced neural net
     model = GENN(hidden_layer_sizes=(3, 3), activation='tanh',
-                 num_epochs=1, max_iter=1000, normalize=True,
+                 num_epochs=1, max_iter=1000,
                  learning_rate_init=0.05, alpha=0.01, gamma=1, verbose=verbose)
     model.fit(X, Y, J)
-    r_square = model.goodness_fit(X, Y, show_plot=plot, title='GENN')
-    assert r_square > 0.99
+    if show_plot:
+        model.goodness_fit(X, Y, title='GENN')
+    assert rsquare(Y, model.predict(X)) > 0.99
 
 
-def test_model_rastrigin(verbose=False, plot=False):
+def test_model_rastrigin(verbose=False, show_plot=False):
     """ Test GENN on the rastrigin function (egg-crate looking function) """
 
     if not PYDOE2_INSTALLED:
@@ -104,8 +107,8 @@ def test_model_rastrigin(verbose=False, plot=False):
         ub = 1.5
 
         # Training Data
-        X_train = lb + (ub - lb) * lhs(2, samples=50, criterion='maximin',
-                                       iterations=100, random_state=5)
+        X_train = lb + (ub - lb) * lhs(2, samples=100, criterion='maximin',
+                                       iterations=100, random_state=0)
         Y_train, J_train = rastrigin(X_train)
 
         # Test Data
@@ -113,28 +116,30 @@ def test_model_rastrigin(verbose=False, plot=False):
         X_test = fullfact([levels] * 2) / (levels - 1) * (ub - lb) + lb
         Y_test, J_test = rastrigin(X_test)
 
-        model = GENN(hidden_layer_sizes=(12, 2), activation='tanh',
-                     num_epochs=1, max_iter=200, normalize=True,
-                     is_finite_difference=False,
-                     learning_rate='backtracking', random_state=0, tol=1e-6,
-                     learning_rate_init=0.05, alpha=0.01, gamma=1,
+        # Train
+        model = GENN(hidden_layer_sizes=[12] * 2, activation='tanh',
+                     num_epochs=1, max_iter=1000,
+                     is_finite_difference=False, solver='adam',
+                     learning_rate='constant', random_state=0, tol=1e-6,
+                     learning_rate_init=0.01, alpha=0, gamma=1,
                      verbose=verbose)
 
-        model.fit(X_train, Y_train, J_train)
+        model.fit(X_train, Y_train, J_train, is_normalize=True)
 
-        r_square = model.goodness_fit(X_train, Y_train, show_plot=plot)
-        assert r_square > 0.95
+        if show_plot:
+            model.goodness_fit(X_train, Y_train)
+            model.goodness_fit(X_test, Y_test)
 
-        r_square = model.goodness_fit(X_test, Y_test, show_plot=plot)
-        assert r_square > 0.95
+        assert rsquare(Y_train, model.predict(X_train)) > 0.95
+        assert rsquare(Y_test, model.predict(X_test)) > 0.95
 
 
-def test_sinusoid(verbose=False, plot=False, is_genn: bool = True):
+def test_sinusoid(verbose=False, show_plot=False, is_genn: bool = True):
     """
     Test GENN on simple sinusoid with very few points. Whereas regular NN
     will inevitably fail to provide a good fit, only GENN will succeed.
     """
-    if plot and not MATPLOTLIB_INSTALLED:
+    if show_plot and not MATPLOTLIB_INSTALLED:
         raise ImportError("Matplotlib must be installed.")
 
     # Test function
@@ -164,7 +169,7 @@ def test_sinusoid(verbose=False, plot=False, is_genn: bool = True):
 
     # Initialize model
     model = GENN(hidden_layer_sizes=(12,), activation='tanh',
-                 num_epochs=1, max_iter=1000, normalize=False,
+                 num_epochs=1, max_iter=1000,
                  is_finite_difference=False,
                  learning_rate='backtracking', random_state=None, tol=1e-6,
                  learning_rate_init=0.05, alpha=0.1, gamma=int(is_genn),
@@ -173,7 +178,12 @@ def test_sinusoid(verbose=False, plot=False, is_genn: bool = True):
     # Train model
     model.fit(X_train, Y_train, J_train)
 
-    if plot:
+    # Predictions
+    X = np.linspace(lb, ub, 100).reshape((100, n_x))
+    Y_true = f(X)
+    Y_pred = model.predict(X)
+
+    if show_plot:
 
         if is_genn:
             title = 'GENN'
@@ -181,12 +191,7 @@ def test_sinusoid(verbose=False, plot=False, is_genn: bool = True):
             title = 'NN'
 
         # Plot goodness of fit
-        model.goodness_fit(X_test, Y_test, show_plot=plot)
-
-        # Predictions
-        X = np.linspace(lb, ub, 100).reshape((100, n_x))
-        Y_true = f(X)
-        Y_pred = model.predict(X)
+        model.goodness_fit(X_test, Y_test)
 
         # Plot actual function
         fig, ax = plt.subplots()
@@ -198,19 +203,15 @@ def test_sinusoid(verbose=False, plot=False, is_genn: bool = True):
         ax.legend(['Predicted', 'True', 'Test', 'Train'])
         plt.show()
 
-    r_square = model.goodness_fit(X_test, Y_test, show_plot=False)
-    assert r_square > 0.95
+    assert rsquare(Y_true, Y_pred) > 0.95
 
 
 def run_tests():
-    test_model_rastrigin(verbose=True, plot=True)
-    # test_sinusoid(verbose=False, plot=False, is_genn=True)
-    # test_parameter_shape()
-    # test_forward_prop()
-    # test_model_parabola(verbose=False, plot=False)
-
-    # import cProfile
-    # cProfile.run('test_model(verbose=False)')
+    test_forward_prop()
+    test_sinusoid(verbose=False, show_plot=False, is_genn=True)
+    test_parameter_shape()
+    test_model_parabola(verbose=False, show_plot=False)
+    test_model_rastrigin(verbose=False, show_plot=False)
 
 
 if __name__ == "__main__":
