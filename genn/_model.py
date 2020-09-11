@@ -308,6 +308,7 @@ class GENNBase:
 
         if J is None:
             J = np.zeros((n_y, n_x, m))
+            self.gamma = 0  # Make sure gradient-enhancement is off if J = None
 
         for e in range(self.num_epochs):
             batches = mini_batches(X, self.batch_size,
@@ -502,11 +503,11 @@ class GENN(GENNBase):
             raise ImportError("Matplotlib must be installed.")
 
         if self._n_x != X.shape[1]:
-            raise ValueError(f'X.shape[0] = {X.shape[0]} '
+            raise ValueError(f'X.shape[1] = {X.shape[1]} '
                              f'but expected {self._n_x}')
 
         if self._n_y != Y_true.shape[1]:
-            raise ValueError(f'Y_true.shape[0] = {Y_true.shape[0]} '
+            raise ValueError(f'Y_true.shape[1] = {Y_true.shape[1]} '
                              f'but expected {self._n_y}')
 
         Y_pred = self.predict(X)
