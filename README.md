@@ -30,10 +30,10 @@ Install from git repo:
 
      pip install git+https://github.com/shb84/GENN.git#egg=genn
 
-The algorithm was written in Python 3 and requires only numpy. However, 
-for plotting, Matplotlib is required. In addition, some examples 
+The core algorithm was written in Python 3 and requires only numpy. However, 
+for plotting, Matplotlib is also required, while some examples 
 depend on pyDOE2 (for generating synthetic data) and the notebooks 
-require Jupyter to be installed. 
+require Jupyter. 
 
 ----
 
@@ -81,14 +81,14 @@ require Jupyter to be installed.
     model.fit(X_train, Y_train, J_train) 
 
     # Plot training history 
-    history = model.training_history(show_plot=True)
+    history = model.training_history()
 
     # Visualize fit quality 
     r_square = model.goodness_fit(X_test, Y_test)
 
     # Predict
     Y_pred = model.predict(X_train)
-    J_pred = model.gradient(X_train)
+    J_pred = model.jacobian(X_train)
 
     # Save as pkl file for re-use
     file = open('model.pkl', 'wb')
@@ -104,20 +104,18 @@ require Jupyter to be installed.
 
 # Limitations
 
-Gradient-enhanced methods only apply to the special use-case of computer aided
-design, where data is synthetically generated using physics-based computer
-models, responses are continuous, and their gradient is defined. Furthermore,
-gradient enhancement is only beneficial when the cost of obtaining the gradient
-is not excessive in the first place. This is often true in computer-aided design
-with the advent of adjoint design methods for example, but it is not always the
-case. The user should therefore carefully weigh the benefit of gradient-enhanced
-methods depending on the application.
+Gradient-enhanced methods requires responses to continuous and smooth (_i.e._ gradient is 
+defined everywhere). Furthermore, gradient enhancement is only beneficial when 
+the cost of obtaining the gradient is not excessive in the first place or the need 
+for accuracy outweighs the cost of computing partials, which is often the case 
+in computer-aided design. The user should therefore carefully weigh the benefit 
+of gradient-enhanced methods depending on the application.
 
 ----
 
 # Use Case
 
-GENN is unlikely to apply to real data application since real data is usually
+GENN is unlikely to apply to real-world data since real data is usually
 discrete, incomplete, and gradients are not available. However, in the field of
 computer aided design, there exist a well known use case: the need to replace
 computationally expensive computer models with so-called “surrogate models” in
@@ -130,7 +128,12 @@ data to train a “surrogate model” (such as GENN). Since the “surrogate mod
 emulates the original physics-based model accurately in real time, it offers a
 speed benefit that can be used to carry out additional analysis such as
 uncertainty quantification by means of Monte Carlo simulation, which would’ve
-been computationally inefficient otherwise.
+been computationally inefficient otherwise. Moreover, in the very special case
+of computational fluid dynamics, adjoint design methods provide a scalable and 
+efficient way to compute the gradient, making gradient-enhanced methods 
+attractive (if not compelling). Otherwise, the cost of generating the gradient 
+will have to be weighed against the benefit of improved accuracy depending on 
+the needs of the application. 
 
 ----
 
