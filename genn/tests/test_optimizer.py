@@ -91,7 +91,7 @@ def test_optimization(alpha: float = 0.05, max_iter: int = 1000,
 
     # Close to optimum, the slope is nearly zero and the optimizer really
     # struggles to get to the exact optimum. +/- 0.2 is actually very close
-    # to optimality. Turn on the contour plots to see. 
+    # to optimality. Turn on the contour plots to see.
     assert np.allclose(xf[0][0], 1.0, atol=0.2)
     assert np.allclose(xf[0][1], 1.0, atol=0.2)
 

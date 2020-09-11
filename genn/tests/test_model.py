@@ -207,11 +207,11 @@ def test_sinusoid(verbose=False, show_plot=False, is_genn: bool = True):
 
 
 def run_tests():
-    test_forward_prop()
-    test_sinusoid(verbose=False, show_plot=False, is_genn=True)
-    test_parameter_shape()
-    test_model_parabola(verbose=False, show_plot=False)
-    test_model_rastrigin(verbose=False, show_plot=False)
+    # test_forward_prop()
+    # test_sinusoid(verbose=False, show_plot=False, is_genn=True)
+    # test_parameter_shape()
+    # test_model_parabola(verbose=False, show_plot=False)
+    test_model_rastrigin(verbose=True, show_plot=False)
 
 
 if __name__ == "__main__":

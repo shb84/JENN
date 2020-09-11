@@ -54,6 +54,8 @@ def gradient_enhancement(dy_true: np.ndarray, dy_pred: np.ndarray,
     -------
         loss: np.ndarray of shape (1,)
     """
+    if gamma == 0:
+        return 0
     n_y, n_x, m = dy_pred.shape  # number of outputs, inputs, training examples
     loss = 0.
     gamma = max(0., gamma)  # ensure 0 < gamma
@@ -61,9 +63,9 @@ def gradient_enhancement(dy_true: np.ndarray, dy_pred: np.ndarray,
         for j in range(0, n_x):
             dy_j_pred = dy_pred[k, j, :].reshape(1, m)
             dy_j_true = dy_true[k, j, :].reshape(1, m)
-            loss += np.squeeze(0.5 * gamma * np.dot((dy_j_pred - dy_j_true),
-                                                    (dy_j_pred - dy_j_true).T))
-    return 1. / m * np.float(loss)
+            loss += np.squeeze(np.dot((dy_j_pred - dy_j_true),
+                                      (dy_j_pred - dy_j_true).T))
+    return 0.5 * gamma / m * np.float(loss)
 
 
 def squared_loss(y_true: np.ndarray, y_pred: np.ndarray) -> np.float:

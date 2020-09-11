@@ -19,6 +19,14 @@ contribute.
 
 ----
 
+# Main Features
+
+* Multi-Task Learning : predict more many outputs with same model Y = f(X) where Y = [y1, y2, ...]
+* Jacobian prediction : analytically compute the Jacobian (_i.e._ forward propagation of dY/dX)
+* Gradient-Enhancement: minimize prediction error of partials during training (_i.e._ back-prop uses dY/dX)
+
+----
+
 # Installation
 
 Setup new conda environment (optional): 
