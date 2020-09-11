@@ -141,8 +141,8 @@ the needs of the application.
 
 This code used the code by Prof. Andrew Ng in the
 [Coursera Deep Learning Specialization](https://www.coursera.org/specializations/deep-learning)
-as a starting point. In then built upon it to include additional features such
-as line search and some others, but most of all, it was modified to include a
+as a starting point. It then built upon it to include additional features such
+as line search, plotting and others, but most of all, it was modified to include a
 gradient-enhanced formulation. The author would like to thank Andrew Ng for
 offering the fundamentals of deep learning on Coursera, which took a complicated
-subject and explained it in simple terms that made it accessible to laymen.
+subject and explained it in simple terms that made it accessible to laymen, such as the present author.
