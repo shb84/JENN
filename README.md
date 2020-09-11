@@ -104,12 +104,11 @@ require Jupyter.
 
 # Limitations
 
-Gradient-enhanced methods requires responses to continuous and smooth (_i.e._ gradient is 
-defined everywhere). Furthermore, gradient enhancement is only beneficial when 
-the cost of obtaining the gradient is not excessive in the first place or the need 
-for accuracy outweighs the cost of computing partials, which is often the case 
-in computer-aided design. The user should therefore carefully weigh the benefit 
-of gradient-enhanced methods depending on the application.
+Gradient-enhanced methods requires responses to be continuous and smooth (_i.e._ gradient is 
+defined everywhere), but is only beneficial when  the cost of obtaining the gradient 
+is not excessive in the first place or the need for accuracy outweighs the cost of 
+computing partials. The user should therefore carefully weigh the benefit of 
+gradient-enhanced methods relative to the needs of the application.
 
 ----
 
