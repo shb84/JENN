@@ -527,17 +527,18 @@ class GENN(GENNBase):
         if not self.training_history:
             return None
 
-        # TODO: this doesn't work for epochs > 1 or batches > 1
         epochs = list(self._cost_history.keys())
         if len(epochs) > 1:
-            avg_cost = []
+            avg_costs = []
             for epoch in epochs:
                 batches = self._cost_history[epoch].keys()
-                costs = []
+                avg_batch_costs = []
                 for batch in batches:
-                    costs.append(self._cost_history[epoch][batch].mean())
-                avg_cost.extend(sum(costs) / len(batches))
-            plt.plot(range(len(epochs)), avg_cost)
+                    avg_batch_cost = self._cost_history[epoch][batch].mean()
+                    avg_batch_costs.append(avg_batch_cost)
+                avg_cost = sum(avg_batch_costs) / len(batches)
+                avg_costs.append(avg_cost)
+            plt.plot(range(len(epochs)), avg_costs)
             plt.xlabel('epoch')
             plt.ylabel('avg cost')
         elif len(self._cost_history['epoch_0']) > 1:

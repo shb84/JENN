@@ -70,14 +70,16 @@ def mini_batches(X: np.ndarray, batch_size: int,
     num_complete_minibatches = int(math.floor(m / batch_size))
     k = 0
     for _ in range(num_complete_minibatches):
-        batch = indices[k * batch_size:(k + 1) * batch_size]
-        batches.append(tuple(batch))
+        mini_batch = indices[k * batch_size:(k + 1) * batch_size]
+        if mini_batch
+            batches.append(tuple(mini_batch))
         k += 1
 
     # Handling the end case (last mini-batch < mini_batch_size)
     if m % batch_size != 0:
         mini_batch = indices[(k + 1) * batch_size:]
-        batches.append(tuple(mini_batch))
+        if mini_batch:
+            batches.append(tuple(mini_batch))
 
     return batches
 
