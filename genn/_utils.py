@@ -293,8 +293,10 @@ class DataConverter:
                                                    n_x = no. of inputs
                                                    m = no. of training examples
         """
-        n_x = J_norm.shape[1]
-        return J_norm * self._sigma_y / self._sigma_x.T.reshape(1, n_x, 1)
+        n_y, n_x, _ = J_norm.shape
+        sigma_x = self._sigma_x.T.reshape((1, n_x, 1))
+        sigma_y = self._sigma_y.reshape((n_y, 1, 1))
+        return J_norm * sigma_y / sigma_x
 
     def X_norm(self, X: np.ndarray):
         """
@@ -332,8 +334,10 @@ class DataConverter:
                                                    m = no. of training examples
         """
         if J is not None:
-            n_x = J.shape[1]
-            return J * self._sigma_x.T.reshape(1, n_x, 1) / self._sigma_y
+            n_y, n_x, _ = J.shape
+            sigma_x = self._sigma_x.T.reshape((1, n_x, 1))
+            sigma_y = self._sigma_y.reshape((n_y, 1, 1))
+            return J * sigma_x / sigma_y
 
     def __init__(self,
                  mu_x: np.ndarray, sigma_x: np.ndarray,
