@@ -71,7 +71,7 @@ def mini_batches(X: np.ndarray, batch_size: int,
     k = 0
     for _ in range(num_complete_minibatches):
         mini_batch = indices[k * batch_size:(k + 1) * batch_size]
-        if mini_batch
+        if mini_batch:
             batches.append(tuple(mini_batch))
         k += 1
 
