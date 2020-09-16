@@ -438,9 +438,6 @@ def L_grads_forward(X: np.ndarray, W: List[np.ndarray], b: List[np.ndarray],
         # Store partial
         JL[:, j, :] = A_prime_j
 
-    if m == 1:
-        JL = JL[:, :, 0]
-
     if store_cache:
         return JL, J_caches
     return JL
