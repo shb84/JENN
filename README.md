@@ -25,7 +25,7 @@ theory and [jupyter notebook examples](https://github.com/shb84/JENN/tree/master
 
 Jacobian-Enhanced Neural Net            |  Standard Neural Net
 :-------------------------:|:-------------------------:
-![](pics/JENN.png)  |  ![](pics/NN.png)
+![](https://github.com/shb84/JENN/blob/master/pics/JENN.png)  |  ![](https://github.com/shb84/JENN/blob/master/pics/NN.png)
 
 > NOTE: this project was originally called GENN, but was renamed since a pypi package of that name already exists.
 
