@@ -1,7 +1,14 @@
+"""
+J A C O B I A N - E N H A N C E D   N E U R A L   N E T W O R K S  (J E N N)
+
+Author: Steven H. Berguin <stevenberguin@gmail.com>
+
+This package is distributed under the MIT license.
+"""
+
 import numpy as np
 from collections import defaultdict
 from typing import Tuple, Union, List
-
 from ._fwd_prop import L_model_forward, L_grads_forward
 from ._bwd_prop import L_model_backward
 from ._utils import (mini_batches, grad_check, finite_diff, goodness_of_fit,
@@ -384,7 +391,7 @@ class GENNBase:
         self._cost_history = cost_history
 
 
-class GENN(GENNBase):
+class JENN(GENNBase):
 
     def __init__(self, *args, **kwargs):
         self._data_converter = None
@@ -487,7 +494,8 @@ class GENN(GENNBase):
         return J.T  # The algorithm returns J.shape = (n_y, n_x, m)
 
     def goodness_fit(self, X: np.ndarray, Y_true: np.ndarray,
-                     title: str = None, legend: str = None):
+                     title: str = None, legend: str = None,
+                     show_error: bool = True):
         """
         Plot goodness of fit
 
@@ -512,12 +520,16 @@ class GENN(GENNBase):
 
         Y_pred = self.predict(X)
 
+        figs = []
         for i in range(self._n_y):
             y_pred = Y_pred[:, i].ravel()
             y_true = Y_true[:, i].ravel()
             if title is None:
                 title = f'Goodness of Fit: Y[{i}]'
-            goodness_of_fit(y_pred, y_true, title, legend)
+            fig = goodness_of_fit(y_pred, y_true, title, legend, show_error)
+            figs.append(fig)
+
+        return figs
 
     def training_history(self, title: str = 'Training History'):
 

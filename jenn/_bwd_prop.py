@@ -1,3 +1,11 @@
+"""
+J A C O B I A N - E N H A N C E D   N E U R A L   N E T W O R K S  (J E N N)
+
+Author: Steven H. Berguin <stevenberguin@gmail.com>
+
+This package is distributed under the MIT license.
+"""
+
 from ._activation import ACTIVATIONS
 
 import numpy as np

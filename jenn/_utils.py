@@ -1,10 +1,11 @@
 """
-G R A D I E N T - E N H A N C E D   N E U R A L   N E T W O R K S  (G E N N)
+J A C O B I A N - E N H A N C E D   N E U R A L   N E T W O R K S  (J E N N)
 
 Author: Steven H. Berguin <stevenberguin@gmail.com>
 
 This package is distributed under the MIT license.
 """
+
 import numpy as np
 import math
 from typing import List
@@ -189,7 +190,8 @@ def rsquare(y_pred, y_true):
 
 
 def goodness_of_fit(y_pred: np.ndarray, y_true: np.ndarray,
-                    title: str = None, legend: str = None):
+                    title: str = None, legend: str = None,
+                    show_error: bool = True):
     """
     Plot actual by predicted and histogram of prediction error
 
@@ -229,9 +231,10 @@ def goodness_of_fit(y_pred: np.ndarray, y_true: np.ndarray,
     # Reference Line
     y = np.linspace(np.min(y_true), np.max(y_true), 100)
 
-    fig = plt.figure(figsize=(12, 6))
+    ncols = 1 + show_error
+    fig = plt.figure(figsize=(6 * ncols, 6))
     fig.suptitle(title, fontsize=16)
-    spec = gridspec.GridSpec(ncols=2, nrows=1, wspace=0.25)
+    spec = gridspec.GridSpec(ncols=ncols, nrows=1, wspace=0.25)
 
     # Plot
     ax1 = fig.add_subplot(spec[0, 0])
@@ -243,15 +246,20 @@ def goodness_of_fit(y_pred: np.ndarray, y_true: np.ndarray,
     ax1.set_title(f"RSquare = {r_squared:.2f}")
     plt.grid(True)
 
+    if not show_error:
+        return fig
+
     ax2 = fig.add_subplot(spec[0, 1])
     error = (y_pred - y_true)
     weights = np.ones(error.shape) / y_pred.size
-    ax2.hist(error, weights=weights, facecolor='g', alpha=0.75)
+    ax2.hist(error, weights=weights, facecolor='g', alpha=0.75, bins=20)
     ax2.set_xlabel('Absolute Prediction Error')
     ax2.set_ylabel('Probability')
     ax2.set_title(f'$\mu$ = {avg_error:.2f}, $\sigma$ = {std_error:.2f}')
     plt.grid(True)
     plt.show()
+
+    return fig
 
 
 class DataConverter:
@@ -308,7 +316,7 @@ class DataConverter:
             Input, shape (n_x, m) where n_x = no. of inputs
                                         m = no. of training examples
         """
-        return (X - self._mu_x) / self._sigma_x
+        return (X - self._mu_x) / (self._sigma_x + 1e-12)
 
     def Y_norm(self, Y: np.ndarray):
         """
@@ -320,7 +328,7 @@ class DataConverter:
             Output, shape (n_y, m) where n_y = no. of outputs
                                          m = no. of training examples
         """
-        return (Y - self._mu_y) / self._sigma_y
+        return (Y - self._mu_y) / (self._sigma_y + 1e-12)
 
     def J_norm(self, J: np.ndarray):
         """

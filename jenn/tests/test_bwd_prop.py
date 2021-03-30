@@ -1,4 +1,4 @@
-from genn._model import GENN
+from jenn._model import JENN
 import numpy as np
 
 
@@ -13,13 +13,13 @@ def test_L_model_backward():
     Y = X ** 2
     J = (2 * X).reshape((-1, 1, 1))
 
-    model = GENN(hidden_layer_sizes=(3,), is_finite_difference=False,
+    model = JENN(hidden_layer_sizes=(3,), is_finite_difference=False,
                  num_epochs=1, max_iter=10, alpha=0, gamma=0, random_state=0)
 
     model.fit(X.copy(), Y.copy(), J.copy())
 
-    model_FD = GENN(hidden_layer_sizes=(3,), is_finite_difference=True,
-                 num_epochs=1, max_iter=10, alpha=0, gamma=0, random_state=0)
+    model_FD = JENN(hidden_layer_sizes=(3,), is_finite_difference=True,
+                    num_epochs=1, max_iter=10, alpha=0, gamma=0, random_state=0)
 
     model_FD.fit(X.copy(), Y.copy(), J.copy())
 

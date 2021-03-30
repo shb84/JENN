@@ -1,10 +1,11 @@
 """
-G R A D I E N T - E N H A N C E D   N E U R A L   N E T W O R K S  (G E N N)
+J A C O B I A N - E N H A N C E D   N E U R A L   N E T W O R K S  (J E N N)
 
 Author: Steven H. Berguin <stevenberguin@gmail.com>
 
 This package is distributed under the MIT license.
 """
+
 from abc import ABC, abstractmethod
 import numpy as np
 from typing import List

@@ -1,4 +1,4 @@
-from genn._loss import squared_loss, gradient_enhancement, regularization
+from jenn._loss import squared_loss, gradient_enhancement, regularization
 
 import numpy as np
 

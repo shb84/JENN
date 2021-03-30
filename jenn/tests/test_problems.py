@@ -1,6 +1,6 @@
 import numpy as np
 from typing import List, Tuple
-from genn._utils import finite_diff
+from jenn._utils import finite_diff
 
 
 def linear(x: List[np.ndarray], a: float = 1, b: float = 0,

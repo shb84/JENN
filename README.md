@@ -1,21 +1,33 @@
-# Gradient-Enhanced Neural Network (GENN)
+# Jacobian-Enhanced Neural Network (JENN)
 
-Gradient-Enhanced Neural Networks (GENN) are fully connected multi-layer
+Jacobian-Enhanced Neural Networks (JENN) are fully connected multi-layer
 perceptrons, whose training process was modified to account for gradient
 information. Specifically, the parameters are learned by minimizing the Least
-Squares Estimator (LSE), modified to account for partial derivatives. The theory
-behind the algorithm is included in the docs, but suffice it to say that the
-model is trained in such a way so as to minimize both the prediction error y -
-f(x) of the response and the prediction error dydx - f’(x) of the partial
-derivatives. The chief benefit of gradient-enhancement is better accuracy with
-fewer training points, compared to regular neural networks without
-gradient-enhancement. GENN applies to regression (single-output or
-multi-output), but not classification since there is no gradient in that case.
+Squares Estimator (LSE), modified to minimize prediction error of both 
+response values and partial derivatives. 
+
+The chief benefit of gradient-enhancement is better accuracy with
+fewer training points, compared to full-connected neural nets without
+gradient-enhancement. JENN applies to regression, but not classification since there is no gradient in that case.
+
 This particular implementation is fully vectorized and uses Adam optimization,
 mini-batch, and L2-norm regularization. Batch norm is not implemented and,
 therefore, very deep networks might suffer from exploding and vanishing
 gradients. This would be a useful addition for those who would like to
-contribute.
+contribute. 
+
+The core algorithm was written in Python 3 and requires only numpy. However, 
+Matplotlib is required for plotting, some examples 
+depend on pyDOE2 for generating synthetic data, and example notebooks 
+require Jupyter to run. For now, documentation only exists in the form of a 
+[PDF](https://github.com/shb84/JENN/blob/master/docs/theory.pdf) with the 
+theory and [jupyter notebook examples](https://github.com/shb84/JENN/tree/master/demo) on the project website. 
+
+Jacobian-Enhanced Neural Net            |  Standard Neural Net
+:-------------------------:|:-------------------------:
+![](pics/JENN.png)  |  ![](pics/NN.png)
+
+> NOTE: this project was originally called GENN, but was renamed since a pypi package of that name already exists.
 
 ----
 
@@ -23,25 +35,28 @@ contribute.
 
 * Multi-Task Learning : predict more than one output with same model Y = f(X) where Y = [y1, y2, ...]
 * Jacobian prediction : analytically compute the Jacobian (_i.e._ forward propagation of dY/dX)
-* Gradient-Enhancement: minimize prediction error of partials during training (_i.e._ back-prop uses dY/dX)
+* Gradient-Enhancement: minimize prediction error of partials during training (_i.e._ back-prop accounts for dY/dX)
 
 ----
 
 # Installation
 
-Setup new conda environment (optional): 
+# Users
+
+    pip install JENN
+
+# Developers
+
+Clone the repo: 
+
+    git clone https://github.com/shb84/JENN.git 
+    
+From inside the repo, create a new conda environment for the project (called `JENN` by default): 
     
     conda env create -f environment.yml 
-    conda activate genn 
+    conda activate JENN 
 
-Install from git repo:
-
-     pip install git+https://github.com/shb84/GENN.git#egg=genn
-
-The core algorithm was written in Python 3 and requires only numpy. However, 
-for plotting, Matplotlib is also required, while some examples 
-depend on pyDOE2 (for generating synthetic data) and the notebooks 
-require Jupyter. 
+Test that your environment is working by running the usage example below. 
 
 ----
 
@@ -49,7 +64,8 @@ require Jupyter.
 
 **Checkout demo for more detailed tutorials in the form of jupyter notebooks**
 
-    from genn import GENN
+    import numpy as np
+    from JENN import JENN
     import pickle
 
     def synthetic_data(): 
@@ -80,7 +96,7 @@ require Jupyter.
     X_train, Y_train, J_train, X_test, Y_test, J_test = synthetic_data() 
 
     # Initialize model (gamma = 1 implies gradient enhancement)
-    model = GENN(hidden_layer_sizes=(12,), activation='tanh',
+    model = JENN(hidden_layer_sizes=(12,), activation='tanh',
                  num_epochs=1, max_iter=200, batch_size=None,
                  learning_rate='backtracking', random_state=None, tol=1e-6,
                  learning_rate_init=0.05, alpha=0.1, gamma=1, verbose=False)
@@ -122,7 +138,7 @@ gradient-enhanced methods relative to the needs of the application.
 
 # Use Case
 
-GENN is unlikely to apply to real-world data since real data is usually
+JENN is unlikely to apply to real-world data since real data is usually
 discrete, incomplete, and gradients are not available. However, in the field of
 computer aided design, there exist a well known use case: the need to replace
 computationally expensive computer models with so-called “surrogate models” in
@@ -131,7 +147,7 @@ engineering and, more specifically, multi-disciplinary analysis and optimization
 is rich in examples. In this scenario, the process typically consists of
 generating a small Design Of Experiment (DOE), running the computationally
 expensive computer model for each DOE point, and using the results as training
-data to train a “surrogate model” (such as GENN). Since the “surrogate model”
+data to train a “surrogate model” (such as JENN). Since the “surrogate model”
 emulates the original physics-based model accurately in real time, it offers a
 speed benefit that can be used to carry out additional analysis such as
 uncertainty quantification by means of Monte Carlo simulation, which would’ve

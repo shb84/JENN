@@ -1,6 +1,6 @@
 import numpy as np
-from genn._optimizer import Backtracking, ADAM, GD, ADAMOptimizer, GDOptimizer
-from genn.tests.test_problems import linear, rosenbrock, parabola
+from jenn._optimizer import Backtracking, ADAM, GD, ADAMOptimizer, GDOptimizer
+from jenn.tests.test_problems import linear, rosenbrock, parabola
 from importlib.util import find_spec
 
 if find_spec("matplotlib"):

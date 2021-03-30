@@ -1,10 +1,10 @@
-from genn._model import GENN
-from genn._utils import rsquare
+from jenn._model import JENN
+from jenn._utils import rsquare
 import numpy as np
 
 from importlib.util import find_spec
 
-from genn.tests.test_problems import rastrigin
+from jenn.tests.test_problems import rastrigin
 
 if find_spec("matplotlib"):
     import matplotlib.pyplot as plt
@@ -26,7 +26,7 @@ def test_forward_prop():
     can be computed by hand. Concretely, the following
     network is equivalent to Y = 4 * X
     """
-    model = GENN(hidden_layer_sizes=(2, 2), activation='identity')
+    model = JENN(hidden_layer_sizes=(2, 2), activation='identity')
     hidden_activation = [model.activation] * len(model.hidden_layer_sizes)
     output_activation = ['identity']
     model._a = hidden_activation + output_activation
@@ -54,7 +54,7 @@ def test_parameter_shape():
     """
     X = np.array([1, 2, 3, 4]).reshape((1, -1))
     y = np.array([1, 2, 3, 4]).reshape((1, -1))
-    model = GENN(hidden_layer_sizes=(2, 2))
+    model = JENN(hidden_layer_sizes=(2, 2))
     model._n_x = X.shape[0]
     model._n_y = y.shape[0]
     model._initialize()
@@ -78,7 +78,7 @@ def test_model_parabola(verbose=False, show_plot=False):
     J = (2*X).reshape((-1, 1, 1))
 
     # Basic neural net (no gradient-enhancement)
-    model = GENN(hidden_layer_sizes=(3, 3), activation='tanh',
+    model = JENN(hidden_layer_sizes=(3, 3), activation='tanh',
                  num_epochs=1, max_iter=1000,
                  learning_rate_init=0.05, alpha=0.01, gamma=0, verbose=verbose)
     model.fit(X, Y, J)
@@ -87,7 +87,7 @@ def test_model_parabola(verbose=False, show_plot=False):
     assert rsquare(Y, model.predict(X)) > 0.99
 
     # Gradient-enhanced neural net
-    model = GENN(hidden_layer_sizes=(3, 3), activation='tanh',
+    model = JENN(hidden_layer_sizes=(3, 3), activation='tanh',
                  num_epochs=1, max_iter=1000,
                  learning_rate_init=0.05, alpha=0.01, gamma=1, verbose=verbose)
     model.fit(X, Y, J)
@@ -117,7 +117,7 @@ def test_model_rastrigin(verbose=False, show_plot=False):
         Y_test, J_test = rastrigin(X_test)
 
         # Train
-        model = GENN(hidden_layer_sizes=[12] * 2, activation='tanh',
+        model = JENN(hidden_layer_sizes=[12] * 2, activation='tanh',
                      num_epochs=1, max_iter=1000,
                      is_finite_difference=False, solver='adam',
                      learning_rate='constant', random_state=0, tol=1e-6,
@@ -168,7 +168,7 @@ def test_sinusoid(verbose=False, show_plot=False, is_genn: bool = True):
     Y_test = f(X_test).reshape((m, n_y))
 
     # Initialize model
-    model = GENN(hidden_layer_sizes=(12,), activation='tanh',
+    model = JENN(hidden_layer_sizes=(12,), activation='tanh',
                  num_epochs=1, max_iter=1000,
                  is_finite_difference=False,
                  learning_rate='backtracking', random_state=None, tol=1e-6,

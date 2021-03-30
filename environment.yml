@@ -1,4 +1,4 @@
-name: genn
+name: jenn
 channels:
 - conda-forge
 - defaults
@@ -8,4 +8,4 @@ dependencies:
 - jupyterlab
 - pip
 - pip:
-    - pyDOE2
+    - r requirements.txt
