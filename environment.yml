@@ -3,9 +3,11 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- numpy
-- matplotlib
-- jupyterlab
+- numpy  # for neural computations
+- matplotlib  # for goodness of fit
+- jupyterlab  # for examples
+- twine  # for packaging
+- build  # for packaging
 - pip
 - pip:
-    - r requirements.txt
+    - -r requirements.txt
