@@ -64,12 +64,10 @@ All tests should pass. You should also try running the notebooks in `demo/` and 
 
 > NOTE: If jupyter throws `ModuleNotFoundError: No module named` but the package is installed, 
 > then Jupyter might be running a different kernel then the one associated 
-> with you conda env. One way to fix this, is to add your conda environment as kernel so that it can 
-> be selected when running Jupyter. To do this, from the active terminal, type: 
+> with your conda env. To fix this, add your conda environment as kernel so that it can 
+> be selected when running Jupyter: 
 >
-    ipython kernel install --user --name=jenn
->  
-> Make sure to replace `jenn` by whatever alternative name you chose for the env
+    ipython kernel install --user --name=<env_name>
 
 ----
 
