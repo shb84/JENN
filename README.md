@@ -25,7 +25,7 @@ theory and [jupyter notebook examples](https://github.com/shb84/JENN/tree/master
 
 Jacobian-Enhanced Neural Net            |  Standard Neural Net
 :-------------------------:|:-------------------------:
-![](https://github.com/shb84/JENN/blob/master/pics/JENN.png)  |  ![](https://github.com/shb84/JENN/blob/master/pics/NN.png)
+![](pics/JENN.png)  |  ![](pics/NN.png)
 
 > NOTE: this project was originally called GENN, but was renamed since a pypi package of that name already exists.
 
@@ -43,7 +43,7 @@ Jacobian-Enhanced Neural Net            |  Standard Neural Net
 
 # Users
 
-    pip install JENN
+    pip install jenn
 
 # Developers
 
@@ -65,7 +65,7 @@ Test that your environment is working by running the usage example below.
 **Checkout demo for more detailed tutorials in the form of jupyter notebooks**
 
     import numpy as np
-    from JENN import JENN
+    from jenn import JENN
     import pickle
 
     def synthetic_data(): 
