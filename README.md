@@ -51,12 +51,25 @@ Clone the repo:
 
     git clone https://github.com/shb84/JENN.git 
     
-From inside the repo, create a new conda environment for the project (called `JENN` by default): 
+From inside the repo, create a new conda environment for the project (called `jenn` by default): 
     
     conda env create -f environment.yml 
     conda activate JENN 
 
-Test that your environment is working by running the usage example below. 
+Test that your environment is working by running unit tests. From the root directory of the repo, type: 
+
+    pytest 
+
+All tests should pass. You should also try running the notebooks in `demo/` and the the usage example below. 
+
+> NOTE: If jupyter throws `ModuleNotFoundError: No module named` but the package is installed, 
+> then Jupyter might be running a different kernel then the one associated 
+> with you conda env. One way to fix this, is to add your conda environment as kernel so that it can 
+> be selected when running Jupyter. To do this, from the active terminal, type: 
+>
+    ipython kernel install --user --name=jenn
+>  
+> Make sure to replace `jenn` by whatever alternative name you chose for the env
 
 ----
 

@@ -1,2 +1,4 @@
+twine
+build
 pyDOE2
 -e .
