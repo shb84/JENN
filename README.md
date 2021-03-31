@@ -51,10 +51,10 @@ Clone the repo:
 
     git clone https://github.com/shb84/JENN.git 
     
-From inside the repo, create a new conda environment for the project (called `jenn` by default): 
+From inside the repo, create a new conda environment for the project (called `jenn-dev` by default): 
     
     conda env create -f environment.yml 
-    conda activate JENN 
+    conda activate jenn-dev 
 
 Test that your environment is working by running unit tests. From the root directory of the repo, type: 
 

@@ -1,4 +1,4 @@
-name: jenn
+name: jenn-dev
 channels:
 - conda-forge
 - defaults
