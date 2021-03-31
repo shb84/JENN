@@ -6,8 +6,6 @@ dependencies:
 - numpy  # for neural computations
 - matplotlib  # for goodness of fit
 - jupyterlab  # for examples
-- twine  # for packaging
-- build  # for packaging
 - pytest  # for unit testing
 - pip
 - pip:
