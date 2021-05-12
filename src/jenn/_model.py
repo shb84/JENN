@@ -5,7 +5,7 @@ Author: Steven H. Berguin <stevenberguin@gmail.com>
 
 This package is distributed under the MIT license.
 """
-
+import glob, os, shutil
 import numpy as np
 from collections import defaultdict
 from typing import Tuple, Union, List
@@ -494,8 +494,8 @@ class JENN(GENNBase):
         return J.T  # The algorithm returns J.shape = (n_y, n_x, m)
 
     def goodness_fit(self, X: np.ndarray, Y_true: np.ndarray,
-                     title: str = None, legend: str = None,
-                     show_error: bool = True):
+                     titles: List[str] = None, legend: str = None,
+                     show_error: bool = True, indices: List[int] = None):
         """
         Plot goodness of fit
 
@@ -520,12 +520,17 @@ class JENN(GENNBase):
 
         Y_pred = self.predict(X)
 
+        if not indices:
+            indices = list(range(self._n_y))
+
         figs = []
-        for i in range(self._n_y):
+        for i in indices:
             y_pred = Y_pred[:, i].ravel()
             y_true = Y_true[:, i].ravel()
-            if title is None:
+            if titles is None:
                 title = f'Goodness of Fit: Y[{i}]'
+            else:
+                title = titles[i]
             fig = goodness_of_fit(y_pred, y_true, title, legend, show_error)
             figs.append(fig)
 
@@ -567,3 +572,75 @@ class JENN(GENNBase):
             plt.xlabel('iteration')
             plt.ylabel('cost')
         plt.title(title)
+
+    def save(self, path: str = None):
+        """ Save model parameters to file """
+        if path:
+            if os.path.exists(path):
+                shutil.rmtree(path)
+            os.mkdir(path)
+        else:
+            path = '.'
+        L = len(self._W)
+        for i in range(L):
+            np.save(os.path.join(path, f'W{i}'), self._W[i],
+                    allow_pickle=False)
+            np.save(os.path.join(path, f'b{i}'), self._b[i],
+                    allow_pickle=False)
+            np.save(os.path.join(path, f'a{i}'), self._a[i],
+                    allow_pickle=False)
+        if self._data_converter:
+            np.save(os.path.join(path, 'mu_x'), self._data_converter._mu_x,
+                    allow_pickle=False)
+            np.save(os.path.join(path, 'mu_y'), self._data_converter._mu_y,
+                    allow_pickle=False)
+            np.save(os.path.join(path, 'sigma_x'),
+                    self._data_converter._sigma_x,
+                    allow_pickle=False)
+            np.save(os.path.join(path, 'sigma_y'),
+                    self._data_converter._sigma_y,
+                    allow_pickle=False)
+
+    @staticmethod
+    def load(path: str):
+        """ Reload model parameters from file """
+        b_files = glob.glob(f'{os.path.join(path, "b*.npy")}')
+        b = []
+        for b_file in b_files:
+            b.append(np.load(b_file))
+
+        W_files = glob.glob(f'{os.path.join(path, "W*.npy")}')
+        W = []
+        for W_file in W_files:
+            W.append(np.load(W_file))
+
+        a_files = glob.glob(f'{os.path.join(path, "a*.npy")}')
+        a = []
+        for a_file in a_files:
+            a.append(str(np.load(a_file)))
+
+        try:
+            mu_x = np.load(os.path.join(path, "mu_x.npy"))
+            mu_y = np.load(os.path.join(path, "mu_y.npy"))
+            sigma_x = np.load(os.path.join(path, "sigma_x.npy"))
+            sigma_y = np.load(os.path.join(path, "sigma_y.npy"))
+            data_converter = DataConverter(mu_x, sigma_x, mu_y, sigma_y)
+        except FileNotFoundError:
+            data_converter = None
+
+        hidden_layer_sizes = [b[i].size for i in range(len(b) - 1)]
+        n_y = b[-1].size
+        n_x = W[0].shape[1]
+
+        model = JENN(hidden_layer_sizes, activation=a[0])
+        model._n_x = n_x
+        model._n_y = n_y
+        model._W = W
+        model._b = b
+        model._a = a
+        model._data_converter = data_converter  # normalization
+
+        return model
+
+    def profiler(self):
+        raise NotImplemented  # TODO: bokeh profiler
