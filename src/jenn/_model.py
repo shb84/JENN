@@ -210,7 +210,7 @@ class GENNBase:
         """
         # Predict
         Y_pred, caches = L_model_forward(X, W, b, self._a)
-        J_pred, J_caches = L_grads_forward(X, W, b, self._a)
+        J_pred, J_caches = L_grads_forward(X, W, b, self._a, caches)
 
         # Cost function
         c = 0

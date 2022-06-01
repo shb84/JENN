@@ -143,7 +143,7 @@ def linear_activation_backward(dA: np.ndarray, dA_prime: np.ndarray,
     """
     # Extract information from current layer cache
     # A cache avoids recomputing what was already computed in fwd prop
-    A_prev, Z, W, b, activation = cache
+    A_prev, A, Z, W, b, activation = cache
 
     # Activation function callable 
     g = ACTIVATIONS[activation]
@@ -153,7 +153,7 @@ def linear_activation_backward(dA: np.ndarray, dA_prime: np.ndarray,
     n_x = len(J_cache)  # number of inputs
 
     # 1st derivative of activation function A = G(Z)
-    G_prime = g.first_derivative(Z)
+    G_prime = g.first_derivative(Z, A)
 
     # Derivative of cost w.r.t. to parameters for this layer
     dW = 1. / m * np.dot(G_prime * dA, A_prev.T) + lambd / m * W
@@ -169,7 +169,7 @@ def linear_activation_backward(dA: np.ndarray, dA_prime: np.ndarray,
     if gamma != 0.0:
 
         # 2nd derivative of activation function A = G(Z)
-        G_prime_prime = g.second_derivative(Z)
+        G_prime_prime = g.second_derivative(Z, A, G_prime)
 
         # Loop over partials, d()/dX_j
         for j_cache in J_cache:

@@ -67,7 +67,7 @@ def linear_activation_forward(A_prev: np.ndarray, W: np.ndarray, b: np.ndarray,
     Z = np.dot(W, A_prev) + b
     A = g.evaluate(Z)
     if store_cache:
-        cache = (A_prev, Z, W, b, activation)
+        cache = (A_prev, A, Z, W, b, activation)
     else:
         cache = None
     return A, cache
@@ -326,8 +326,13 @@ def L_model_forward(X: np.ndarray, W: List[np.ndarray], b: List[np.ndarray],
 #     return JL
 
 
-def L_grads_forward(X: np.ndarray, W: List[np.ndarray], b: List[np.ndarray],
-                    activations: List[str], store_cache: bool = True):
+def L_grads_forward(
+        X: np.ndarray,
+        W: List[np.ndarray],
+        b: List[np.ndarray],
+        activations: List[str],
+        caches: List[tuple],
+        store_cache: bool = True):
     """
     Implements forward propagation of gradient for the entire neural network
 
@@ -349,6 +354,9 @@ def L_grads_forward(X: np.ndarray, W: List[np.ndarray], b: List[np.ndarray],
     activations: List[str]
         List of activation types for each layer (hidden + output layer)
         Allowed values = {'identity', 'tanh', 'logistic', 'relu'}
+
+    caches: List[tuple]
+        The caches from L_model_forward
 
     store_cache: bool
         True = do not compute cache (applies to trained model)
@@ -385,8 +393,8 @@ def L_grads_forward(X: np.ndarray, W: List[np.ndarray], b: List[np.ndarray],
     J_caches = []
 
     # Dimensions
-    L = len(activations)  # number of layers in network
-    n_y = W[-1].shape[0]  # number of outputs
+    L = len(caches)  # len(activations)  # number of layers in network
+    n_y = caches[-1][3].shape[0]  # W[-1].shape[0]  # number of outputs
     try:
         n_x, m = X.shape  # number of inputs, number of examples
     except ValueError:
@@ -411,33 +419,36 @@ def L_grads_forward(X: np.ndarray, W: List[np.ndarray], b: List[np.ndarray],
     # Loop over partials
     for j in range(n_x):
 
-        # Initialize (first layer)
-        A = np.copy(X).reshape(n_x, m)
-        A_prime_j = J0[:, j, :]
-
         # Loop over layers
         for l in range(L):
+
+            A_prev, A, Z, W, b, activation = caches[l]
+
             # Previous layer
-            A_prev = A
-            A_prime_j_prev = A_prime_j
+            if l == 0:
+                # A_prev = X[:]
+                A_prime_j_prev = J0[:, j, :]
+            else:
+                # A_prev = A
+                A_prime_j_prev = A_prime_j
 
             # Get parameters for this layer
-            key = activations[l]
+            key = activation  # activations[l]
             g = ACTIVATIONS[key]
 
             # Linear
-            Z = np.dot(W[l], A_prev) + b[l]
+            # Z = np.dot(W[l], A_prev) + b[l]
 
             # The following is not needed here, but it is needed later, during backprop.
             # We will thus compute it here and store it as a cache for later use.
-            Z_prime_j = np.dot(W[l], A_prime_j_prev)
+            Z_prime_j = np.dot(W, A_prime_j_prev)  # np.dot(W[l], A_prime_j_prev)
 
             # Activation
-            A = g.evaluate(Z)
-            G_prime = g.first_derivative(Z)
+            # A = g.evaluate(Z)  # unnecessary if cache used instead
+            G_prime = g.first_derivative(Z, A)
 
             # Current layer output gradient
-            A_prime_j = G_prime * np.dot(W[l], A_prime_j_prev)
+            A_prime_j = G_prime * np.dot(W, A_prime_j_prev)  # G_prime * np.dot(W[l], A_prime_j_prev)
 
             # Store cache
             if store_cache:

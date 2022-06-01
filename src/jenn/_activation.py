@@ -28,9 +28,10 @@ class Singleton:
         return cls._instance
 
 
-class Activation(Singleton):
+class Activation:
 
-    def evaluate(self, z):
+    @staticmethod
+    def evaluate(z):
         """
         Evaluate activation function
 
@@ -39,7 +40,8 @@ class Activation(Singleton):
         """
         raise NotImplementedError
 
-    def first_derivative(self, z):
+    @staticmethod
+    def first_derivative(z, a):
         """
         Evaluate gradient of activation function
 
@@ -48,7 +50,8 @@ class Activation(Singleton):
         """
         raise NotImplementedError
 
-    def second_derivative(self, z):
+    @staticmethod
+    def second_derivative(z, a, da):
         """
         Evaluate second derivative of activation function
 
@@ -60,73 +63,97 @@ class Activation(Singleton):
 
 class Sigmoid(Activation):
 
-    def evaluate(self, z):
+    @staticmethod
+    def evaluate(z):
         a = 1. / (1. + np.exp(-z))
         return a
 
-    def first_derivative(self, z):
-        a = self.evaluate(z)
+    @staticmethod
+    def first_derivative(z, a):
         da = a * (1. - a)
         return da
 
-    def second_derivative(self, z):
-        a = self.evaluate(z)
-        da = self.first_derivative(z)
+    @staticmethod
+    def second_derivative(z, a, da):
         dda = da * (1 - 2 * a)
         return dda
 
 
+# class Tanh(Activation):
+#
+#     def evaluate(self, z):
+#         exp_z = np.exp(z)
+#         neg_exp_z = np.exp(-z)
+#         numerator = exp_z - neg_exp_z
+#         denominator = exp_z + neg_exp_z
+#         a = np.divide(numerator, denominator)
+#         return a
+#
+#     def first_derivative(self, z):
+#         a = self.evaluate(z)
+#         da = 1 - np.square(a)
+#         return da
+#
+#     def second_derivative(self, z):
+#         a = self.evaluate(z)
+#         da = self.first_derivative(z)
+#         dda = -2 * a * da
+#         return dda
+
 class Tanh(Activation):
 
-    def evaluate(self, z):
-        numerator = np.exp(z) - np.exp(-z)
-        denominator = np.exp(z) + np.exp(-z)
-        a = np.divide(numerator, denominator)
-        return a
+    @staticmethod
+    def evaluate(z):
+        return np.tanh(z)
 
-    def first_derivative(self, z):
-        a = self.evaluate(z)
+    @staticmethod
+    def first_derivative(z, a):
         da = 1 - np.square(a)
         return da
 
-    def second_derivative(self, z):
-        a = self.evaluate(z)
-        da = self.first_derivative(z)
+    @staticmethod
+    def second_derivative(z, a, da):
         dda = -2 * a * da
         return dda
 
 
 class Relu(Activation):
 
-    def evaluate(self, z):
+    @staticmethod
+    def evaluate(z):
         a = (z > 0) * z
         return a
 
-    def first_derivative(self, z):
+    @staticmethod
+    def first_derivative(z, a):
         da = 1.0 * (z > 0)
         return da
 
-    def second_derivative(self, z):
+    @staticmethod
+    def second_derivative(z, a, da):
         dda = 0.0
         return dda
 
 
 class Linear(Activation):
 
-    def evaluate(self, z):
+    @staticmethod
+    def evaluate(z):
         return z
 
-    def first_derivative(self, z):
+    @staticmethod
+    def first_derivative(z, a):
         return np.ones(z.shape)
 
-    def second_derivative(self, z):
+    @staticmethod
+    def second_derivative(z, a, da):
         return np.zeros(z.shape)
 
 
-ACTIVATIONS = {'identity': Linear(),
-               'tanh': Tanh(),
-               'logistic': Sigmoid(),
-               'relu': Relu()}
+ACTIVATIONS = {'identity': Linear,
+               'tanh': Tanh,
+               'logistic': Sigmoid,
+               'relu': Relu}
 
 
 if __name__ == "__main__":
@@ -134,7 +161,7 @@ if __name__ == "__main__":
         raise ImportError("Matplotlib must be installed.")
 
     x = np.linspace(-10, 10, 100)
-    activations = {'tanh': Tanh(), 'sigmoid': Sigmoid(), 'relu': Relu()}
+    activations = {'tanh': Tanh, 'sigmoid': Sigmoid, 'relu': Relu}
     for name, activation in activations.items():
         plt.plot(x, activation.evaluate(x))
         plt.title(name)
