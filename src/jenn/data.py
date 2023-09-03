@@ -1,5 +1,14 @@
-from dataclasses import dataclass
 import numpy as np
+from dataclasses import dataclass
+from functools import cached_property
+
+
+def avg(array):
+    return np.mean(array, axis=1).reshape((-1, 1))
+
+
+def std(array):
+    return np.std(array, axis=1).reshape((-1, 1))
 
 
 @dataclass
@@ -25,6 +34,7 @@ class Dataset:
     J: np.ndarray = None
 
     def __post_init__(self):
+
         if self.X.shape[1] != self.Y.shape[1]:
             msg = f'X and Y must have the same number of examples'
             raise ValueError(msg)
@@ -46,3 +56,18 @@ class Dataset:
     def n_y(self):
         return self.Y.shape[0]
 
+    @cached_property
+    def avg_x(self):
+        return avg(self.X)
+
+    @cached_property
+    def avg_y(self):
+        return avg(self.Y)
+
+    @cached_property
+    def std_x(self):
+        return std(self.X)
+
+    @cached_property
+    def std_y(self):
+        return std(self.Y)

@@ -5,6 +5,7 @@ Author: Steven H. Berguin <stevenberguin@gmail.com>
 
 This package is distributed under the MIT license.
 """
+from __future__ import annotations
 import glob, os, shutil
 import numpy as np
 from collections import defaultdict

@@ -2,7 +2,7 @@
 import numpy as np
 
 from .data import Dataset
-from .parameters import Parameters, Hyperparameters
+from .parameters import Parameters
 
 
 class SquaredLoss:
@@ -16,9 +16,9 @@ class SquaredLoss:
             Training data outputs. An array of shape (n_y, m)
         """
         self.y_true = y_true
-        self.y_error = np.empty(y_true.shape)  # preallocate to save resources
+        self.y_error = np.zeros(y_true.shape)  # preallocate to save resources
 
-    def __call__(self, y_pred, indices=None):
+    def __call__(self, y_pred, batch=None):
         """
         Compute least squares estimator of the states in place
 
@@ -31,14 +31,16 @@ class SquaredLoss:
             Subset of indices over which to __call__ function. Default is None,
             which implies all indices (useful for minibatch for example).
         """
-        if indices is None:
-            indices = range(self.y_error.size)
-        self.y_error[:, indices] = y_pred[:, indices] - self.y_true[:, indices]
+        if batch is None:
+            batch = range(self.y_error.size)
+        # self.y_error[:, batch] = y_pred[:, batch] - self.y_true[:, batch]
+        self.y_error = y_pred - self.y_true
         n_y = self.y_error.shape[0]
         cost = 0
         for j in range(0, n_y):
-            cost += np.dot(
-                self.y_error[j, indices], self.y_error[j, indices].T)
+            # cost += np.dot(
+            #     self.y_error[j, batch], self.y_error[j, batch].T)
+            cost += np.dot(self.y_error[j], self.y_error[j].T)
         return np.float64(cost)
 
 
@@ -56,9 +58,9 @@ class GradientEnhancement:
                                m = number examples
         """
         self.dy_true = dy_true
-        self.dy_error = np.empty(dy_true.shape)
+        self.dy_error = np.zeros(dy_true.shape)
 
-    def __call__(self, dy_pred, indices=None):
+    def __call__(self, dy_pred, batch=None):
         """
         Compute least squares estimator for the partials
 
@@ -73,17 +75,17 @@ class GradientEnhancement:
             Subset of indices over which to __call__ function. Default is None,
             which implies all indices (useful for minibatch for example).
         """
-        if indices is None:
-            indices = range(self.dy_error.size)
+        if batch is None:
+            batch = range(self.dy_error.size)
         n_y, n_x, m = self.dy_true.shape
         cost = 0.0
         for k in range(0, n_y):
             for j in range(0, n_x):
-                self.dy_error[k, j, indices] = \
-                    dy_pred[k, j, indices] - self.dy_true[k, j, indices]
+                self.dy_error[k, j, batch] = \
+                    dy_pred[k, j, batch] - self.dy_true[k, j, batch]
                 inner_product = np.dot(
-                    self.dy_error[k, j, indices],
-                    self.dy_error[k, j, indices].T)
+                    self.dy_error[k, j, batch],
+                    self.dy_error[k, j, batch].T)
                 cost += np.squeeze(inner_product)
         return np.float64(cost)
 
@@ -101,7 +103,7 @@ class Regularization:
         """
         # Preallocate for speed
         self.weights = weights
-        self._squared_weights = [np.empty(w.shape) for w in weights]
+        self._squared_weights = [np.zeros(w.shape) for w in weights]
 
     def __call__(self, lambd: float):
         """Compute L2 norm penalty.
@@ -123,7 +125,13 @@ class Regularization:
 class Cost:
     """ Neural Network cost function """
 
-    def __init__(self, data: Dataset, parameters: Parameters, hyperparameters: Hyperparameters):
+    def __init__(
+            self,
+            data: Dataset,
+            parameters: Parameters,
+            lambd: float = 0.0,
+            gamma: float = 0.0,
+    ):
         """
         Parameters
         ----------
@@ -142,13 +150,14 @@ class Cost:
         """
         self.data = data
         self.parameters = parameters
-        self.hyperparameters = hyperparameters
+        self.lambd = lambd
+        self.gamma = gamma
         self.squared_loss = SquaredLoss(data.Y)
         self.regularization = Regularization(parameters.W)
         if data.J is not None:
             self.gradient_enhancement = GradientEnhancement(data.J)
 
-    def evaluate(self, Y_pred, J_pred=None, indices=None):
+    def evaluate(self, Y_pred, J_pred=None, batch=None):
         """
         Parameters
         ----------
@@ -179,9 +188,9 @@ class Cost:
         c: np.float64
             Cost function value
         """
-        c = self.squared_loss(Y_pred, indices)
+        c = self.squared_loss(Y_pred, batch)
         if J_pred is not None and hasattr(self, 'gradient_enhancement'):
-            c += self.gradient_enhancement(J_pred, indices) * self.hyperparameters.gamma
-        c += self.regularization(self.hyperparameters.lambd)
+            c += self.gradient_enhancement(J_pred, batch) * self.gamma
+        c += self.regularization(self.lambd)
         c *= 0.5 / self.data.m
         return c

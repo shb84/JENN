@@ -131,10 +131,9 @@ class Relu(Activation):
             y: np.ndarray = None,
     ):
         if y is None:
-            y = x.copy()
+            y = (x > 0) * x
         else:
-            y[:] = x
-        y[x <= 0] = 0
+            y[:] = (x > 0) * x
         return y
 
     @classmethod
@@ -145,10 +144,9 @@ class Relu(Activation):
             dy: np.ndarray = None,
     ):
         if dy is None:
-            dy = np.ones(x.shape)
+            dy = np.asarray(x > 0)
         else:
-            dy[:] = 1.0
-        dy[x <= 0] = 0
+            dy[:] = np.asarray(x > 0)
         return dy
 
     @classmethod

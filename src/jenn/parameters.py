@@ -1,6 +1,5 @@
 """Parameters and hyperparameters."""
 import numpy as np
-from dataclasses import dataclass
 
 from .activation import Relu, Tanh, Linear
 
@@ -10,14 +9,6 @@ ACTIVATIONS = dict(
     tanh=Tanh,
     linear=Linear,
 )
-
-
-@dataclass
-class Hyperparameters:
-
-    alpha: float = 0.1
-    lambd: float = 0.0
-    gamma: float = 0.0
 
 
 class Parameters:
@@ -34,6 +25,10 @@ class Parameters:
         self.L = len(layer_sizes)
         self.dW = []
         self.db = []
+        self.mu_x = 0.0
+        self.mu_y = 0.0
+        self.sigma_x = 1.0
+        self.sigma_y = 1.0
         previous_layer_size = None
         for i, layer_size in enumerate(layer_sizes):
             if i == 0:  # input layer
@@ -58,6 +53,7 @@ class Parameters:
             self.b.append(b)
             self.a.append(a)
             previous_layer_size = layer_size
+        self.layer_sizes = layer_sizes
 
     def stack(self):
         """Stack W, b into a single array for each layer"""
@@ -75,6 +71,15 @@ class Parameters:
             n, p = self.W[i].shape
             self.W[i][:] = array[:n * p].reshape(n, p)
             self.b[i][:] = array[n * p:].reshape(n, 1)
+
+    def stack_partials(self):
+        stacks = []
+        for i in range(self.L):
+            dW = self.dW[i].ravel()
+            db = self.db[i].ravel()
+            stack = np.concatenate([dW, db]).reshape((-1, 1))
+            stacks.append(stack)
+        return stacks
 
     def unstack_partials(self, partials):
         """Unstack dW, db from single array stacks back into original arrays"""
