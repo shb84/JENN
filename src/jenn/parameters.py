@@ -65,7 +65,7 @@ class Parameters:
             stacks.append(stack)
         return stacks
 
-    def unstack(self, params):
+    def unstack(self, params: np.ndarray):
         """Unstack W, b from single array stacks back into original arrays"""
         for i, array in enumerate(params):
             n, p = self.W[i].shape

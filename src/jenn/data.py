@@ -2,6 +2,8 @@ import numpy as np
 from dataclasses import dataclass
 from functools import cached_property
 
+from .mini_batch import mini_batches
+
 
 def avg(array):
     return np.mean(array, axis=1).reshape((-1, 1))
@@ -71,3 +73,13 @@ class Dataset:
     @cached_property
     def std_y(self):
         return std(self.Y)
+
+    def mini_batches(self, batch_size: int, shuffle=True, random_state=None):
+        """Breakup data into multiple batches"""
+        X = self.X
+        Y = self.Y
+        J = self.J
+        batches = mini_batches(X, batch_size, shuffle, random_state)
+        if self.J is None:
+            return [Dataset(X[:, b], Y[:, b]) for b in batches]
+        return [Dataset(X[:, b], Y[:, b], J[:, :, b]) for b in batches]

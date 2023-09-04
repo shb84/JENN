@@ -100,7 +100,7 @@ class Tanh(Activation):
         if y is None:
             y = cls.evaluate(x)
         if dy is None:
-            return 1 - np.square(y, out=dy)
+            return 1 - np.square(y)
         dy[:] = 1 - np.square(y, out=dy)
         return dy
 

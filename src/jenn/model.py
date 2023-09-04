@@ -30,9 +30,17 @@ class NeuralNet:
         self.parameters.sigma_y = data.std_y
         return Dataset(X, Y, J)
 
-    def fit(self, data: Dataset, is_normalize=False, **kwargs):
+    def fit(self, X, Y, J=None, is_normalize=False, **kwargs):
+        data = Dataset(X, Y, J)
         if is_normalize:
-            data = self._normalize(data)
+            self.parameters.mu_x = data.std_x
+            self.parameters.mu_y = data.std_y
+            self.parameters.sigma_x = data.std_x
+            self.parameters.sigma_y = data.std_y
+            X_norm = normalize(data.X, data.avg_x, data.std_x)
+            Y_norm = normalize(data.Y, data.avg_y, data.std_y)
+            J_norm = normalize_partials(data.J, data.avg_x, data.std_y)
+            data = Dataset(X_norm, Y_norm, J_norm)
         else:
             self.parameters.mu_x = 0.0
             self.parameters.mu_y = 0.0

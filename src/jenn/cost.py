@@ -18,7 +18,7 @@ class SquaredLoss:
         self.y_true = y_true
         self.y_error = np.zeros(y_true.shape)  # preallocate to save resources
 
-    def __call__(self, y_pred, batch=None):
+    def __call__(self, y_pred):
         """
         Compute least squares estimator of the states in place
 
@@ -31,15 +31,10 @@ class SquaredLoss:
             Subset of indices over which to __call__ function. Default is None,
             which implies all indices (useful for minibatch for example).
         """
-        if batch is None:
-            batch = range(self.y_error.size)
-        # self.y_error[:, batch] = y_pred[:, batch] - self.y_true[:, batch]
         self.y_error = y_pred - self.y_true
         n_y = self.y_error.shape[0]
         cost = 0
         for j in range(0, n_y):
-            # cost += np.dot(
-            #     self.y_error[j, batch], self.y_error[j, batch].T)
             cost += np.dot(self.y_error[j], self.y_error[j].T)
         return np.float64(cost)
 
@@ -60,7 +55,7 @@ class GradientEnhancement:
         self.dy_true = dy_true
         self.dy_error = np.zeros(dy_true.shape)
 
-    def __call__(self, dy_pred, batch=None):
+    def __call__(self, dy_pred):
         """
         Compute least squares estimator for the partials
 
@@ -75,18 +70,15 @@ class GradientEnhancement:
             Subset of indices over which to __call__ function. Default is None,
             which implies all indices (useful for minibatch for example).
         """
-        if batch is None:
-            batch = range(self.dy_error.size)
-        n_y, n_x, m = self.dy_true.shape
+        dy_true = self.dy_true
+        dy_error = self.dy_error
+        n_y, n_x, m = dy_true.shape
         cost = 0.0
         for k in range(0, n_y):
             for j in range(0, n_x):
-                self.dy_error[k, j, batch] = \
-                    dy_pred[k, j, batch] - self.dy_true[k, j, batch]
-                inner_product = np.dot(
-                    self.dy_error[k, j, batch],
-                    self.dy_error[k, j, batch].T)
-                cost += np.squeeze(inner_product)
+                dy_error[k, j] = dy_pred[k, j] - dy_true[k, j]
+                dot_product = np.dot(dy_error[k, j], dy_error[k, j].T)
+                cost += np.squeeze(dot_product)
         return np.float64(cost)
 
 
@@ -157,7 +149,7 @@ class Cost:
         if data.J is not None:
             self.gradient_enhancement = GradientEnhancement(data.J)
 
-    def evaluate(self, Y_pred, J_pred=None, batch=None):
+    def evaluate(self, Y_pred, J_pred=None):
         """
         Parameters
         ----------
@@ -188,9 +180,9 @@ class Cost:
         c: np.float64
             Cost function value
         """
-        c = self.squared_loss(Y_pred, batch)
+        c = self.squared_loss(Y_pred)
         if J_pred is not None and hasattr(self, 'gradient_enhancement'):
-            c += self.gradient_enhancement(J_pred, batch) * self.gamma
+            c += self.gradient_enhancement(J_pred) * self.gamma
         c += self.regularization(self.lambd)
         c *= 0.5 / self.data.m
         return c
