@@ -4,6 +4,8 @@ from typing import List
 
 
 def finite_diff(cost, params, step=1e-6):
+    """Use finite difference to compute partials of cost function
+    with respect to neural net parameters."""
     grads = list()
     dx = step
     for k, x in enumerate(params):

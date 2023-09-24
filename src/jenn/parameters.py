@@ -19,16 +19,19 @@ class Parameters:
             hidden_activation='relu',
             output_activation='linear',
     ):
+        n_x = layer_sizes[0]
+        n_y = layer_sizes[-1]
+        self.layers = range(len(layer_sizes))
+        self.L = len(layer_sizes)
         self.W = []
         self.b = []
         self.a = []
-        self.L = len(layer_sizes)
         self.dW = []
         self.db = []
-        self.mu_x = 0.0
-        self.mu_y = 0.0
-        self.sigma_x = 1.0
-        self.sigma_y = 1.0
+        self.mu_x = np.zeros((n_x, 1))
+        self.mu_y = np.zeros((n_y, 1))
+        self.sigma_x = np.eye(n_x, 1)
+        self.sigma_y = np.eye(n_x, 1)
         previous_layer_size = None
         for i, layer_size in enumerate(layer_sizes):
             if i == 0:  # input layer

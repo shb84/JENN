@@ -20,7 +20,7 @@ def normalize(array, mu, sigma):
 
 
 def denormalize(array, mu, sigma):
-    return safe_divide(sigma) * array + mu
+    return sigma * array + mu
 
 
 def normalize_partials(partials, sigma_x, sigma_y):
@@ -29,11 +29,11 @@ def normalize_partials(partials, sigma_x, sigma_y):
     n_y, n_x, _ = partials.shape
     sigma_x = sigma_x.T.reshape((1, n_x, 1))
     sigma_y = sigma_y.reshape((n_y, 1, 1))
-    return partials * safe_divide(sigma_x) / safe_divide(sigma_y)
+    return partials * sigma_x / safe_divide(sigma_y)
 
 
 def denormalize_partials(partials, sigma_x, sigma_y):
     n_y, n_x, _ = partials.shape
     sigma_x = sigma_x.T.reshape((1, n_x, 1))
     sigma_y = sigma_y.reshape((n_y, 1, 1))
-    return partials * safe_divide(sigma_y) / safe_divide(sigma_x)
+    return partials * sigma_y / safe_divide(sigma_x)

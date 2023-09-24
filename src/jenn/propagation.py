@@ -17,9 +17,10 @@ def layer_forward(A_prev, W, b, activation, Z=None, A=None):
     return A
 
 
-def model_forward(A, parameters, cache: Cache = None):
+def model_forward(X, parameters, cache: Cache = None):
     """Propagate forward through all layers."""
-    for layer in range(parameters.L):
+    A = X
+    for layer in parameters.layers:
         W = parameters.W[layer]
         b = parameters.b[layer]
         a = parameters.a[layer]
@@ -45,19 +46,46 @@ def layer_backward(
 def model_backward(data, parameters, cache, lambd=0.0):
     """Propagate backward through all layers."""
     cache.dA[-1][:] = cache.A[-1] - data.Y
-    for layer in reversed(range(1, parameters.L)):
-        layer_backward(
-            dW=parameters.dW[layer],
-            db=parameters.db[layer],
-            activation=parameters.a[layer],
-            dA=cache.dA[layer],
-            G_prime=cache.G_prime[layer],
-            W=parameters.W[layer],
-            Z=cache.Z[layer],
-            A=cache.A[layer],
-            A_prev=cache.A[layer-1],
-            dA_prev=cache.dA[layer-1],
-            lambd=lambd,
-            m=data.m,
-        )
+    for layer in reversed(parameters.layers):
+        if layer > 0:
+            layer_backward(
+                dW=parameters.dW[layer],
+                db=parameters.db[layer],
+                activation=parameters.a[layer],
+                dA=cache.dA[layer],
+                G_prime=cache.G_prime[layer],
+                W=parameters.W[layer],
+                Z=cache.Z[layer],
+                A=cache.A[layer],
+                A_prev=cache.A[layer-1],
+                dA_prev=cache.dA[layer-1],
+                lambd=lambd,
+                m=data.m,
+            )
 
+
+def layer_partials(A_prev, W, b, activation, Z=None, A=None):
+    """Propagate partials forward through one layer."""
+    if Z is not None:
+        np.dot(W, A_prev, out=Z)
+        Z += b
+    else:
+        Z = np.dot(W, A_prev) + b
+    if A is not None:
+        activation.evaluate(Z, A)
+    else:
+        A = activation.evaluate(Z)
+    return A
+
+
+def model_partials(X, parameters, cache: Cache = None):
+    """Propagate partials forward through all layers."""
+    n_x, m = X.shape
+    I = np.eye(n_x, dtype=float)
+    J0 = np.repeat(I.reshape((n_x, n_x, 1)), m, axis=2)
+    if cache:
+        cache.J[0] = J0
+    for layer in parameters.layers[1:]:  # loop over layers
+        for j in range(n_x):  # loop over partials
+            JL = J0
+    return JL

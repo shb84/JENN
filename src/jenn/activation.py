@@ -144,9 +144,9 @@ class Relu(Activation):
             dy: np.ndarray = None,
     ):
         if dy is None:
-            dy = np.asarray(x > 0)
+            dy = np.asarray(x > 0, dtype=x.dtype)
         else:
-            dy[:] = np.asarray(x > 0)
+            dy[:] = np.asarray(x > 0, dtype=x.dtype)
         return dy
 
     @classmethod
