@@ -11,7 +11,7 @@ from .optimization import ADAM, Backtracking, Optimizer
 
 def objective_function(X, cost, parameters, cache, stacked_params):
     parameters.unstack(stacked_params)
-    Y_pred = model_forward(X, parameters, cache)
+    Y_pred, J_pred = model_forward(X, parameters, cache)
     return cost.evaluate(Y_pred)
 
 

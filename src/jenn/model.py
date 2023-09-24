@@ -11,7 +11,7 @@ from .normalization import (
     normalize_partials,
     denormalize_partials,
 )
-from .propagation import model_forward, model_partials
+from .propagation import model_forward
 
 
 class NeuralNet:
@@ -57,12 +57,8 @@ class NeuralNet:
         train_model(data, self.parameters, **kwargs)
 
     def predict(self, X):
-        X = normalize(X, self.parameters.mu_x, self.parameters.sigma_x)
-        Y = model_forward(X, self.parameters)
-        return denormalize(Y, self.parameters.mu_y, self.parameters.sigma_y)
-
-    def predict_partials(self, X):
-        X = normalize(X, self.parameters.mu_x, self.parameters.sigma_x)
-        J = model_partials(X, self.parameters)
-        return denormalize_partials(
-            J, self.parameters.sigma_x, self.parameters.sigma_y)
+        X_norm = normalize(X, self.parameters.mu_x, self.parameters.sigma_x)
+        Y_norm, J_norm = model_forward(X_norm, self.parameters)
+        Y = denormalize(Y_norm, self.parameters.mu_y, self.parameters.sigma_y)
+        J = denormalize_partials(J_norm, self.parameters.sigma_x, self.parameters.sigma_y)
+        return Y, J

@@ -22,6 +22,7 @@ class Parameters:
         n_x = layer_sizes[0]
         n_y = layer_sizes[-1]
         self.layers = range(len(layer_sizes))
+        self.partials = range(n_x)
         self.L = len(layer_sizes)
         self.W = []
         self.b = []

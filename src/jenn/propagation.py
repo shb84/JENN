@@ -3,32 +3,60 @@ import numpy as np
 from.cache import Cache
 
 
-def layer_forward(A_prev, W, b, activation, Z=None, A=None):
+def layer_forward(layer, A_prev, parameters, cache):
     """Propagate forward through one layer."""
-    if Z is not None:
+    W = parameters.W[layer]
+    b = parameters.b[layer]
+    a = parameters.a[layer]
+    if cache is not None:
+        Z = cache.Z[layer]
+        A = cache.A[layer]
         np.dot(W, A_prev, out=Z)
         Z += b
+        a.evaluate(Z, A)
     else:
         Z = np.dot(W, A_prev) + b
-    if A is not None:
-        activation.evaluate(Z, A)
+        A = a.evaluate(Z)
+    return A, Z
+
+
+def _eye(n_x, m):
+    I = np.eye(n_x, dtype=float)
+    return np.repeat(I.reshape((n_x, n_x, 1)), m, axis=2)
+
+
+def first_layer_partials(A_prev, cache: Cache = None):
+    """Compute input layer partials."""
+    n_x, m = A_prev.shape
+    if cache:
+        cache.J[0][:] = _eye(n_x, m)
+        return cache.J[0]
     else:
-        A = activation.evaluate(Z)
-    return A
+        return _eye(n_x, m)
+
+
+def layer_partials(layer, J_prev, A, Z, parameters, cache: Cache = None):
+    """Compute j^th partial for one layer."""
+    J = J_prev
+    # r, s = A.shape
+    # W = parameters.W[layer]
+    # a = parameters.a[layer]
+    # for partial in parameters.partials:
+    #     A_prime_j_prev = J_prev[:, j, :]
+    #     Z_prime_j = np.dot(W, A_prime_j_prev)
+    #     G_prime = a.first_derivative(Z, A)
+    #     A_prime_j = G_prime * np.dot(W, A_prime_j_prev)
+    return J
 
 
 def model_forward(X, parameters, cache: Cache = None):
     """Propagate forward through all layers."""
     A = X
+    J = first_layer_partials(X, cache)
     for layer in parameters.layers:
-        W = parameters.W[layer]
-        b = parameters.b[layer]
-        a = parameters.a[layer]
-        if cache:
-            A = layer_forward(A, W, b, a, cache.Z[layer], cache.A[layer])
-        else:
-            A = layer_forward(A, W, b, a)
-    return A
+        A, Z = layer_forward(layer, A, parameters, cache)
+        J = layer_partials(layer, J, A, Z, parameters, cache)
+    return A, J
 
 
 def layer_backward(
@@ -62,30 +90,3 @@ def model_backward(data, parameters, cache, lambd=0.0):
                 lambd=lambd,
                 m=data.m,
             )
-
-
-def layer_partials(A_prev, W, b, activation, Z=None, A=None):
-    """Propagate partials forward through one layer."""
-    if Z is not None:
-        np.dot(W, A_prev, out=Z)
-        Z += b
-    else:
-        Z = np.dot(W, A_prev) + b
-    if A is not None:
-        activation.evaluate(Z, A)
-    else:
-        A = activation.evaluate(Z)
-    return A
-
-
-def model_partials(X, parameters, cache: Cache = None):
-    """Propagate partials forward through all layers."""
-    n_x, m = X.shape
-    I = np.eye(n_x, dtype=float)
-    J0 = np.repeat(I.reshape((n_x, n_x, 1)), m, axis=2)
-    if cache:
-        cache.J[0] = J0
-    for layer in parameters.layers[1:]:  # loop over layers
-        for j in range(n_x):  # loop over partials
-            JL = J0
-    return JL
