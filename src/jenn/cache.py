@@ -44,6 +44,7 @@ class Cache:
         self.G_prime = []  # store g' = da/dz
         self.G_prime_prime = []  # store g'' = d/dz( da/dz )
         self.dA = []
+        self.dA_prime = []
         for i, n in enumerate(self.layer_sizes):
             self.Z.append(np.zeros((n, m)))
             self.Z_prime.append(np.zeros((n, self.n_x, m)))
@@ -54,3 +55,4 @@ class Cache:
             self.A_prime.append(np.zeros((n, self.n_x, m)))
             self.A_prime_prime.append(np.zeros((n, self.n_x, m)))
             self.dA.append(np.zeros((n, m)))
+            self.dA_prime.append(np.zeros((n, self.n_x, m)))
