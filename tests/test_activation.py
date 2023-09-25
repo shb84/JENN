@@ -4,6 +4,7 @@ import jenn
 from time import time
 
 from importlib.util import find_spec
+from ._utils import finite_difference
 
 if find_spec("matplotlib"):
     import matplotlib.pyplot as plt
@@ -19,54 +20,16 @@ ACTIVATIONS = dict(
 )
 
 
-# Not an efficient implementation, but okay for testing
-def _forward_difference(f: callable, x: np.ndarray, dx: float = 1e-6):
-    """Compute partials of y = f(x) using forward difference."""
-    n_x, m = x.shape
-    dy = np.zeros((n_x, m))
-    for i in range(0, n_x):
-        dy[i] = np.divide(f(x+dx) - f(x), dx)
-    return dy
-
-
-# Not an efficient implementation, but okay for testing
-def _backward_difference(f: callable, x: np.ndarray, dx: float = 1e-6):
-    """Compute partials of y = f(x) using backward difference."""
-    n_x, m = x.shape
-    dy = np.zeros((n_x, m))
-    for i in range(0, n_x):
-        dy[i] = np.divide(f(x) - f(x-dx), dx)
-    return dy
-
-
-# Not an efficient implementation, but okay for testing
-def _central_difference(f: callable, x: np.ndarray, dx: float = 1e-6):
-    """Compute partials of y = f(x) using central difference."""
-    n_x, m = x.shape
-    dy = np.zeros((n_x, m))
-    for i in range(0, n_x):
-        dy[i] = np.divide(f(x+dx) - f(x-dx), 2 * dx)
-    return dy
-
-
-def _finite_difference(f: callable, x: np.ndarray, dx: float = 1e-6):
-    """Compute partials of y = f(x) using ctr, fwd or bwd difference."""
-    dy = _central_difference(f, x, dx)
-    dy[:, :1] = _forward_difference(f, x, dx)[:, :1]
-    dy[:, -1:] = _backward_difference(f, x, dx)[:, -1:]
-    return dy
-
-
 def _check_activation_partials(
         x: np.ndarray, activation: jenn.activation.Activation):
     """Test 1st and 2nd derivative of activation (default = tanh)"""
     def dy(z):
         """finite difference 1st derivative"""
-        return _finite_difference(activation.evaluate, z)
+        return finite_difference(activation.evaluate, z)
 
     def ddy(z):
         """Finite difference 2nd derivative"""
-        return _finite_difference(activation.first_derivative, z, dx=1e-6)
+        return finite_difference(activation.first_derivative, z, dx=1e-6)
 
     assert np.allclose(activation.first_derivative(x), dy(x), atol=1e-6)
     assert np.allclose(activation.second_derivative(x), ddy(x), atol=1e-6)

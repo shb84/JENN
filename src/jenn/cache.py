@@ -29,6 +29,10 @@ class Cache:
     def n_y(self):
         return self.layer_sizes[-1]
 
+    @property
+    def J(self):
+        return self.A_prime[-1]
+
     def __init__(self, layer_sizes, m=1):
         self.layer_sizes = layer_sizes
         self.Z = []  # store z = w a_prev + b
@@ -39,7 +43,6 @@ class Cache:
         self.A_prime_prime = []  # store a'' = d/dx[j] ( da/dx[j] )
         self.G_prime = []  # store g' = da/dz
         self.G_prime_prime = []  # store g'' = d/dz( da/dz )
-        self.J = []  # Jacobian w.r.t. x for each layer
         self.dA = []
         for i, n in enumerate(self.layer_sizes):
             self.Z.append(np.zeros((n, m)))
@@ -50,5 +53,4 @@ class Cache:
             self.A.append(np.zeros((n, m)))
             self.A_prime.append(np.zeros((n, self.n_x, m)))
             self.A_prime_prime.append(np.zeros((n, self.n_x, m)))
-            self.J.append(np.zeros((n, self.n_x, m)))
             self.dA.append(np.zeros((n, m)))

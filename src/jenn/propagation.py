@@ -8,15 +8,11 @@ def layer_forward(layer, A_prev, parameters, cache):
     W = parameters.W[layer]
     b = parameters.b[layer]
     a = parameters.a[layer]
-    if cache is not None:
-        Z = cache.Z[layer]
-        A = cache.A[layer]
-        np.dot(W, A_prev, out=Z)
-        Z += b
-        a.evaluate(Z, A)
-    else:
-        Z = np.dot(W, A_prev) + b
-        A = a.evaluate(Z)
+    Z = cache.Z[layer]
+    A = cache.A[layer]
+    np.dot(W, A_prev, out=Z)
+    Z += b
+    a.evaluate(Z, A)
     return A, Z
 
 
@@ -28,35 +24,31 @@ def _eye(n_x, m):
 def first_layer_partials(A_prev, cache: Cache = None):
     """Compute input layer partials."""
     n_x, m = A_prev.shape
-    if cache:
-        cache.J[0][:] = _eye(n_x, m)
-        return cache.J[0]
-    else:
-        return _eye(n_x, m)
+    cache.A_prime[0][:] = _eye(n_x, m)
+    return cache.A_prime[0]
 
 
-def layer_partials(layer, J_prev, A, Z, parameters, cache: Cache = None):
+def layer_partials(layer, A_prime_prev, A, Z, parameters, cache: Cache = None):
     """Compute j^th partial for one layer."""
-    J = J_prev
-    # r, s = A.shape
-    # W = parameters.W[layer]
-    # a = parameters.a[layer]
-    # for partial in parameters.partials:
-    #     A_prime_j_prev = J_prev[:, j, :]
-    #     Z_prime_j = np.dot(W, A_prime_j_prev)
-    #     G_prime = a.first_derivative(Z, A)
-    #     A_prime_j = G_prime * np.dot(W, A_prime_j_prev)
-    return J
+    W = parameters.W[layer]
+    a = parameters.a[layer]
+    i = layer
+    cache.G_prime[i][:] = a.first_derivative(Z, A)
+    for j in range(parameters.n_x):
+        if cache:
+            cache.Z_prime[i][:, j, :] = np.dot(W, A_prime_prev[:, j, :])
+            cache.A_prime[i][:, j, :] = \
+                cache.G_prime[i] * np.dot(W, A_prime_prev[:, j, :])
+    return cache.A_prime[i]
 
 
-def model_forward(X, parameters, cache: Cache = None):
+def model_forward(A, parameters, cache: Cache):
     """Propagate forward through all layers."""
-    A = X
-    J = first_layer_partials(X, cache)
+    A_prime = first_layer_partials(A, cache)
     for layer in parameters.layers:
         A, Z = layer_forward(layer, A, parameters, cache)
-        J = layer_partials(layer, J, A, Z, parameters, cache)
-    return A, J
+        A_prime = layer_partials(layer, A_prime, A, Z, parameters, cache)
+    return A, A_prime
 
 
 def layer_backward(

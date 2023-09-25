@@ -18,12 +18,13 @@ def xor() -> Tuple[jenn.Dataset, jenn.Parameters]:
     parameters.W[1][:] = np.array([[1, 1], [1, 1]])   # layer 1
     parameters.b[2][:] = np.array([[0]])              # layer 2
     parameters.W[2][:] = np.array([[1, -2]])          # layer 2
-    return data, parameters
+    cache = jenn.Cache(layer_sizes, m=data.m)
+    return data, parameters, cache
 
 
 @pytest.fixture
 def sinusoidal_data_1D(
-        m_train=4, m_test=30, lb=-np.pi, ub=np.pi,
+        m_train=100, m_test=30, lb=-np.pi, ub=np.pi,
 ) -> Tuple[jenn.Dataset, jenn.Dataset]:
     """Generate 1D sinusoidal synthetic data."""
 
@@ -32,10 +33,6 @@ def sinusoidal_data_1D(
 
     def dfdx(x):
         return np.sin(x) + x * np.cos(x)
-
-    # Domain
-    lb = -np.pi
-    ub = np.pi
 
     # Training data
     m = m_train  # number of training examples

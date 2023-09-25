@@ -41,8 +41,8 @@ def test_finite_difference():
 
 def test_model_forward(xor):
     """Test forward propagation using XOR."""
-    data, parameters = xor
-    computed = jenn.model_forward(data.X, parameters)
+    data, parameters, cache = xor
+    computed = jenn.model_forward(data.X, parameters, cache)[0]
     expected = data.Y
     msg = f'computed = {computed} vs. expected = {expected}'
     assert np.all(computed == expected), msg
@@ -50,18 +50,18 @@ def test_model_forward(xor):
 
 def test_model_backward(xor):
     """Test backward propagation against finite difference using XOR."""
-    data, parameters = xor
+    data, parameters, cache = xor
 
-    cache = jenn.Cache(layer_sizes=[2, 2, 1], m=data.m)
     jenn.model_forward(data.X, parameters, cache)  # predict to populate cache
     jenn.model_backward(data, parameters, cache)  # partials computed in place
 
     parameter_copy = deepcopy(parameters)  # de-conflict inplace updating
+    cache_copy = deepcopy(cache)  # de-conflict inplace updating
     cost = jenn.Cost(data, parameter_copy)
 
     def cost_FD(x):
         parameter_copy.unstack(x)
-        Y_pred = jenn.model_forward(data.X, parameter_copy)
+        Y_pred = jenn.model_forward(data.X, parameter_copy, cache_copy)[0]
         return cost.evaluate(Y_pred)
 
     assert cost_FD(x=parameters.stack()) == 0.0, f'provided data is wrong'

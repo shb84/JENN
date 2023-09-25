@@ -4,6 +4,7 @@ import numpy as np
 
 from .parameters import Parameters
 from .training import train_model
+from .cache import Cache
 from .data import Dataset
 from .normalization import (
     normalize,
@@ -56,9 +57,11 @@ class NeuralNet:
             self.parameters.sigma_y[:] = 1.0
         train_model(data, self.parameters, **kwargs)
 
-    def predict(self, X):
+    def predict(self, X, cache: Cache = None):
+        if cache is None:
+            cache = Cache(self.parameters.layer_sizes, m=X.shape[1])
         X_norm = normalize(X, self.parameters.mu_x, self.parameters.sigma_x)
-        Y_norm, J_norm = model_forward(X_norm, self.parameters)
+        Y_norm, J_norm = model_forward(X_norm, self.parameters, cache)
         Y = denormalize(Y_norm, self.parameters.mu_y, self.parameters.sigma_y)
         J = denormalize_partials(J_norm, self.parameters.sigma_x, self.parameters.sigma_y)
         return Y, J
