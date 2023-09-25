@@ -15,9 +15,9 @@ def objective_function(X, cost, parameters, cache, stacked_params):
     return cost.evaluate(Y_pred)
 
 
-def objective_gradient(data, parameters, cache, lambd, stacked_params):
+def objective_gradient(data, parameters, cache, lambd, gamma, stacked_params):
     parameters.unstack(stacked_params)
-    model_backward(data, parameters, cache, lambd)
+    model_backward(data, parameters, cache, lambd, gamma)
     return parameters.stack_partials()
 
 
@@ -64,6 +64,7 @@ def train_model(
                 parameters,
                 cache,
                 lambd,
+                gamma,
             )
             optimizer.minimize(
                 x=stacked_params,
