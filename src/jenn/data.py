@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 from .mini_batch import mini_batches
+from .normalization import normalize, normalize_partials
 
 
 def avg(array):
@@ -75,7 +76,7 @@ class Dataset:
         return std(self.Y)
 
     def mini_batches(self, batch_size: int, shuffle=True, random_state=None):
-        """Breakup data into multiple batches"""
+        """Breakup data into multiple batches."""
         X = self.X
         Y = self.Y
         J = self.J
@@ -83,3 +84,11 @@ class Dataset:
         if self.J is None:
             return [Dataset(X[:, b], Y[:, b]) for b in batches]
         return [Dataset(X[:, b], Y[:, b], J[:, :, b]) for b in batches]
+
+    def normalize(self):
+        """Return normalized Dataset."""
+        X_norm = normalize(self.X, self.avg_x, self.std_x)
+        Y_norm = normalize(self.Y, self.avg_y, self.std_y)
+        J_norm = normalize_partials(self.J, self.std_x, self.std_y)
+        return Dataset(X_norm, Y_norm, J_norm)
+

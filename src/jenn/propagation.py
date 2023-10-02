@@ -46,14 +46,27 @@ def next_layer_forward(layer, parameters, cache):
     g.evaluate(Z, A)
 
 
-def model_forward(X, parameters, cache: Cache):
-    """Propagate forward through all layers."""
+def model_partials_forward(X, parameters, cache: Cache):
+    """Propagate forward through all layers, including partials."""
     first_layer_forward(X, cache)
     first_layer_partials(X, cache)
     for layer in parameters.layers[1:]:
         next_layer_forward(layer, parameters, cache)
         next_layer_partials(layer, parameters, cache)
     return cache.A[-1], cache.A_prime[-1]
+
+
+def model_forward(X, parameters, cache: Cache):
+    """Propagate forward through all layers, but don't compute partials."""
+    first_layer_forward(X, cache)
+    for layer in parameters.layers[1:]:
+        next_layer_forward(layer, parameters, cache)
+    return cache.A[-1]
+
+
+def partials_forward(X, parameters, cache: Cache):
+    """Propagate forward through all layers, but return only partials."""
+    return model_partials_forward(X, parameters, cache)[-1]
 
 
 def last_layer_backward(cache, data):

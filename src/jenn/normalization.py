@@ -10,8 +10,8 @@ def std(array):
 
 
 def safe_divide(value, eps=np.finfo(float).eps):
-    if value == 0.0:
-        return value + eps
+    mask = value == 0.0
+    value[mask] += eps
     return value
 
 

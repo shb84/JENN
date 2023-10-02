@@ -3,18 +3,20 @@ import jenn
 import numpy as np
 
 
-def test_least_squares(sinusoidal_data_1D):
+def test_least_squares():
     """Test that least squares cost function evaluates to known answers."""
-    training_data, test_data = sinusoidal_data_1D
+    x, y, dydx = jenn.synthetic.Sinusoid.sample(100)
 
     parameters = jenn.Parameters(layer_sizes=[2, 2, 1])
-    cost = jenn.Cost(test_data, parameters, lambd=0.0)
+    data = jenn.Dataset(x, y, dydx)
+    cost = jenn.Cost(data, parameters, lambd=0.0)
 
     # Verify that cost is zero when prediction is perfect
-    assert cost.evaluate(Y_pred=test_data.Y) == 0
+    assert cost.evaluate(y, dydx) == 0
 
     # Verify that cost is non-zero when prediction is imperfect
-    assert cost.evaluate(Y_pred=test_data.Y + 2 * np.random.rand()) != 0
+    eps = 2 * np.random.rand()
+    assert cost.evaluate(y + eps, dydx + eps) != 0
 
     # TODO: check prediction returns known result
 

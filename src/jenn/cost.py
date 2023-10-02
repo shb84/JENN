@@ -146,7 +146,7 @@ class Cost:
         self.gamma = gamma
         self.squared_loss = SquaredLoss(data.Y)
         self.regularization = Regularization(parameters.W)
-        if data.J is not None:
+        if data.J is not None and gamma > 0.0:
             self.gradient_enhancement = GradientEnhancement(data.J)
 
     def evaluate(self, Y_pred, J_pred=None):

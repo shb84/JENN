@@ -2,26 +2,23 @@ from __future__ import annotations
 
 import numpy as np
 
+from typing import List, Tuple
+
 from .parameters import Parameters
 from .training import train_model
 from .cache import Cache
 from .data import Dataset
-from .normalization import (
-    normalize,
-    denormalize,
-    normalize_partials,
-    denormalize_partials,
-)
-from .propagation import model_forward
+from .normalization import normalize, denormalize, denormalize_partials
+from .propagation import partials_forward, model_forward, model_partials_forward
 
 
 class NeuralNet:
 
     def __init__(
             self,
-            layer_sizes,
-            hidden_activation='tanh',
-            output_activation='linear',
+            layer_sizes: List[int],
+            hidden_activation: str = 'tanh',
+            output_activation: str = 'linear',
     ):
         self.parameters = Parameters(
             layer_sizes,
@@ -29,39 +26,58 @@ class NeuralNet:
             output_activation,
         )
 
-    def _normalize(self, data: Dataset):
-        X = normalize(data.X, data.avg_x, data.std_x)
-        Y = normalize(data.Y, data.avg_y, data.std_y)
-        J = normalize_partials(data.J, data.avg_x, data.std_y)
-        self.parameters.mu_x = data.std_x
-        self.parameters.mu_y = data.std_y
-        self.parameters.sigma_x = data.std_x
-        self.parameters.sigma_y = data.std_y
-        return Dataset(X, Y, J)
-
-    def fit(self, X, Y, J=None, is_normalize=False, **kwargs):
+    def fit(
+            self,
+            X: np.ndarray,
+            Y: np.ndarray,
+            J: np.ndarray = None,
+            is_normalize: bool = False,
+            **kwargs,
+    ):
         data = Dataset(X, Y, J)
+        params = self.parameters
+        params.mu_x[:] = 0.0
+        params.mu_y[:] = 0.0
+        params.sigma_x[:] = 1.0
+        params.sigma_y[:] = 1.0
         if is_normalize:
-            self.parameters.mu_x[:] = data.avg_x
-            self.parameters.mu_y[:] = data.avg_y
-            self.parameters.sigma_x[:] = data.std_x
-            self.parameters.sigma_y[:] = data.std_y
-            X_norm = normalize(data.X, data.avg_x, data.std_x)
-            Y_norm = normalize(data.Y, data.avg_y, data.std_y)
-            J_norm = normalize_partials(data.J, data.std_x, data.std_y)
-            data = Dataset(X_norm, Y_norm, J_norm)
-        else:
-            self.parameters.mu_x[:] = 0.0
-            self.parameters.mu_y[:] = 0.0
-            self.parameters.sigma_x[:] = 1.0
-            self.parameters.sigma_y[:] = 1.0
-        train_model(data, self.parameters, **kwargs)
+            params.mu_x[:] = data.avg_x
+            params.mu_y[:] = data.avg_y
+            params.sigma_x[:] = data.std_x
+            params.sigma_y[:] = data.std_y
+            data = data.normalize()
+        train_model(data, params, **kwargs)
 
-    def predict(self, X, cache: Cache = None):
+    def predict(self, x: np.ndarray, cache: Cache = None) -> np.ndarray:
+        """Return y = f(x)"""
+        params = self.parameters
         if cache is None:
-            cache = Cache(self.parameters.layer_sizes, m=X.shape[1])
-        X_norm = normalize(X, self.parameters.mu_x, self.parameters.sigma_x)
-        Y_norm, J_norm = model_forward(X_norm, self.parameters, cache)
-        Y = denormalize(Y_norm, self.parameters.mu_y, self.parameters.sigma_y)
-        J = denormalize_partials(J_norm, self.parameters.sigma_x, self.parameters.sigma_y)
-        return Y, J
+            cache = Cache(params.layer_sizes, m=x.shape[1])
+        x_norm = normalize(x, params.mu_x, params.sigma_x)
+        y_norm = model_forward(x_norm, params, cache)
+        y = denormalize(y_norm, params.mu_y, params.sigma_y)
+        return y
+
+    def predict_partials(
+            self, x: np.ndarray, cache: Cache = None) -> np.ndarray:
+        """Return dy/dx = f'(x)"""
+        params = self.parameters
+        if cache is None:
+            cache = Cache(params.layer_sizes, m=x.shape[1])
+        x_norm = normalize(x, params.mu_x, params.sigma_x)
+        dydx_norm = partials_forward(x_norm, params, cache)
+        dydx = denormalize_partials(dydx_norm, params.sigma_x, params.sigma_y)
+        return dydx
+
+    def evaluate(
+            self, x: np.ndarray, cache: Cache = None,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Return y = f(x) and dy/dx = f'(x)"""
+        params = self.parameters
+        if cache is None:
+            cache = Cache(params.layer_sizes, m=x.shape[1])
+        x_norm = normalize(x, params.mu_x, params.sigma_x)
+        y_norm, dydx_norm = model_partials_forward(x_norm, params, cache)
+        y = denormalize(y_norm, params.mu_y, params.sigma_y)
+        dydx = denormalize_partials(dydx_norm, params.sigma_x, params.sigma_y)
+        return y, dydx

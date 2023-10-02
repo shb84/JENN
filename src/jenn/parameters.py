@@ -32,7 +32,7 @@ class Parameters:
         self.mu_x = np.zeros((self.n_x, 1))
         self.mu_y = np.zeros((self.n_y, 1))
         self.sigma_x = np.eye(self.n_x, 1)
-        self.sigma_y = np.eye(self.n_x, 1)
+        self.sigma_y = np.eye(self.n_y, 1)
         previous_layer_size = None
         for i, layer_size in enumerate(layer_sizes):
             if i == 0:  # input layer

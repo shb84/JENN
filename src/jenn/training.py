@@ -4,15 +4,15 @@ from collections import defaultdict
 from .parameters import Parameters
 from .data import Dataset
 from .cost import Cost
-from .propagation import model_backward, model_forward
+from .propagation import model_backward, model_partials_forward
 from .cache import Cache
 from .optimization import ADAM, Backtracking, Optimizer
 
 
 def objective_function(X, cost, parameters, cache, stacked_params):
     parameters.unstack(stacked_params)
-    Y_pred, J_pred = model_forward(X, parameters, cache)
-    return cost.evaluate(Y_pred)
+    Y_pred, J_pred = model_partials_forward(X, parameters, cache)
+    return cost.evaluate(Y_pred, J_pred)
 
 
 def objective_gradient(data, parameters, cache, lambd, gamma, stacked_params):
