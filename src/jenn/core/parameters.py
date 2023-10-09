@@ -59,34 +59,59 @@ class Parameters:
             previous_layer_size = layer_size
         self.layer_sizes = layer_sizes
 
-    def stack(self):
+    def stack(self, per_layer: bool = False) -> np.ndarray or list:
         """Stack W, b into a single array for each layer"""
         stacks = []
         for i in range(self.L):
-            W = self.W[i].ravel()
-            b = self.b[i].ravel()
-            stack = np.concatenate([W, b]).reshape((-1, 1))
+            stack = np.concatenate([
+                self.W[i].ravel(),
+                self.b[i].ravel()
+            ]).reshape((-1, 1))
             stacks.append(stack)
+        if per_layer:
+            return stacks
+        return np.concatenate(stacks).reshape((-1, 1))
+
+    def _column_to_stacks(self, params: np.ndarray) -> list:
+        """Convert params represented as single column of stacked layers to
+        list of stacks, where a stack is a one column representation of W, b
+        for that layer only."""
+        stacks = []
+        k = 0
+        for i in range(self.L):  # single stack to many stacks (for each layer)
+            n_w, p = self.W[i].shape
+            n_b, _ = self.b[i].shape
+            n = n_w * p + n_b
+            stack = params[k:k + n]
+            stacks.append(stack)
+            k += n
         return stacks
 
-    def unstack(self, params: np.ndarray):
-        """Unstack W, b from single array stacks back into original arrays"""
-        for i, array in enumerate(params):
+    def unstack(self, params: np.ndarray or list):
+        """Unstack W, b back into list of arrays"""
+        if isinstance(params, np.ndarray):  # single column
+            params = self._column_to_stacks(params)
+        for i, array in enumerate(params):  # stacks to params for each layer
             n, p = self.W[i].shape
             self.W[i][:] = array[:n * p].reshape(n, p)
             self.b[i][:] = array[n * p:].reshape(n, 1)
 
-    def stack_partials(self):
+    def stack_partials(self, per_layer: bool = False) -> np.ndarray or list:
         stacks = []
         for i in range(self.L):
-            dW = self.dW[i].ravel()
-            db = self.db[i].ravel()
-            stack = np.concatenate([dW, db]).reshape((-1, 1))
+            stack = np.concatenate([
+                self.dW[i].ravel(),
+                self.db[i].ravel(),
+            ]).reshape((-1, 1))
             stacks.append(stack)
-        return stacks
+        if per_layer:
+            return stacks
+        return np.concatenate(stacks).reshape((-1, 1))
 
     def unstack_partials(self, partials):
-        """Unstack dW, db from single array stacks back into original arrays"""
+        """Unstack dW, db back into list of arrays"""
+        if isinstance(partials, np.ndarray):  # single column
+            partials = self._column_to_stacks(partials)
         for i, array in enumerate(partials):
             n, p = self.dW[i].shape
             self.dW[i][:] = array[:n * p].reshape(n, p)

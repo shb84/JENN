@@ -1,48 +1,85 @@
 """Test that forward and backward propagation are working."""
 import numpy as np
-import jenn
 from copy import deepcopy
+from typing import List
+
+import jenn
 
 
-def test_finite_difference():
-    """Test that finite difference is working. Critical since it's used to
-    check that backpropagation is working."""
+def _finite_difference(cost, params, step=1e-6):
+    """Use finite difference to compute partials of cost function
+    with respect to neural net parameters (backpropagation)."""
+    grads = list()
+    dx = step
+    for x in params:
+        n, p = x.shape
+        dy = np.zeros((n, p))
+        for i in range(0, n):
+            for j in range(0, p):
+                # Forward step
+                x[i, j] += dx
+                y_fwd = cost(params)
+                x[i, j] -= dx
 
-    parameters = jenn.Parameters([2, 2, 1])
+                # Backward step
+                x[i, j] -= dx
+                y_bwd = cost(params)
+                x[i, j] += dx
 
-    parameters.W[0][:] = 1.
-    parameters.b[0][:] = 1.
-    parameters.W[1][:] = 1.
-    parameters.b[1][:] = 1.
-    parameters.W[2][:] = 1.
-    parameters.b[2][:] = 1.
+                # Central difference
+                dy[i, j] = np.divide(y_fwd - y_bwd, 2 * dx)
 
-    def f(x):  # y = x**2
-        y = 0
-        for i in range(len(x)):
-            y += np.sum(x[i] ** 2)
-        return y
+        grads.append(dy)
+    return grads
 
-    def dfdx(x):  # dydx = 2*x
-        dydx = []
-        for i in range(len(x)):
-            dydx.append(2 * x[i])
-        return dydx
 
-    p = parameters.stack()
+def _grad_check(dydx: List[np.ndarray], dydx_FD: List[np.ndarray],
+                atol: float = 1e-6, rtol: float = 1e-4) -> bool:
+    """
+    Compare analytical gradient against finite difference
 
-    computed = jenn.finite_diff(f, p)
-    expected = dfdx(p)
+    Parameters
+    ----------
+    x: List[np.ndarray]
+        Point at which to evaluate gradient
 
-    for layer in range(parameters.L):
-        msg = f'finite difference routine is wrong in layer {layer}'
-        assert np.allclose(computed[layer], expected[layer], atol=1e-6), msg
+    f: callable
+        Function handle to use for finite difference
+
+    dx: float
+        Finite difference step
+
+    tol: float
+        Tolerance below which agreement is considered acceptable
+        Default = 1e-6
+
+    verbose: bool
+        Print output to standard out
+        Default = True
+
+    Returns
+    -------
+    success: bool
+        Returns True iff finite difference and analytical grads agree
+    """
+    success = True
+    for i in range(len(dydx)):
+        if not np.allclose(dydx[i], dydx_FD[i], atol=atol, rtol=rtol):
+            success = False
+        if not success:
+            msg = f"The gradients of layer {i} are wrong\n"
+        else:
+            msg = f"The gradients of layer {i} are correct\n"
+        msg += f"Finite dif: grad[{i}] = {dydx_FD[i].squeeze()}\n"
+        msg += f"Analytical: grad[{i}] = {dydx[i].squeeze()}\n\n"
+        assert success, msg
+    return success
 
 
 def test_model_forward(xor):
     """Test forward propagation using XOR."""
     data, parameters, cache = xor
-    computed = jenn.model_partials_forward(data.X, parameters, cache)[0]
+    computed = jenn.core.partials_forward(data.X, parameters, cache)
     expected = data.Y
     msg = f'computed = {computed} vs. expected = {expected}'
     assert np.all(computed == expected), msg
@@ -52,26 +89,42 @@ def test_model_backward(xor):
     """Test backward propagation against finite difference using XOR."""
     data, parameters, cache = xor
 
-    jenn.model_partials_forward(data.X, parameters, cache)  # predict to populate cache
-    jenn.model_backward(data, parameters, cache)  # partials computed in place
+    ###########################
+    # Perfectly trained model #
+    ###########################
 
-    parameter_copy = deepcopy(parameters)  # de-conflict inplace updating
-    cache_copy = deepcopy(cache)  # de-conflict inplace updating
-    cost = jenn.Cost(data, parameter_copy)
+    jenn.core.model_partials_forward(
+        data.X, parameters, cache)  # predict to populate cache
+
+    jenn.core.model_backward(
+        data, parameters, cache)  # partials computed in place
+
+    dydx = parameters.stack_partials(per_layer=False)
+
+    assert np.allclose(dydx, 0.0)  # partials should be 0 at optimum params
+
+    ###################
+    # Imperfect model #
+    ###################
+
+    for i in range(parameters.L): # falsify model so partials are not zero
+        parameters.W[i][:] += 10 * np.random.rand()
+        parameters.b[i][:] += 10 * np.random.rand()
+
+    jenn.core.model_partials_forward(
+        data.X, parameters, cache)  # predict to populate cache
+
+    jenn.core.model_backward(
+        data, parameters, cache)  # partials computed in place
 
     def cost_FD(x):
-        parameter_copy.unstack(x)
-        Y_pred = jenn.model_partials_forward(data.X, parameter_copy, cache_copy)[0]
+        params = deepcopy(parameters)  # make copy b/c arrays updated in place
+        cost = jenn.core.Cost(data, params)
+        params.unstack(x)
+        Y_pred = jenn.core.model_forward(data.X, params, deepcopy(cache))
         return cost.evaluate(Y_pred)
 
-    assert cost_FD(x=parameters.stack()) == 0.0, f'provided data is wrong'
-    partials = jenn.finite_diff(cost_FD, parameter_copy.stack())
-    parameter_copy.unstack_partials(partials)
+    dydx = parameters.stack_partials(per_layer=True)
+    dydx_FD = _finite_difference(cost_FD, parameters.stack(per_layer=True))
 
-    for layer in range(parameters.L):
-        msg = f"partials in layer {layer} don't match finite difference"
-        assert np.allclose(
-            parameter_copy.dW[layer], parameters.dW[layer], atol=1e-6), msg
-        assert np.allclose(
-            parameter_copy.db[layer], parameters.db[layer], atol=1e-6), msg
-
+    assert _grad_check(dydx, dydx_FD)

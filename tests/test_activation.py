@@ -14,14 +14,14 @@ else:
 
 
 ACTIVATIONS = dict(
-    relu=jenn.activation.Relu,
-    tanh=jenn.activation.Tanh,
-    linear=jenn.activation.Linear,
+    relu=jenn.core.activation.Relu,
+    tanh=jenn.core.activation.Tanh,
+    linear=jenn.core.activation.Linear,
 )
 
 
 def _check_activation_partials(
-        x: np.ndarray, activation: jenn.activation.Activation):
+        x: np.ndarray, activation: jenn.core.activation.Activation):
     """Test 1st and 2nd derivative of activation (default = tanh)"""
     def dy(z):
         """finite difference 1st derivative"""
@@ -39,14 +39,14 @@ def test_tanh():
     """Test tanh activation"""
     x = np.linspace(-10, 10, 51).reshape((1, -1))
     assert np.allclose(ACTIVATIONS['tanh'].evaluate(x), np.tanh(x), atol=1e-6)
-    _check_activation_partials(x, activation=jenn.activation.Tanh)
+    _check_activation_partials(x, activation=jenn.core.activation.Tanh)
 
 
 def test_linear():
     """Test linear activation"""
     x = np.linspace(-10, 10, 51).reshape((1, -1))
     assert np.allclose(ACTIVATIONS['linear'].evaluate(x), x, atol=1e-6)
-    _check_activation_partials(x, activation=jenn.activation.Linear)
+    _check_activation_partials(x, activation=jenn.core.activation.Linear)
 
 
 def test_relu():
@@ -58,9 +58,9 @@ def test_relu():
     assert np.allclose(array[positive], x[positive], atol=1e-6)
     assert np.allclose(array[negative], 0.0, atol=1e-6)
     _check_activation_partials(
-        x[negative].reshape((1, -1)), activation=jenn.activation.Relu)
+        x[negative].reshape((1, -1)), activation=jenn.core.activation.Relu)
     _check_activation_partials(
-        x[positive].reshape((1, -1)), activation=jenn.activation.Relu)
+        x[positive].reshape((1, -1)), activation=jenn.core.activation.Relu)
 
 
 def test_inplace():

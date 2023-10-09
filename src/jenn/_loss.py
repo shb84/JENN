@@ -10,7 +10,7 @@ import numpy as np
 from typing import List
 
 
-def regularization(w: List[np.ndarray], m: int, alpha: float = 0.) -> np.float:
+def regularization(w: List[np.ndarray], m: int, alpha: float = 0.) -> float:
     """
     Compute L2 norm penalty
 
@@ -29,11 +29,11 @@ def regularization(w: List[np.ndarray], m: int, alpha: float = 0.) -> np.float:
     penalty = 0.0
     for theta in w:
         penalty += np.squeeze(0.5 * alpha * np.sum(np.square(theta)))
-    return 1. / m * np.float(penalty)
+    return 1. / m * float(penalty)
 
 
 def gradient_enhancement(dy_true: np.ndarray, dy_pred: np.ndarray,
-                         gamma: float = 1.) -> np.float:
+                         gamma: float = 1.) -> float:
     """
     Compute least squares estimator for the partials
 
@@ -66,10 +66,10 @@ def gradient_enhancement(dy_true: np.ndarray, dy_pred: np.ndarray,
             dy_j_true = dy_true[k, j, :].reshape(1, m)
             loss += np.squeeze(np.dot((dy_j_pred - dy_j_true),
                                       (dy_j_pred - dy_j_true).T))
-    return 0.5 * gamma / m * np.float(loss)
+    return 0.5 * gamma / m * float(loss)
 
 
-def squared_loss(y_true: np.ndarray, y_pred: np.ndarray) -> np.float:
+def squared_loss(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
     Compute least squares estimator for the states
 

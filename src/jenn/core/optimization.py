@@ -27,12 +27,8 @@ class Update(ABC):
 
 class GD(Update):
 
-    def _update(self, params: List[np.ndarray], grads: List[np.ndarray],
-                alpha: float):
-        new_params = []
-        for k, x in enumerate(params):
-            new_params.append(x - alpha * grads[k])
-        return new_params
+    def _update(self, params: np.ndarray, grads: np.ndarray, alpha: float):
+        return (params - alpha * grads).reshape(params.shape)
 
 
 class ADAM(Update):
@@ -61,8 +57,12 @@ class ADAM(Update):
         self._t = 0
         self._grads = None
 
-    def _update(self, params: List[np.ndarray], grads: List[np.ndarray],
-                alpha: float) -> List[np.ndarray]:
+    def _update(
+            self,
+            params: np.ndarray,
+            grads: np.ndarray,
+            alpha: float,
+    ) -> np.ndarray:
         """
         Take a single step in direction of improvement according to ADAM
 
@@ -90,33 +90,32 @@ class ADAM(Update):
         s = self._s
         t = self._t
 
-        if not v:
-            v = [np.zeros(param.shape) for param in params]
-        if not s:
-            s = [np.zeros(param.shape) for param in params]
+        if v is None:
+            v = np.zeros(params.shape)
+        if s is None:
+            s = np.zeros(params.shape)
 
         a = [id(x) for x in grads]
         b = []
-        if self._grads:
+        if self._grads is not None:
             b = [id(x) for x in self._grads]
 
         if a != b:
             self._grads = grads
             t += 1  # only update for new search directions
 
-        new_params = []
-        for k, x in enumerate(params):
-            v[k] = beta_1 * v[k] + (1. - beta_1) * grads[k]
-            s[k] = beta_2 * s[k] + (1. - beta_2) * np.square(grads[k])
-            v_corrected = v[k] / (1. - beta_1 ** t)
-            s_corrected = s[k] / (1. - beta_2 ** t) + EPS
-            new_params.append(x - alpha * v_corrected / np.sqrt(s_corrected))
+        v = beta_1 * v + (1. - beta_1) * grads
+        s = beta_2 * s + (1. - beta_2) * np.square(grads)
+        v_corrected = v / (1. - beta_1 ** t)
+        s_corrected = s / (1. - beta_2 ** t) + EPS
+
+        x = params - alpha * v_corrected / np.sqrt(s_corrected)
 
         self._v = v
         self._s = s
         self._t = t
 
-        return new_params
+        return x.reshape(params.shape)
 
 
 class LineSearch(ABC):
@@ -125,7 +124,7 @@ class LineSearch(ABC):
         self.update = update
 
     @abstractmethod
-    def search(self, params: List[np.ndarray], grads: List[np.ndarray],
+    def search(self, params: np.ndarray, grads: List[np.ndarray],
                cost: callable, learning_rate: float):
         raise NotImplementedError
 
@@ -140,7 +139,7 @@ class Backtracking(LineSearch):
         self.max_count = max_count
 
     def search(self,
-               params: List[np.ndarray], grads: List[np.ndarray],
+               params: np.ndarray, grads: np.ndarray,
                cost: callable, learning_rate: float = 0.1):
         """
         Take multiple update steps along search direction determined by update
@@ -186,7 +185,7 @@ class Optimizer:
         self.vars_history = None
         self.cost_history = None
 
-    def minimize(self, x: List[np.ndarray], f: callable, dfdx: callable,
+    def minimize(self, x: np.ndarray, f: callable, dfdx: callable,
                  alpha: float = 0.01, max_iter: int = 100,
                  verbose: bool = False, epoch: int = None,
                  batch: int = None) -> List[np.ndarray]:

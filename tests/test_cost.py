@@ -7,9 +7,9 @@ def test_least_squares():
     """Test that least squares cost function evaluates to known answers."""
     x, y, dydx = jenn.synthetic.Sinusoid.sample(100)
 
-    parameters = jenn.Parameters(layer_sizes=[2, 2, 1])
-    data = jenn.Dataset(x, y, dydx)
-    cost = jenn.Cost(data, parameters, lambd=0.0)
+    parameters = jenn.core.Parameters(layer_sizes=[2, 2, 1])
+    data = jenn.core.Dataset(x, y, dydx)
+    cost = jenn.core.Cost(data, parameters, lambd=0.0)
 
     # Verify that cost is zero when prediction is perfect
     assert cost.evaluate(y, dydx) == 0
