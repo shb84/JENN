@@ -8,8 +8,7 @@ def mini_batches(
         shuffle: bool = True,
         random_state: int = None,
 ) -> list:
-    """
-    Create randomized mini-batches by returning a list of tuples, where
+    """Create randomized mini-batches by returning a list of tuples, where
     each tuple contains the indices of the training data points associated with
     that mini-batch
 

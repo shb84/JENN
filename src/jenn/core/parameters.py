@@ -116,3 +116,11 @@ class Parameters:
             n, p = self.dW[i].shape
             self.dW[i][:] = array[:n * p].reshape(n, p)
             self.db[i][:] = array[n * p:].reshape(n, 1)
+
+    def serialize(self):
+        """Save parameters to json."""
+        pass  # TODO
+
+    def deserialize(self):
+        """Load parameters from json"""
+        pass  # TODO
