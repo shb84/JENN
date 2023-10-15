@@ -2,6 +2,15 @@
 import numpy as np
 from.cache import Cache
 
+from .activation import Relu, Tanh, Linear
+
+
+ACTIVATIONS = dict(
+    relu=Relu,
+    tanh=Tanh,
+    linear=Linear,
+)
+
 
 def _eye(n_x, m):
     I = np.eye(n_x, dtype=float)
@@ -24,8 +33,8 @@ def next_layer_partials(layer, parameters, cache: Cache = None):
     r = layer
     s = layer - 1
     W = parameters.W[layer]
-    a = parameters.a[layer]
-    cache.G_prime[r][:] = a.first_derivative(cache.Z[r], cache.A[r])
+    g = ACTIVATIONS[parameters.a[layer]]
+    cache.G_prime[r][:] = g.first_derivative(cache.Z[r], cache.A[r])
     for j in range(parameters.n_x):
         cache.Z_prime[r][:, j, :] = np.dot(W, cache.A_prime[s][:, j, :])
         cache.A_prime[r][:, j, :] = cache.G_prime[r] * np.dot(W, cache.A_prime[s][:, j, :])
@@ -38,7 +47,7 @@ def next_layer_forward(layer, parameters, cache):
     s = layer - 1
     W = parameters.W[r]
     b = parameters.b[r]
-    g = parameters.a[r]
+    g = ACTIVATIONS[parameters.a[r]]
     Z = cache.Z[r]
     A = cache.A[r]
     np.dot(W, cache.A[s], out=Z)
@@ -84,7 +93,7 @@ def next_layer_backward(layer, parameters, cache, data, lambd):
     parameters = parameters
     r = layer
     s = layer - 1
-    g = parameters.a[r]
+    g = ACTIVATIONS[parameters.a[r]]
     g.first_derivative(cache.Z[r], cache.A[r], cache.G_prime[r])
     np.dot(cache.G_prime[r] * cache.dA[r], cache.A[s].T, out=parameters.dW[r])
     parameters.dW[r] /= data.m
@@ -100,7 +109,7 @@ def gradient_enhancement(layer, parameters, cache, data, gamma):
         return
     r = layer
     s = layer - 1
-    g = parameters.a[r]
+    g = ACTIVATIONS[parameters.a[r]]
     cache.G_prime_prime[r][:] = g.second_derivative(cache.Z[r], cache.A[r], cache.G_prime[r])
     for j in range(parameters.n_x):
         parameters.dW[r] += gamma / data.m * (np.dot(cache.dA_prime[r][:, j, :] * cache.G_prime_prime[r] * cache.Z_prime[r][:, j, :], cache.A[s].T) + np.dot(cache.dA_prime[r][:, j, :] * cache.G_prime[r], cache.A_prime[s][:, j, :].T))

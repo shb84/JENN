@@ -1,29 +1,47 @@
 """Parameters and hyperparameters."""
+import orjson 
 import numpy as np
 
-from .activation import Relu, Tanh, Linear
+from dataclasses import dataclass 
 
 
-ACTIVATIONS = dict(
-    relu=Relu,
-    tanh=Tanh,
-    linear=Linear,
-)
-
-
+@dataclass 
 class Parameters:
 
-    def __init__(
-            self,
-            layer_sizes: list,
-            hidden_activation='relu',
-            output_activation='linear',
-    ):
-        self.n_x = layer_sizes[0]
-        self.n_y = layer_sizes[-1]
-        self.layers = range(len(layer_sizes))
-        self.partials = range(self.n_x)
-        self.L = len(layer_sizes)
+    layer_sizes: list
+    hidden_activation: str = 'relu'
+    output_activation: str = 'linear'
+
+    @property 
+    def layers(self): 
+        """Return iterator of index for each layer."""
+        return range(self.L)
+
+    @property 
+    def partials(self): 
+        """Return iterator of index for each partial."""
+        return range(self.n_x)
+    
+    @property 
+    def n_x(self): 
+        """Return number of inputs."""
+        return self.layer_sizes[0]
+    
+    @property 
+    def n_y(self): 
+        """Return number of outputs."""
+        return self.layer_sizes[-1]
+    
+    @property 
+    def L(self): 
+        """Return number of layers."""
+        return len(self.layer_sizes)
+
+    def __post_init__(self):
+        self.initialize() 
+
+    def initialize(self):
+        """Use 'He initialization' to initialize parameters."""
         self.W = []
         self.b = []
         self.a = []
@@ -34,21 +52,21 @@ class Parameters:
         self.sigma_x = np.eye(self.n_x, 1)
         self.sigma_y = np.eye(self.n_y, 1)
         previous_layer_size = None
-        for i, layer_size in enumerate(layer_sizes):
+        for i, layer_size in enumerate(self.layer_sizes):
             if i == 0:  # input layer
                 W = np.eye(layer_size)
                 b = np.zeros((layer_size, 1))
-                a = ACTIVATIONS['linear']
+                a = 'linear'
             elif i == self.L - 1:  # output layer
                 W = np.random.randn(layer_size, previous_layer_size) \
                     * np.sqrt(1. / previous_layer_size)
                 b = np.zeros((layer_size, 1))
-                a = ACTIVATIONS[output_activation]
+                a = self.output_activation
             else:  # hidden layer
                 W = np.random.randn(layer_size, previous_layer_size) \
                     * np.sqrt(1. / previous_layer_size)
                 b = np.zeros((layer_size, 1))
-                a = ACTIVATIONS[hidden_activation]
+                a = self.hidden_activation
             dW = np.zeros(W.shape)
             db = np.zeros(b.shape)
             self.dW.append(dW)
@@ -57,7 +75,6 @@ class Parameters:
             self.b.append(b)
             self.a.append(a)
             previous_layer_size = layer_size
-        self.layer_sizes = layer_sizes
 
     def stack(self, per_layer: bool = False) -> np.ndarray or list:
         """Stack W, b into a single array for each layer"""
@@ -117,10 +134,30 @@ class Parameters:
             self.dW[i][:] = array[:n * p].reshape(n, p)
             self.db[i][:] = array[n * p:].reshape(n, 1)
 
-    def serialize(self):
-        """Save parameters to json."""
-        pass  # TODO
+    def serialize(self) -> bytes:
+        """Serialized parameters to bytes."""
+        return orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY)
 
-    def deserialize(self):
-        """Load parameters from json"""
-        pass  # TODO
+    def deserialize(self, saved_parameters: bytes):
+        """Deserialze parameters stored as bytes."""
+        params = orjson.loads(saved_parameters)
+        self.W = [np.array(value) for value in params['W']]
+        self.b = [np.array(value) for value in params['b']]
+        self.a = params['a']
+        self.dW = [np.array(value) for value in params['dW']]
+        self.db = [np.array(value) for value in params['db']]
+        self.mu_x = np.array(params['mu_x'])
+        self.mu_y = np.array(params['mu_y'])
+        self.sigma_x = np.array(params['sigma_x'])
+        self.sigma_y = np.array(params['sigma_y'])
+    
+    def save(self, binary_file: str = 'parameters.json'): 
+        """Save parameters to json file."""
+        with open("params.json", "wb") as binary_file:
+            binary_file.write(self.serialize())
+
+    def load(self, binary_file: str = 'paramemeters.json'): 
+        """Load parameters from json file."""
+        with open("params.json", "rb") as binary_file:
+            byte_stream = binary_file.read()
+        self.deserialize(byte_stream)
