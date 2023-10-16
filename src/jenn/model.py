@@ -14,8 +14,7 @@ from functools import wraps
 from .core.parameters import Parameters
 from .core.training import train_model
 from .core.cache import Cache
-from .core.data import Dataset
-from .core.normalization import normalize, denormalize, denormalize_partials
+from .core.data import Dataset, normalize, denormalize, denormalize_partials
 from .core.propagation import partials_forward, model_forward, model_partials_forward
 
 
