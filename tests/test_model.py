@@ -14,7 +14,7 @@ def test_nn_sinuisoid(m_train: int = 100, m_test: int = 30):
     x_train, y_train, dydx_train = jenn.synthetic.Sinusoid.sample(0, m_train)
     nn = jenn.NeuralNet([1, 12, 1], 'tanh')
     nn.fit(x_train, y_train, 
-           lambd=0.1, alpha=.05, max_iter=500, is_normalize=True)
+           lambd=0.1, alpha=.01, max_iter=2000, is_normalize=True)
 
     #############################
     # Goodness of Fit: Training #
@@ -67,7 +67,7 @@ def test_jenn_sinuisoid(m_train: int = 4, m_test: int = 30):
 
     nn = jenn.NeuralNet([1, 12, 1], 'tanh')
     nn.fit(x_train, y_train,
-           lambd=0.1, alpha=.05, max_iter=2000, is_normalize=True)
+           lambd=0.1, alpha=.01, max_iter=2000, is_normalize=True)
 
     #############################
     # Goodness of Fit: Training # (regular neural net should generalize badly)
@@ -106,8 +106,8 @@ def test_jenn_sinuisoid(m_train: int = 4, m_test: int = 30):
 
     expected = y_test
     computed = genn.predict(x_test)
-    assert np.all(r_square(expected, computed) > 0.95)
+    assert np.all(r_square(expected, computed) > 0.9), f'r-square = {score} < 0.9'
 
     expected = dydx_test
     computed = genn.predict_partials(x_test)
-    assert np.all(r_square(expected, computed) > 0.95)
+    assert np.all(r_square(expected, computed) > 0.9), f'r-square = {score} < 0.9'

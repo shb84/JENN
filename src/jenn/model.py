@@ -5,8 +5,6 @@ It is in charge of setting up and calling the right support functions to
 accomplish these various tasks.
 """
 
-from __future__ import annotations
-
 import numpy as np
 from time import time
 from functools import wraps
