@@ -1,20 +1,58 @@
-"""Array initialization."""
+"""Neural net cache.
+
+Store quantities computed during forward propagation, 
+so they don't have to be recomputed during backward propgation.
+"""
+
 import numpy as np
 
 
 class Cache:
-    """
-    Don't recompute quantities during training. This class stores previously
-    computed quantities during forward prop in pre-allocated arrays that can
-    be accessed during backprop. This allows the algorithm to be faster.
+    """Neural net cache. 
+
+    Object that stores neural net quantities computed during 
+    forward prop for each layer so they don't have to be
+    recomputed during backprop. This allows the algorithm to be faster.
 
     Note that the attributes of this class are not protected. It's possible
     to overwrite them instead of updating them in place. To
-    ensure that an array is updated in place, please use numpy syntax for it:
+    ensure that an array is updated in place, use proper numpy syntax:
 
         e.g. cache = Cache(shapes)
              layer_1_activations = cache.A[1]
              layer_1_activations[:] = new_array_values  # note [:]
+
+    Attributes
+    ----------
+    Z: list[np.ndarray]
+        Store Z = W.T A_prev + b for each layer 
+
+    Z_prime: list[np.ndarray]
+        Store Z' = d/dx[j] (Z) for all j = 1, .., n_x
+
+    Z_prime_prime: list[np.ndarray] 
+        Store Z'' = d/dx[j] d/dx[j] (Z))
+
+    A: list[np.ndarray] 
+        Store A = g(Z) where g is the activation function. 
+
+    A_prime: list[np.ndarray] 
+        Store A' = d/dx[j] (A) for all j = 1, .., n_x
+
+    A_prime_prime: list[np.ndarray]
+        Store A'' = d/dx[j] d/dx[j] ( A )
+
+    G_prime: list[np.ndarray] 
+        Store g' = d/dz (A) 
+
+    G_prime_prime: list[np.ndarray] 
+        Store g'' = d/dz d/dz (A)
+
+    dA: list[np.ndarray] 
+        Store d/dA (L) for backprop
+        
+    dA_prime: list[np.ndarray]
+        Store d/dA' (L) for backprop
     """
 
     @property

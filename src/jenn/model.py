@@ -11,8 +11,6 @@ import numpy as np
 from time import time
 from functools import wraps
 
-from typing import List, Tuple
-
 from .core.parameters import Parameters
 from .core.training import train_model
 from .core.cache import Cache
@@ -56,7 +54,7 @@ class NeuralNet:
 
     def __init__(
             self,
-            layer_sizes: List[int],
+            layer_sizes: list[int],
             hidden_activation: str = 'tanh',
             output_activation: str = 'linear',
     ):
@@ -275,7 +273,7 @@ class NeuralNet:
 
     def evaluate(
             self, x: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Predict y = f(x) and dy/dx = f'(x)
 
         Note:

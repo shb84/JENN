@@ -2,11 +2,10 @@
 import pytest
 import jenn
 import numpy as np
-from typing import Tuple
 
 
 @pytest.fixture
-def xor() -> Tuple[jenn.core.Dataset, jenn.core.Parameters, jenn.core.Cache]:
+def xor() -> tuple[jenn.core.Dataset, jenn.core.Parameters, jenn.core.Cache]:
     """Return XOR test data and model parameters"""
     data = jenn.core.Dataset(
         X=np.array([[0, 1, 0, 1], [0, 0, 1, 1]]),

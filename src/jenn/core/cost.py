@@ -6,56 +6,56 @@ from .parameters import Parameters
 
 
 class SquaredLoss:
-    """ Least Squares Estimator """
+    """Least Squares Estimator."""
 
-    def __init__(self, y_true):
+    def __init__(self, Y_true: np.ndarray):
         """
         Parameters
         ----------
-        y_true: np.ndarray
+        Y_true: np.ndarray
             Training data outputs. An array of shape (n_y, m)
         """
-        self.y_true = y_true
-        self.y_error = np.zeros(y_true.shape)  # preallocate to save resources
+        self.Y_true = Y_true
+        self.Y_error = np.zeros(Y_true.shape)  # preallocate to save resources
 
-    def __call__(self, y_pred):
+    def evaluate(self, Y_pred: np.ndarray) -> float:
         """
         Compute least squares estimator of the states in place
 
         Parameters
         ----------
-        y_pred: np.ndarray of shape (n_y, m)
+        Y_pred: np.ndarray of shape (n_y, m)
             Predicted outputs where n_y = no. outputs, m = no. examples
 
         indices: List[int], optional
             Subset of indices over which to __call__ function. Default is None,
             which implies all indices (useful for minibatch for example).
         """
-        self.y_error = y_pred - self.y_true
-        n_y = self.y_error.shape[0]
+        self.Y_error = Y_pred - self.Y_true
+        n_y = self.Y_error.shape[0]
         cost = 0
         for j in range(0, n_y):
-            cost += np.dot(self.y_error[j], self.y_error[j].T)
+            cost += np.dot(self.Y_error[j], self.Y_error[j].T)
         return np.float64(cost)
 
 
 class GradientEnhancement:
-    """ Least Squares Estimator for partials """
+    """Least Squares Estimator for partials.
+    
+    Parameters
+    ----------
+    dY_true: np.ndarray
+        Training data gradients. An array of shape (n_y, n_x, m)
+        Y' = d(Y)/dX where n_y = number outputs
+                            n_x = number inputs
+                            m = number examples
+    """
 
-    def __init__(self, dy_true):
-        """
-        Parameters
-        ----------
-        dy_true: np.ndarray
-            Training data gradients. An array of shape (n_y, n_x, m)
-            Y' = d(Y)/dX where n_y = number outputs
-                               n_x = number inputs
-                               m = number examples
-        """
-        self.dy_true = dy_true
-        self.dy_error = np.zeros(dy_true.shape)
+    def __init__(self, dY_true: np.ndarray):
+        self.dY_true = dY_true
+        self.dY_error = np.zeros(dY_true.shape)
 
-    def __call__(self, dy_pred):
+    def evaluate(self, dY_pred: np.ndarray) -> float:
         """
         Compute least squares estimator for the partials
 
@@ -70,14 +70,14 @@ class GradientEnhancement:
             Subset of indices over which to __call__ function. Default is None,
             which implies all indices (useful for minibatch for example).
         """
-        dy_true = self.dy_true
-        dy_error = self.dy_error
-        n_y, n_x, m = dy_true.shape
+        dY_true = self.dY_true
+        dY_error = self.dY_error
+        n_y, n_x, m = dY_true.shape
         cost = 0.0
         for k in range(0, n_y):
             for j in range(0, n_x):
-                dy_error[k, j] = dy_pred[k, j] - dy_true[k, j]
-                dot_product = np.dot(dy_error[k, j], dy_error[k, j].T)
+                dY_error[k, j] = dY_pred[k, j] - dY_true[k, j]
+                dot_product = np.dot(dY_error[k, j], dY_error[k, j].T)
                 cost += np.squeeze(dot_product)
         return np.float64(cost)
 
@@ -85,19 +85,19 @@ class GradientEnhancement:
 class Regularization:
     """ Compute regularization penalty """
 
-    def __init__(self, weights):
+    def __init__(self, weights: np.ndarray):
         """
         Parameters
         ----------
         weights: List[np.ndarray]
-            Parameters w associated with each layer of neural network
+            Parameters W associated with each layer of neural network
             i.e. a = g(z) where z = w * a_prev + b
         """
         # Preallocate for speed
         self.weights = weights
-        self._squared_weights = [np.zeros(w.shape) for w in weights]
+        self._squared_weights = [np.zeros(W.shape) for W in weights]
 
-    def __call__(self, lambd: float):
+    def evaluate(self, lambd: float) -> float:
         """Compute L2 norm penalty.
 
         Parameters
@@ -115,7 +115,25 @@ class Regularization:
 
 
 class Cost:
-    """ Neural Network cost function """
+    """Neural Network cost function.
+
+    Parameters
+    ----------
+    data: Dataset 
+        Object containing training and associated metadata.
+
+    parameters: Parameters 
+        Neural net parameters. Object that stores 
+        neural net parameters for each layer.
+
+    lambd: int, optional
+        Coefficient that multiplies regularization term in cost function. 
+        Default is 0.0
+
+    gamma: int, optional 
+        Coefficient that multiplies gradient-enhancement term in cost function. 
+        Default is 0.0
+    """
 
     def __init__(
             self,
@@ -124,22 +142,6 @@ class Cost:
             lambd: float = 0.0,
             gamma: float = 0.0,
     ):
-        """
-        Parameters
-        ----------
-        Y_true: np.ndarray
-            Training data outputs. An array of shape (n_y, m)
-
-        J_true: np.ndarray
-            Training data gradients. An array of shape (n_y, n_x, m)
-            Y' = d(Y)/dX where n_y = number outputs
-                               n_x = number inputs
-                               m = number examples
-
-        weights: List[np.ndarray]
-            Initial parameters w associated with each layer of neural network
-            i.e. a = g(z) where z = w * a_prev + b
-        """
         self.data = data
         self.parameters = parameters
         self.lambd = lambd
@@ -149,40 +151,24 @@ class Cost:
         if data.J is not None and gamma > 0.0:
             self.gradient_enhancement = GradientEnhancement(data.J)
 
-    def evaluate(self, Y_pred, J_pred=None):
+    def evaluate(self, Y_pred: np.ndarray, J_pred: np.ndarray = None) -> float:
         """
+        Evaluate cost function. 
+
         Parameters
         ----------
         Y_pred: np.ndarray of shape (n_y, m)
             Predicted outputs where n_y = no. outputs, m = no. examples
 
-        J_pred: np ndarray of shape (n_y, n_x, m)
+        J_pred: np ndarray of shape (n_y, n_x, m), optional
             Predicted partials: AL' = d(AL)/dX where n_y = number outputs
                                                      n_x = number inputs
                                                      m = number examples
-
-        weights: List[np.ndarray]
-            Parameters w associated with each layer of neural network
-            i.e. a = g(z) where z = w * a_prev + b
-
-        alpha: float, optional
-            Regularization coefficient. Default is 0
-
-        gamma: float, optional
-            Gradient coefficient. Default is 0
-
-        indices: List[int], optional
-            Subset of indices over which to __call__ function. Default is None,
-            which implies all indices (useful for minibatch for example).
-
-        Returns
-        -------
-        c: np.float64
-            Cost function value
+            Default is None. 
         """
-        c = self.squared_loss(Y_pred)
+        cost = self.squared_loss.evaluate(Y_pred)
         if J_pred is not None and hasattr(self, 'gradient_enhancement'):
-            c += self.gradient_enhancement(J_pred) * self.gamma
-        c += self.regularization(self.lambd)
-        c *= 0.5 / self.data.m
-        return c
+            cost += self.gradient_enhancement.evaluate(J_pred) * self.gamma
+        cost += self.regularization.evaluate(self.lambd)
+        cost *= 0.5 / self.data.m
+        return cost

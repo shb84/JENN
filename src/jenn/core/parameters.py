@@ -1,4 +1,4 @@
-"""Parameters and hyperparameters."""
+"""Neural net parameters."""
 import orjson 
 import numpy as np
 
@@ -7,33 +7,72 @@ from dataclasses import dataclass
 
 @dataclass 
 class Parameters:
+    """Neural network parameters.
 
-    layer_sizes: list
+    Note that the attributes of this class are not protected. It's possible
+    to overwrite them instead of updating them in place. To
+    ensure that an array is updated in place, use proper numpy syntax:
+
+        e.g. cache = Cache(shapes)
+             layer_1_weights = cache.W[1]
+             layer_1_weights[:] = new_array_values  # note [:]
+
+    Attributes
+    ----------
+    W: list[np.ndarray] 
+        Store weights for each layer: Z = W.T A_prev + b
+
+    b: list[np.ndarray] 
+        Store biases for each layer: Z = W.T A_prev + b 
+
+    a: list[str] = layer activations
+        Store activations for each layer: A = g(Z)
+
+    dW: list[np.ndarray] 
+         Store d/dW (L) for backprop
+
+    db: list[np.ndarray]
+         Store d/db (L) for backprop
+
+    mu_x: list[np.ndarray] 
+        Mean of training data inputs used for normalization
+
+    mu_y: list[np.ndarray] 
+        Mean of training data outputs used for normalization
+
+    sigma_x: list[np.ndarray] 
+        Standard deviation of training data inputs used for normalization
+
+    sigma_y: list[np.ndarray] 
+        Standard deviation of training data outputs used for normalization
+    """
+
+    layer_sizes: list[int]
     hidden_activation: str = 'relu'
     output_activation: str = 'linear'
 
     @property 
-    def layers(self): 
+    def layers(self) -> iter: 
         """Return iterator of index for each layer."""
         return range(self.L)
 
     @property 
-    def partials(self): 
+    def partials(self) -> iter: 
         """Return iterator of index for each partial."""
         return range(self.n_x)
     
     @property 
-    def n_x(self): 
+    def n_x(self) -> int: 
         """Return number of inputs."""
         return self.layer_sizes[0]
     
     @property 
-    def n_y(self): 
+    def n_y(self) -> int: 
         """Return number of outputs."""
         return self.layer_sizes[-1]
     
     @property 
-    def L(self): 
+    def L(self) -> int: 
         """Return number of layers."""
         return len(self.layer_sizes)
 
@@ -41,7 +80,7 @@ class Parameters:
         self.initialize() 
 
     def initialize(self):
-        """Use 'He initialization' to initialize parameters."""
+        """Use 'He initialization' to initialize neural net parameters."""
         self.W = []
         self.b = []
         self.a = []
@@ -76,8 +115,39 @@ class Parameters:
             self.a.append(a)
             previous_layer_size = layer_size
 
-    def stack(self, per_layer: bool = False) -> np.ndarray or list:
-        """Stack W, b into a single array for each layer"""
+    def stack(self, per_layer: bool = False) -> np.ndarray | list[np.ndarray]:
+        """Stack W, b into a single array for each layer.
+        
+        Parameters
+        ----------
+        per_layer: bool, optional 
+            Return list of stacks if True (one per layer). 
+                e.g. [
+                    np.array([
+                        [W1], 
+                        [b1]
+                        ]), 
+                    np.array([
+                        [W2], 
+                        [b2]
+                        ]), 
+                    np.array([
+                        [W3], 
+                        [b3]
+                        ]), 
+                    ...
+                ]
+            Return stack of stacks as single array if False (default).
+                e.g. np.array([
+                    [W1],
+                    [b1],
+                    [W2],
+                    [b2],
+                    [W3],
+                    [b3],
+                    ...
+                ])
+        """
         stacks = []
         for i in range(self.L):
             stack = np.concatenate([
@@ -89,10 +159,45 @@ class Parameters:
             return stacks
         return np.concatenate(stacks).reshape((-1, 1))
 
-    def _column_to_stacks(self, params: np.ndarray) -> list:
-        """Convert params represented as single column of stacked layers to
-        list of stacks, where a stack is a one column representation of W, b
-        for that layer only."""
+    def _column_to_stacks(self, params: np.ndarray) -> list[np.ndarray]:
+        """Convert neural net parameters from single stack for all layers
+        representation to list of stacks per layer.
+        
+        Parameters
+        ----------
+        params: np.ndarray
+            Neural network parameters as single array where all layers 
+            are stacked on top of each other. 
+            e.g. np.array([
+                    [W1],
+                    [b1],
+                    [W2],
+                    [b2],
+                    [W3],
+                    [b3],
+                    ...
+                ])
+
+        Returns
+        -------
+        params: list[np.ndarray]
+            List of stacks (one per layer)
+            e.g. [
+                    np.array([
+                        [W1], 
+                        [b1]
+                        ]), 
+                    np.array([
+                        [W2], 
+                        [b2]
+                        ]), 
+                    np.array([
+                        [W3], 
+                        [b3]
+                        ]), 
+                    ...
+                ]
+        """
         stacks = []
         k = 0
         for i in range(self.L):  # single stack to many stacks (for each layer)
@@ -104,16 +209,84 @@ class Parameters:
             k += n
         return stacks
 
-    def unstack(self, params: np.ndarray or list):
-        """Unstack W, b back into list of arrays"""
-        if isinstance(params, np.ndarray):  # single column
-            params = self._column_to_stacks(params)
-        for i, array in enumerate(params):  # stacks to params for each layer
+    def unstack(self, parameters: np.ndarray | list[np.ndarray]):
+        """Unstack parameters W, b back into list of arrays: 
+
+            W = [W1, W2, W3, ...]
+            b = [b1, b2, b3, ...]
+        
+        Parameters
+        ----------
+        parameters: np.ndarray
+            Neural network parameters as either a single array where 
+            all layers are stacked on top of each other. 
+                e.g. np.array([
+                        [W1],
+                        [b1],
+                        [W2],
+                        [b2],
+                        [W3],
+                        [b3],
+                        ...
+                    ])
+            or a list of stacks per layer
+                e.g. [
+                        np.array([
+                            [W1], 
+                            [b1]
+                            ]), 
+                        np.array([
+                            [W2], 
+                            [b2]
+                            ]), 
+                        np.array([
+                            [W3], 
+                            [b3]
+                            ]), 
+                        ...
+                    ]
+        """
+        if isinstance(parameters, np.ndarray):  # single column
+            parameters = self._column_to_stacks(parameters)
+        for i, array in enumerate(parameters):  # stacks to params for each layer
             n, p = self.W[i].shape
             self.W[i][:] = array[:n * p].reshape(n, p)
             self.b[i][:] = array[n * p:].reshape(n, 1)
 
-    def stack_partials(self, per_layer: bool = False) -> np.ndarray or list:
+    def stack_partials(self, per_layer: bool = False) -> np.ndarray | list[np.ndarray]:
+        """Stack backprop partials dW, db into either a 
+        single stack for all layers or a list of stacks for each layer.
+        
+        Parameters
+        ----------
+        per_layer: bool, optional 
+            Return list of stacks if True (one per layer). 
+                e.g. [
+                    np.array([
+                        [dW1], 
+                        [db1]
+                        ]), 
+                    np.array([
+                        [dW2], 
+                        [db2]
+                        ]), 
+                    np.array([
+                        [dW3], 
+                        [db3]
+                        ]), 
+                    ...
+                ]
+            Return stack of stacks as single array if False (default).
+                e.g. np.array([
+                    [dW1],
+                    [db1],
+                    [dW2],
+                    [db2],
+                    [dW3],
+                    [db3],
+                    ...
+                ])
+        """
         stacks = []
         for i in range(self.L):
             stack = np.concatenate([
@@ -126,7 +299,42 @@ class Parameters:
         return np.concatenate(stacks).reshape((-1, 1))
 
     def unstack_partials(self, partials):
-        """Unstack dW, db back into list of arrays"""
+        """Unstack backprop partials dW, db back into list of arrays: 
+
+            dW = [dW1, dW2, dW3, ...]
+            db = [db1, db2, db3, ...]
+        
+        Parameters
+        ----------
+        partials: np.ndarray
+            Neural network partials for backprop as either a single array where 
+            all layers are stacked on top of each other. 
+                e.g. np.array([
+                        [dW1],
+                        [db1],
+                        [dW2],
+                        [db2],
+                        [dW3],
+                        [db3],
+                        ...
+                    ])
+            or a list of stacks per layer
+                e.g. [
+                        np.array([
+                            [dW1], 
+                            [db1]
+                            ]), 
+                        np.array([
+                            [dW2], 
+                            [db2]
+                            ]), 
+                        np.array([
+                            [dW3], 
+                            [db3]
+                            ]), 
+                        ...
+                    ]
+        """
         if isinstance(partials, np.ndarray):  # single column
             partials = self._column_to_stacks(partials)
         for i, array in enumerate(partials):
@@ -135,11 +343,12 @@ class Parameters:
             self.db[i][:] = array[n * p:].reshape(n, 1)
 
     def serialize(self) -> bytes:
-        """Serialized parameters to bytes."""
+        """Serialize neural parameters into 
+        byte stream that can be stored as json."""
         return orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY)
 
     def deserialize(self, saved_parameters: bytes):
-        """Deserialze parameters stored as bytes."""
+        """Deserialize and apply saved parameters."""
         params = orjson.loads(saved_parameters)
         self.W = [np.array(value) for value in params['W']]
         self.b = [np.array(value) for value in params['b']]
@@ -150,14 +359,17 @@ class Parameters:
         self.mu_y = np.array(params['mu_y'])
         self.sigma_x = np.array(params['sigma_x'])
         self.sigma_y = np.array(params['sigma_y'])
+        self.layer_sizes = [W.shape[0] for W in self.W] 
+        self.output_activation = self.a[-1]
+        self.hidden_activation = self.a[-2]
     
     def save(self, binary_file: str = 'parameters.json'): 
-        """Save parameters to json file."""
+        """Save parameters to specified json file."""
         with open("params.json", "wb") as binary_file:
             binary_file.write(self.serialize())
 
     def load(self, binary_file: str = 'paramemeters.json'): 
-        """Load parameters from json file."""
+        """Load parameters from specified json file."""
         with open("params.json", "rb") as binary_file:
             byte_stream = binary_file.read()
         self.deserialize(byte_stream)

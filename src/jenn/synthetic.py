@@ -4,8 +4,6 @@ encountered for surrogate-based optimization."""
 import abc
 import numpy as np
 
-from typing import Tuple
-
 
 def _fullfact(n_x: int, m_levels: int):
     """Return full factorial with sample values between 0 and 1."""
@@ -55,9 +53,9 @@ class TestFunction:
             cls,
             m_lhs: int,
             m_levels: int,
-            lb: np.ndarray or float,
-            ub: np.ndarray or float,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+            lb: np.ndarray | float,
+            ub: np.ndarray | float,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Generate synthetic data by sampling test function."""
         lb = np.array([lb]).reshape((-1, 1))  # make sure it's an numpy array
         ub = np.array([ub]).reshape((-1, 1))  # make sure it's an numpy array
@@ -82,7 +80,7 @@ class Linear(TestFunction):
     @classmethod
     def evaluate(
             cls, x: np.ndarray,
-            a: float or np.ndarray = 1.0,
+            a: float | np.ndarray = 1.0,
             b: float = 0.0,
     ) -> np.ndarray:
         n_y = 1
@@ -94,7 +92,7 @@ class Linear(TestFunction):
     @classmethod
     def first_derivative(
             cls, x: np.ndarray,
-            a: float or np.ndarray = 1.0,
+            a: float | np.ndarray = 1.0,
             b: float = 0.0,
     ) -> np.ndarray:
         n_y = 1
@@ -110,9 +108,9 @@ class Linear(TestFunction):
             cls,
             m_lhs: int = 100,
             m_levels: int = 0,
-            lb: np.ndarray or float = -1.,
-            ub: np.ndarray or float = 1.0,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+            lb: np.ndarray | float = -1.,
+            ub: np.ndarray | float = 1.0,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return super().sample(m_lhs, m_levels, lb, ub)
 
 
@@ -147,9 +145,9 @@ class Parabola(TestFunction):
             cls,
             m_lhs: int = 100,
             m_levels: int = 0,
-            lb: np.ndarray or float = -1.,
-            ub: np.ndarray or float = 1.0,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+            lb: np.ndarray | float = -1.,
+            ub: np.ndarray | float = 1.0,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return super().sample(m_lhs, m_levels, lb, ub)
 
 
@@ -177,9 +175,9 @@ class Sinusoid(TestFunction):
             cls,
             m_lhs: int = 100,
             m_levels: int = 0,
-            lb: np.ndarray or float = -np.pi,
-            ub: np.ndarray or float = np.pi,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+            lb: np.ndarray | float = -np.pi,
+            ub: np.ndarray | float = np.pi,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return super().sample(m_lhs, m_levels, lb, ub)
 
 
@@ -213,9 +211,9 @@ class Rastrigin(TestFunction):
             cls,
             m_lhs: int = 100,
             m_levels: int = 0,
-            lb: np.ndarray or float = -1. * np.ones(2,),
-            ub: np.ndarray or float = 1.5 * np.ones(2,),
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+            lb: np.ndarray | float = -1. * np.ones(2,),
+            ub: np.ndarray | float = 1.5 * np.ones(2,),
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return super().sample(m_lhs, m_levels, lb, ub)
 
 
@@ -245,7 +243,7 @@ class Rosenbrock(TestFunction):
             cls,
             m_lhs: int = 100,
             m_levels: int = 0,
-            lb: np.ndarray or float = -2 * np.ones(2,),
-            ub: np.ndarray or float = 2. * np.ones(2,),
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+            lb: np.ndarray | float = -2 * np.ones(2,),
+            ub: np.ndarray | float = 2. * np.ones(2,),
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return super().sample(m_lhs, m_levels, lb, ub)

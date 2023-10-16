@@ -4,12 +4,12 @@ import numpy as np
 
 
 class Activation:
-    """ Evaluate activation function dynamically or inplace """
+    """Evaluate activation function dynamically or in place."""
 
     @classmethod
     @abc.abstractmethod
     def evaluate(cls, x: np.ndarray, y: np.ndarray = None):
-        """ Evaluate activation function in place: y = g(x)
+        """Evaluate activation function in place: y = g(x)
 
         Parameters
         ----------
@@ -30,7 +30,7 @@ class Activation:
             y: np.ndarray = None,
             dy: np.ndarray = None,
     ):
-        """ Evaluate gradient of activation function in place: dy = g'(x)
+        """Evaluate gradient of activation function in place: dy = g'(x)
 
         Parameters
         ----------
@@ -57,7 +57,7 @@ class Activation:
             dy: np.ndarray = None,
             ddy: np.ndarray = None,
     ):
-        """ Evaluate second derivative of activation function: ddy = g''(x)
+        """Evaluate second derivative of activation function: ddy = g''(x)
 
         Parameters
         ----------
@@ -81,6 +81,7 @@ class Activation:
 
 
 class Tanh(Activation):
+    """Evaluate hyperbolic tangent activation function dynamically or in place."""
 
     @classmethod
     def evaluate(
@@ -123,6 +124,7 @@ class Tanh(Activation):
 
 
 class Relu(Activation):
+    """Evaluate rectified linear unit function dynamically or in place."""
 
     @classmethod
     def evaluate(
@@ -164,6 +166,7 @@ class Relu(Activation):
 
 
 class Linear(Activation):
+    """Evaluate linear activation function dynamically or in place."""
 
     @classmethod
     def evaluate(
