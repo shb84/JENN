@@ -1,4 +1,4 @@
-"""Test that activation functions are corrected."""
+"""Test that activation functions are correct."""
 import numpy as np
 import jenn
 from time import time
@@ -33,34 +33,6 @@ def _check_activation_partials(
 
     assert np.allclose(activation.first_derivative(x), dy(x), atol=1e-6)
     assert np.allclose(activation.second_derivative(x), ddy(x), atol=1e-6)
-
-
-def test_tanh():
-    """Test tanh activation"""
-    x = np.linspace(-10, 10, 51).reshape((1, -1))
-    assert np.allclose(ACTIVATIONS['tanh'].evaluate(x), np.tanh(x), atol=1e-6)
-    _check_activation_partials(x, activation=jenn.core.activation.Tanh)
-
-
-def test_linear():
-    """Test linear activation"""
-    x = np.linspace(-10, 10, 51).reshape((1, -1))
-    assert np.allclose(ACTIVATIONS['linear'].evaluate(x), x, atol=1e-6)
-    _check_activation_partials(x, activation=jenn.core.activation.Linear)
-
-
-def test_relu():
-    """Test relu activation"""
-    x = np.linspace(-10, 10, 51).reshape((1, -1))
-    negative = x <= 0
-    positive = x > 0
-    array = ACTIVATIONS['relu'].evaluate(x)
-    assert np.allclose(array[positive], x[positive], atol=1e-6)
-    assert np.allclose(array[negative], 0.0, atol=1e-6)
-    _check_activation_partials(
-        x[negative].reshape((1, -1)), activation=jenn.core.activation.Relu)
-    _check_activation_partials(
-        x[positive].reshape((1, -1)), activation=jenn.core.activation.Relu)
 
 
 def test_inplace():
@@ -112,34 +84,63 @@ def test_inplace():
         # for every hidden node in a neural net.
 
 
-def plot_activation(name: str):
-    """Plot specified activation."""
-    if not MATPLOTLIB_INSTALLED:
-        raise ValueError(f'Matplotlib is not installed.')
+class TestActivation: 
+    """Test all activation functions."""
 
-    x = np.linspace(-10, 10, 1_000)
-    g = ACTIVATIONS[name]
-    y = np.zeros(x.shape)
-    dy = np.zeros(x.shape)
-    ddy = np.zeros(x.shape)
+    def test_tanh(self):
+        """Test tanh activation"""
+        x = np.linspace(-10, 10, 51).reshape((1, -1))
+        assert np.allclose(ACTIVATIONS['tanh'].evaluate(x), np.tanh(x), atol=1e-6)
+        _check_activation_partials(x, activation=jenn.core.activation.Tanh)
 
-    y = g.evaluate(x, y)
-    dy = g.first_derivative(x, y, dy)
-    ddy = g.second_derivative(x, y, dy, ddy)
+    def test_linear(self):
+        """Test linear activation"""
+        x = np.linspace(-10, 10, 51).reshape((1, -1))
+        assert np.allclose(ACTIVATIONS['linear'].evaluate(x), x, atol=1e-6)
+        _check_activation_partials(x, activation=jenn.core.activation.Linear)
 
-    plt.plot(x, y)
-    plt.title(name + f" (0th derivative)")
-    plt.show()
+    def test_relu(self):
+        """Test relu activation"""
+        x = np.linspace(-10, 10, 51).reshape((1, -1))
+        negative = x <= 0
+        positive = x > 0
+        array = ACTIVATIONS['relu'].evaluate(x)
+        assert np.allclose(array[positive], x[positive], atol=1e-6)
+        assert np.allclose(array[negative], 0.0, atol=1e-6)
+        _check_activation_partials(
+            x[negative].reshape((1, -1)), activation=jenn.core.activation.Relu)
+        _check_activation_partials(
+            x[positive].reshape((1, -1)), activation=jenn.core.activation.Relu)
 
-    plt.plot(x, dy)
-    plt.title(name + f" (1st derivative)")
-    plt.show()
+    @classmethod
+    def plot_activation(cls, name: str):
+        """Plot specified activation."""
+        if not MATPLOTLIB_INSTALLED:
+            raise ValueError(f'Matplotlib is not installed.')
 
-    plt.plot(x, ddy)
-    plt.title(name + f" (2nd derivative)")
-    plt.show()
+        x = np.linspace(-10, 10, 1_000)
+        g = ACTIVATIONS[name]
+        y = np.zeros(x.shape)
+        dy = np.zeros(x.shape)
+        ddy = np.zeros(x.shape)
+
+        y = g.evaluate(x, y)
+        dy = g.first_derivative(x, y, dy)
+        ddy = g.second_derivative(x, y, dy, ddy)
+
+        plt.plot(x, y)
+        plt.title(name + f" (0th derivative)")
+        plt.show()
+
+        plt.plot(x, dy)
+        plt.title(name + f" (1st derivative)")
+        plt.show()
+
+        plt.plot(x, ddy)
+        plt.title(name + f" (2nd derivative)")
+        plt.show()
 
 
 if __name__ == "__main__":
     for name in ACTIVATIONS:
-        plot_activation(name)
+        TestActivation.plot_activation(name)

@@ -1,5 +1,8 @@
-"""Test that forward and backward propagation are working."""
+"""Test forward and backward propagation using 
+neural nets for which the correct value of the 
+parameters is known exactly."""
 import numpy as np
+import pytest 
 from copy import deepcopy
 
 import jenn
@@ -75,55 +78,93 @@ def _grad_check(dydx: list[np.ndarray], dydx_FD: list[np.ndarray],
     return success
 
 
-def test_model_forward(xor):
-    """Test forward propagation using XOR."""
-    data, parameters, cache = xor
-    computed = jenn.core.partials_forward(data.X, parameters, cache)
-    expected = data.Y
-    msg = f'computed = {computed} vs. expected = {expected}'
-    assert np.all(computed == expected), msg
+X_test = np.array([[0, 1, 0, 1], [0, 0, 1, 1]])
+Y_test = np.array([[0, 1, 1, 0]])
 
 
-def test_model_backward(xor):
-    """Test backward propagation against finite difference using XOR."""
-    data, parameters, cache = xor
+class TestXOR: 
+    """Check forward and backprop on XOR test case."""
 
-    ###########################
-    # Perfectly trained model #
-    ###########################
+    @pytest.fixture
+    def data(self) -> jenn.core.Dataset:
+        """Return XOR test data."""
+        return jenn.core.Dataset(X_test, Y_test)
 
-    jenn.core.model_partials_forward(
-        data.X, parameters, cache)  # predict to populate cache
+    @pytest.fixture
+    def cache(self) -> jenn.core.Cache:
+        """Return XOR cache."""
+        return jenn.core.Cache(layer_sizes=[2, 2, 1], m=Y_test.size)
 
-    jenn.core.model_backward(
-        data, parameters, cache)  # partials computed in place
+    @pytest.fixture
+    def params(self) -> jenn.core.Parameters:
+        """Return XOR parameters."""
+        parameters = jenn.core.Parameters(layer_sizes=[2, 2, 1], output_activation='relu')
+        parameters.b[1][:] = np.array([[0], [-1]])        # layer 1
+        parameters.W[1][:] = np.array([[1, 1], [1, 1]])   # layer 1
+        parameters.b[2][:] = np.array([[0]])              # layer 2
+        parameters.W[2][:] = np.array([[1, -2]])          # layer 2
+        return parameters
 
-    dydx = parameters.stack_partials(per_layer=False)
+    def test_model_forward(
+            self, 
+            data: jenn.core.Dataset, 
+            params: jenn.core.Parameters, 
+            cache: jenn.core.Cache,
+        ) -> None:
+        """Test forward propagation using XOR."""
+        computed = jenn.core.partials_forward(data.X, params, cache)
+        expected = data.Y
+        msg = f'computed = {computed} vs. expected = {expected}'
+        assert np.all(computed == expected), msg
 
-    assert np.allclose(dydx, 0.0)  # partials should be 0 at optimum params
 
-    ###################
-    # Imperfect model #
-    ###################
+    def test_model_backward(
+            self, 
+            data: jenn.core.Dataset, 
+            params: jenn.core.Parameters, 
+            cache: jenn.core.Cache,
+        ) -> None:
+        """Test backward propagation against finite difference."""
 
-    for i in range(parameters.L): # falsify model so partials are not zero
-        parameters.W[i][:] += 10 * np.random.rand()
-        parameters.b[i][:] += 10 * np.random.rand()
+        ###########################
+        # Perfectly trained model #
+        ###########################
 
-    jenn.core.model_partials_forward(
-        data.X, parameters, cache)  # predict to populate cache
+        jenn.core.model_partials_forward(
+            data.X, params, cache)  # predict to populate cache
 
-    jenn.core.model_backward(
-        data, parameters, cache)  # partials computed in place
+        jenn.core.model_backward(
+            data, params, cache)  # partials computed in place
 
-    def cost_FD(x):
-        params = deepcopy(parameters)  # make copy b/c arrays updated in place
-        cost = jenn.core.Cost(data, params)
-        params.unstack(x)
-        Y_pred = jenn.core.model_forward(data.X, params, deepcopy(cache))
-        return cost.evaluate(Y_pred)
+        dydx = params.stack_partials(per_layer=False)
 
-    dydx = parameters.stack_partials(per_layer=True)
-    dydx_FD = _finite_difference(cost_FD, parameters.stack(per_layer=True))
+        assert np.allclose(dydx, 0.0)  # partials should be 0 at optimum params
 
-    assert _grad_check(dydx, dydx_FD)
+        ###################
+        # Imperfect model #
+        ###################
+
+        for i in range(params.L): # falsify model so partials are not zero
+            params.W[i][:] += 10 * np.random.rand()
+            params.b[i][:] += 10 * np.random.rand()
+
+        jenn.core.model_partials_forward(
+            data.X, params, cache)  # predict to populate cache
+
+        jenn.core.model_backward(
+            data, params, cache)  # partials computed in place
+
+        def cost_FD(x):
+            parameters = deepcopy(params)  # make copy b/c arrays updated in place
+            cost = jenn.core.Cost(data, parameters)
+            parameters.unstack(x)
+            Y_pred = jenn.core.model_forward(data.X, parameters, deepcopy(cache))
+            return cost.evaluate(Y_pred)
+
+        dydx = params.stack_partials(per_layer=True)
+        dydx_FD = _finite_difference(cost_FD, params.stack(per_layer=True))
+
+        assert _grad_check(dydx, dydx_FD)
+
+
+# TODO: add test(s) for gradient-enhanced backprop and forward prop of partials
