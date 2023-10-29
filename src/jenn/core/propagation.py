@@ -15,13 +15,13 @@ ACTIVATIONS = dict(
 )
 
 
-def eye(n, m):
+def eye(n: int, m: int) -> np.ndarray:
     """Copy identify matrix of shape (n, n) m times."""
     I = np.eye(n, dtype=float)
     return np.repeat(I.reshape((n, n, 1)), m, axis=2)
 
 
-def first_layer_forward(X: np.ndarray, cache: Cache = None):
+def first_layer_forward(X: np.ndarray, cache: Cache | None = None) -> None:
     """Compute input layer activations (in place).
     
     Parameters
@@ -31,16 +31,16 @@ def first_layer_forward(X: np.ndarray, cache: Cache = None):
         where n_x = number of inputs 
                 m = number of examples 
 
-    cache: Cache 
+    cache: Cache | None
         Neural net cache. Object that stores 
         neural net quantities for each layer, 
         during forward prop, so they can be 
-        accessed during backprop. 
+        accessed during backprop. Default is None. 
     """
     cache.A[0][:] = X
 
 
-def first_layer_partials(X: np.ndarray, cache: Cache = None):
+def first_layer_partials(X: np.ndarray, cache: Cache) -> None:
     """Compute input layer partial (in place).
     
     Parameters
@@ -50,17 +50,17 @@ def first_layer_partials(X: np.ndarray, cache: Cache = None):
         where n_x = number of inputs 
                 m = number of examples 
 
-    cache: Cache 
+    cache: Cache
         Neural net cache. Object that stores 
         neural net quantities for each layer, 
         during forward prop, so they can be 
-        accessed during backprop. 
+        accessed during backprop. Default is None.
     """
     n_x, m = X.shape
     cache.A_prime[0][:] = eye(n_x, m)
 
 
-def next_layer_partials(layer: int, parameters: Parameters, cache: Cache = None):
+def next_layer_partials(layer: int, parameters: Parameters, cache: Cache) -> None:
     """Compute j^th partial in place for one layer (in place).
     
     Parameters
@@ -89,7 +89,7 @@ def next_layer_partials(layer: int, parameters: Parameters, cache: Cache = None)
     return cache.A_prime[r]
 
 
-def next_layer_forward(layer: int, parameters: Parameters, cache: Cache):
+def next_layer_forward(layer: int, parameters: Parameters, cache: Cache) -> None:
     """Propagate forward through one layer (in place).
     
     Parameters
@@ -104,7 +104,7 @@ def next_layer_forward(layer: int, parameters: Parameters, cache: Cache):
         Neural net cache. Object that stores 
         neural net quantities for each layer, 
         during forward prop, so they can be 
-        accessed during backprop. 
+        accessed during backprop.  
     """
     r = layer
     s = layer - 1
@@ -118,7 +118,7 @@ def next_layer_forward(layer: int, parameters: Parameters, cache: Cache):
     g.evaluate(Z, A)
 
 
-def model_partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache):
+def model_partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> tuple[np.ndarray, np.ndarray]:
     """Propagate forward through all layers, including partials (in place).
     
     Parameters
@@ -146,7 +146,7 @@ def model_partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache):
     return cache.A[-1], cache.A_prime[-1]
 
 
-def model_forward(X: np.ndarray, parameters: Parameters, cache: Cache):
+def model_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.ndarray:
     """Propagate forward through all layers, but don't compute partials (in place).
     
     Parameters
@@ -172,7 +172,7 @@ def model_forward(X: np.ndarray, parameters: Parameters, cache: Cache):
     return cache.A[-1]
 
 
-def partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache):
+def partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.ndarray:
     """Propagate forward through all layers, but return only partials (in place).
     
     Parameters
@@ -195,7 +195,7 @@ def partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache):
     return model_partials_forward(X, parameters, cache)[-1]
 
 
-def last_layer_backward(cache: Cache, data: Dataset):
+def last_layer_backward(cache: Cache, data: Dataset) -> None:
     """Propagate backward through last layer (in place).
     
     Parameters
@@ -216,7 +216,7 @@ def last_layer_backward(cache: Cache, data: Dataset):
         cache.dA_prime[-1][:] = np.zeros((data.n_y, data.n_x, data.m))
 
 
-def next_layer_backward(layer: int, parameters: Parameters, cache: Cache, data: Dataset, lambd: float):
+def next_layer_backward(layer: int, parameters: Parameters, cache: Cache, data: Dataset, lambd: float) -> None:
     """Propagate backward through next layer (in place).
     
     Parameters
@@ -254,7 +254,7 @@ def next_layer_backward(layer: int, parameters: Parameters, cache: Cache, data: 
     np.dot(parameters.W[r].T, cache.G_prime[r] * cache.dA[r], out=cache.dA[s])
 
 
-def gradient_enhancement(layer: int, parameters: Parameters, cache: Cache, data: Dataset, gamma: float):
+def gradient_enhancement(layer: int, parameters: Parameters, cache: Cache, data: Dataset, gamma: float) -> None:
     """Add gradient enhancement to backprop (in place).
     
     Parameters
@@ -291,7 +291,7 @@ def gradient_enhancement(layer: int, parameters: Parameters, cache: Cache, data:
         cache.dA_prime[s][:, j, :] = gamma * np.dot(parameters.W[r].T, cache.dA_prime[r][:, j, :] * cache.G_prime[r])
 
 
-def model_backward(data: Dataset, parameters: Parameters, cache: Cache, lambd: float = 0.0, gamma: float = 0.0):
+def model_backward(data: Dataset, parameters: Parameters, cache: Cache, lambd: float = 0.0, gamma: float = 0.0) -> None:
     """Propagate backward through all layers (in place).
     
     Parameters

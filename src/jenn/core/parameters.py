@@ -79,7 +79,7 @@ class Parameters:
     def __post_init__(self):
         self.initialize() 
 
-    def initialize(self):
+    def initialize(self) -> None:
         """Use 'He initialization' to initialize neural net parameters."""
         self.W = []
         self.b = []
@@ -209,7 +209,7 @@ class Parameters:
             k += n
         return stacks
 
-    def unstack(self, parameters: np.ndarray | list[np.ndarray]):
+    def unstack(self, parameters: np.ndarray | list[np.ndarray]) -> None:
         """Unstack parameters W, b back into list of arrays: 
 
             W = [W1, W2, W3, ...]
@@ -298,7 +298,7 @@ class Parameters:
             return stacks
         return np.concatenate(stacks).reshape((-1, 1))
 
-    def unstack_partials(self, partials):
+    def unstack_partials(self, partials: np.ndarray | list[np.ndarray]) -> None:
         """Unstack backprop partials dW, db back into list of arrays: 
 
             dW = [dW1, dW2, dW3, ...]
@@ -347,7 +347,7 @@ class Parameters:
         byte stream that can be stored as json."""
         return orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY)
 
-    def deserialize(self, saved_parameters: bytes):
+    def deserialize(self, saved_parameters: bytes) -> None:
         """Deserialize and apply saved parameters."""
         params = orjson.loads(saved_parameters)
         self.W = [np.array(value) for value in params['W']]
@@ -363,12 +363,12 @@ class Parameters:
         self.output_activation = self.a[-1]
         self.hidden_activation = self.a[-2]
     
-    def save(self, binary_file: str = 'parameters.json'): 
+    def save(self, binary_file: str = 'parameters.json') -> None:
         """Save parameters to specified json file."""
         with open("params.json", "wb") as binary_file:
             binary_file.write(self.serialize())
 
-    def load(self, binary_file: str = 'paramemeters.json'): 
+    def load(self, binary_file: str = 'paramemeters.json') -> None:
         """Load parameters from specified json file."""
         with open("params.json", "rb") as binary_file:
             byte_stream = binary_file.read()

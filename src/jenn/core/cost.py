@@ -18,7 +18,7 @@ class SquaredLoss:
         self.Y_true = Y_true
         self.Y_error = np.zeros(Y_true.shape)  # preallocate to save resources
 
-    def evaluate(self, Y_pred: np.ndarray) -> float:
+    def evaluate(self, Y_pred: np.ndarray) -> np.float64:
         """
         Compute least squares estimator of the states in place
 
@@ -47,17 +47,16 @@ class GradientEnhancement:
     dY_true: np.ndarray
         Training data gradients. An array of shape (n_y, n_x, m)
         Y' = d(Y)/dX where n_y = number outputs
-                            n_x = number inputs
-                            m = number examples
+                           n_x = number inputs
+                             m = number examples
     """
 
     def __init__(self, dY_true: np.ndarray):
         self.dY_true = dY_true
         self.dY_error = np.zeros(dY_true.shape)
 
-    def evaluate(self, dY_pred: np.ndarray) -> float:
-        """
-        Compute least squares estimator for the partials
+    def evaluate(self, dY_pred: np.ndarray) -> np.float64:
+        """Compute least squares estimator for the partials.
 
         Parameters
         ----------

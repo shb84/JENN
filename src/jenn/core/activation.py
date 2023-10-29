@@ -8,7 +8,11 @@ class Activation:
 
     @classmethod
     @abc.abstractmethod
-    def evaluate(cls, x: np.ndarray, y: np.ndarray = None):
+    def evaluate(
+            cls, 
+            x: np.ndarray, 
+            y: np.ndarray | None = None,
+        ) -> np.ndarray:
         """Evaluate activation function in place: y = g(x)
 
         Parameters
@@ -27,9 +31,9 @@ class Activation:
     def first_derivative(
             cls,
             x: np.ndarray,
-            y: np.ndarray = None,
-            dy: np.ndarray = None,
-    ):
+            y: np.ndarray | None = None,
+            dy: np.ndarray | None = None,
+        ) -> np.ndarray:
         """Evaluate gradient of activation function in place: dy = g'(x)
 
         Parameters
@@ -53,10 +57,10 @@ class Activation:
     def second_derivative(
             cls,
             x: np.ndarray,
-            y: np.ndarray = None,
-            dy: np.ndarray = None,
-            ddy: np.ndarray = None,
-    ):
+            y: np.ndarray | None = None,
+            dy: np.ndarray | None = None,
+            ddy: np.ndarray | None = None,
+        ) -> np.ndarray:
         """Evaluate second derivative of activation function: ddy = g''(x)
 
         Parameters
@@ -87,17 +91,17 @@ class Tanh(Activation):
     def evaluate(
             cls,
             x: np.ndarray,
-            y: np.ndarray = None,
-    ):
+            y: np.ndarray | None = None,
+        ) -> np.ndarray:
         return np.tanh(x, out=y)  # evaluated in place if y is not None
 
     @classmethod
     def first_derivative(
             cls,
             x: np.ndarray,
-            y: np.ndarray = None,
-            dy: np.ndarray = None,
-    ):
+            y: np.ndarray | None = None,
+            dy: np.ndarray | None = None,
+        ) -> np.ndarray:
         if y is None:
             y = cls.evaluate(x)
         if dy is None:
@@ -109,10 +113,10 @@ class Tanh(Activation):
     def second_derivative(
             cls,
             x: np.ndarray,
-            y: np.ndarray = None,
-            dy: np.ndarray = None,
-            ddy: np.ndarray = None,
-    ):
+            y: np.ndarray | None = None,
+            dy: np.ndarray | None = None,
+            ddy: np.ndarray | None = None,
+        ) -> np.ndarray:
         if y is None:
             y = cls.evaluate(x)
         if dy is None:
@@ -131,7 +135,7 @@ class Relu(Activation):
             cls,
             x: np.ndarray,
             y: np.ndarray = None,
-    ):
+        ) -> np.ndarray:
         if y is None:
             y = (x > 0) * x
         else:
@@ -142,9 +146,9 @@ class Relu(Activation):
     def first_derivative(
             cls,
             x: np.ndarray,
-            y: np.ndarray = None,
-            dy: np.ndarray = None,
-    ):
+            y: np.ndarray | None = None,
+            dy: np.ndarray | None = None,
+        ) -> np.ndarray:
         if dy is None:
             dy = np.asarray(x > 0, dtype=x.dtype)
         else:
@@ -155,10 +159,10 @@ class Relu(Activation):
     def second_derivative(
             cls,
             x: np.ndarray,
-            y: np.ndarray = None,
-            dy: np.ndarray = None,
-            ddy: np.ndarray = None,
-    ):
+            y: np.ndarray | None = None,
+            dy: np.ndarray | None = None,
+            ddy: np.ndarray | None = None,
+        ) -> np.ndarray:
         if ddy is None:
             return np.zeros(x.shape)
         ddy[:] = 0.0
@@ -172,8 +176,8 @@ class Linear(Activation):
     def evaluate(
             cls,
             x: np.ndarray,
-            y: np.ndarray = None,
-    ):
+            y: np.ndarray | None = None,
+        ) -> np.ndarray:
         if y is None:
             y = x.copy()
         else:
@@ -184,10 +188,10 @@ class Linear(Activation):
     def first_derivative(
             cls,
             x: np.ndarray,
-            y: np.ndarray = None,
-            dy: np.ndarray = None,
+            y: np.ndarray | None = None,
+            dy: np.ndarray | None = None,
             **kwargs,
-    ):
+        ) -> np.ndarray:
         if dy is None:
             dy = np.ones(x.shape)
         else:
@@ -198,13 +202,12 @@ class Linear(Activation):
     def second_derivative(
             cls,
             x: np.ndarray,
-            y: np.ndarray = None,
-            dy: np.ndarray = None,
-            ddy: np.ndarray = None,
+            y: np.ndarray | None = None,
+            dy: np.ndarray | None = None,
+            ddy: np.ndarray | None = None,
             **kwargs,
-    ):
+        ) -> np.ndarray:
         if ddy is None:
             return np.zeros(x.shape)
         ddy[:] = 0
         return ddy
-

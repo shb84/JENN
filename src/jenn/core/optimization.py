@@ -8,9 +8,6 @@ This package is distributed under the MIT license.
 
 from abc import ABC, abstractmethod
 import numpy as np
-from typing import List
-
-EPS = np.finfo(float).eps  # small number to avoid division by zero
 
 
 class Update(ABC):
@@ -21,10 +18,10 @@ class Update(ABC):
     @abstractmethod
     def __call__(
         self, 
-        params: List[np.ndarray], 
-        grads: List[np.ndarray],
+        params: np.ndarray, 
+        grads: np.ndarray,
         alpha: float,
-    ) -> List[np.ndarray]:
+    ) -> np.ndarray:
         """Take a single step along the search direction, 
         where gradient descent determines the search direction 
         based on the current value of the gradient. 
@@ -33,10 +30,10 @@ class Update(ABC):
 
         Parameters
         ----------
-        params: List[np.ndarray]
-            List of parameters to be updated
+        params: np.ndarray
+            Parameters to be updated
 
-        grads: List[np.ndarray]
+        grads: np.ndarray
             Gradient of objective function w.r.t. each parameter
 
         alpha: float
@@ -55,7 +52,7 @@ class GD(Update):
             params: np.ndarray, 
             grads: np.ndarray, 
             alpha: float,
-        ):
+        ) -> np.ndarray:
         return (params - alpha * grads).reshape(params.shape)
 
 
@@ -117,10 +114,11 @@ class ADAM(Update):
             self._grads = grads
             t += 1  # only update for new search directions
 
+        epsilon = np.finfo(float).eps  # small number to avoid division by zero
         v = beta_1 * v + (1. - beta_1) * grads
         s = beta_2 * s + (1. - beta_2) * np.square(grads)
         v_corrected = v / (1. - beta_1 ** t)
-        s_corrected = s / (1. - beta_2 ** t) + EPS
+        s_corrected = s / (1. - beta_2 ** t) + epsilon
 
         x = params - alpha * v_corrected / np.sqrt(s_corrected)
 
@@ -153,18 +151,18 @@ class LineSearch(ABC):
     def __call__(
         self, 
         params: np.ndarray, 
-        grads: List[np.ndarray],
+        grads: np.ndarray,
         cost: callable, 
         learning_rate: float, 
-    ):
-        """
+    ) -> np.ndarray:
+        """Take multiple steps along the search direction.
 
         Parameters
         ----------
-        params: List[np.ndarray]
-            List of parameters to be updated
+        params: np.ndarray
+            Parameters to be updated
 
-        grads: List[np.ndarray]
+        grads: np.ndarray
             Gradient of objective function w.r.t. each parameter
 
         cost: callable
@@ -175,8 +173,8 @@ class LineSearch(ABC):
 
         Returns
         -------
-        new_params: List[np.ndarray]
-            List of updated parameters
+        new_params: np.ndarray
+            Updated parameters
         """
         raise NotImplementedError
 
@@ -223,16 +221,15 @@ class Backtracking(LineSearch):
             grads: np.ndarray,
             cost: callable, 
             learning_rate: float = 0.05,
-        ):
-        """
-        Take multiple update steps along search direction determined by update
+        ) -> np.ndarray:
+        """Take multiple update steps along search direction determined by update.
 
         Parameters
         ----------
-        params: List[np.ndarray]
-            List of parameters to be updated
+        params: np.ndarray
+            Parameters to be updated
 
-        grads: List[np.ndarray]
+        grads: np.ndarray
             Gradient of objective function w.r.t. each parameter
 
         cost: callable
@@ -290,14 +287,13 @@ class Optimizer:
             verbose: bool = False, 
             epoch: int = None,
             batch: int = None,
-        ) -> List[np.ndarray]:
-        """
-        Minimize single objective function. 
+        ) -> np.ndarray:
+        """Minimize single objective function. 
 
         Parameters
         ----------
-        x: List[np.ndarray]
-            List of parameters to be updated
+        x: np.ndarray
+            Parameters to be updated
 
         f: callable
             Objective function y = f(x)

@@ -80,7 +80,7 @@ class NeuralNet:
             random_state: int = None,
             is_backtracking=False,
             is_verbose=False,
-    ):
+    ) -> None:
         """
         Train neural network.
 
@@ -268,9 +268,7 @@ class NeuralNet:
         dydx = denormalize_partials(dydx_norm, params.sigma_x, params.sigma_y)
         return dydx
 
-    def evaluate(
-            self, x: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray]:
+    def evaluate(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Predict y = f(x) and dy/dx = f'(x)
 
         Note:

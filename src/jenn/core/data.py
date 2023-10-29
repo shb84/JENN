@@ -5,6 +5,7 @@ import numpy as np
 
 from dataclasses import dataclass
 from functools import cached_property
+from typing import Self
 
 
 def mini_batches(
@@ -12,7 +13,7 @@ def mini_batches(
         batch_size: int,
         shuffle: bool = True,
         random_state: int = None,
-) -> list[tuple]:
+) -> list[tuple[int, ...]]:
     """Create randomized mini-batches. 
 
     Parameters
@@ -35,7 +36,7 @@ def mini_batches(
 
     Returns
     -------
-    batches: list[tuple]
+    batches: list[tuple[int, ...]]
         A list of tuples of integers, where each tuple contains 
         the indices of the training data for that batch, where the 
         index is in the interval [1, m]
@@ -111,11 +112,7 @@ def _safe_divide(value: np.ndarray, eps: float = np.finfo(float).eps):
     return value
 
 
-def normalize(
-        data: np.ndarray, 
-        mu: np.ndarray, 
-        sigma: np.ndarray,
-    ) -> np.ndarray:
+def normalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarray:
     """Center data about mean and normalize by standard deviation.
     
     Parameters
@@ -133,11 +130,7 @@ def normalize(
     return (data - mu) / _safe_divide(sigma)
 
 
-def denormalize(
-        data: np.ndarray, 
-        mu: np.ndarray, 
-        sigma: np.ndarray,
-    ) -> np.ndarray:
+def denormalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarray:
     """Undo normalization.
     
     Parameters
@@ -155,11 +148,7 @@ def denormalize(
     return sigma * data + mu
 
 
-def normalize_partials(
-        partials: np.ndarray, 
-        sigma_x: np.ndarray, 
-        sigma_y: np.ndarray,
-    ) -> np.ndarray:
+def normalize_partials(partials: np.ndarray, sigma_x: np.ndarray, sigma_y: np.ndarray) -> np.ndarray:
     """Normalize partials.
     
     Parameters
@@ -225,10 +214,9 @@ class Dataset:
     """
     X: np.ndarray
     Y: np.ndarray
-    J: np.ndarray = None
+    J: np.ndarray | None = None
 
     def __post_init__(self):
-
         if self.X.shape[1] != self.Y.shape[1]:
             msg = f'X and Y must have the same number of examples'
             raise ValueError(msg)
@@ -273,8 +261,13 @@ class Dataset:
         """Return standard deviation of output data as array of shape (n_y, 1)."""
         return std(self.Y)
 
-    def mini_batches(self, batch_size: int, shuffle: bool = True, random_state: int = None):
-        """Breakup data into multiple batches.
+    def mini_batches(
+            self, 
+            batch_size: int, 
+            shuffle: bool = True, 
+            random_state: int = None,
+        ) -> list[Self]:
+        """Breakup data into multiple batches and return list of Datasets.
         
         Parameters
         ----------
@@ -298,7 +291,7 @@ class Dataset:
             return [Dataset(X[:, b], Y[:, b]) for b in batches]
         return [Dataset(X[:, b], Y[:, b], J[:, :, b]) for b in batches]
 
-    def normalize(self):
+    def normalize(self) -> Self:
         """Return normalized Dataset."""
         X_norm = normalize(self.X, self.avg_x, self.std_x)
         Y_norm = normalize(self.Y, self.avg_y, self.std_y)

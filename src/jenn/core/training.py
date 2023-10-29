@@ -17,7 +17,7 @@ def objective_function(
         parameters: Parameters, 
         cache: Cache, 
         stacked_params: np.ndarray,
-    ) -> float:
+    ) -> np.float64:
     """Evaluate cost function for training.
     
     Parameters
@@ -125,7 +125,10 @@ def train_model(
         is_backtracking=False,
         is_verbose=False,
 ) -> dict:
-    """Train neural net.
+    """Train neural net. 
+
+    Note: 
+        Model parameters are updated in place. 
     
     Parameters
     ----------
@@ -206,6 +209,15 @@ def train_model(
     is_verbose: bool, optional
         Print out progress for each iteration, each batch, each epoch.
         Default is False.
+
+    Returns
+    -------
+    history: dict[int, dict[int, list[np.float64]]]
+        Cost function history for each epoch, batch, iteration. The cost history 
+        is useful for plotting convergence. For example, to access the cost 
+        history of epoch 2, batch 5, iteration 9:  
+
+            cost = history['epoch_2']['batch_5'][9]  
     """
     history = defaultdict(dict)
 

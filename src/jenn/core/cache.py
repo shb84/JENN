@@ -10,7 +10,7 @@ import numpy as np
 class Cache:
     """Neural net cache. 
 
-    Object that stores neural net quantities computed during 
+    This object stores neural net quantities computed during 
     forward prop for each layer so they don't have to be
     recomputed during backprop. This allows the algorithm to be faster.
 
@@ -21,6 +21,14 @@ class Cache:
         e.g. cache = Cache(shapes)
              layer_1_activations = cache.A[1]
              layer_1_activations[:] = new_array_values  # note [:]
+
+    Parameters
+    ----------
+    layer_sizes: list[int]
+        The number of "neurons" in each layer (including input and output layers). 
+
+    m: int, optional 
+        The number of examples (for array preallocation). Default is 1. 
 
     Attributes
     ----------
@@ -56,22 +64,26 @@ class Cache:
     """
 
     @property
-    def m(self):
+    def m(self) -> int: 
+        """Return number of examples."""
         return self.A[0].shape[1]
 
     @property
-    def n_x(self):
+    def n_x(self) -> int:
+        """Return number of inputs."""
         return self.layer_sizes[0]
 
     @property
-    def n_y(self):
+    def n_y(self) -> int:
+        """Return number of outputs."""
         return self.layer_sizes[-1]
 
     @property
-    def J(self):
+    def J(self) -> np.ndarray:
+        """Return predicted partials."""
         return self.A_prime[-1]
 
-    def __init__(self, layer_sizes, m=1):
+    def __init__(self, layer_sizes: list[int], m: int = 1):
         self.layer_sizes = layer_sizes
         self.Z = []  # store z = w a_prev + b
         self.Z_prime = []  # store z' = dz/dx[j] for all j = 1, .., n_x
@@ -83,7 +95,7 @@ class Cache:
         self.G_prime_prime = []  # store g'' = d/dz( da/dz )
         self.dA = []
         self.dA_prime = []
-        for i, n in enumerate(self.layer_sizes):
+        for n in self.layer_sizes:
             self.Z.append(np.zeros((n, m)))
             self.Z_prime.append(np.zeros((n, self.n_x, m)))
             self.Z_prime_prime.append(np.zeros((n, self.n_x, m)))
