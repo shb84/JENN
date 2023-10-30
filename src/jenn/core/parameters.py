@@ -365,11 +365,11 @@ class Parameters:
     
     def save(self, binary_file: str = 'parameters.json') -> None:
         """Save parameters to specified json file."""
-        with open("params.json", "wb") as binary_file:
+        with open(binary_file, "wb") as binary_file:
             binary_file.write(self.serialize())
 
-    def load(self, binary_file: str = 'paramemeters.json') -> None:
+    def load(self, binary_file: str = 'parameters.json') -> None:
         """Load parameters from specified json file."""
-        with open("params.json", "rb") as binary_file:
+        with open(binary_file, "rb") as binary_file:
             byte_stream = binary_file.read()
         self.deserialize(byte_stream)
