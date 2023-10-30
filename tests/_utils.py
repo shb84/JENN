@@ -117,12 +117,3 @@ def finite_difference(f: callable, x: np.ndarray, dx: float = 1e-6):
     dy[:, -1:] = _backward_difference(f, x, dx)[:, -1:]
     return dy
 
-
-def r_square(y_pred, y_true):
-    """Compute R-square value for each output."""
-    axis = y_true.ndim - 1
-    y_bar = np.mean(y_true, axis=axis)
-    SSE = np.sum(np.square(y_pred - y_true), axis=axis)
-    SSTO = np.sum(np.square(y_true - y_bar) + 1e-12, axis=axis)
-    return 1 - SSE / SSTO
-

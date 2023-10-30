@@ -6,29 +6,17 @@ accomplish these various tasks.
 """
 
 import numpy as np
-from time import time
-from functools import wraps
+from typing import Self
 
 from .core.parameters import Parameters
 from .core.training import train_model
 from .core.cache import Cache
 from .core.data import Dataset, normalize, denormalize, denormalize_partials
 from .core.propagation import partials_forward, model_forward, model_partials_forward
+from .utils.decorators import timeit
 
 
 __all__ = ["NeuralNet"]
-
-
-def timeit(func):
-    """Return elapsed time to run a function."""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        tic = time()
-        results = func(*args, **kwargs)
-        toc = time()
-        print(f'elapsed time: {toc-tic:.3f} s')
-        return results
-    return wrapper
 
 
 class NeuralNet:
@@ -80,7 +68,7 @@ class NeuralNet:
             random_state: int = None,
             is_backtracking=False,
             is_verbose=False,
-    ) -> None:
+    ) -> Self:
         """
         Train neural network.
 
@@ -203,6 +191,7 @@ class NeuralNet:
             params.sigma_y[:] = data.std_y
             data = data.normalize()
         train_model(data, params, **hyperparams)
+        return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         """Predict y = f(x)

@@ -86,19 +86,19 @@ class TestXOR:
     """Check forward and backprop on XOR test case."""
 
     @pytest.fixture
-    def data(self) -> jenn.core.Dataset:
+    def data(self) -> jenn.core.data.Dataset:
         """Return XOR test data."""
-        return jenn.core.Dataset(X_test, Y_test)
+        return jenn.core.data.Dataset(X_test, Y_test)
 
     @pytest.fixture
-    def cache(self) -> jenn.core.Cache:
+    def cache(self) -> jenn.core.cache.Cache:
         """Return XOR cache."""
-        return jenn.core.Cache(layer_sizes=[2, 2, 1], m=Y_test.size)
+        return jenn.core.cache.Cache(layer_sizes=[2, 2, 1], m=Y_test.size)
 
     @pytest.fixture
-    def params(self) -> jenn.core.Parameters:
+    def params(self) -> jenn.core.parameters.Parameters:
         """Return XOR parameters."""
-        parameters = jenn.core.Parameters(layer_sizes=[2, 2, 1], output_activation='relu')
+        parameters = jenn.core.parameters.Parameters(layer_sizes=[2, 2, 1], output_activation='relu')
         parameters.b[1][:] = np.array([[0], [-1]])        # layer 1
         parameters.W[1][:] = np.array([[1, 1], [1, 1]])   # layer 1
         parameters.b[2][:] = np.array([[0]])              # layer 2
@@ -107,12 +107,12 @@ class TestXOR:
 
     def test_model_forward(
             self, 
-            data: jenn.core.Dataset, 
-            params: jenn.core.Parameters, 
-            cache: jenn.core.Cache,
+            data: jenn.core.data.Dataset, 
+            params: jenn.core.parameters.Parameters, 
+            cache: jenn.core.cache.Cache,
         ) -> None:
         """Test forward propagation using XOR."""
-        computed = jenn.core.partials_forward(data.X, params, cache)
+        computed = jenn.core.propagation.partials_forward(data.X, params, cache)
         expected = data.Y
         msg = f'computed = {computed} vs. expected = {expected}'
         assert np.all(computed == expected), msg
@@ -120,9 +120,9 @@ class TestXOR:
 
     def test_model_backward(
             self, 
-            data: jenn.core.Dataset, 
-            params: jenn.core.Parameters, 
-            cache: jenn.core.Cache,
+            data: jenn.core.data.Dataset, 
+            params: jenn.core.parameters.Parameters, 
+            cache: jenn.core.cache.Cache,
         ) -> None:
         """Test backward propagation against finite difference."""
 
@@ -130,10 +130,10 @@ class TestXOR:
         # Perfectly trained model #
         ###########################
 
-        jenn.core.model_partials_forward(
+        jenn.core.propagation.model_partials_forward(
             data.X, params, cache)  # predict to populate cache
 
-        jenn.core.model_backward(
+        jenn.core.propagation.model_backward(
             data, params, cache)  # partials computed in place
 
         dydx = params.stack_partials(per_layer=False)
@@ -148,17 +148,17 @@ class TestXOR:
             params.W[i][:] += 10 * np.random.rand()
             params.b[i][:] += 10 * np.random.rand()
 
-        jenn.core.model_partials_forward(
+        jenn.core.propagation.model_partials_forward(
             data.X, params, cache)  # predict to populate cache
 
-        jenn.core.model_backward(
+        jenn.core.propagation.model_backward(
             data, params, cache)  # partials computed in place
 
         def cost_FD(x):
             parameters = deepcopy(params)  # make copy b/c arrays updated in place
-            cost = jenn.core.Cost(data, parameters)
+            cost = jenn.core.cost.Cost(data, parameters)
             parameters.unstack(x)
-            Y_pred = jenn.core.model_forward(data.X, parameters, deepcopy(cache))
+            Y_pred = jenn.core.propagation.model_forward(data.X, parameters, deepcopy(cache))
             return cost.evaluate(Y_pred)
 
         dydx = params.stack_partials(per_layer=True)

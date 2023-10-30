@@ -1,9 +1,8 @@
 """Test training and prediction (including partials)."""
 import jenn
 import numpy as np
-import pytest 
 
-from ._utils import r_square, finite_difference
+from ._utils import finite_difference
 
 
 class TestSinusoid: 
@@ -16,7 +15,7 @@ class TestSinusoid:
        #########
 
        x_train, y_train, dydx_train = jenn.synthetic.Sinusoid.sample(0, m_train)
-       nn = jenn.NeuralNet([1, 12, 1], 'tanh')
+       nn = jenn.model.NeuralNet([1, 12, 1], 'tanh')
        nn.fit(x_train, y_train, 
               lambd=0.1, alpha=.01, max_iter=2000, is_normalize=True)
 
@@ -26,17 +25,17 @@ class TestSinusoid:
 
        expected = y_train
        computed = nn.predict(x_train)
-       score = r_square(expected, computed)
+       score = jenn.utils.metrics.r_square(expected, computed)
        assert np.all(score > 0.95), f'r-square = {score} < 0.95'
 
        expected = dydx_train
        computed = nn.predict_partials(x_train)
-       score = r_square(expected, computed)
+       score = jenn.utils.metrics.r_square(expected, computed)
        assert np.all(score > 0.95), f'r-square = {score} < 0.95'
 
        expected = finite_difference(nn.predict, x_train)
        computed = nn.predict_partials(x_train)
-       score = r_square(expected, computed)
+       score = jenn.utils.metrics.r_square(expected, computed)
        assert np.all(score > 0.95), f'r-square = {score} < 0.95'
 
        ############################
@@ -47,11 +46,11 @@ class TestSinusoid:
 
        expected = y_test
        computed = nn.predict(x_test)
-       assert np.all(r_square(expected, computed) > 0.95), f'r-square = {score} < 0.95'
+       assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.95), f'r-square = {score} < 0.95'
 
        expected = dydx_test
        computed = nn.predict_partials(x_test)
-       assert np.all(r_square(expected, computed) > 0.90), f'r-square = {score} < 0.90'
+       assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.90), f'r-square = {score} < 0.90'
 
        expected = finite_difference(nn.predict, x_test)
        computed = nn.predict_partials(x_test)
@@ -68,7 +67,7 @@ class TestSinusoid:
        # Train # (regular neural net)
        #########
 
-       nn = jenn.NeuralNet([1, 12, 1], 'tanh')
+       nn = jenn.model.NeuralNet([1, 12, 1], 'tanh')
        nn.fit(x_train, y_train,
               lambd=0.1, alpha=.01, max_iter=2000, is_normalize=True)
 
@@ -78,14 +77,14 @@ class TestSinusoid:
 
        expected = y_test
        computed = nn.predict(x_test)
-       score = r_square(expected, computed)
+       score = jenn.utils.metrics.r_square(expected, computed)
        assert np.all(score < 0.5), f'r-square = {score} > 0.5'  
 
        #########
        # Train # (gradient-enhanced neural net)
        #########
 
-       genn = jenn.NeuralNet([1, 12, 1], 'tanh')
+       genn = jenn.model.NeuralNet([1, 12, 1], 'tanh')
        genn.fit(x_train, y_train, dydx_train,
               lambd=0.1, gamma=1.0, alpha=0.05, max_iter=500, is_normalize=True)
 
@@ -95,12 +94,12 @@ class TestSinusoid:
 
        expected = y_train
        computed = genn.predict(x_train)
-       score = r_square(expected, computed)
+       score = jenn.utils.metrics.r_square(expected, computed)
        assert np.all(score > 0.95), f'r-square = {score} < 0.95'
 
        expected = dydx_train
        computed = genn.predict_partials(x_train)
-       score = r_square(expected, computed)
+       score = jenn.utils.metrics.r_square(expected, computed)
        assert np.all(score > 0.95), f'r-square = {score} < 0.95'
 
        ############################
@@ -109,11 +108,11 @@ class TestSinusoid:
 
        expected = y_test
        computed = genn.predict(x_test)
-       assert np.all(r_square(expected, computed) > 0.9), f'r-square = {score} < 0.9'
+       assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.9), f'r-square = {score} < 0.9'
 
        expected = dydx_test
        computed = genn.predict_partials(x_test)
-       assert np.all(r_square(expected, computed) > 0.9), f'r-square = {score} < 0.9'
+       assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.9), f'r-square = {score} < 0.9'
 
 
 class TestRastrigin: 
