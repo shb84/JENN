@@ -42,7 +42,7 @@ def actual_by_predicted(
         title: str | None = None, 
         fontsize: int = 9,
         alpha: int = 1.0,
-    ): 
+    ) -> plt.Figure: 
     """Create actual by predicted plot for a single response. 
     
     Parameters
@@ -108,7 +108,7 @@ def residuals_by_predicted(
         title: str | None = None, 
         fontsize: int = 9,
         alpha: int = 1.0,
-    ): 
+    ) -> plt.Figure: 
     """Create residual by predicted plot for a single response. 
     
     Parameters
@@ -191,8 +191,7 @@ def goodness_of_fit(
         fontsize: int = 9,
         alpha: int = 1.0,
         title: str | None = None, 
-        limit: int | None = None, 
-    ): 
+    ) -> plt.Figure: 
     """Create 'residual by predicted' and 'actual by predicted' plots.  
     
     Parameters
@@ -217,9 +216,11 @@ def goodness_of_fit(
     alpha: float, optional 
         Transparency of dots between 0 and 1. Default is 1. 
     """
+    if title is None: 
+        title = ""
     r2 = r_square(y_pred, y_true).squeeze()
     fig = plt.figure(figsize=figsize, layout="tight")
-    fig.suptitle(f'R-Squared = {r2:.3f}')
+    fig.suptitle(title + f' (R-Squared = {r2:.3f})')
     spec = fig.add_gridspec(ncols=2, nrows=1)
     ax0 = fig.add_subplot(spec[0, 0])
     actual_by_predicted(
@@ -257,7 +258,7 @@ def sensitivity_profile(
         legend: list[str] | None = None,
         figsize: tuple[float, float] = (6.5, 3), 
         fontsize: int = 9,
-    ): 
+    ) -> plt.Figure: 
     """Plot sensitivity profile for one input / output.
     
     Parameters
@@ -319,6 +320,8 @@ def sensitivity_profile(
         ax = fig.add_subplot(spec[0, 0])
     if not isinstance(y_pred, list): 
         y_pred = [y_pred]
+    if legend is None: 
+        legend = [] 
     x0 = x0.ravel()
     y0 = y0.ravel()
     x_pred = x_pred.ravel()
@@ -326,11 +329,12 @@ def sensitivity_profile(
     for array in y_pred: 
         linestyle = next(linestyles)
         ax.plot(x_pred, array.ravel(), color='k', linestyle=linestyle, linewidth=2)
-    ax.legend(legend, fontsize=fontsize)
     if x_true is not None and y_true is not None: 
         x_true = x_true.ravel() 
         y_true = y_true.ravel() 
         ax.scatter(x_true, y_true, color='k', alpha=alpha)
+        legend.append('data') 
+    ax.legend(legend, fontsize=fontsize)
     for n in range(y0.size): 
         ax.scatter(x0, y0[n], color='r')
     ax.set_xlabel(xlabel, fontsize=fontsize)
@@ -356,7 +360,7 @@ def sensitivity_profiles(
         ylabels: list[str] = None, 
         legend: list[str] | None = None,
         resolution: int = 100, 
-    ): 
+    ) -> plt.Figure: 
     """Plot grid of sensitivity profiles for all inputs / outputs.
     
     Parameters
@@ -445,3 +449,178 @@ def sensitivity_profiles(
         plt.close(fig)
     return fig 
 
+
+@requires_matplotlib
+def convergence(
+    histories: list[dict[str, dict[str, list[float]]]], 
+    figsize: tuple[float, float] = (3.25, 3), 
+    fontsize: int = 9,
+    alpha: int = 1.,
+    title: str | None = None, 
+    legend: list[str] | None = None,
+    ) -> plt.Figure:
+        """Plot training history.
+        
+        Parameters
+        ----------
+        histories: list[dict[str, dict[str, list[float]]]]
+            Training histories for each model. 
+    
+        figsize: tuple[float, float], optional 
+            Individua figure size of each subplot. Default is (3.25, 3)
+
+        fontsize: int, optional
+            Text size. Default is 9
+
+        alpha: float, optional 
+            Transparency of dots between 0 and 1. Default is 1. 
+
+        title: str, optional 
+            Title of figure. Default is None. 
+        
+        legend: list[str] | None = None,
+            Label for each model. Default is None.
+        """
+
+        if not histories:
+            return None
+
+        fig = plt.figure(figsize=figsize, layout="tight")
+        fig.suptitle(title)
+        
+        linestyles = iter(LINE_STYLES.values())
+        for history in histories: 
+            linestyle = next(linestyles)
+            epochs = list(history.keys())
+            if len(epochs) > 1:
+                avg_costs = []
+                for epoch in epochs:
+                    batches = history[epoch].keys()
+                    avg_batch_costs = []
+                    for batch in batches:
+                        avg_batch_cost = np.mean(history[epoch][batch])
+                        avg_batch_costs.append(avg_batch_cost)
+                    avg_cost = sum(avg_batch_costs) / len(batches)
+                    avg_costs.append(avg_cost)
+                plt.plot(
+                    range(len(epochs)), 
+                    avg_costs, 
+                    alpha=alpha, 
+                    color="k", 
+                    linewidth=2, 
+                    linestyle=linestyle, 
+                )
+                plt.xlabel('epoch', fontsize=fontsize)
+                plt.ylabel('avg cost', fontsize=fontsize)
+            elif len(history['epoch_0']) > 1:
+                avg_cost = []
+                batches = history['epoch_0'].keys()
+                for batch in batches:
+                    avg_cost.append(np.mean(history['epoch_0'][batch]))
+                plt.plot(
+                    range(len(batches)), 
+                    avg_cost,
+                    alpha=alpha, 
+                    color="k", 
+                    linewidth=2, 
+                    linestyle=linestyle,
+                )
+                plt.xlabel('batch', fontsize=fontsize)
+                plt.ylabel('avg cost', fontsize=fontsize)
+            else:
+                cost = history['epoch_0']['batch_0']
+                plt.plot(
+                    range(len(cost)), 
+                    cost,
+                    alpha=alpha, 
+                    color="k", 
+                    linewidth=2, 
+                    linestyle=linestyle,
+                )
+                plt.xlabel('iteration', fontsize=fontsize)
+                plt.ylabel('cost', fontsize=fontsize)
+        ax = plt.gca() 
+        if legend: 
+            ax.legend(legend)
+        ax.set_yscale('log')
+        plt.close(fig)
+        return fig 
+
+
+def contours(
+    func: callable, 
+    lb: tuple[float, float], 
+    ub: tuple[float, float], 
+    x_train: np.ndarray | None = None, 
+    x_test: np.ndarray | None = None, 
+    figsize: tuple[float, float] = (3.25, 3), 
+    fontsize: int = 9,
+    alpha: int = 0.5,
+    title: str | None = None, 
+    xlabel: str | None = None, 
+    ylabel: str | None = None, 
+    resolution: int = 100, 
+    ax: plt.Axes | None = None, 
+):
+    """Plot contours of a scalar function of two variables: y = f(x1, x2)
+    
+    Parameters
+    ----------
+    
+    figsize: tuple[float, float], optional 
+        Individua figure size of each subplot. Default is (3.25, 3)
+
+    fontsize: int, optional
+        Text size. Default is 9
+
+    alpha: float, optional 
+        Transparency of dots between 0 and 1. Default is 1. 
+
+    title: str, optional 
+        Title of figure. Default is None. 
+
+    xlabel: list[str], optional 
+        x label.Default is None. 
+
+    ylabel: list[str], optional 
+        y label. Default is None. 
+
+    resolution: int, optional 
+        Line resolution. Default is 100 points.
+
+    ax: plt.Axes | None = None
+        Axes on which to draw. Default is None. 
+    """
+    # Domain
+    m = resolution
+    x1 = np.linspace(lb[0], ub[0], m)
+    x2 = np.linspace(lb[1], ub[1], m)
+    x1, x2 = np.meshgrid(x1, x2)
+
+    # Response
+    y = np.zeros((m, m))  
+    for i in range(m): 
+        for j in range(m): 
+            y[i, j] = func(np.array([[x1[i, j]], [x2[i, j]]])).ravel()[0]
+
+    # Plot
+    if ax: 
+        fig = ax.get_figure()
+    else: 
+        fig = plt.figure(figsize=figsize)
+        ax = plt.gca()
+    cs = ax.contour(x1, x2, y, 20, cmap='RdGy', alpha=alpha)
+    legend = [] 
+    if x_train is not None: 
+        ax.scatter(x_train[0], x_train[1], marker=".", c="r", alpha=1)
+        legend.append("train")
+    if x_test is not None: 
+        ax.scatter(x_test[0], x_test[1], marker="+", c="k", alpha=1)
+        legend.append("test")
+    if legend: 
+        ax.legend(legend, loc=1)
+    ax.set_title(title, fontsize=fontsize)
+    ax.set_xlabel(xlabel, fontsize=fontsize)
+    ax.set_ylabel(ylabel, fontsize=fontsize)
+    plt.close(fig)
+    return fig 

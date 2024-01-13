@@ -43,13 +43,13 @@ class NeuralNet:
             hidden_activation: str = 'tanh',
             output_activation: str = 'linear',
     ):
+        self.history = None 
         self.parameters = Parameters(
             layer_sizes,
             hidden_activation,
             output_activation,
         )
 
-    @timeit
     def fit(
             self,
             x: np.ndarray,
@@ -66,8 +66,9 @@ class NeuralNet:
             max_iter: int = 200,
             shuffle: bool = True,
             random_state: int = None,
-            is_backtracking=False,
-            is_verbose=False,
+            is_backtracking: bool = False,
+            is_verbose: bool = False,
+            is_timed: bool = False, 
     ) -> Self:
         """
         Train neural network.
@@ -163,7 +164,35 @@ class NeuralNet:
         is_verbose: bool, optional
             Print out progress for each iteration, each batch, each epoch.
             Default is False.
+
+        is_timed: bool, optional 
+            Print elapsed time. Default is False. 
         """
+        if is_timed: 
+
+            @timeit
+            def fit(*args): 
+                return self.fit(*args)
+        
+            return fit(
+                x,
+                y,
+                dydx,
+                is_normalize,
+                alpha,
+                lambd,
+                gamma,
+                beta1,
+                beta2,
+                epochs,
+                batch_size,
+                max_iter,
+                shuffle,
+                random_state,
+                is_backtracking,
+                is_verbose,
+            )
+        
         hyperparams = dict(
             alpha=alpha,
             lambd=lambd,
@@ -190,7 +219,7 @@ class NeuralNet:
             params.sigma_x[:] = data.std_x
             params.sigma_y[:] = data.std_y
             data = data.normalize()
-        train_model(data, params, **hyperparams)
+        self.history = train_model(data, params, **hyperparams)
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
