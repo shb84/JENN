@@ -1,48 +1,49 @@
 """Train neural network."""
 import functools
-import numpy as np 
-
 from collections import defaultdict
-from .parameters import Parameters
-from .data import Dataset
-from .cost import Cost
-from .propagation import model_backward, model_partials_forward
+
+import numpy as np
+
 from .cache import Cache
+from .cost import Cost
+from .data import Dataset
 from .optimization import ADAM, Backtracking, Optimizer
+from .parameters import Parameters
+from .propagation import model_backward, model_partials_forward
 
 
 def objective_function(
-        X: np.ndarray, 
-        cost: Cost, 
-        parameters: Parameters, 
-        cache: Cache, 
-        stacked_params: np.ndarray,
-    ) -> np.float64:
+    X: np.ndarray,
+    cost: Cost,
+    parameters: Parameters,
+    cache: Cache,
+    stacked_params: np.ndarray,
+) -> np.float64:
     """Evaluate cost function for training.
-    
+
     Parameters
     ----------
     X: np.ndarray
         Training data inputs. An array of shape (n_x, m)
-        where n_x = number of inputs 
-                m = number of examples 
+        where n_x = number of inputs
+                m = number of examples
 
     cost: Cost
-        Cost function to be evaluated. 
+        Cost function to be evaluated.
 
     parameters: Parameters
-        Neural net parameters. Object that stores 
-        neural net parameters for each layer.  
-        
-    cache: Cache 
-        Neural net cache. Object that stores 
-        neural net quantities for each layer, 
-        during forward prop, so they can be 
-        accessed during backprop. 
+        Neural net parameters. Object that stores
+        neural net parameters for each layer.
+
+    cache: Cache
+        Neural net cache. Object that stores
+        neural net quantities for each layer,
+        during forward prop, so they can be
+        accessed during backprop.
 
     stacked_params: np.ndarray
         Neural network parameters, represented as single
-        array of stacked parameters for all layers. 
+        array of stacked parameters for all layers.
         e.g. np.array([
                     [W1],
                     [b1],
@@ -59,41 +60,41 @@ def objective_function(
 
 
 def objective_gradient(
-        data: Dataset, 
-        parameters: Parameters, 
-        cache: Cache, 
-        lambd: float, 
-        gamma: float, 
-        stacked_params: np.ndarray,
-    ) -> np.ndarray:
+    data: Dataset,
+    parameters: Parameters,
+    cache: Cache,
+    lambd: float,
+    gamma: float,
+    stacked_params: np.ndarray,
+) -> np.ndarray:
     """Evaluate cost function gradient for backprop.
-    
+
     Parameters
     ----------
-    data: Dataset 
+    data: Dataset
         Object containing training and associated metadata.
 
     parameters: Parameters
-        Neural net parameters. Object that stores 
-        neural net parameters for each layer.  
-        
-    cache: Cache 
-        Neural net cache. Object that stores 
-        neural net quantities for each layer, 
-        during forward prop, so they can be 
-        accessed during backprop. 
+        Neural net parameters. Object that stores
+        neural net parameters for each layer.
+
+    cache: Cache
+        Neural net cache. Object that stores
+        neural net quantities for each layer,
+        during forward prop, so they can be
+        accessed during backprop.
 
     lambd: int, optional
-        Coefficient that multiplies regularization term in cost function. 
+        Coefficient that multiplies regularization term in cost function.
         Default is 0.0
 
     gamma: int, optional
-        Coefficient that multiplies gradient-enhancement term in cost function. 
+        Coefficient that multiplies gradient-enhancement term in cost function.
         Default is 0.0
 
     stacked_params: np.ndarray
         Neural network parameters, represented as single
-        array of stacked parameters for all layers. 
+        array of stacked parameters for all layers.
         e.g. np.array([
                     [W1],
                     [b1],
@@ -110,34 +111,34 @@ def objective_gradient(
 
 
 def train_model(
-        data: Dataset,
-        parameters: Parameters,
-        alpha: float = 0.050,
-        lambd: float = 0.000,
-        gamma: float = 0.000,
-        beta1: float = 0.900,
-        beta2: float = 0.999,
-        epochs: int = 1,
-        max_iter: int = 200,
-        batch_size: int = None,
-        shuffle: bool = True,
-        random_state: int = None,
-        is_backtracking=False,
-        is_verbose=False,
+    data: Dataset,
+    parameters: Parameters,
+    alpha: float = 0.050,
+    lambd: float = 0.000,
+    gamma: float = 0.000,
+    beta1: float = 0.900,
+    beta2: float = 0.999,
+    epochs: int = 1,
+    max_iter: int = 200,
+    batch_size: int = None,
+    shuffle: bool = True,
+    random_state: int = None,
+    is_backtracking=False,
+    is_verbose=False,
 ) -> dict:
-    """Train neural net. 
+    """Train neural net.
 
-    Note: 
-        Model parameters are updated in place. 
-    
+    Note:
+        Model parameters are updated in place.
+
     Parameters
     ----------
-    data: Dataset 
+    data: Dataset
         Object containing training and associated metadata.
 
     parameters: Parameters
-        Neural net parameters. Object that stores 
-        neural net parameters for each layer.  
+        Neural net parameters. Object that stores
+        neural net parameters for each layer.
 
     alpha: float, optional
         Learning rate (controls optimizer step size for line search)
@@ -213,11 +214,11 @@ def train_model(
     Returns
     -------
     history: dict[int, dict[int, list[np.float64]]]
-        Cost function history for each epoch, batch, iteration. The cost history 
-        is useful for plotting convergence. For example, to access the cost 
-        history of epoch 2, batch 5, iteration 9:  
+        Cost function history for each epoch, batch, iteration. The cost history
+        is useful for plotting convergence. For example, to access the cost
+        history of epoch 2, batch 5, iteration 9:
 
-            cost = history['epoch_2']['batch_5'][9]  
+            cost = history['epoch_2']['batch_5'][9]
     """
     history = defaultdict(dict)
 
@@ -257,5 +258,5 @@ def train_model(
                 epoch=e,
                 batch=b,
             )
-            history[f'epoch_{e}'][f'batch_{b}'] = optimizer.cost_history
+            history[f"epoch_{e}"][f"batch_{b}"] = optimizer.cost_history
     return history

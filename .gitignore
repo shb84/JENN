@@ -58,3 +58,17 @@ venv.bak/
 .spyderproject
 .spyproject
 
+# Mac 
+.DS_Store
+
+# TODO
+todo.txt 
+
+# doit 
+.doit.db.db
+
+# Local environments 
+.envs
+.env 
+.venv 
+

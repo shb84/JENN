@@ -1,16 +1,16 @@
 """Neural net cache.
 
-Store quantities computed during forward propagation, 
-so they don't have to be recomputed during backward propgation.
+Store quantities computed during forward propagation, so they don't have
+to be recomputed during backward propgation.
 """
 
 import numpy as np
 
 
 class Cache:
-    """Neural net cache. 
+    """Neural net cache.
 
-    This object stores neural net quantities computed during 
+    This object stores neural net quantities computed during
     forward prop for each layer so they don't have to be
     recomputed during backprop. This allows the algorithm to be faster.
 
@@ -25,46 +25,46 @@ class Cache:
     Parameters
     ----------
     layer_sizes: list[int]
-        The number of "neurons" in each layer (including input and output layers). 
+        The number of "neurons" in each layer (including input and output layers).
 
-    m: int, optional 
-        The number of examples (for array preallocation). Default is 1. 
+    m: int, optional
+        The number of examples (for array preallocation). Default is 1.
 
     Attributes
     ----------
     Z: list[np.ndarray]
-        Store Z = W.T A_prev + b for each layer 
+        Store Z = W.T A_prev + b for each layer
 
     Z_prime: list[np.ndarray]
         Store Z' = d/dx[j] (Z) for all j = 1, .., n_x
 
-    Z_prime_prime: list[np.ndarray] 
+    Z_prime_prime: list[np.ndarray]
         Store Z'' = d/dx[j] d/dx[j] (Z))
 
-    A: list[np.ndarray] 
-        Store A = g(Z) where g is the activation function. 
+    A: list[np.ndarray]
+        Store A = g(Z) where g is the activation function.
 
-    A_prime: list[np.ndarray] 
+    A_prime: list[np.ndarray]
         Store A' = d/dx[j] (A) for all j = 1, .., n_x
 
     A_prime_prime: list[np.ndarray]
         Store A'' = d/dx[j] d/dx[j] ( A )
 
-    G_prime: list[np.ndarray] 
-        Store g' = d/dz (A) 
+    G_prime: list[np.ndarray]
+        Store g' = d/dz (A)
 
-    G_prime_prime: list[np.ndarray] 
+    G_prime_prime: list[np.ndarray]
         Store g'' = d/dz d/dz (A)
 
-    dA: list[np.ndarray] 
+    dA: list[np.ndarray]
         Store d/dA (L) for backprop
-        
+
     dA_prime: list[np.ndarray]
         Store d/dA' (L) for backprop
     """
 
     @property
-    def m(self) -> int: 
+    def m(self) -> int:
         """Return number of examples."""
         return self.A[0].shape[1]
 

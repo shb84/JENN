@@ -1,4 +1,0 @@
-twine  # for packaging
-build  # for packaging
-pyDOE2  # for generating synthetic data
--e .  # this line installs jenn as editable pip pkg

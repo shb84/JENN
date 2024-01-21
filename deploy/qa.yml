@@ -1,0 +1,14 @@
+channels:
+- conda-forge
+- defaults
+dependencies:
+  - python >=3.11,<3.12
+  # lint
+  - black ==23.1.0
+  - docformatter ==1.5.1
+  - m2-dos2unix  # [win]
+  - flake8
+  - isort
+  - mypy 
+  - pydocstyle
+  - pyflakes

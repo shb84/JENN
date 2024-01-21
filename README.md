@@ -41,33 +41,13 @@ Jacobian-Enhanced Neural Net            |  Standard Neural Net
 
 # Installation
 
-# Users
+    pip install jenn 
 
-    pip install jenn
+# Contribute 
 
-# Developers
-
-Clone the repo: 
-
-    git clone https://github.com/shb84/JENN.git 
-    
-From inside the repo, create a new conda environment for the project (called `jenn-dev` by default): 
-    
-    conda env create -f environment.yml 
-    conda activate jenn-dev 
-
-Test that your environment is working by running unit tests. From the root directory of the repo, type: 
-
-    pytest 
-
-All tests should pass. You should also try running the notebooks in `demo/` and the the usage example below. 
-
-> NOTE: If jupyter throws `ModuleNotFoundError: No module named` but the package is installed, 
-> then Jupyter might be running a different kernel then the one associated 
-> with your conda env. To fix this, add your conda environment as kernel so that it can 
-> be selected when running Jupyter: 
->
-    ipython kernel install --user --name=<env_name>
+    conda env update --file environment.yml --name jenn
+    conda activate jenn 
+    pip install -e . 
 
 ----
 

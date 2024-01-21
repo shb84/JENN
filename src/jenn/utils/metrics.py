@@ -1,5 +1,5 @@
 """Goodness of fit metrics."""
-import numpy as np 
+import numpy as np
 
 
 def r_square(y_pred: np.ndarray, y_true: np.ndarray) -> np.ndarray:

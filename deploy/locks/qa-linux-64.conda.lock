@@ -1,0 +1,53 @@
+# black ==23.1.0
+# docformatter ==1.5.1
+# flake8
+# isort
+# m2-dos2unix
+# mypy
+# pydocstyle
+# pyflakes
+# python >=3.11,<3.12
+@EXPLICIT
+https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2#d7c89558ba9fa0495403155b64376d81
+https://conda.anaconda.org/conda-forge/linux-64/ca-certificates-2023.11.17-hbcca054_0.conda#01ffc8d36f9eba0ce0b3c1955fa780ee
+https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.40-h41732ed_0.conda#7aca3059a1729aa76c597603f10b0dd3
+https://conda.anaconda.org/conda-forge/linux-64/python_abi-3.11-4_cp311.conda#d786502c97404c94d7d58d258a445a65
+https://conda.anaconda.org/conda-forge/noarch/tzdata-2023d-h0c530f3_0.conda#8dee24b8be2d9ff81e7bd4d7d97ff1b0
+https://conda.anaconda.org/conda-forge/linux-64/libgomp-13.2.0-h807b86a_3.conda#7124cbb46b13d395bdde68f2d215c989
+https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-2_gnu.tar.bz2#73aaf86a425cc6e73fcf236a5a46396d
+https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-13.2.0-h807b86a_3.conda#23fdf1fef05baeb7eadc2aed5fb0011f
+https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-hd590300_5.conda#69b8b6202a07720f448be700e300ccf4
+https://conda.anaconda.org/conda-forge/linux-64/libexpat-2.5.0-hcb278e6_1.conda#6305a3dd2752c76335295da4e581f2fd
+https://conda.anaconda.org/conda-forge/linux-64/libffi-3.4.2-h7f98852_5.tar.bz2#d645c6d2ac96843a2bfaccd2d62b3ac3
+https://conda.anaconda.org/conda-forge/linux-64/libnsl-2.0.1-hd590300_0.conda#30fd6e37fe21f86f4bd26d6ee73eeec7
+https://conda.anaconda.org/conda-forge/linux-64/libuuid-2.38.1-h0b41bf4_0.conda#40b61aab5c7ba9ff276c41cfffe6b80b
+https://conda.anaconda.org/conda-forge/linux-64/libxcrypt-4.4.36-hd590300_1.conda#5aa797f8787fe7a17d1b0821485b5adc
+https://conda.anaconda.org/conda-forge/linux-64/libzlib-1.2.13-hd590300_5.conda#f36c115f1ee199da648e0597ec2047ad
+https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.4-h59595ed_2.conda#7dbaa197d7ba6032caf7ae7f32c1efa0
+https://conda.anaconda.org/conda-forge/linux-64/openssl-3.2.0-hd590300_1.conda#603827b39ea2b835268adb8c821b8570
+https://conda.anaconda.org/conda-forge/linux-64/xz-5.2.6-h166bdaf_0.tar.bz2#2161070d867d1b1204ea749c8eec4ef0
+https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.44.2-h2797004_0.conda#3b6a9f225c3dbe0d24f4fedd4625c5bf
+https://conda.anaconda.org/conda-forge/linux-64/readline-8.2-h8228510_1.conda#47d31b792659ce70f470b5c82fdfb7a4
+https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h4845f30_101.conda#d453b98d9c83e71da0741bb0ff4d76bc
+https://conda.anaconda.org/conda-forge/linux-64/python-3.11.7-hab00c5b_1_cpython.conda#27cf681282c11dba7b0b1fd266e8f289
+https://conda.anaconda.org/conda-forge/noarch/charset-normalizer-3.3.2-pyhd8ed1ab_0.conda#7f4a9e3fcff3f6356ae99244a014da6a
+https://conda.anaconda.org/conda-forge/noarch/click-8.1.7-unix_pyh707e725_0.conda#f3ad426304898027fc619827ff428eca
+https://conda.anaconda.org/conda-forge/noarch/mccabe-0.7.0-pyhd8ed1ab_0.tar.bz2#34fc335fc50eef0b5ea708f2b5f54e0c
+https://conda.anaconda.org/conda-forge/noarch/mypy_extensions-1.0.0-pyha770c72_0.conda#4eccaeba205f0aed9ac3a9ea58568ca3
+https://conda.anaconda.org/conda-forge/noarch/packaging-23.2-pyhd8ed1ab_0.conda#79002079284aa895f883c6b7f3f88fd6
+https://conda.anaconda.org/conda-forge/noarch/pathspec-0.12.1-pyhd8ed1ab_0.conda#17064acba08d3686f1135b5ec1b32b12
+https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.1.0-pyhd8ed1ab_0.conda#45a5065664da0d1dfa8f8cd2eaf05ab9
+https://conda.anaconda.org/conda-forge/linux-64/psutil-5.9.8-py311h459d7ec_0.conda#9bc62d25dcf64eec484974a3123c9d57
+https://conda.anaconda.org/conda-forge/noarch/pycodestyle-2.11.1-pyhd8ed1ab_0.conda#29ff12b36df16bb66fdccd4206aaebfb
+https://conda.anaconda.org/conda-forge/noarch/pyflakes-3.2.0-pyhd8ed1ab_0.conda#0cf7fef6aa123df28adb21a590065e3d
+https://conda.anaconda.org/conda-forge/noarch/setuptools-69.0.3-pyhd8ed1ab_0.conda#40695fdfd15a92121ed2922900d0308b
+https://conda.anaconda.org/conda-forge/noarch/snowballstemmer-2.2.0-pyhd8ed1ab_0.tar.bz2#4d22a9315e78c6827f806065957d566e
+https://conda.anaconda.org/conda-forge/noarch/tomli-2.0.1-pyhd8ed1ab_0.tar.bz2#5844808ffab9ebdb694585b50ba02a96
+https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.9.0-pyha770c72_0.conda#a92a6440c3fe7052d63244f3aba2a4a7
+https://conda.anaconda.org/conda-forge/noarch/untokenize-0.1.1-py_0.tar.bz2#1447ead40f2a01733a9c8dfc32988375
+https://conda.anaconda.org/conda-forge/linux-64/black-23.1.0-py311h38be061_0.conda#c737160bd5ce6abee26abc6a9e8da79c
+https://conda.anaconda.org/conda-forge/noarch/docformatter-1.5.1-pyhd8ed1ab_0.conda#7a8356601d0a66eb83fb5178bde841bf
+https://conda.anaconda.org/conda-forge/noarch/flake8-7.0.0-pyhd8ed1ab_0.conda#15bc58c860fc0a9abc26ec902df35252
+https://conda.anaconda.org/conda-forge/noarch/isort-5.13.2-pyhd8ed1ab_0.conda#1d25ed2b95b92b026aaa795eabec8d91
+https://conda.anaconda.org/conda-forge/linux-64/mypy-1.8.0-py311h459d7ec_0.conda#93b7b2391a045cea0d97772f550f1d77
+https://conda.anaconda.org/conda-forge/noarch/pydocstyle-6.3.0-pyhd8ed1ab_0.conda#7e23a61a7fbaedfef6eb0e1ac775c8e5

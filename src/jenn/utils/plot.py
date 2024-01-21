@@ -1,7 +1,8 @@
 """Check goodness of fit."""
-import numpy as np 
 from importlib.util import find_spec
 from typing import Callable
+
+import numpy as np
 
 if find_spec("matplotlib"):
     import matplotlib.pyplot as plt
@@ -9,587 +10,594 @@ if find_spec("matplotlib"):
 from .decorators import requires_matplotlib
 from .metrics import r_square
 
-
 LINE_STYLES = {
-    'solid': 'solid',      # Same as (0, ()) or '-'
-    'dotted': 'dotted',    # Same as (0, (1, 1)) or ':'
-    'dashdot': 'dashdot',  # Same as '-.'
-    'dashed': 'dashed',    # Same as '--'
-    # 
-    'loosely dotted':        (0, (1, 10)),
-    'dotted':                (0, (1, 1)),
-    'densely dotted':        (0, (1, 1)),
-    'long dash with offset': (5, (10, 3)),
-    'loosely dashed':        (0, (5, 10)),
-    'dashed':                (0, (5, 5)),
-    'densely dashed':        (0, (5, 1)),
+    "solid": "solid",  # Same as (0, ()) or '-'
+    "dotted": "dotted",  # Same as (0, (1, 1)) or ':'
+    "dashdot": "dashdot",  # Same as '-.'
+    "dashed": "dashed",  # Same as '--'
     #
-    'loosely dashdotted':    (0, (3, 10, 1, 10)),
-    'dashdotted':            (0, (3, 5, 1, 5)),
-    'densely dashdotted':    (0, (3, 1, 1, 1)),
+    "loosely dotted": (0, (1, 10)),
+    # "dotted": (0, (1, 1)),
+    "densely dotted": (0, (1, 1)),
+    "long dash with offset": (5, (10, 3)),
+    "loosely dashed": (0, (5, 10)),
+    # "dashed": (0, (5, 5)),
+    "densely dashed": (0, (5, 1)),
     #
-    'dashdotdotted':         (0, (3, 5, 1, 5, 1, 5)),
-    'loosely dashdotdotted': (0, (3, 10, 1, 10, 1, 10)),
-    'densely dashdotdotted': (0, (3, 1, 1, 1, 1, 1))
+    "loosely dashdotted": (0, (3, 10, 1, 10)),
+    "dashdotted": (0, (3, 5, 1, 5)),
+    "densely dashdotted": (0, (3, 1, 1, 1)),
+    #
+    "dashdotdotted": (0, (3, 5, 1, 5, 1, 5)),
+    "loosely dashdotdotted": (0, (3, 10, 1, 10, 1, 10)),
+    "densely dashdotdotted": (0, (3, 1, 1, 1, 1, 1)),
 }
+
 
 @requires_matplotlib
 def actual_by_predicted(
-        y_pred: np.ndarray, 
-        y_true: np.ndarray, 
-        ax: plt.Axes | None = None, 
-        figsize: tuple[float, float] = (3.25, 3), 
-        title: str | None = None, 
-        fontsize: int = 9,
-        alpha: int = 1.0,
-    ) -> plt.Figure: 
-    """Create actual by predicted plot for a single response. 
-    
+    y_pred: np.ndarray,
+    y_true: np.ndarray,
+    ax: plt.Axes | None = None,
+    figsize: tuple[float, float] = (3.25, 3),
+    title: str | None = None,
+    fontsize: int = 9,
+    alpha: int = 1.0,
+) -> plt.Figure:
+    """Create actual by predicted plot for a single response.
+
     Parameters
     ----------
     y_pred: np.ndarray
-        Predicted values. An array of shape (m,) 
-        where m is the number of observations. 
+        Predicted values. An array of shape (m,)
+        where m is the number of observations.
 
     y_true: np.ndarray
-        True values. An array of shape (m,) 
-        where m is the number of observations. 
+        True values. An array of shape (m,)
+        where m is the number of observations.
 
-    ax: plt.Axes | None, optional 
-        The matplotlib axes on which to plot the data. Default is None.  
-    
+    ax: plt.Axes | None, optional
+        The matplotlib axes on which to plot the data. Default is None.
+
     figsize: tuple[float, float], optional
-        Figure size. Default is (3.25, 3). 
+        Figure size. Default is (3.25, 3).
 
-    title: str, optional 
-        Title of figure. Default is None. 
+    title: str, optional
+        Title of figure. Default is None.
 
     fontsize: int, optional
         Text size. Default is 9.
 
-    alpha: float, optional 
-        Transparency of dots between 0 and 1. Default is 0.15 
+    alpha: float, optional
+        Transparency of dots between 0 and 1. Default is 0.15
     """
-    if y_pred.ndim > 1: 
-        if y_pred.ndim == 2 and 1 in y_pred.shape: 
+    if y_pred.ndim > 1:
+        if y_pred.ndim == 2 and 1 in y_pred.shape:
             pass  # just needs to be unraveled
-        else: 
-            raise ValueError(f'Expected one dimensional array, but y_pred has {y_pred.ndim} dimensions.')
-    if y_true.ndim > 1 and 1 not in y_true.shape: 
-        if y_true.ndim == 2 and 1 in y_true.shape: 
+        else:
+            raise ValueError(
+                f"Expected one dimensional array, "
+                f"but y_pred has {y_pred.ndim} dimensions."
+            )
+    if y_true.ndim > 1 and 1 not in y_true.shape:
+        if y_true.ndim == 2 and 1 in y_true.shape:
             pass  # just needs to be unraveled
-        else: 
-            raise ValueError(f'Expected one dimensional array, but y_true has {y_true.ndim} dimensions.')
+        else:
+            raise ValueError(
+                f"Expected one dimensional array, "
+                f"but y_true has {y_true.ndim} dimensions."
+            )
     fig = plt.figure(figsize=figsize, layout="tight")
-    if not ax: 
+    if not ax:
         spec = fig.add_gridspec(ncols=1, nrows=1)
         ax = fig.add_subplot(spec[0, 0])
     actual = y_true.ravel()
     predicted = y_pred.ravel()
-    ax.scatter(actual, predicted, color='k', alpha=alpha)
+    ax.scatter(actual, predicted, color="k", alpha=alpha)
     line = [actual.min(), actual.max()]
-    ax.plot(line, line, color='r', linestyle=':')
-    ax.set_xlabel('Predicted', fontsize=fontsize)
-    ax.set_ylabel('Actual', fontsize=fontsize)
+    ax.plot(line, line, color="r", linestyle=":")
+    ax.set_xlabel("Predicted", fontsize=fontsize)
+    ax.set_ylabel("Actual", fontsize=fontsize)
     ax.set_title(title, fontsize=fontsize)
-    ax.grid('on')
-    ax.legend(['predictions', 'perfect fit line'], fontsize=fontsize)
+    ax.grid("on")
+    ax.legend(["predictions", "perfect fit line"], fontsize=fontsize)
     plt.close(fig)
-    return fig 
+    return fig
 
 
 @requires_matplotlib
 def residuals_by_predicted(
-        y_pred: np.ndarray, 
-        y_true: np.ndarray, 
-        percent_residuals: bool = False, 
-        ax: plt.Axes | None = None, 
-        figsize: tuple[float, float] = (3.25, 3), 
-        title: str | None = None, 
-        fontsize: int = 9,
-        alpha: int = 1.0,
-    ) -> plt.Figure: 
-    """Create residual by predicted plot for a single response. 
-    
+    y_pred: np.ndarray,
+    y_true: np.ndarray,
+    percent_residuals: bool = False,
+    ax: plt.Axes | None = None,
+    figsize: tuple[float, float] = (3.25, 3),
+    title: str | None = None,
+    fontsize: int = 9,
+    alpha: int = 1.0,
+) -> plt.Figure:
+    """Create residual by predicted plot for a single response.
+
     Parameters
     ----------
     y_pred: np.ndarray
-        Predicted values. An array of shape (m,) 
-        where m is the number of observations. 
+        Predicted values. An array of shape (m,)
+        where m is the number of observations.
 
     y_true: np.ndarray
-        True values. An array of shape (m,) 
-        where m is the number of observations. 
-    
+        True values. An array of shape (m,)
+        where m is the number of observations.
+
     percent_residuals: bool, optional
-        Compute residuals as percentages. Default is False. 
+        Compute residuals as percentages. Default is False.
 
-    ax: plt.Axes | None, optional 
-        The matplotlib axes on which to plot the data. Default is None.  
-    
+    ax: plt.Axes | None, optional
+        The matplotlib axes on which to plot the data. Default is None.
+
     figsize: tuple[float, float], optional
-        Figure size. Default is (3.25, 3). 
+        Figure size. Default is (3.25, 3).
 
-    title: str, optional 
-        Title of figure. Default is None. 
+    title: str, optional
+        Title of figure. Default is None.
 
     fontsize: int, optional
         Text size. Default is 9.
 
-    alpha: float, optional 
-        Transparency of dots between 0 and 1. Default is 0.15 
+    alpha: float, optional
+        Transparency of dots between 0 and 1. Default is 0.15
     """
-    if y_pred.ndim > 1: 
-        if y_pred.ndim == 2 and 1 in y_pred.shape: 
+    if y_pred.ndim > 1:
+        if y_pred.ndim == 2 and 1 in y_pred.shape:
             pass  # just needs to be unraveled
-        else: 
-            raise ValueError(f'Expected one dimensional array, but y_pred has {y_pred.ndim} dimensions.')
-    if y_true.ndim > 1 and 1 not in y_true.shape: 
-        if y_true.ndim == 2 and 1 in y_true.shape: 
+        else:
+            raise ValueError(
+                f"Expected one dimensional array, "
+                f"but y_pred has {y_pred.ndim} dimensions."
+            )
+    if y_true.ndim > 1 and 1 not in y_true.shape:
+        if y_true.ndim == 2 and 1 in y_true.shape:
             pass  # just needs to be unraveled
-        else: 
-            raise ValueError(f'Expected one dimensional array, but y_true has {y_true.ndim} dimensions.')
+        else:
+            raise ValueError(
+                f"Expected one dimensional array, "
+                f"but y_true has {y_true.ndim} dimensions."
+            )
     fig = plt.figure(figsize=figsize, layout="tight")
     if not ax:
         spec = fig.add_gridspec(ncols=1, nrows=1)
         ax = fig.add_subplot(spec[0, 0])
     y_true = y_true.ravel()
     y_pred = y_pred.ravel()
-    if percent_residuals: 
-        residuals = 100 * ((y_pred - y_true) / (y_true + 1e-12)).ravel() 
-    else: 
-        residuals = y_pred - y_true 
+    if percent_residuals:
+        residuals = 100 * ((y_pred - y_true) / (y_true + 1e-12)).ravel()
+    else:
+        residuals = y_pred - y_true
     avg_error = residuals.mean()
     std_error = residuals.std()
-    ax.axhline(y=avg_error, color='k', linestyle='-', linewidth=2)
-    ax.axhline(y=avg_error + std_error, color='k', linestyle=':', linewidth=2)
-    ax.axhline(y=avg_error - std_error, color='k', linestyle=':', linewidth=2)
-    ax.scatter(y_pred, residuals, color='k', alpha=alpha)
-    ax.axhline(y=0, color='r', linestyle=':')
+    ax.axhline(y=avg_error, color="k", linestyle="-", linewidth=2)
+    ax.axhline(y=avg_error + std_error, color="k", linestyle=":", linewidth=2)
+    ax.axhline(y=avg_error - std_error, color="k", linestyle=":", linewidth=2)
+    ax.scatter(y_pred, residuals, color="k", alpha=alpha)
+    ax.axhline(y=0, color="r", linestyle=":")
     ax.set_title(title, fontsize=fontsize)
-    if percent_residuals: 
-        ax.set_ylabel('Residuals (%)', fontsize=fontsize)
-    else: 
-        ax.set_ylabel(f'Residuals', fontsize=fontsize)
-    ax.set_xlabel('Predicted', fontsize=fontsize)
-    ax.grid('on')
-    ax.legend([
-            f'avg = {avg_error:.3f}',
-            f'std = {std_error:.3f}'
-        ], 
-        fontsize=fontsize)
+    if percent_residuals:
+        ax.set_ylabel("Residuals (%)", fontsize=fontsize)
+    else:
+        ax.set_ylabel("Residuals", fontsize=fontsize)
+    ax.set_xlabel("Predicted", fontsize=fontsize)
+    ax.grid("on")
+    ax.legend([f"avg = {avg_error:.3f}", f"std = {std_error:.3f}"], fontsize=fontsize)
     plt.close(fig)
-    return fig 
+    return fig
 
 
 @requires_matplotlib
 def goodness_of_fit(
-        y_true: np.ndarray, 
-        y_pred: np.ndarray, 
-        percent_residuals: bool = False, 
-        figsize: tuple[float, float] = (6.5, 3), 
-        fontsize: int = 9,
-        alpha: int = 1.0,
-        title: str | None = None, 
-    ) -> plt.Figure: 
-    """Create 'residual by predicted' and 'actual by predicted' plots.  
-    
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    percent_residuals: bool = False,
+    figsize: tuple[float, float] = (6.5, 3),
+    fontsize: int = 9,
+    alpha: int = 1.0,
+    title: str | None = None,
+) -> plt.Figure:
+    """Create 'residual by predicted' and 'actual by predicted' plots.
+
     Parameters
     ----------
     y_pred: np.ndarray
-        Predicted values. An array of shape (m,) 
-        where m is the number of observations. 
+        Predicted values. An array of shape (m,)
+        where m is the number of observations.
 
     y_true: np.ndarray
-        True values. An array of shape (m,) 
-        where m is the number of observations. 
-    
+        True values. An array of shape (m,)
+        where m is the number of observations.
+
     percent_residuals: bool, optional
-        Compute residuals as percentages. Default is False. 
-    
+        Compute residuals as percentages. Default is False.
+
     figsize: tuple[float, float], optional
-        Figure size. Default is (7, 3). 
+        Figure size. Default is (7, 3).
 
     fontsize: int, optional
         Text size. Default is 9
 
-    alpha: float, optional 
-        Transparency of dots between 0 and 1. Default is 1. 
+    alpha: float, optional
+        Transparency of dots between 0 and 1. Default is 1.
     """
-    if title is None: 
+    if title is None:
         title = ""
     r2 = r_square(y_pred, y_true).squeeze()
     fig = plt.figure(figsize=figsize, layout="tight")
-    fig.suptitle(title + f' (R-Squared = {r2:.3f})')
+    fig.suptitle(title + f" (R-Squared = {r2:.3f})")
     spec = fig.add_gridspec(ncols=2, nrows=1)
     ax0 = fig.add_subplot(spec[0, 0])
     actual_by_predicted(
-        ax=ax0, 
-        y_pred=y_pred, 
-        y_true=y_true, 
-        fontsize=fontsize, 
+        ax=ax0,
+        y_pred=y_pred,
+        y_true=y_true,
+        fontsize=fontsize,
         alpha=alpha,
     )
     ax1 = fig.add_subplot(spec[0, 1])
     residuals_by_predicted(
-        ax=ax1, 
-        y_pred=y_pred, 
-        y_true=y_true, 
-        percent_residuals=percent_residuals, 
-        fontsize=fontsize, 
-        alpha=alpha, 
+        ax=ax1,
+        y_pred=y_pred,
+        y_true=y_true,
+        percent_residuals=percent_residuals,
+        fontsize=fontsize,
+        alpha=alpha,
     )
     plt.close(fig)
-    return fig 
+    return fig
 
 
 @requires_matplotlib
 def sensitivity_profile(
-        ax: plt.Axes, 
-        x0: np.ndarray, 
-        y0: np.ndarray, 
-        x_pred: np.ndarray, 
-        y_pred: np.ndarray | list[np.ndarray], 
-        x_true: np.ndarray | None = None, 
-        y_true: np.ndarray | None = None, 
-        alpha: int = 1.0,
-        xlabel: str = 'x', 
-        ylabel: str = 'y', 
-        legend: list[str] | None = None,
-        figsize: tuple[float, float] = (6.5, 3), 
-        fontsize: int = 9,
-    ) -> plt.Figure: 
+    ax: plt.Axes,
+    x0: np.ndarray,
+    y0: np.ndarray,
+    x_pred: np.ndarray,
+    y_pred: np.ndarray | list[np.ndarray],
+    x_true: np.ndarray | None = None,
+    y_true: np.ndarray | None = None,
+    alpha: int = 1.0,
+    xlabel: str = "x",
+    ylabel: str = "y",
+    legend: list[str] | None = None,
+    figsize: tuple[float, float] = (6.5, 3),
+    fontsize: int = 9,
+) -> plt.Figure:
     """Plot sensitivity profile for one input / output.
-    
+
     Parameters
     ----------
     ax: plt.Axes
-        The matplotlib axes on which to plot the data 
+        The matplotlib axes on which to plot the data
 
     x0: np.ndarray
-        The point at which the profile is centered. An array 
+        The point at which the profile is centered. An array
         of shape (1,)
 
     y0: np.ndarray
         The model evaluated as x0: y0 = f(x0). Either an array of shape (1,)
         or, if there is more than one model (i.e. y_pred is a list
-        an array of shape (n,) where n is the number of models (note: n = len(y_pred))  
+        an array of shape (n,) where n is the number of models (note: n = len(y_pred))
 
     x_pred: np.ndarray
         Input values used for prediction. An array of shape (m, n_x)
-        where m is the number of observations. 
+        where m is the number of observations.
 
     y_pred: np.ndarray | list[np.ndarray]
-        Predicted values. An array of shape (m,) 
-        where m is the number of observations or a list 
-        of such arrays, where each array represents the 
-        prediction of different models (to be overlaid for comparison). 
+        Predicted values. An array of shape (m,)
+        where m is the number of observations or a list
+        of such arrays, where each array represents the
+        prediction of different models (to be overlaid for comparison).
 
     x_true: np.ndarray
         Input values used for actual data. An array of shape (m, n_x)
-        where m is the number of observations. 
+        where m is the number of observations.
 
     y_true: np.ndarray
-        Output values of actual data. An array of shape (m,) 
-        where m is the number of observations. 
+        Output values of actual data. An array of shape (m,)
+        where m is the number of observations.
 
-    index: int, optional 
+    index: int, optional
         The index of factor x[:, i] to plot. Default is 0.
 
-    alpha: float, optional 
-        Transparency of dots between 0 and 1. Default is 1. 
+    alpha: float, optional
+        Transparency of dots between 0 and 1. Default is 1.
 
-    xlabel: str, optional 
-        Label of x-axis. Default is 'x'. 
+    xlabel: str, optional
+        Label of x-axis. Default is 'x'.
 
-    ylabel: str, optional 
-        Label of y-axis. Default is 'y'. 
+    ylabel: str, optional
+        Label of y-axis. Default is 'y'.
 
-    legend: list[str] | None, optional 
-        Label for each model. Default is None. 
-    
+    legend: list[str] | None, optional
+        Label for each model. Default is None.
+
     figsize: tuple[float, float], optional
-        Figure size. Default is (7, 3). 
+        Figure size. Default is (7, 3).
 
     fontsize: int, optional
         Text size. Default is 9
-    """ 
+    """
     fig = plt.figure(figsize=figsize, layout="tight")
     if not ax:
         spec = fig.add_gridspec(ncols=1, nrows=1)
         ax = fig.add_subplot(spec[0, 0])
-    if not isinstance(y_pred, list): 
+    if not isinstance(y_pred, list):
         y_pred = [y_pred]
-    if legend is None: 
-        legend = [] 
+    if legend is None:
+        legend = []
     x0 = x0.ravel()
     y0 = y0.ravel()
     x_pred = x_pred.ravel()
     linestyles = iter(LINE_STYLES.values())
-    for array in y_pred: 
+    for array in y_pred:
         linestyle = next(linestyles)
-        ax.plot(x_pred, array.ravel(), color='k', linestyle=linestyle, linewidth=2)
-    if x_true is not None and y_true is not None: 
-        x_true = x_true.ravel() 
-        y_true = y_true.ravel() 
-        ax.scatter(x_true, y_true, color='k', alpha=alpha)
-        legend.append('data') 
+        ax.plot(x_pred, array.ravel(), color="k", linestyle=linestyle, linewidth=2)
+    if x_true is not None and y_true is not None:
+        x_true = x_true.ravel()
+        y_true = y_true.ravel()
+        ax.scatter(x_true, y_true, color="k", alpha=alpha)
+        legend.append("data")
     ax.legend(legend, fontsize=fontsize)
-    for n in range(y0.size): 
-        ax.scatter(x0, y0[n], color='r')
+    for n in range(y0.size):
+        ax.scatter(x0, y0[n], color="r")
     ax.set_xlabel(xlabel, fontsize=fontsize)
     ax.set_ylabel(ylabel, fontsize=fontsize)
-    ax.grid('on')
+    ax.grid("on")
     plt.close(fig)
-    return fig 
+    return fig
 
 
 @requires_matplotlib
 def sensitivity_profiles(
-        f: Callable | list[Callable], 
-        x_min: np.ndarray, 
-        x_max: np.ndarray, 
-        x0: np.ndarray | None = None, 
-        x_true: np.ndarray | None = None, 
-        y_true: np.ndarray | None = None, 
-        figsize: tuple[float, float] = (3.25, 3), 
-        fontsize: int = 9,
-        alpha: int = 1.,
-        title: str | None = None, 
-        xlabels: list[str] = None, 
-        ylabels: list[str] = None, 
-        legend: list[str] | None = None,
-        resolution: int = 100, 
-    ) -> plt.Figure: 
+    f: Callable | list[Callable],
+    x_min: np.ndarray,
+    x_max: np.ndarray,
+    x0: np.ndarray | None = None,
+    x_true: np.ndarray | None = None,
+    y_true: np.ndarray | None = None,
+    figsize: tuple[float, float] = (3.25, 3),
+    fontsize: int = 9,
+    alpha: int = 1.0,
+    title: str = "",
+    xlabels: list[str] = None,
+    ylabels: list[str] = None,
+    legend: list[str] | None = None,
+    resolution: int = 100,
+) -> plt.Figure:
     """Plot grid of sensitivity profiles for all inputs / outputs.
-    
+
     Parameters
     ----------
     f: Callable | list[Callable]
-        Function that evaluate y_pred = f_pred(x) where 
+        Function that evaluate y_pred = f_pred(x) where
         x is an array of shape (n_x, m)
         y is an array of shape (n_y, m)
 
     x0: np.ndarray
-        Point at which to evaluate the profilers values. 
+        Point at which to evaluate the profilers values.
         An array of shape (n_x, 1)
 
     x_true: np.ndarray
         Input values. An array of shape (n_x, m)
-        where m is the number of observations. 
+        where m is the number of observations.
 
     y_true: np.ndarray
         True values. An array of shape (n_y, m)
-        where m is the number of observations. 
-    
-    figsize: tuple[float, float], optional 
+        where m is the number of observations.
+
+    figsize: tuple[float, float], optional
         Individua figure size of each subplot. Default is (3.25, 3)
 
     fontsize: int, optional
         Text size. Default is 9
 
-    alpha: float, optional 
-        Transparency of dots between 0 and 1. Default is 1. 
+    alpha: float, optional
+        Transparency of dots between 0 and 1. Default is 1.
 
-    title: str, optional 
-        Title of figure. Default is None. 
+    title: str, optional
+        Title of figure. Default is None.
 
-    xlabels: list[str], optional 
+    xlabels: list[str], optional
         x labels. Default is ['x_0', 'x_1', ...]
 
-    ylabels: list[str], optional 
-        y labels. Default is ['y_0', 'y_1', ...]. 
+    ylabels: list[str], optional
+        y labels. Default is ['y_0', 'y_1', ...].
 
-    resolution: int, optional 
+    resolution: int, optional
         Line resolution. Default is 100 points.
 
-    legend: list[str] | None, optional 
+    legend: list[str] | None, optional
         Label for each model. Default is None.
     """
-    funcs = f 
-    if not isinstance(funcs, list): 
+    funcs = f
+    if not isinstance(funcs, list):
         funcs = [funcs]
     x_min = x_min.ravel()
     x_max = x_max.ravel()
-    if x0 is None: 
+    if x0 is None:
         x0 = 0.5 * (x_min + x_max).reshape((-1, 1))
     y0 = np.concatenate([func(x0) for func in funcs], axis=1)
     n_x = x0.shape[0]
     n_y = y0.shape[0]
     x_indices = range(n_x)
     y_indices = range(n_y)
-    xlabels = xlabels if xlabels else [f'x_{i}' for i in x_indices]
-    ylabels = ylabels if ylabels else [f'y_{i}' for i in y_indices]
-    width, height = figsize 
+    xlabels = xlabels if xlabels else [f"x_{i}" for i in x_indices]
+    ylabels = ylabels if ylabels else [f"y_{i}" for i in y_indices]
+    width, height = figsize
     fig = plt.figure(figsize=(n_x * width, height), layout="tight")
     fig.suptitle(title)
     spec = fig.add_gridspec(ncols=n_x, nrows=n_y)
-    for i in x_indices: 
+    for i in x_indices:
         x_pred = np.tile(x0, (1, resolution))
         x_pred[i] = np.linspace(x_min[i], x_max[i], resolution)
         y_preds = []
-        for func in funcs: 
+        for func in funcs:
             y_pred = func(x_pred)
             y_preds.append(y_pred)
-        for j in y_indices: 
+        for j in y_indices:
             sensitivity_profile(
-                ax=fig.add_subplot(spec[j, i]), 
+                ax=fig.add_subplot(spec[j, i]),
                 x0=x0[i],
-                y0=y0[j],  
-                x_pred=x_pred[i], 
+                y0=y0[j],
+                x_pred=x_pred[i],
                 y_pred=[y_pred[j] for y_pred in y_preds],
-                x_true=x_true[i] if x_true is not None else None, 
-                y_true=y_true[i] if y_true is not None else None, 
-                fontsize=fontsize, 
-                alpha=alpha, 
-                xlabel=xlabels[i], 
-                ylabel=ylabels[j], 
+                x_true=x_true[i] if x_true is not None else None,
+                y_true=y_true[i] if y_true is not None else None,
+                fontsize=fontsize,
+                alpha=alpha,
+                xlabel=xlabels[i],
+                ylabel=ylabels[j],
                 legend=legend,
             )
         plt.close(fig)
-    return fig 
+    return fig
 
 
 @requires_matplotlib
 def convergence(
-    histories: list[dict[str, dict[str, list[float]]]], 
-    figsize: tuple[float, float] = (3.25, 3), 
+    histories: list[dict[str, dict[str, list[float]]]],
+    figsize: tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
-    alpha: int = 1.,
-    title: str | None = None, 
+    alpha: float = 1.0,
+    title: str = "",
     legend: list[str] | None = None,
-    ) -> plt.Figure:
-        """Plot training history.
-        
-        Parameters
-        ----------
-        histories: list[dict[str, dict[str, list[float]]]]
-            Training histories for each model. 
-    
-        figsize: tuple[float, float], optional 
-            Individua figure size of each subplot. Default is (3.25, 3)
+) -> plt.Figure | None:
+    """Plot training history.
 
-        fontsize: int, optional
-            Text size. Default is 9
-
-        alpha: float, optional 
-            Transparency of dots between 0 and 1. Default is 1. 
-
-        title: str, optional 
-            Title of figure. Default is None. 
-        
-        legend: list[str] | None = None,
-            Label for each model. Default is None.
-        """
-
-        if not histories:
-            return None
-
-        fig = plt.figure(figsize=figsize, layout="tight")
-        fig.suptitle(title)
-        
-        linestyles = iter(LINE_STYLES.values())
-        for history in histories: 
-            linestyle = next(linestyles)
-            epochs = list(history.keys())
-            if len(epochs) > 1:
-                avg_costs = []
-                for epoch in epochs:
-                    batches = history[epoch].keys()
-                    avg_batch_costs = []
-                    for batch in batches:
-                        avg_batch_cost = np.mean(history[epoch][batch])
-                        avg_batch_costs.append(avg_batch_cost)
-                    avg_cost = sum(avg_batch_costs) / len(batches)
-                    avg_costs.append(avg_cost)
-                plt.plot(
-                    range(len(epochs)), 
-                    avg_costs, 
-                    alpha=alpha, 
-                    color="k", 
-                    linewidth=2, 
-                    linestyle=linestyle, 
-                )
-                plt.xlabel('epoch', fontsize=fontsize)
-                plt.ylabel('avg cost', fontsize=fontsize)
-            elif len(history['epoch_0']) > 1:
-                avg_cost = []
-                batches = history['epoch_0'].keys()
-                for batch in batches:
-                    avg_cost.append(np.mean(history['epoch_0'][batch]))
-                plt.plot(
-                    range(len(batches)), 
-                    avg_cost,
-                    alpha=alpha, 
-                    color="k", 
-                    linewidth=2, 
-                    linestyle=linestyle,
-                )
-                plt.xlabel('batch', fontsize=fontsize)
-                plt.ylabel('avg cost', fontsize=fontsize)
-            else:
-                cost = history['epoch_0']['batch_0']
-                plt.plot(
-                    range(len(cost)), 
-                    cost,
-                    alpha=alpha, 
-                    color="k", 
-                    linewidth=2, 
-                    linestyle=linestyle,
-                )
-                plt.xlabel('iteration', fontsize=fontsize)
-                plt.ylabel('cost', fontsize=fontsize)
-        ax = plt.gca() 
-        if legend: 
-            ax.legend(legend)
-        ax.set_yscale('log')
-        plt.close(fig)
-        return fig 
-
-
-def contours(
-    func: callable, 
-    lb: tuple[float, float], 
-    ub: tuple[float, float], 
-    x_train: np.ndarray | None = None, 
-    x_test: np.ndarray | None = None, 
-    figsize: tuple[float, float] = (3.25, 3), 
-    fontsize: int = 9,
-    alpha: int = 0.5,
-    title: str | None = None, 
-    xlabel: str | None = None, 
-    ylabel: str | None = None, 
-    resolution: int = 100, 
-    ax: plt.Axes | None = None, 
-):
-    """Plot contours of a scalar function of two variables: y = f(x1, x2)
-    
     Parameters
     ----------
-    
-    figsize: tuple[float, float], optional 
+    histories: list[dict[str, dict[str, list[float]]]]
+        Training histories for each model.
+
+    figsize: tuple[float, float], optional
         Individua figure size of each subplot. Default is (3.25, 3)
 
     fontsize: int, optional
         Text size. Default is 9
 
-    alpha: float, optional 
-        Transparency of dots between 0 and 1. Default is 1. 
+    alpha: float, optional
+        Transparency of dots between 0 and 1. Default is 1.
 
-    title: str, optional 
-        Title of figure. Default is None. 
+    title: str, optional
+        Title of figure. Default is None.
 
-    xlabel: list[str], optional 
-        x label.Default is None. 
+    legend: list[str] | None = None,
+        Label for each model. Default is None.
+    """
 
-    ylabel: list[str], optional 
-        y label. Default is None. 
+    if not histories:
+        return None
 
-    resolution: int, optional 
+    fig = plt.figure(figsize=figsize, layout="tight")
+    fig.suptitle(title)
+
+    linestyles = iter(LINE_STYLES.values())
+    for history in histories:
+        linestyle = next(linestyles)
+        epochs = list(history.keys())
+        if len(epochs) > 1:
+            avg_costs = []
+            for epoch in epochs:
+                batches = history[epoch].keys()
+                avg_batch_costs = []
+                for batch in batches:
+                    avg_batch_cost = np.mean(history[epoch][batch])
+                    avg_batch_costs.append(avg_batch_cost)
+                avg_costs.append(sum(avg_batch_costs) / len(batches))
+            plt.plot(
+                range(len(epochs)),
+                np.array(avg_costs),
+                alpha=alpha,
+                color="k",
+                linewidth=2,
+                linestyle=linestyle,
+            )
+            plt.xlabel("epoch", fontsize=fontsize)
+            plt.ylabel("avg cost", fontsize=fontsize)
+        elif len(history["epoch_0"]) > 1:
+            avg_cost = []
+            batches = history["epoch_0"].keys()
+            for batch in batches:
+                avg_cost.append(np.mean(history["epoch_0"][batch]))
+            plt.plot(
+                range(len(batches)),
+                avg_cost,
+                alpha=alpha,
+                color="k",
+                linewidth=2,
+                linestyle=linestyle,
+            )
+            plt.xlabel("batch", fontsize=fontsize)
+            plt.ylabel("avg cost", fontsize=fontsize)
+        else:
+            cost = history["epoch_0"]["batch_0"]
+            plt.plot(
+                range(len(cost)),
+                cost,
+                alpha=alpha,
+                color="k",
+                linewidth=2,
+                linestyle=linestyle,
+            )
+            plt.xlabel("iteration", fontsize=fontsize)
+            plt.ylabel("cost", fontsize=fontsize)
+    ax = plt.gca()
+    if legend:
+        ax.legend(legend)
+    ax.set_yscale("log")
+    plt.close(fig)
+    return fig
+
+
+def contours(
+    func: Callable,
+    lb: tuple[float, float],
+    ub: tuple[float, float],
+    x_train: np.ndarray | None = None,
+    x_test: np.ndarray | None = None,
+    figsize: tuple[float, float] = (3.25, 3),
+    fontsize: int = 9,
+    alpha: float = 0.5,
+    title: str = "",
+    xlabel: str = "",
+    ylabel: str = "",
+    resolution: int = 100,
+    ax: plt.Axes | None = None,
+):
+    """Plot contours of a scalar function of two variables: y = f(x1, x2)
+
+    Parameters
+    ----------
+
+    figsize: tuple[float, float], optional
+        Individua figure size of each subplot. Default is (3.25, 3)
+
+    fontsize: int, optional
+        Text size. Default is 9
+
+    alpha: float, optional
+        Transparency of dots between 0 and 1. Default is 1.
+
+    title: str, optional
+        Title of figure. Default is None.
+
+    xlabel: list[str], optional
+        x label.Default is None.
+
+    ylabel: list[str], optional
+        y label. Default is None.
+
+    resolution: int, optional
         Line resolution. Default is 100 points.
 
     ax: plt.Axes | None = None
-        Axes on which to draw. Default is None. 
+        Axes on which to draw. Default is None.
     """
     # Domain
     m = resolution
@@ -598,29 +606,29 @@ def contours(
     x1, x2 = np.meshgrid(x1, x2)
 
     # Response
-    y = np.zeros((m, m))  
-    for i in range(m): 
-        for j in range(m): 
+    y = np.zeros((m, m))
+    for i in range(m):
+        for j in range(m):
             y[i, j] = func(np.array([[x1[i, j]], [x2[i, j]]])).ravel()[0]
 
     # Plot
-    if ax: 
+    if ax:
         fig = ax.get_figure()
-    else: 
+    else:
         fig = plt.figure(figsize=figsize)
         ax = plt.gca()
-    cs = ax.contour(x1, x2, y, 20, cmap='RdGy', alpha=alpha)
-    legend = [] 
-    if x_train is not None: 
+    ax.contour(x1, x2, y, 20, cmap="RdGy", alpha=alpha)
+    legend = []
+    if x_train is not None:
         ax.scatter(x_train[0], x_train[1], marker=".", c="r", alpha=1)
         legend.append("train")
-    if x_test is not None: 
+    if x_test is not None:
         ax.scatter(x_test[0], x_test[1], marker="+", c="k", alpha=1)
         legend.append("test")
-    if legend: 
+    if legend:
         ax.legend(legend, loc=1)
     ax.set_title(title, fontsize=fontsize)
     ax.set_xlabel(xlabel, fontsize=fontsize)
     ax.set_ylabel(ylabel, fontsize=fontsize)
     plt.close(fig)
-    return fig 
+    return fig

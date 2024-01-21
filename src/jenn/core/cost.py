@@ -19,8 +19,7 @@ class SquaredLoss:
         self.Y_error = np.zeros(Y_true.shape)  # preallocate to save resources
 
     def evaluate(self, Y_pred: np.ndarray) -> np.float64:
-        """
-        Compute least squares estimator of the states in place
+        """Compute least squares estimator of the states in place.
 
         Parameters
         ----------
@@ -41,7 +40,7 @@ class SquaredLoss:
 
 class GradientEnhancement:
     """Least Squares Estimator for partials.
-    
+
     Parameters
     ----------
     dY_true: np.ndarray
@@ -82,7 +81,7 @@ class GradientEnhancement:
 
 
 class Regularization:
-    """ Compute regularization penalty """
+    """Compute regularization penalty."""
 
     def __init__(self, weights: np.ndarray):
         """
@@ -107,8 +106,7 @@ class Regularization:
         penalty = 0.0
         if lambd > 0:
             for i, weight in enumerate(self.weights):
-                squared_weights = np.square(
-                    weight, out=self._squared_weights[i])
+                squared_weights = np.square(weight, out=self._squared_weights[i])
                 penalty += np.squeeze(np.sum(squared_weights))
         return lambd * np.float64(penalty)
 
@@ -118,28 +116,28 @@ class Cost:
 
     Parameters
     ----------
-    data: Dataset 
+    data: Dataset
         Object containing training and associated metadata.
 
-    parameters: Parameters 
-        Neural net parameters. Object that stores 
+    parameters: Parameters
+        Neural net parameters. Object that stores
         neural net parameters for each layer.
 
     lambd: int, optional
-        Coefficient that multiplies regularization term in cost function. 
+        Coefficient that multiplies regularization term in cost function.
         Default is 0.0
 
-    gamma: int, optional 
-        Coefficient that multiplies gradient-enhancement term in cost function. 
+    gamma: int, optional
+        Coefficient that multiplies gradient-enhancement term in cost function.
         Default is 0.0
     """
 
     def __init__(
-            self,
-            data: Dataset,
-            parameters: Parameters,
-            lambd: float = 0.0,
-            gamma: float = 0.0,
+        self,
+        data: Dataset,
+        parameters: Parameters,
+        lambd: float = 0.0,
+        gamma: float = 0.0,
     ):
         self.data = data
         self.parameters = parameters
@@ -151,8 +149,7 @@ class Cost:
             self.gradient_enhancement = GradientEnhancement(data.J)
 
     def evaluate(self, Y_pred: np.ndarray, J_pred: np.ndarray = None) -> float:
-        """
-        Evaluate cost function. 
+        """Evaluate cost function.
 
         Parameters
         ----------
@@ -163,10 +160,10 @@ class Cost:
             Predicted partials: AL' = d(AL)/dX where n_y = number outputs
                                                      n_x = number inputs
                                                      m = number examples
-            Default is None. 
+            Default is None.
         """
         cost = self.squared_loss.evaluate(Y_pred)
-        if J_pred is not None and hasattr(self, 'gradient_enhancement'):
+        if J_pred is not None and hasattr(self, "gradient_enhancement"):
             cost += self.gradient_enhancement.evaluate(J_pred) * self.gamma
         cost += self.regularization.evaluate(self.lambd)
         cost *= 0.5 / self.data.m

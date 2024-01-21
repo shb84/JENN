@@ -1,20 +1,20 @@
 """Neural network model.
 
-This module contains the main class to train a neural net and make predictions.
-It is in charge of setting up and calling the right support functions to
-accomplish these various tasks.
+This module contains the main class to train a neural net and make
+predictions. It is in charge of setting up and calling the right support
+functions to accomplish these various tasks.
 """
 
-import numpy as np
 from typing import Self
 
-from .core.parameters import Parameters
-from .core.training import train_model
-from .core.cache import Cache
-from .core.data import Dataset, normalize, denormalize, denormalize_partials
-from .core.propagation import partials_forward, model_forward, model_partials_forward
-from .utils.decorators import timeit
+import numpy as np
 
+from .core.cache import Cache
+from .core.data import Dataset, denormalize, denormalize_partials, normalize
+from .core.parameters import Parameters
+from .core.propagation import model_forward, model_partials_forward, partials_forward
+from .core.training import train_model
+from .utils.decorators import timeit
 
 __all__ = ["NeuralNet"]
 
@@ -38,12 +38,12 @@ class NeuralNet:
     """
 
     def __init__(
-            self,
-            layer_sizes: list[int],
-            hidden_activation: str = 'tanh',
-            output_activation: str = 'linear',
+        self,
+        layer_sizes: list[int],
+        hidden_activation: str = "tanh",
+        output_activation: str = "linear",
     ):
-        self.history = None 
+        self.history = None
         self.parameters = Parameters(
             layer_sizes,
             hidden_activation,
@@ -51,27 +51,26 @@ class NeuralNet:
         )
 
     def fit(
-            self,
-            x: np.ndarray,
-            y: np.ndarray,
-            dydx: np.ndarray = None,
-            is_normalize: bool = False,
-            alpha: float = 0.050,
-            lambd: float = 0.000,
-            gamma: float = 1.000,
-            beta1: float = 0.900,
-            beta2: float = 0.999,
-            epochs: int = 1,
-            batch_size: int = None,
-            max_iter: int = 200,
-            shuffle: bool = True,
-            random_state: int = None,
-            is_backtracking: bool = False,
-            is_verbose: bool = False,
-            is_timed: bool = False, 
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
+        dydx: np.ndarray = None,
+        is_normalize: bool = False,
+        alpha: float = 0.050,
+        lambd: float = 0.000,
+        gamma: float = 1.000,
+        beta1: float = 0.900,
+        beta2: float = 0.999,
+        epochs: int = 1,
+        batch_size: int = None,
+        max_iter: int = 200,
+        shuffle: bool = True,
+        random_state: int = None,
+        is_backtracking: bool = False,
+        is_verbose: bool = False,
+        is_timed: bool = False,
     ) -> Self:
-        """
-        Train neural network.
+        """Train neural network.
 
         Parameters
         ----------
@@ -165,15 +164,15 @@ class NeuralNet:
             Print out progress for each iteration, each batch, each epoch.
             Default is False.
 
-        is_timed: bool, optional 
-            Print elapsed time. Default is False. 
+        is_timed: bool, optional
+            Print elapsed time. Default is False.
         """
-        if is_timed: 
+        if is_timed:
 
             @timeit
-            def fit(*args): 
+            def fit(*args):
                 return self.fit(*args)
-        
+
             return fit(
                 x,
                 y,
@@ -192,7 +191,7 @@ class NeuralNet:
                 is_backtracking,
                 is_verbose,
             )
-        
+
         hyperparams = dict(
             alpha=alpha,
             lambd=lambd,

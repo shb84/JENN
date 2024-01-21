@@ -1,6 +1,29 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "jenn"
+version = "1.0.0"
+authors = [
+  { name="Steven H. Berguin", email="stevenberguin@gmail.com" },
+]
+description = "Jacobian-Enhanced Neural Nets (JENN)"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/shb84/JENN"
+Issues = "https://github.com/shb84/JENN/issues"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]  # list of folders that contain the packages (["."] by default)
+include = ["jenn*"]  # package names should match these glob patterns (["*"] by default)
+exclude = ["jenn.tests*"]  # exclude packages matching these glob patterns (empty by default)
+namespaces = false  # to disable scanning PEP 420 namespaces (true by default)

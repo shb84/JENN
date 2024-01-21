@@ -1,0 +1,22 @@
+# doit[toml]
+# python >=3.11,<3.12
+@EXPLICIT
+https://conda.anaconda.org/conda-forge/win-64/ca-certificates-2023.11.17-h56e8100_0.conda#1163114b483f26761f993c709e65271f
+https://conda.anaconda.org/conda-forge/win-64/libexpat-2.5.0-h63175ca_1.conda#636cc3cbbd2e28bcfd2f73b2044aac2c
+https://conda.anaconda.org/conda-forge/noarch/tzdata-2023d-h0c530f3_0.conda#8dee24b8be2d9ff81e7bd4d7d97ff1b0
+https://conda.anaconda.org/conda-forge/win-64/ucrt-10.0.22621.0-h57928b3_0.tar.bz2#72608f6cd3e5898229c3ea16deb1ac43
+https://conda.anaconda.org/conda-forge/win-64/vc14_runtime-14.38.33130-h82b7239_18.conda#8be79fdd2725ddf7bbf8a27a4c1f79ba
+https://conda.anaconda.org/conda-forge/win-64/vc-14.3-hcf57466_18.conda#20e1e652a4c740fa719002a8449994a2
+https://conda.anaconda.org/conda-forge/win-64/vs2015_runtime-14.38.33130-hcb4865c_18.conda#10d42885e3ed84e575b454db30f1aa93
+https://conda.anaconda.org/conda-forge/win-64/bzip2-1.0.8-hcfcfb64_5.conda#26eb8ca6ea332b675e11704cce84a3be
+https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2#2c96d1b6915b408893f9472569dee135
+https://conda.anaconda.org/conda-forge/win-64/libsqlite-3.44.2-hcfcfb64_0.conda#4a5f5ab56cbf3ccd08d71a1168061213
+https://conda.anaconda.org/conda-forge/win-64/libzlib-1.2.13-hcfcfb64_5.conda#5fdb9c6a113b6b6cb5e517fd972d5f41
+https://conda.anaconda.org/conda-forge/win-64/openssl-3.2.0-hcfcfb64_1.conda#d10167022f99bad12ee07dea022d5830
+https://conda.anaconda.org/conda-forge/win-64/tk-8.6.13-h5226925_1.conda#fc048363eb8f03cd1737600a5d08aafe
+https://conda.anaconda.org/conda-forge/win-64/xz-5.2.6-h8d14728_0.tar.bz2#515d77642eaa3639413c6b1bc3f94219
+https://conda.anaconda.org/conda-forge/win-64/python-3.11.7-h2628c8c_1_cpython.conda#c2f9a938fca6aa621b44afc8f5db79ab
+https://conda.anaconda.org/conda-forge/noarch/cloudpickle-3.0.0-pyhd8ed1ab_0.conda#753d29fe41bb881e4b9c004f0abf973f
+https://conda.anaconda.org/conda-forge/noarch/zipp-3.17.0-pyhd8ed1ab_0.conda#2e4d6bc0b14e10f895fc6791a7d9b26a
+https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-7.0.1-pyha770c72_0.conda#746623a787e06191d80a2133e5daff17
+https://conda.anaconda.org/conda-forge/noarch/doit-0.36.0-pyhd8ed1ab_0.tar.bz2#fc5e53d070f1ee7bb38c2ece282dcb82

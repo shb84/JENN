@@ -1,7 +1,8 @@
-"""Canonical test function representative of topology
-encountered for surrogate-based optimization."""
+"""Canonical test function representative of topology encountered for
+surrogate-based optimization."""
 
 import abc
+
 import numpy as np
 
 
@@ -14,11 +15,11 @@ def _fullfact(n_x: int, m_levels: int):
 
 
 class TestFunction:
-    """Test function base class"""
+    """Test function base class."""
 
     @abc.abstractmethod
     def evaluate(self, x: np.ndarray) -> np.ndarray:
-        """Evaluate function
+        """Evaluate function.
 
         Parameters
         ----------
@@ -34,7 +35,7 @@ class TestFunction:
 
     @abc.abstractmethod
     def first_derivative(self, x: np.ndarray) -> np.ndarray:
-        """Evaluate partial derivative
+        """Evaluate partial derivative.
 
         Parameters
         ----------
@@ -50,11 +51,11 @@ class TestFunction:
 
     @classmethod
     def sample(
-            cls,
-            m_lhs: int,
-            m_levels: int,
-            lb: np.ndarray | float,
-            ub: np.ndarray | float,
+        cls,
+        m_lhs: int,
+        m_levels: int,
+        lb: np.ndarray | float,
+        ub: np.ndarray | float,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Generate synthetic data by sampling test function."""
         lb = np.array([lb]).reshape((-1, 1))  # make sure it's an numpy array
@@ -71,17 +72,18 @@ class TestFunction:
 
 
 class Linear(TestFunction):
-    """Linear test function:
-                         n
+    """Linear test function: n.
+
     f(x1, ..., xn) = b + ∑ a[i] * x[i]
                         i=0
     """
 
     @classmethod
     def evaluate(
-            cls, x: np.ndarray,
-            a: float | np.ndarray = 1.0,
-            b: float = 0.0,
+        cls,
+        x: np.ndarray,
+        a: float | np.ndarray = 1.0,
+        b: float = 0.0,
     ) -> np.ndarray:
         n_y = 1
         n_x, m = x.shape
@@ -91,9 +93,10 @@ class Linear(TestFunction):
 
     @classmethod
     def first_derivative(
-            cls, x: np.ndarray,
-            a: float | np.ndarray = 1.0,
-            b: float = 0.0,
+        cls,
+        x: np.ndarray,
+        a: float | np.ndarray = 1.0,
+        b: float = 0.0,
     ) -> np.ndarray:
         n_y = 1
         n_x, m = x.shape
@@ -105,11 +108,11 @@ class Linear(TestFunction):
 
     @classmethod
     def sample(
-            cls,
-            m_lhs: int = 100,
-            m_levels: int = 0,
-            lb: np.ndarray | float = -1.,
-            ub: np.ndarray | float = 1.0,
+        cls,
+        m_lhs: int = 100,
+        m_levels: int = 0,
+        lb: np.ndarray | float = -1.0,
+        ub: np.ndarray | float = 1.0,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return super().sample(m_lhs, m_levels, lb, ub)
 
@@ -120,11 +123,10 @@ class Parabola(TestFunction):
                            n
     f(x1, ..., xn) = 1/n * ∑ (x[i] - x0[i]) ** 2
                           i=0
-
     """
 
     @classmethod
-    def evaluate(cls, x: np.ndarray, x0: np.ndarray = 0.0) -> np.ndarray:
+    def evaluate(cls, x: np.ndarray, x0: np.ndarray | float = 0.0) -> np.ndarray:
         n_y = 1
         n_x, m = x.shape
         y = np.zeros((n_y, m))
@@ -132,8 +134,7 @@ class Parabola(TestFunction):
         return y
 
     @classmethod
-    def first_derivative(
-            cls, x: np.ndarray, x0: np.ndarray = 0.0) -> np.ndarray:
+    def first_derivative(cls, x: np.ndarray, x0: np.ndarray | float = 0.0) -> np.ndarray:
         n_y = 1
         n_x, m = x.shape
         dydx = np.zeros((n_y, n_x, m))
@@ -142,11 +143,11 @@ class Parabola(TestFunction):
 
     @classmethod
     def sample(
-            cls,
-            m_lhs: int = 100,
-            m_levels: int = 0,
-            lb: np.ndarray | float = -1.,
-            ub: np.ndarray | float = 1.0,
+        cls,
+        m_lhs: int = 100,
+        m_levels: int = 0,
+        lb: np.ndarray | float = -1.0,
+        ub: np.ndarray | float = 1.0,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return super().sample(m_lhs, m_levels, lb, ub)
 
@@ -172,18 +173,19 @@ class Sinusoid(TestFunction):
 
     @classmethod
     def sample(
-            cls,
-            m_lhs: int = 100,
-            m_levels: int = 0,
-            lb: np.ndarray | float = -np.pi,
-            ub: np.ndarray | float = np.pi,
+        cls,
+        m_lhs: int = 100,
+        m_levels: int = 0,
+        lb: np.ndarray | float = -np.pi,
+        ub: np.ndarray | float = np.pi,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return super().sample(m_lhs, m_levels, lb, ub)
 
 
 class Rastrigin(TestFunction):
     """Rastrigin (egg crate) test function:
-                     n
+
+    n
     f(x1, ..., xn) = ∑ (x[i] ** 2 − 10 cos(2πxi))
                     i=0
     """
@@ -208,18 +210,28 @@ class Rastrigin(TestFunction):
 
     @classmethod
     def sample(
-            cls,
-            m_lhs: int = 100,
-            m_levels: int = 0,
-            lb: np.ndarray | float = -1. * np.ones(2,),
-            ub: np.ndarray | float = 1.5 * np.ones(2,),
+        cls,
+        m_lhs: int = 100,
+        m_levels: int = 0,
+        lb: np.ndarray
+        | float = -1.0
+        * np.ones(
+            2,
+        ),
+        ub: np.ndarray
+        | float = 1.5
+        * np.ones(
+            2,
+        ),
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return super().sample(m_lhs, m_levels, lb, ub)
 
 
 class Rosenbrock(TestFunction):
     """Banana Rosenbrock test function:
-    y = (1 - x1) ** 2 + 100 * (x2 - x1 ** 2) ** 2"""
+
+    y = (1 - x1) ** 2 + 100 * (x2 - x1 ** 2) ** 2
+    """
 
     @classmethod
     def evaluate(cls, x: np.ndarray) -> np.ndarray:
@@ -240,10 +252,18 @@ class Rosenbrock(TestFunction):
 
     @classmethod
     def sample(
-            cls,
-            m_lhs: int = 100,
-            m_levels: int = 0,
-            lb: np.ndarray | float = -2 * np.ones(2,),
-            ub: np.ndarray | float = 2. * np.ones(2,),
+        cls,
+        m_lhs: int = 100,
+        m_levels: int = 0,
+        lb: np.ndarray
+        | float = -2
+        * np.ones(
+            2,
+        ),
+        ub: np.ndarray
+        | float = 2.0
+        * np.ones(
+            2,
+        ),
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return super().sample(m_lhs, m_levels, lb, ub)

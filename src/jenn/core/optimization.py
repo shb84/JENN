@@ -7,25 +7,34 @@ This package is distributed under the MIT license.
 """
 
 from abc import ABC, abstractmethod
+
 import numpy as np
 
 
 class Update(ABC):
-    """Take a single step along the search direction, 
-    where the update algorithm determines the search  
-    direction based on the current value of the gradient."""
-    
+    """Take a single step along the search direction, where the update
+    algorithm determines the search direction based on the current value of the
+    gradient."""
+
     @abstractmethod
-    def __call__(
-        self, 
-        params: np.ndarray, 
+    def _update(
+        self,
+        params: np.ndarray,
         grads: np.ndarray,
         alpha: float,
     ) -> np.ndarray:
-        """Take a single step along the search direction, 
-        where gradient descent determines the search direction 
-        based on the current value of the gradient. 
-        
+        raise NotImplementedError("To be implemented in subclass.")
+
+    def __call__(
+        self,
+        params: np.ndarray,
+        grads: np.ndarray,
+        alpha: float,
+    ) -> np.ndarray:
+        """Take a single step along the search direction, where gradient
+        descent determines the search direction based on the current value of
+        the gradient.
+
             x_new = x + alpha * search_direction
 
         Parameters
@@ -43,24 +52,23 @@ class Update(ABC):
 
 
 class GD(Update):
-    """Take a single step along the search direction, 
-    where gradient descent determines the search direction 
-    based on the current value of the gradient."""
+    """Take a single step along the search direction, where gradient descent
+    determines the search direction based on the current value of the
+    gradient."""
 
-    def __call__(
-            self, 
-            params: np.ndarray, 
-            grads: np.ndarray, 
-            alpha: float,
-        ) -> np.ndarray:
+    def _update(
+        self,
+        params: np.ndarray,
+        grads: np.ndarray,
+        alpha: float,
+    ) -> np.ndarray:
         return (params - alpha * grads).reshape(params.shape)
 
 
 class ADAM(Update):
-    """Take a single step along the search direction, 
-    where the ADAM algorithm determines the search 
-    direction based on the current value of the gradient. 
-        
+    """Take a single step along the search direction, where the ADAM algorithm
+    determines the search direction based on the current value of the gradient.
+
     Parameters
     ----------
     beta_1: float
@@ -75,10 +83,10 @@ class ADAM(Update):
     """
 
     def __init__(
-            self, 
-            beta_1: float = 0.9, 
-            beta_2: float = 0.99,
-        ):
+        self,
+        beta_1: float = 0.9,
+        beta_2: float = 0.99,
+    ):
         self.beta_1 = beta_1
         self.beta_2 = beta_2
 
@@ -87,11 +95,11 @@ class ADAM(Update):
         self._t = 0
         self._grads = None
 
-    def __call__(
-            self,
-            params: np.ndarray,
-            grads: np.ndarray,
-            alpha: float,
+    def _update(
+        self,
+        params: np.ndarray,
+        grads: np.ndarray,
+        alpha: float,
     ) -> np.ndarray:
         beta_1 = self.beta_1
         beta_2 = self.beta_2
@@ -115,10 +123,10 @@ class ADAM(Update):
             t += 1  # only update for new search directions
 
         epsilon = np.finfo(float).eps  # small number to avoid division by zero
-        v = beta_1 * v + (1. - beta_1) * grads
-        s = beta_2 * s + (1. - beta_2) * np.square(grads)
-        v_corrected = v / (1. - beta_1 ** t)
-        s_corrected = s / (1. - beta_2 ** t) + epsilon
+        v = beta_1 * v + (1.0 - beta_1) * grads
+        s = beta_2 * s + (1.0 - beta_2) * np.square(grads)
+        v_corrected = v / (1.0 - beta_1**t)
+        s_corrected = s / (1.0 - beta_2**t) + epsilon
 
         x = params - alpha * v_corrected / np.sqrt(s_corrected)
 
@@ -131,29 +139,29 @@ class ADAM(Update):
 
 class LineSearch(ABC):
     """Take multiple steps along the search direction.
-    
+
     Parameters
     ----------
     update: Update
-        Take a single step along the search direction. 
-        Note: the update algorithm determines the search 
-        direction based on the current value of the gradient. 
+        Take a single step along the search direction.
+        Note: the update algorithm determines the search
+        direction based on the current value of the gradient.
         x_new = x + alpha * search_direction
     """
 
     def __init__(
-            self, 
-            update: Update,
-        ):
+        self,
+        update: Update,
+    ):
         self.update = update
 
     @abstractmethod
     def __call__(
-        self, 
-        params: np.ndarray, 
+        self,
+        params: np.ndarray,
         grads: np.ndarray,
-        cost: callable, 
-        learning_rate: float, 
+        cost: callable,
+        learning_rate: float,
     ) -> np.ndarray:
         """Take multiple steps along the search direction.
 
@@ -169,7 +177,7 @@ class LineSearch(ABC):
             Cost function: cost = f(params)
 
         learning_rate: float
-            The initial step size.  
+            The initial step size.
 
         Returns
         -------
@@ -181,48 +189,49 @@ class LineSearch(ABC):
 
 class Backtracking(LineSearch):
     """Search for optimum along a search direction.
-    
+
     Parameters
     ----------
     update: Update
-        Take a single step along the search direction. 
-        Note: the update algorithm determines the search 
-        direction based on the current value of the gradient. 
+        Take a single step along the search direction.
+        Note: the update algorithm determines the search
+        direction based on the current value of the gradient.
         x_new = x + alpha * search_direction
 
-    tau: float, optional 
-        Amount by which to reduce alpha (step size) on each iteration. 
-        alpha_new = alpha * tau 
+    tau: float, optional
+        Amount by which to reduce alpha (step size) on each iteration.
+        alpha_new = alpha * tau
         Default is 0.5
 
-    tol: float, optional 
-        Tolerance criterion to stop iteration (i.e. stop whenever cost 
-        function doesn't improve more than tol). Default is 1e-6. 
+    tol: float, optional
+        Tolerance criterion to stop iteration (i.e. stop whenever cost
+        function doesn't improve more than tol). Default is 1e-6.
 
-    max_count: int, optional 
-        Stop when line search iterations exceed max_count. Default is 1000.  
+    max_count: int, optional
+        Stop when line search iterations exceed max_count. Default is 1000.
     """
 
     def __init__(
-            self, 
-            update: Update, 
-            tau: float = 0.5,
-            tol: float = 1e-6, 
-            max_count: int = 1_000,
-        ):
+        self,
+        update: Update,
+        tau: float = 0.5,
+        tol: float = 1e-6,
+        max_count: int = 1_000,
+    ):
         super().__init__(update)
         self.tau = tau
         self.tol = tol
         self.max_count = max_count
 
     def __call__(
-            self,
-            params: np.ndarray, 
-            grads: np.ndarray,
-            cost: callable, 
-            learning_rate: float = 0.05,
-        ) -> np.ndarray:
-        """Take multiple update steps along search direction determined by update.
+        self,
+        params: np.ndarray,
+        grads: np.ndarray,
+        cost: callable,
+        learning_rate: float = 0.05,
+    ) -> np.ndarray:
+        """Take multiple update steps along search direction determined by
+        update.
 
         Parameters
         ----------
@@ -235,14 +244,14 @@ class Backtracking(LineSearch):
         cost: callable
             Objective function y = f(x) where x = params
 
-        learning_rate: float, optional 
+        learning_rate: float, optional
             The maximum allowed step size. Default is 0.05
         """
         tau = self.tau
         tol = self.tol
         x0 = self.update(params, grads, alpha=0)
         f0 = cost(x0)
-        tau = max(0., min(1., tau))
+        tau = max(0.0, min(1.0, tau))
         alpha = learning_rate
         x = self.update(params, grads, alpha)
         max_count = max(1, self.max_count)
@@ -259,36 +268,36 @@ class Backtracking(LineSearch):
 
 
 class Optimizer:
-    """Find optimum using gradient-based optimization.  
+    """Find optimum using gradient-based optimization.
 
     Parameters
     ----------
     line_search: LineSearch
-        The algorithm to use for determine best search direction 
-        given current value of gradient and searching for optimum 
-        along that direction. 
+        The algorithm to use for determine best search direction
+        given current value of gradient and searching for optimum
+        along that direction.
     """
 
     def __init__(
-            self, 
-            line_search: LineSearch,
-        ):
+        self,
+        line_search: LineSearch,
+    ):
         self.line_search = line_search
         self.vars_history = None
         self.cost_history = None
 
     def minimize(
-            self, 
-            x: np.ndarray, 
-            f: callable, 
-            dfdx: callable,
-            alpha: float = 0.01, 
-            max_iter: int = 100,
-            verbose: bool = False, 
-            epoch: int = None,
-            batch: int = None,
-        ) -> np.ndarray:
-        """Minimize single objective function. 
+        self,
+        x: np.ndarray,
+        f: callable,
+        dfdx: callable,
+        alpha: float = 0.01,
+        max_iter: int = 100,
+        verbose: bool = False,
+        epoch: int = None,
+        batch: int = None,
+    ) -> np.ndarray:
+        """Minimize single objective function.
 
         Parameters
         ----------
@@ -340,14 +349,15 @@ class Optimizer:
             cost_history.append(y)
             vars_history.append(x)
 
-            x = self.line_search(
-                params=x, cost=f, grads=dfdx(x), learning_rate=alpha)
+            x = self.line_search(params=x, cost=f, grads=dfdx(x), learning_rate=alpha)
 
             if verbose:
                 if epoch is not None and batch is not None:
                     e = epoch
                     b = batch
-                    print(f"epoch = {e:d}, batch = {b:d}, iter = {i:d}, cost = {y:6.3f}")
+                    print(
+                        f"epoch = {e:d}, batch = {b:d}, iter = {i:d}, cost = {y:6.3f}"
+                    )
                 elif epoch is not None:
                     e = epoch
                     print(f"epoch = {e:d}, iter = {i:d}, cost = {y:6.3f}")
@@ -372,7 +382,7 @@ class Optimizer:
                 # Relative convergence criterion
                 numerator = abs(cost_history[-1] - cost_history[-2])
                 denominator = max(abs(cost_history[-1]), 1e-6)
-                dF2 =  numerator / denominator
+                dF2 = numerator / denominator
 
                 if dF2 < epsilon_relative:
                     N2 += 1
@@ -399,34 +409,35 @@ class Optimizer:
 
 class GDOptimizer(Optimizer):
     """Search for optimum using gradient descent.
-    
+
     Parameters
     ----------
-    tau: float, optional 
+    tau: float, optional
         Backtracking line search parameter. Amount by which
-        to reduce alpha (step size) on each iteration. 
-        alpha_new = alpha * tau 
+        to reduce alpha (step size) on each iteration.
+        alpha_new = alpha * tau
         Default is 0.5
 
-    tol: float, optional 
-        Backtracking line search parameter. Tolerance criterion 
-        to stop iteration (i.e. stop whenever cost function 
-        doesn't improve more than tol). Default is 1e-6. 
+    tol: float, optional
+        Backtracking line search parameter. Tolerance criterion
+        to stop iteration (i.e. stop whenever cost function
+        doesn't improve more than tol). Default is 1e-6.
 
-    max_count: int, optional 
-        Backtracking line search parameter. Stop when line search 
-        iterations exceed max_count. Default is 1000.  
+    max_count: int, optional
+        Backtracking line search parameter. Stop when line search
+        iterations exceed max_count. Default is 1000.
     """
 
-    def __init__(self, 
-            tau: float = 0.5,
-            tol: float = 1e-6, 
-            max_count: int = 1_000,
-        ):
+    def __init__(
+        self,
+        tau: float = 0.5,
+        tol: float = 1e-6,
+        max_count: int = 1_000,
+    ):
         line_search = Backtracking(
-            update=GD(), 
+            update=GD(),
             tau=tau,
-            tol=tol, 
+            tol=tol,
             max_count=max_count,
         )
         super().__init__(line_search)
@@ -434,7 +445,7 @@ class GDOptimizer(Optimizer):
 
 class ADAMOptimizer(Optimizer):
     """Search for optimum using ADAM algorithm.
-    
+
     Parameters
     ----------
     beta_1: float
@@ -447,34 +458,34 @@ class ADAMOptimizer(Optimizer):
         in adam, should be in [0, 1). Only used when solver="adam"
         Default is 0.99
 
-    tau: float, optional 
+    tau: float, optional
         Backtracking line search parameter. Amount by which
-        to reduce alpha (step size) on each iteration. 
-        alpha_new = alpha * tau 
+        to reduce alpha (step size) on each iteration.
+        alpha_new = alpha * tau
         Default is 0.5
 
-    tol: float, optional 
-        Backtracking line search parameter. Tolerance criterion 
-        to stop iteration (i.e. stop whenever cost function 
-        doesn't improve more than tol). Default is 1e-6. 
+    tol: float, optional
+        Backtracking line search parameter. Tolerance criterion
+        to stop iteration (i.e. stop whenever cost function
+        doesn't improve more than tol). Default is 1e-6.
 
-    max_count: int, optional 
-        Backtracking line search parameter. Stop when line search 
-        iterations exceed max_count. Default is 1000.  
+    max_count: int, optional
+        Backtracking line search parameter. Stop when line search
+        iterations exceed max_count. Default is 1000.
     """
 
     def __init__(
-            self, 
-            beta_1: float = 0.9, 
-            beta_2: float = 0.99,
-            tau: float = 0.5,
-            tol: float = 1e-6, 
-            max_count: int = 1_000,
-        ):
+        self,
+        beta_1: float = 0.9,
+        beta_2: float = 0.99,
+        tau: float = 0.5,
+        tol: float = 1e-6,
+        max_count: int = 1_000,
+    ):
         line_search = Backtracking(
-            update=ADAM(beta_1, beta_2), 
+            update=ADAM(beta_1, beta_2),
             tau=tau,
-            tol=tol, 
+            tol=tol,
             max_count=max_count,
         )
         super().__init__(line_search)

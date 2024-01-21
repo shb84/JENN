@@ -1,0 +1,20 @@
+# doit[toml]
+# python >=3.11,<3.12
+@EXPLICIT
+https://conda.anaconda.org/conda-forge/osx-arm64/bzip2-1.0.8-h93a5062_5.conda#1bbc659ca658bfd49a481b5ef7a0f40f
+https://conda.anaconda.org/conda-forge/osx-arm64/ca-certificates-2023.11.17-hf0a4a13_0.conda#c01da7c77cfcba2107174e25c1d47384
+https://conda.anaconda.org/conda-forge/osx-arm64/libexpat-2.5.0-hb7217d7_1.conda#5a097ad3d17e42c148c9566280481317
+https://conda.anaconda.org/conda-forge/osx-arm64/libffi-3.4.2-h3422bc3_5.tar.bz2#086914b672be056eb70fd4285b6783b6
+https://conda.anaconda.org/conda-forge/osx-arm64/libzlib-1.2.13-h53f4e23_5.conda#1a47f5236db2e06a320ffa0392f81bd8
+https://conda.anaconda.org/conda-forge/noarch/tzdata-2023d-h0c530f3_0.conda#8dee24b8be2d9ff81e7bd4d7d97ff1b0
+https://conda.anaconda.org/conda-forge/osx-arm64/xz-5.2.6-h57fd34a_0.tar.bz2#39c6b54e94014701dd157f4f576ed211
+https://conda.anaconda.org/conda-forge/osx-arm64/libsqlite-3.44.2-h091b4b1_0.conda#d7e1af696cfadec251a0abdd7b79ed77
+https://conda.anaconda.org/conda-forge/osx-arm64/ncurses-6.4-h463b476_2.conda#52b6f254a7b9663e854f44b6570ed982
+https://conda.anaconda.org/conda-forge/osx-arm64/openssl-3.2.0-h0d3ecfb_1.conda#47d16d26100f19ca495882882b7bc93b
+https://conda.anaconda.org/conda-forge/osx-arm64/tk-8.6.13-h5083fa2_1.conda#b50a57ba89c32b62428b71a875291c9b
+https://conda.anaconda.org/conda-forge/osx-arm64/readline-8.2-h92ec313_1.conda#8cbb776a2f641b943d413b3e19df71f4
+https://conda.anaconda.org/conda-forge/osx-arm64/python-3.11.7-hdf0ec26_1_cpython.conda#f0f1fcde592e067a5ca2187d6f232bd3
+https://conda.anaconda.org/conda-forge/noarch/cloudpickle-3.0.0-pyhd8ed1ab_0.conda#753d29fe41bb881e4b9c004f0abf973f
+https://conda.anaconda.org/conda-forge/noarch/zipp-3.17.0-pyhd8ed1ab_0.conda#2e4d6bc0b14e10f895fc6791a7d9b26a
+https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-7.0.1-pyha770c72_0.conda#746623a787e06191d80a2133e5daff17
+https://conda.anaconda.org/conda-forge/noarch/doit-0.36.0-pyhd8ed1ab_0.tar.bz2#fc5e53d070f1ee7bb38c2ece282dcb82
