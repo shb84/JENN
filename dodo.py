@@ -37,36 +37,31 @@ def task_env():
 
 def task_install():
     """Install locally."""
-    envs = [
-        "dev",
-    ] 
-
-    for env in envs: 
-        yield dict(
-            name=C.PPT_DATA["project"]["name"],
-            **U.run_in(
-                env,
+    yield dict(
+        name=C.PPT_DATA['project']['name'],
+        **U.run_in(
+            "ci",
+            [
                 [
-                    [
-                        "pip",
-                        "install",
-                        "-e",
-                        ".",
-                        "--no-deps",
-                        "--ignore-installed",
-                    ]
-                ],
-                cwd=P.ROOT,
-                ok=OK.INSTALL,
-            ),
-        )
+                    "pip",
+                    "install",
+                    "-e",
+                    ".",
+                    "--no-deps",
+                    "--ignore-installed",
+                ]
+            ],
+            cwd=P.ROOT,
+            ok=OK.INSTALL,
+        ),
+    )
 
 
 def task_lab():
     """Run JupyterLab (not run by default)."""
 
     def lab():
-        _, run_args = U.run_args("dev")
+        _, run_args = U.run_args("ci")
         proc = subprocess.Popen(
             [*run_args, "jupyter", "lab", "--no-browser"]
         )
@@ -109,7 +104,7 @@ def task_test():
         name="pytest",
         uptodate=[doit.tools.config_changed({"args": pytest_args})],
         **U.run_in(
-            "dev",
+            "ci",
             [["pytest", *pytest_args]],
             file_dep=[
                 OK.INSTALL, 
@@ -128,21 +123,37 @@ def task_docs():
     """Update sphinx documentation."""
 
     SOURCE = P.DOCS / "source/"
-    HTML = P.DOCS / "build/html"
+    DOCS_HTML = P.DOCS / "build" / "html"
+
 
     yield dict(
         name="sphinx",
         doc="create docs",
         uptodate=[lambda: False],
         **U.run_in(
-            "dev",
-            actions=[["sphinx-build", "-b", "html", SOURCE, HTML]],
+            "ci",
+            actions=[["sphinx-build", "-b", "html", SOURCE, DOCS_HTML]],
             ok=OK.DOCS,
             file_dep=[OK.INSTALL],
         ),
     )
 
-    # TODO: PDF 
+    # TODO: PDF docs (requires tectonic)
+    # BUILD = P.DOCS / "build/"
+    # PROJ_NAME = C.PPT_DATA['project']['name']
+    # DOCS_TEX = BUILD / "latex" / f"{PROJ_NAME}.tex"
+    # DOCS_PDF = BUILD / "latex" / f"{PROJ_NAME}.pdf"
+    # yield dict(
+    #     name="sphinx-pdf",
+    #     doc="create PDF docs",
+    #     **U.run_in(
+    #         "ci",
+    #         actions=[["tectonic", "-X", "compile", DOCS_TEX]],
+    #         file_dep=[DOCS_TEX],
+    #         targets=[DOCS_PDF],
+    #     ),
+    # )
+
 
 
 def task_fix(): 
@@ -252,9 +263,17 @@ class P:
     ENVS = ROOT / ".envs"
     LOCKS = DEPLOY / "locks"
     SPECS = {
-        "dev": [ROOT / "environment.yml"],
-        "ci": [DEPLOY / "ci.yml"],
-        "qa": [DEPLOY / "qa.yml"],
+        "ci": [
+            DEPLOY / "base.yml", 
+            DEPLOY / "run.yml",
+            DEPLOY / "lab.yml",
+            DEPLOY / "docs.yml",
+            DEPLOY / "test.yml",
+        ],
+        "qa": [
+            DEPLOY / "base.yml", 
+            DEPLOY / "qa.yml",
+        ],
     }
     PPT = ROOT / "pyproject.toml"
     REPORTS = BUILD / "reports"

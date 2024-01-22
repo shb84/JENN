@@ -1,0 +1,5 @@
+dependencies:
+  # test
+  - pytest
+  - pytest-cov
+  - pytest-html

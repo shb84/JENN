@@ -3,14 +3,14 @@ channels:
 - defaults
 dependencies:
   - python >=3.11,<3.12
-  # runtime
-  - numpy 
-  - orjson 
-  - matplotlib-base
   # build
   - doit[toml]
   - conda-lock
   - pip 
+  # runtime
+  - numpy 
+  - orjson 
+  - matplotlib-base
   # protyping
   - jupyterlab >=3.6,<4.0.0a0
   # test
@@ -20,3 +20,4 @@ dependencies:
   # docs 
   - sphinx 
   - sphinx_rtd_theme
+  - tectonic 

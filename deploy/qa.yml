@@ -1,8 +1,4 @@
-channels:
-- conda-forge
-- defaults
 dependencies:
-  - python >=3.11,<3.12
   # lint
   - black ==23.1.0
   - docformatter ==1.5.1
