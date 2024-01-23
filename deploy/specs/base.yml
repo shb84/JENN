@@ -4,4 +4,5 @@ channels:
 dependencies:
   - python >=3.11,<3.12
   - doit[toml]
+  - conda-lock
   - pip 

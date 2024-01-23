@@ -15,9 +15,3 @@ dependencies:
   - jupyterlab >=3.6,<4.0.0a0
   # test
   - pytest
-  - pytest-cov
-  - pytest-html
-  # docs 
-  - sphinx 
-  - sphinx_rtd_theme
-  - tectonic 

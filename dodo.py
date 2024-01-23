@@ -2,9 +2,7 @@
 import os
 import shutil
 import doit 
-import yaml
 import platform
-import textwrap
 import subprocess
 import tomllib
 from collections.abc import Iterable
@@ -122,37 +120,23 @@ def task_test():
 def task_docs():
     """Update sphinx documentation."""
 
-    SOURCE = P.DOCS / "source/"
-    DOCS_HTML = P.DOCS / "build" / "html"
-
-
     yield dict(
         name="sphinx",
         doc="create docs",
         uptodate=[lambda: False],
         **U.run_in(
             "ci",
-            actions=[["sphinx-build", "-b", "html", SOURCE, DOCS_HTML]],
+            actions=[[
+                "sphinx-build",
+                "-b", 
+                "html", 
+                P.DOCS_SOURCE, 
+                P.DOCS_BUILD / "html",
+            ]],
             ok=OK.DOCS,
             file_dep=[OK.INSTALL],
         ),
     )
-
-    # TODO: PDF docs (requires tectonic)
-    # BUILD = P.DOCS / "build/"
-    # PROJ_NAME = C.PPT_DATA['project']['name']
-    # DOCS_TEX = BUILD / "latex" / f"{PROJ_NAME}.tex"
-    # DOCS_PDF = BUILD / "latex" / f"{PROJ_NAME}.pdf"
-    # yield dict(
-    #     name="sphinx-pdf",
-    #     doc="create PDF docs",
-    #     **U.run_in(
-    #         "ci",
-    #         actions=[["tectonic", "-X", "compile", DOCS_TEX]],
-    #         file_dep=[DOCS_TEX],
-    #         targets=[DOCS_PDF],
-    #     ),
-    # )
 
 
 
@@ -190,7 +174,7 @@ def task_fix():
         doc="aggressively format python code",
         **U.run_in(
             "qa",
-            actions=[["black", *P.ALL_PY]],
+            actions=[["black", "--quiet", *P.ALL_PY]],
             file_dep=[*P.ALL_PY, P.PPT],
             ok=OK.BLACKENED,
         ),
@@ -211,6 +195,43 @@ def task_fix():
 
 def task_lint():
     """Check source code for style compliance."""
+    yield dict(
+        name="isort",
+        doc="check python code for import order",
+        **U.run_in(
+            "qa",
+            actions=[["isort", "--quiet", "--check", *P.ALL_PY]],
+            file_dep=[*P.ALL_PY],
+        ),
+    )
+    
+    yield dict(
+        name="black",
+        doc="check python code for blackness",
+        **U.run_in(
+            "qa", actions=[["black", "--quiet", *P.ALL_PY]], file_dep=[*P.ALL_PY, P.PPT],
+        ),
+    )
+
+    yield dict(
+        name="docformatter",
+        doc="check python docstrings for fixable style issues",
+        **U.run_in(
+            "qa",
+            actions=[["docformatter", "--check", *P.ALL_PY]],
+            file_dep=[*P.ALL_PY],
+        ),
+    )
+
+    yield dict(
+        name="pydocstyle",
+        doc="check python docstrings",
+        **U.run_in(
+            "qa",
+            actions=[["pydocstyle", *P.ALL_PY]],
+            file_dep=[*P.ALL_PY],
+        ),
+    )
 
     yield dict(
         name="ruff",
@@ -219,12 +240,15 @@ def task_lint():
             "qa", actions=[["ruff", *P.ALL_PY]], file_dep=[P.PPT, *P.ALL_PY]
         ),
     )
-    
+
+
     yield dict(
-        name="black",
-        doc="check python code for blackness",
+        name="pyflakes",
+        doc="check python code for flakiness",
         **U.run_in(
-            "qa", actions=[["black", *P.ALL_PY]], file_dep=[*P.ALL_PY, P.PPT],
+            "qa",
+            actions=[["pyflakes", *P.ALL_PY]],
+            file_dep=[*P.ALL_PY],
         ),
     )
 
@@ -258,8 +282,10 @@ class P:
     ROOT = DODO.parent
     BUILD = ROOT / "build"
     DOCS = ROOT / "docs"
-    SRC = ROOT / "src"
+    SOURCE = ROOT / "src"
     DEPLOY = ROOT / "deploy"
+    DOCS_SOURCE = DOCS / "source"
+    DOCS_BUILD = BUILD / "docs"
     ENVS = ROOT / ".envs"
     LOCKS = DEPLOY / "locks"
     SPECS = {
@@ -277,7 +303,7 @@ class P:
     }
     PPT = ROOT / "pyproject.toml"
     REPORTS = BUILD / "reports"
-    ALL_PY = sorted(list(SRC.rglob('*.py')))
+    ALL_PY = sorted(list(SOURCE.rglob('*.py')))
 
 
 class B: 
@@ -332,7 +358,6 @@ class C:
         OSX64_PLATFORM, 
         OSXARM64_PLATFORM,
     ]
-    EXPLICIT = "@EXPLICIT"
     CONDA_EXE = os.environ.get(
         "CONDA_EXE", shutil.which("conda") or shutil.which("conda.exe")
     )
@@ -406,19 +431,7 @@ class U:
 
         specs = sorted(set(specs))
 
-        raw_deps = sum(
-            [
-                yaml.safe_load(spec.read_text(**F.UTF8)).get("dependencies", [])
-                for spec in specs
-            ],
-            [],
-        )
-
-        raw_spec_header = textwrap.indent("\n".join(sorted(set(raw_deps))), "# ")
-
-        header = "\n".join([raw_spec_header, C.EXPLICIT])
-
-        args += sum([["--file", spec] for spec in specs], [])
+        args += sum([["--kind=explicit", "--file", spec] for spec in specs], [])
         args += [
             "--filename-template",
             env_stem + "-{platform}.conda.lock",
@@ -430,11 +443,10 @@ class U:
         yield dict(
             name=f"""{env_stem}:{platform}""",
             file_dep=specs,
-            uptodate=[doit.tools.config_changed({"deps": raw_deps})],
             actions=[
                 (doit.tools.create_folder, [P.LOCKS]),
                 lambda: cls.printc(f"{F.LOCK}{env_info}", F.HEADER),
-                (U.solve, [lockfile, header, args]),
+                (U.solve, [args]),
                 lambda: cls.printc(f"{F.OK}{env_info}", F.OKGREEN),
             ],
             targets=[lockfile],
@@ -451,26 +463,22 @@ class U:
             return C.WIN_PLATFORM
         elif platform.system() == "Linux": 
             return C.LINUX_PLATFORM
-        
-
+    
     @classmethod
-    def solve(cls, lockfile: Path, header: str, args: Iterable[Any]) -> bool:
+    def solve(cls, args: Iterable[Any]):
         """Create the lock file."""
         solve_rc = 1
-        solver_args = ["conda-lock", "--kind=explicit"]
-
-        if lockfile.exists() and lockfile.read_text(**F.UTF8).startswith(header):
-            cls.printc(f"    ... {lockfile} is up-to-date", F.OKGREEN)
-            return True
-
-        solve_rc = subprocess.call(
-            [*solver_args, *map(str, args)], cwd=str(P.LOCKS)
-        )
-
-        if solve_rc == 0:
-            raw_lock = lockfile.read_text(**F.UTF8).split(C.EXPLICIT)[1].strip()
-            lockfile.write_text("\n".join([header, raw_lock, ""]), **F.UTF8)
-
+        base_args = ["conda-lock"]
+        for solver_args in [["--conda", "micromamba"], ["--mamba"], []]:
+            solve_rc = subprocess.call(
+                [*base_args, *solver_args, *map(str, args)], cwd=str(P.LOCKS)
+            )
+            if solve_rc == 0:
+                cls.printc(
+                    f"Solved using {' '.join(solver_args) or 'default config.'}",
+                    F.OKBLUE,
+                )
+                break
         return solve_rc == 0
     
     @classmethod

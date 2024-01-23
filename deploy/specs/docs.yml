@@ -1,0 +1,5 @@
+dependencies: # [unix]
+  # docs 
+  - sphinx # [unix]
+  - sphinx_rtd_theme # [unix]
+  # - tectonic # [unix] 

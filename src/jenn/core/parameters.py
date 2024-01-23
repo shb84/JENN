@@ -91,7 +91,7 @@ class Parameters:
         self.mu_y = np.zeros((self.n_y, 1))
         self.sigma_x = np.eye(self.n_x, 1)
         self.sigma_y = np.eye(self.n_y, 1)
-        previous_layer_size = -1  # Not used on first loop. 
+        previous_layer_size = -1  # Not used on first loop.
         for i, layer_size in enumerate(self.layer_sizes):
             if i == 0:  # input layer
                 W = np.eye(layer_size)

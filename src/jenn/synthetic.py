@@ -134,7 +134,9 @@ class Parabola(TestFunction):
         return y
 
     @classmethod
-    def first_derivative(cls, x: np.ndarray, x0: np.ndarray | float = 0.0) -> np.ndarray:
+    def first_derivative(
+        cls, x: np.ndarray, x0: np.ndarray | float = 0.0
+    ) -> np.ndarray:
         n_y = 1
         n_x, m = x.shape
         dydx = np.zeros((n_y, n_x, m))
