@@ -5,10 +5,20 @@ import doit
 import platform
 import subprocess
 import tomllib
+import yaml 
+import textwrap 
 from collections.abc import Iterable
 from typing import Any
 from pathlib import Path
 from typing_extensions import TypedDict
+
+
+DOIT_CONFIG = {
+    "backend": "sqlite3",
+    "par_type": "thread",
+    "default_tasks": [],
+    "verbosity": 2,
+}
 
      
 #########
@@ -284,21 +294,22 @@ class P:
     DOCS = ROOT / "docs"
     SOURCE = ROOT / "src"
     DEPLOY = ROOT / "deploy"
+    DEPLOY_SPECS = DEPLOY / "specs"
     DOCS_SOURCE = DOCS / "source"
     DOCS_BUILD = BUILD / "docs"
     ENVS = ROOT / ".envs"
     LOCKS = DEPLOY / "locks"
     SPECS = {
         "ci": [
-            DEPLOY / "base.yml", 
-            DEPLOY / "run.yml",
-            DEPLOY / "lab.yml",
-            DEPLOY / "docs.yml",
-            DEPLOY / "test.yml",
+            DEPLOY_SPECS / "base.yml", 
+            DEPLOY_SPECS / "run.yml",
+            DEPLOY_SPECS / "lab.yml",
+            DEPLOY_SPECS / "docs.yml",
+            DEPLOY_SPECS / "test.yml",
         ],
         "qa": [
-            DEPLOY / "base.yml", 
-            DEPLOY / "qa.yml",
+            DEPLOY_SPECS / "base.yml", 
+            DEPLOY_SPECS / "qa.yml",
         ],
     }
     PPT = ROOT / "pyproject.toml"
@@ -431,10 +442,10 @@ class U:
 
         specs = sorted(set(specs))
 
-        args += sum([["--kind=explicit", "--file", spec] for spec in specs], [])
+        args += sum([["--file", spec] for spec in specs], [])
         args += [
             "--filename-template",
-            env_stem + "-{platform}.conda.lock",
+            env_stem + f"-{platform}.conda.lock",
         ]
         env_info = (
             f"""{lockfile.name.rjust(30)}  """
@@ -468,17 +479,20 @@ class U:
     def solve(cls, args: Iterable[Any]):
         """Create the lock file."""
         solve_rc = 1
-        base_args = ["conda-lock"]
-        for solver_args in [["--conda", "micromamba"], ["--mamba"], []]:
+        base_args = ["conda-lock", "--kind=explicit"]
+
+        for solver_args in [["--micromamba"], ["--mamba"], ["--no-mamba"], []]:
             solve_rc = subprocess.call(
                 [*base_args, *solver_args, *map(str, args)], cwd=str(P.LOCKS)
             )
+            
             if solve_rc == 0:
                 cls.printc(
                     f"Solved using {' '.join(solver_args) or 'default config.'}",
                     F.OKBLUE,
                 )
                 break
+
         return solve_rc == 0
     
     @classmethod

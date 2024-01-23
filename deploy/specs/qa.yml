@@ -2,7 +2,6 @@ dependencies:
   # lint
   - black ==23.1.0
   - docformatter ==1.5.1
-  - m2-dos2unix  # [win]
   - flake8
   - isort
   - mypy 

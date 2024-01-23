@@ -18,9 +18,9 @@ PPT_DATA = tomllib.loads(PPT.read_text(encoding="utf-8"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = PPT_DATA["project"]["name"]
-copyright = '2023, Geargia Tech Applied Research Corporation'
 authors = [author["name"] for author in PPT_DATA["project"]["authors"]]
 release =  PPT_DATA["project"]["version"]
+copyright = '2018, Steven H. Berguin'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
