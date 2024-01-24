@@ -1,11 +1,14 @@
 """Check goodness of fit."""
 from importlib.util import find_spec
-from typing import Callable
+from typing import Callable, Any
 
 import numpy as np
 
 if find_spec("matplotlib"):
     import matplotlib.pyplot as plt
+    Axes = plt.Axes 
+else: 
+    Axes = Any
 
 from .decorators import requires_matplotlib
 from .metrics import r_square
@@ -38,7 +41,7 @@ LINE_STYLES = {
 def actual_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
-    ax: plt.Axes | None = None,
+    ax: Axes | None = None,
     figsize: tuple[float, float] = (3.25, 3),
     title: str | None = None,
     fontsize: int = 9,
@@ -56,7 +59,7 @@ def actual_by_predicted(
         True values. An array of shape (m,)
         where m is the number of observations.
 
-    ax: plt.Axes | None, optional
+    ax: Axes | None, optional
         The matplotlib axes on which to plot the data. Default is None.
 
     figsize: tuple[float, float], optional
@@ -110,7 +113,7 @@ def residuals_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
     percent_residuals: bool = False,
-    ax: plt.Axes | None = None,
+    ax: Axes | None = None,
     figsize: tuple[float, float] = (3.25, 3),
     title: str | None = None,
     fontsize: int = 9,
@@ -131,7 +134,7 @@ def residuals_by_predicted(
     percent_residuals: bool, optional
         Compute residuals as percentages. Default is False.
 
-    ax: plt.Axes | None, optional
+    ax: Axes | None, optional
         The matplotlib axes on which to plot the data. Default is None.
 
     figsize: tuple[float, float], optional
@@ -254,7 +257,7 @@ def goodness_of_fit(
 
 @requires_matplotlib
 def sensitivity_profile(
-    ax: plt.Axes,
+    ax: Axes,
     x0: np.ndarray,
     y0: np.ndarray,
     x_pred: np.ndarray,
@@ -272,7 +275,7 @@ def sensitivity_profile(
 
     Parameters
     ----------
-    ax: plt.Axes
+    ax: Axes
         The matplotlib axes on which to plot the data
 
     x0: np.ndarray
@@ -568,7 +571,7 @@ def contours(
     xlabel: str = "",
     ylabel: str = "",
     resolution: int = 100,
-    ax: plt.Axes | None = None,
+    ax: Axes | None = None,
 ):
     """Plot contours of a scalar function of two variables: y = f(x1, x2)
 
@@ -596,7 +599,7 @@ def contours(
     resolution: int, optional
         Line resolution. Default is 100 points.
 
-    ax: plt.Axes | None = None
+    ax: Axes | None = None
         Axes on which to draw. Default is None.
     """
     # Domain
