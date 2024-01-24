@@ -6,9 +6,9 @@ import numpy as np
 
 if find_spec("matplotlib"):
     import matplotlib.pyplot as plt
-    Axes = plt.Axes 
+    Axes, Figure = plt.Axes, plt.Figure
 else: 
-    Axes = Any
+    Figure = Axes = Any
 
 from .decorators import requires_matplotlib
 from .metrics import r_square
@@ -46,7 +46,7 @@ def actual_by_predicted(
     title: str | None = None,
     fontsize: int = 9,
     alpha: int = 1.0,
-) -> plt.Figure:
+) -> Figure:
     """Create actual by predicted plot for a single response.
 
     Parameters
@@ -118,7 +118,7 @@ def residuals_by_predicted(
     title: str | None = None,
     fontsize: int = 9,
     alpha: int = 1.0,
-) -> plt.Figure:
+) -> Figure:
     """Create residual by predicted plot for a single response.
 
     Parameters
@@ -203,7 +203,7 @@ def goodness_of_fit(
     fontsize: int = 9,
     alpha: int = 1.0,
     title: str | None = None,
-) -> plt.Figure:
+) -> Figure:
     """Create 'residual by predicted' and 'actual by predicted' plots.
 
     Parameters
@@ -270,7 +270,7 @@ def sensitivity_profile(
     legend: list[str] | None = None,
     figsize: tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
-) -> plt.Figure:
+) -> Figure:
     """Plot sensitivity profile for one input / output.
 
     Parameters
@@ -372,7 +372,7 @@ def sensitivity_profiles(
     ylabels: list[str] = None,
     legend: list[str] | None = None,
     resolution: int = 100,
-) -> plt.Figure:
+) -> Figure:
     """Plot grid of sensitivity profiles for all inputs / outputs.
 
     Parameters
@@ -470,7 +470,7 @@ def convergence(
     alpha: float = 1.0,
     title: str = "",
     legend: list[str] | None = None,
-) -> plt.Figure | None:
+) -> Figure | None:
     """Plot training history.
 
     Parameters
