@@ -10,21 +10,23 @@ authors = [
 ]
 description = "Jacobian-Enhanced Neural Nets (JENN)"
 readme = "README.md"
-requires-python = ">=3."
+requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "orjson",
-  "numpy'",
+  "orjson>=3.9",
+  "numpy>=1.26",
 ]
+
+[project.optional-dependencies]
+plt = ["matplotlib-base>=3.8"]
 
 [project.urls]
 Homepage = "https://github.com/shb84/JENN"
 Issues = "https://github.com/shb84/JENN/issues"
-
 
 [tool.setuptools.packages.find]
 where = ["src"]  # list of folders that contain the packages (["."] by default)
