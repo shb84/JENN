@@ -6,13 +6,7 @@ from pathlib import Path
 
 from . import core, model, synthetic, utils
 
-JENN = Path(__file__).parent
-SRC = JENN.parent
-ROOT = SRC.parent
-PPT = ROOT / "pyproject.toml"
-PPT_DATA = tomllib.loads(PPT.read_text(encoding="utf-8"))
-
-__version__ = PPT_DATA["project"]["version"]
+__version__ = "1.0.0"
 
 __all__ = [
     "__version__",
