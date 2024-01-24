@@ -65,7 +65,8 @@ venv.bak/
 todo.txt 
 
 # doit 
-.doit.db.db
+*.doit.db.db
+*.doit.db
 
 # Local environments 
 .envs
