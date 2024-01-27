@@ -2,7 +2,8 @@ name: learn-github-actions
 run-name: ${{ github.actor }} is learning GitHub Actions
 on: [push]
 jobs:
-  test-linux:
+  test:
+    name: test-linux
     runs-on: ubuntu-latest
     steps: &steps
       - uses: actions/checkout@v4
@@ -21,7 +22,9 @@ jobs:
       - shell: bash -el {0}
         run: | 
           doit test 
-  test-osx:
+    name: test-windows
     runs-on: windows-latest
-    steps:
-      << *steps
+    steps: *steps
+    name: test-osx
+    runs-on: windows-latest
+    steps: *steps
