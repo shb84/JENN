@@ -59,7 +59,7 @@ venv.bak/
 .spyproject
 
 # Mac 
-.DS_Store
+*.DS_Store
 
 # TODO
 todo.txt 

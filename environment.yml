@@ -7,11 +7,13 @@ dependencies:
   - doit[toml]
   - conda-lock
   - pip 
-  # runtime
-  - numpy 
-  - orjson 
-  - matplotlib-base
   # protyping
   - jupyterlab >=3.6,<4.0.0a0
   # test
   - pytest
+  # runtime
+  - numpy 
+  - orjson 
+  - matplotlib-base
+  -pip: 
+    - -e .

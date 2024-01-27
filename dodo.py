@@ -5,8 +5,6 @@ import doit
 import platform
 import subprocess
 import tomllib
-import yaml 
-import textwrap 
 from collections.abc import Iterable
 from typing import Any
 from pathlib import Path
@@ -24,6 +22,7 @@ DOIT_CONFIG = {
 #########
 # TASKS #
 #########
+
 
 def task_lock():
     """Re-generate lockfiles in deploy/conda/locks."""

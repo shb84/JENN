@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-plt = ["matplotlib-base>=3.8"]
+viz = ["matplotlib-base>=3.8"]
 
 [project.urls]
 Homepage = "https://github.com/shb84/JENN"
