@@ -3,10 +3,8 @@ run-name: ${{ github.actor }} is learning GitHub Actions
 on: [push]
 jobs:
   test-linux:
+    name: test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"]
     steps:
       - uses: actions/checkout@v4
       - uses: conda-incubator/setup-miniconda@v3
@@ -22,4 +20,5 @@ jobs:
           conda config --show
           printenv | sort
       - shell: bash -el {0}
+        run: | 
           doit test 
