@@ -2,10 +2,10 @@ name: learn-github-actions
 run-name: ${{ github.actor }} is learning GitHub Actions
 on: [push]
 jobs:
-  test-linux:
-    name: test
+  test:
+    name: test-linux
     runs-on: ubuntu-latest
-    steps:
+    steps: &steps
       - uses: actions/checkout@v4
       - uses: conda-incubator/setup-miniconda@v3
         with:
@@ -22,3 +22,11 @@ jobs:
       - shell: bash -el {0}
         run: | 
           doit test 
+    name: test-windows
+    runs-on: windows-latest
+    steps:
+      << *steps
+    name: test-osx
+    runs-on: macos-latest
+    steps:
+      << *steps
