@@ -1,5 +1,5 @@
 dependencies: 
   # docs 
-  - sphinx >=1.8.5,<1.8.6
+  - sphinx 
   - sphinx_rtd_theme 
   # - tectonic 
