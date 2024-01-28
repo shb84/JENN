@@ -12,27 +12,25 @@ on:
   push:
     branches: ["refactor"]
 
-env: &job_env
-  - uses: actions/checkout@v4
-  - uses: conda-incubator/setup-miniconda@v3
-    with:
-      auto-update-conda: false
-      activate-environment: explicit-env
-      environment-file: deploy/specs/base.yml
-  - shell: bash -el {0}
-    run: |
-      conda info
-      conda list
-      conda config --show-sources
-      conda config --show
-      printenv | sort
 
 jobs:
   test:
     name: "doit test"
     runs-on: ubuntu-latest 
     steps: 
-      <<: *job_env 
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - shell: bash -el {0}
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
       - shell: bash -el {0}
         run: | 
           doit test 
@@ -40,7 +38,19 @@ jobs:
     name: "doit docs"
     runs-on: ubuntu-latest 
     steps: 
-      <<: *job_env
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - shell: bash -el {0}
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
       - shell: bash -el {0}
         run: | 
           doit docs 
