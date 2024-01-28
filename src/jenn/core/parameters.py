@@ -1,6 +1,6 @@
 """Neural net parameters."""
-from dataclasses import dataclass
 from collections.abc import Iterable
+from dataclasses import dataclass
 
 import numpy as np
 import orjson

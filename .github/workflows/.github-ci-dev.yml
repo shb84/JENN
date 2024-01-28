@@ -4,8 +4,8 @@ run-name: ${{ github.actor }}-jenn-ci-dev
 on: [push]
 
 jobs:
-  build:
-    name: doit install
+  doit:
+    name: doit
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
@@ -19,36 +19,7 @@ jobs:
       - name: Build app
         shell: bash -el {0}
         run: | 
+          doit env 
           doit install 
-  lint:
-    name: doit lint
-    runs-on: ubuntu-latest 
-    steps: 
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Create base environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: deploy/specs/base.yml
-      - name: Linting
-        shell: bash -el {0}
-        run: | 
-          doit lint 
-  test:
-    name: doit test
-    runs-on: ubuntu-latest 
-    steps: 
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Create base environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: deploy/specs/base.yml
-      - name: Test app
-        shell: bash -el {0}
-        run: | 
           doit test
+          doit lint 

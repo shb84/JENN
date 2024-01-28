@@ -1,5 +1,4 @@
-"""Canonical test function representative of topology encountered for
-surrogate-based optimization."""
+"""Canonical test functions."""
 
 import abc
 
@@ -72,7 +71,7 @@ class TestFunction:
 
 
 class Linear(TestFunction):
-    """Linear test function: n.
+    """Linear test function.
 
     f(x1, ..., xn) = b + ∑ a[i] * x[i]
                         i=0
@@ -84,7 +83,7 @@ class Linear(TestFunction):
         x: np.ndarray,
         a: float | np.ndarray = 1.0,
         b: float = 0.0,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
         y = np.zeros((n_y, m))
@@ -97,7 +96,7 @@ class Linear(TestFunction):
         x: np.ndarray,
         a: float | np.ndarray = 1.0,
         b: float = 0.0,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
         dydx = np.zeros((n_y, n_x, m))
@@ -113,12 +112,12 @@ class Linear(TestFunction):
         m_levels: int = 0,
         lb: np.ndarray | float = -1.0,
         ub: np.ndarray | float = 1.0,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub)
 
 
 class Parabola(TestFunction):
-    """Parabola test function:
+    """Parabola test function.
 
                            n
     f(x1, ..., xn) = 1/n * ∑ (x[i] - x0[i]) ** 2
@@ -126,7 +125,9 @@ class Parabola(TestFunction):
     """
 
     @classmethod
-    def evaluate(cls, x: np.ndarray, x0: np.ndarray | float = 0.0) -> np.ndarray:
+    def evaluate(
+        cls, x: np.ndarray, x0: np.ndarray | float = 0.0
+    ) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
         y = np.zeros((n_y, m))
@@ -136,7 +137,7 @@ class Parabola(TestFunction):
     @classmethod
     def first_derivative(
         cls, x: np.ndarray, x0: np.ndarray | float = 0.0
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
         dydx = np.zeros((n_y, n_x, m))
@@ -150,15 +151,18 @@ class Parabola(TestFunction):
         m_levels: int = 0,
         lb: np.ndarray | float = -1.0,
         ub: np.ndarray | float = 1.0,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub)
 
 
 class Sinusoid(TestFunction):
-    """Sinusoidal test function: y =x * np.sin(x)"""
+    """Sinusoidal test function.
+
+    y =x * np.sin(x)
+    """
 
     @classmethod
-    def evaluate(cls, x: np.ndarray) -> np.ndarray:
+    def evaluate(cls, x: np.ndarray) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
         y = np.zeros((n_y, m))
@@ -166,7 +170,7 @@ class Sinusoid(TestFunction):
         return y
 
     @classmethod
-    def first_derivative(cls, x: np.ndarray) -> np.ndarray:
+    def first_derivative(cls, x: np.ndarray) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
         dydx = np.zeros((n_y, n_x, m))
@@ -180,12 +184,12 @@ class Sinusoid(TestFunction):
         m_levels: int = 0,
         lb: np.ndarray | float = -np.pi,
         ub: np.ndarray | float = np.pi,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub)
 
 
 class Rastrigin(TestFunction):
-    """Rastrigin (egg crate) test function:
+    """Rastrigin (egg crate) test function.
 
     n
     f(x1, ..., xn) = ∑ (x[i] ** 2 − 10 cos(2πxi))
@@ -193,7 +197,7 @@ class Rastrigin(TestFunction):
     """
 
     @classmethod
-    def evaluate(cls, x: np.ndarray) -> np.ndarray:
+    def evaluate(cls, x: np.ndarray) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
         y = np.zeros((n_y, m)) + 10 * n_x
@@ -202,7 +206,7 @@ class Rastrigin(TestFunction):
         return y
 
     @classmethod
-    def first_derivative(cls, x: np.ndarray) -> np.ndarray:
+    def first_derivative(cls, x: np.ndarray) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
         dydx = np.zeros((n_y, n_x, m))
@@ -225,18 +229,18 @@ class Rastrigin(TestFunction):
         * np.ones(
             2,
         ),
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub)
 
 
 class Rosenbrock(TestFunction):
-    """Banana Rosenbrock test function:
+    """Banana Rosenbrock test function.
 
     y = (1 - x1) ** 2 + 100 * (x2 - x1 ** 2) ** 2
     """
 
     @classmethod
-    def evaluate(cls, x: np.ndarray) -> np.ndarray:
+    def evaluate(cls, x: np.ndarray) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
         y = np.zeros((n_y, m))
@@ -244,7 +248,7 @@ class Rosenbrock(TestFunction):
         return y
 
     @classmethod
-    def first_derivative(cls, x: np.ndarray) -> np.ndarray:
+    def first_derivative(cls, x: np.ndarray) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
         dydx = np.zeros((n_y, n_x, m))
@@ -267,5 +271,5 @@ class Rosenbrock(TestFunction):
         * np.ones(
             2,
         ),
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub)

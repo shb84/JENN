@@ -1,13 +1,14 @@
 """Check goodness of fit."""
 from importlib.util import find_spec
-from typing import Callable, Any
+from typing import Any, Callable
 
 import numpy as np
 
 if find_spec("matplotlib"):
     import matplotlib.pyplot as plt
+
     Axes, Figure = plt.Axes, plt.Figure
-else: 
+else:
     Figure = Axes = Any
 
 from .decorators import requires_matplotlib
@@ -493,7 +494,6 @@ def convergence(
     legend: list[str] | None = None,
         Label for each model. Default is None.
     """
-
     if not histories:
         return None
 
@@ -573,11 +573,10 @@ def contours(
     resolution: int = 100,
     ax: Axes | None = None,
 ):
-    """Plot contours of a scalar function of two variables: y = f(x1, x2)
+    """Plot contours of a scalar function of two variables.
 
     Parameters
     ----------
-
     figsize: tuple[float, float], optional
         Individua figure size of each subplot. Default is (3.25, 3)
 

@@ -12,7 +12,8 @@ import numpy as np
 from .core.cache import Cache
 from .core.data import Dataset, denormalize, denormalize_partials, normalize
 from .core.parameters import Parameters
-from .core.propagation import model_forward, model_partials_forward, partials_forward
+from .core.propagation import (model_forward, model_partials_forward,
+                               partials_forward)
 from .core.training import train_model
 from .utils.decorators import timeit
 
@@ -222,7 +223,7 @@ class NeuralNet:
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
-        """Predict y = f(x)
+        """Predict responses.
 
         Note:
             Consider using 'evaluate(x)' instead of 'predict(x) if both
@@ -252,7 +253,7 @@ class NeuralNet:
         return y
 
     def predict_partials(self, x: np.ndarray) -> np.ndarray:
-        """Predict y = f'(x)
+        """Predict partials.
 
         Note:
             This function needs to call model_forward before
@@ -286,7 +287,7 @@ class NeuralNet:
         return dydx
 
     def evaluate(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """Predict y = f(x) and dy/dx = f'(x)
+        """Predict responses and their partials.
 
         Note:
             Use this function if both y, and dy/dx are
