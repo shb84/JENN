@@ -16,10 +16,6 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml
-      - name: Create runtime environment
-        shell: bash -el {0}
-        run: | 
-          doit env 
       - name: Build app
         shell: bash -el {0}
         run: | 
@@ -28,7 +24,14 @@ jobs:
     name: doit lint
     runs-on: ubuntu-latest 
     steps: 
-      <<: *build
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
       - name: Linting
         shell: bash -el {0}
         run: | 
@@ -37,8 +40,15 @@ jobs:
     name: doit test
     runs-on: ubuntu-latest 
     steps: 
-      <<: *build
-      - name: Linting
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Test app
         shell: bash -el {0}
         run: | 
           doit test
