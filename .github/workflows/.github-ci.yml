@@ -1,5 +1,5 @@
 name: jenn-ci
-run-name: ${{ github.actor }}-ci-jenn
+run-name: ${{ github.actor }}-jenn-ci
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -55,6 +55,7 @@ jobs:
           doit test 
   deploy-docs:
     name: doit docs
+    needs: test-linux
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
