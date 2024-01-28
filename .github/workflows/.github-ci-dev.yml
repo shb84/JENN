@@ -7,7 +7,7 @@ jobs:
   build:
     name: doit install
     runs-on: ubuntu-latest 
-    steps: &build
+    steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
       - name: Create base environment
