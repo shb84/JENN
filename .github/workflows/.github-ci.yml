@@ -1,0 +1,24 @@
+name: learn-github-actions
+run-name: ${{ github.actor }} is learning GitHub Actions
+on: [push]
+jobs:
+  test:
+    name: test-linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - shell: bash -el {0}
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
+      - shell: bash -el {0}
+        run: | 
+          doit test 
