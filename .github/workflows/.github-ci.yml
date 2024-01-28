@@ -1,4 +1,4 @@
-name: learn-github-actions
+name: jenn-build-test-deploy
 run-name: ${{ github.actor }} is learning GitHub Actions
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -7,33 +7,42 @@ permissions:
   pages: write
   id-token: write
   
-# on:
-#   # Runs on pushes targeting the default branch
-#   push:
-#     branches: ["master"]
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["refactor"]
 
-on: [push]
+env: &job_env
+  - uses: actions/checkout@v4
+  - uses: conda-incubator/setup-miniconda@v3
+    with:
+      auto-update-conda: false
+      activate-environment: explicit-env
+      environment-file: deploy/specs/base.yml
+  - shell: bash -el {0}
+    run: |
+      conda info
+      conda list
+      conda config --show-sources
+      conda config --show
+      printenv | sort
+
 jobs:
   test:
-    name: test-linux
+    name: "doit test"
     runs-on: ubuntu-latest 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: deploy/specs/base.yml
-      - shell: bash -el {0}
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
+    steps: 
+      <<: *job_env 
       - shell: bash -el {0}
         run: | 
           doit test 
+  docs:
+    name: "doit docs"
+    runs-on: ubuntu-latest 
+    steps: 
+      <<: *job_env
+      - shell: bash -el {0}
+        run: | 
           doit docs 
       - name: Setup Pages
         uses: actions/configure-pages@v4
