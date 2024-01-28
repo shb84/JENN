@@ -1,5 +1,17 @@
 name: learn-github-actions
 run-name: ${{ github.actor }} is learning GitHub Actions
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  
+# on:
+#   # Runs on pushes targeting the default branch
+#   push:
+#     branches: ["master"]
+
 on: [push]
 jobs:
   test:
