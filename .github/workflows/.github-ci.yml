@@ -14,47 +14,42 @@ on:
 
 
 jobs:
-  test:
-    name: "doit test"
+  doit:
+    name: doit
     runs-on: ubuntu-latest 
     steps: 
-      - uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml
-      - shell: bash -el {0}
+        shell: bash -el {0}
         run: |
           conda info
           conda list
           conda config --show-sources
           conda config --show
           printenv | sort
-      - shell: bash -el {0}
+      - name: Create runtime environment
+        shell: bash -el {0}
+        run: | 
+          doit env 
+      - name: Build app
+        shell: bash -el {0}
+        run: | 
+          doit install 
+      - name: Test app
+        shell: bash -el {0}
         run: | 
           doit test 
-  docs:
-    name: "doit docs"
-    runs-on: ubuntu-latest 
-    steps: 
-      - uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: deploy/specs/base.yml
-      - shell: bash -el {0}
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
-      - shell: bash -el {0}
+      - name: Build docs
+        shell: bash -el {0}
         run: | 
           doit docs 
-      - name: Setup Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
