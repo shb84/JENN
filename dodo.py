@@ -100,11 +100,11 @@ def task_test():
         "--failed-first",
         f"--html={PYTEST_HTML}",
         "--self-contained-html",
-        f"--cov={C.PPT_DATA['project']['name']}",
-        "--cov-context=test",
-        f"--cov-report=html:{PYTEST_COV_HTML.parent}",
-        f"--cov-report=xml:{PYTEST_COV_XML}",
-        "--cov-report=term-missing:skip-covered",
+        # f"--cov={C.PPT_DATA['project']['name']}",
+        # "--cov-context=test",
+        # f"--cov-report=html:{PYTEST_COV_HTML.parent}",
+        # f"--cov-report=xml:{PYTEST_COV_XML}",
+        # "--cov-report=term-missing:skip-covered",
     ]
 
     yield dict(

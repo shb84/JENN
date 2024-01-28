@@ -1,4 +1,4 @@
-name: jenn-build-test-deploy
+name: jenn-release
 run-name: ${{ github.actor }} is learning GitHub Actions
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
