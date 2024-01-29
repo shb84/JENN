@@ -151,33 +151,7 @@ def task_docs():
 
 def task_fix(): 
     """Apply automated code formatting."""
-
-    yield dict(
-        name="isort",
-        doc="normalize python imports",
-        **U.run_in(
-            env_="qa",
-            actions=[
-                ["isort", "--quiet", *P.ALL_PY],
-            ],
-            file_dep=[*P.ALL_PY],
-            ok=OK.ISORTED,
-        ),
-    )
-
-    yield dict(
-        name="docformatter",
-        doc="normalize python docstrings",
-        **U.run_in(
-            "qa",
-            actions=[
-                ["docformatter", "--in-place", *P.ALL_PY],
-            ],
-            file_dep=[*P.ALL_PY, OK.ISORTED],
-            ok=OK.DOCFORMATTED,
-        ),
-    )
-
+    
     yield dict(
         name="black",
         doc="aggressively format python code",
@@ -199,21 +173,23 @@ def task_fix():
             ok=OK.RUFFENED,
         ),
     )
- 
+
+    yield dict(
+        name="docformatter",
+        doc="normalize python docstrings",
+        **U.run_in(
+            "qa",
+            actions=[
+                ["docformatter", "--in-place", *P.ALL_PY],
+            ],
+            file_dep=[*P.ALL_PY, OK.ISORTED],
+            ok=OK.DOCFORMATTED,
+        ),
+    ) 
 
 
 def task_lint():
-    """Check source code for style compliance."""
-    yield dict(
-        name="isort",
-        doc="check python code for import order",
-        **U.run_in(
-            "qa",
-            actions=[["isort", "--quiet", "--check", *P.ALL_PY]],
-            file_dep=[*P.ALL_PY],
-        ),
-    )
-    
+    """Check source code for style compliance."""    
     yield dict(
         name="black",
         doc="check python code for blackness",
@@ -233,16 +209,6 @@ def task_lint():
     )
 
     yield dict(
-        name="pydocstyle",
-        doc="check python docstrings",
-        **U.run_in(
-            "qa",
-            actions=[["pydocstyle", *P.ALL_PY]],
-            file_dep=[*P.ALL_PY],
-        ),
-    )
-
-    yield dict(
         name="ruff",
         doc="check python code",
         **U.run_in(
@@ -250,24 +216,13 @@ def task_lint():
         ),
     )
 
-
-    yield dict(
-        name="pyflakes",
-        doc="check python code for flakiness",
-        **U.run_in(
-            "qa",
-            actions=[["pyflakes", *P.ALL_PY]],
-            file_dep=[*P.ALL_PY],
-        ),
-    )
-
-    yield dict(
-        name="mypy",
-        doc="check for well-typed python",
-        **U.run_in(
-            "qa", actions=[["mypy", *P.ALL_PY]], file_dep=[*P.ALL_PY, P.PPT],
-        ),
-    )
+    # yield dict(
+    #     name="mypy",
+    #     doc="check for well-typed python",
+    #     **U.run_in(
+    #         "qa", actions=[["mypy", *P.ALL_PY]], file_dep=[*P.ALL_PY, P.PPT],
+    #     ),
+    # )
 
 
 

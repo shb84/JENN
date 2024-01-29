@@ -122,7 +122,7 @@ def next_layer_forward(layer: int, parameters: Parameters, cache: Cache) -> None
 def model_partials_forward(
     X: np.ndarray, parameters: Parameters, cache: Cache
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Propagate forward through all layers, including partials (in place).
+    """Propagate forward in order to predict reponse(s) and partial(s).
 
     Parameters
     ----------
@@ -150,8 +150,7 @@ def model_partials_forward(
 
 
 def model_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.ndarray:
-    """Propagate forward through all layers, but don't compute partials (in
-    place).
+    """Propagate forward in order to predict reponse(s).
 
     Parameters
     ----------
@@ -177,8 +176,7 @@ def model_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.nda
 
 
 def partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.ndarray:
-    """Propagate forward through all layers, but return only partials (in
-    place).
+    """Propagate forward in order to predict partial(s).
 
     Parameters
     ----------
@@ -247,8 +245,6 @@ def next_layer_backward(
     lambd: int
         Coefficient that multiplies regularization term in cost function.
     """
-    cache = cache
-    parameters = parameters
     r = layer
     s = layer - 1
     g = ACTIVATIONS[parameters.a[r]]
@@ -343,8 +339,8 @@ def model_backward(
 ) -> None:
     """Propagate backward through all layers (in place).
 
-     Parameters
-     ----------
+    Parameters
+    ----------
     parameters: Parameters
          Neural net parameters. Object that stores
          neural net parameters for each layer.

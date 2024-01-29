@@ -41,7 +41,7 @@ def mini_batches(
         the indices of the training data for that batch, where the
         index is in the interval [1, m]
     """
-    np.random.seed(random_state)
+    rng = np.random.default_rng(random_state)
 
     batches = []
     m = X.shape[1]
@@ -51,7 +51,7 @@ def mini_batches(
 
     # Step 1: Shuffle the indices
     if shuffle:
-        indices = list(np.random.permutation(m))
+        indices = list(rng.permutation(m))
     else:
         indices = np.arange(m)
 
@@ -105,9 +105,9 @@ def std(array: np.ndarray) -> np.ndarray:
     return np.std(array, axis=1).reshape((-1, 1))
 
 
-def _safe_divide(value: np.ndarray, eps: float = np.finfo(float).eps):
+def _safe_divide(value: np.ndarray, eps: float = np.finfo(float).eps) -> np.ndarray:
     """Add small number to avoid dividing by zero."""
-    mask = value == 0.0
+    mask = value == 0.0  # noqa: PLR2004
     value[mask] += eps
     return value
 
@@ -221,7 +221,7 @@ class Dataset:
     Y: np.ndarray
     J: np.ndarray | None = None
 
-    def __post_init__(self):
+    def __post_init__(self):  # noqa: D105
         if self.X.shape[1] != self.Y.shape[1]:
             msg = "X and Y must have the same number of examples"
             raise ValueError(msg)
@@ -260,14 +260,12 @@ class Dataset:
 
     @cached_property
     def std_x(self) -> np.ndarray:
-        """Return standard deviation of input data as array of shape (n_x,
-        1)."""
+        """Return standard dev of input data, array of shape (n_x, 1)."""
         return std(self.X)
 
     @cached_property
     def std_y(self) -> np.ndarray:
-        """Return standard deviation of output data as array of shape (n_y,
-        1)."""
+        """Return standard dev of output data, array of shape (n_y, 1)."""
         return std(self.Y)
 
     def mini_batches(

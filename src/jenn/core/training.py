@@ -66,7 +66,7 @@ def objective_gradient(
     lambd: float,
     gamma: float,
     stacked_params: np.ndarray,
-) -> np.ndarray:
+) -> np.ndarray:  # noqa: PLR0913
     """Evaluate cost function gradient for backprop.
 
     Parameters
@@ -123,9 +123,9 @@ def train_model(
     batch_size: int = None,
     shuffle: bool = True,
     random_state: int = None,
-    is_backtracking=False,
-    is_verbose=False,
-) -> dict:
+    is_backtracking: bool = False,
+    is_verbose: bool = False,
+) -> dict:  # noqa: PLR0913
     """Train neural net.
 
     Note:

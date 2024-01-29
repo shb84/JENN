@@ -35,7 +35,7 @@ Jacobian-Enhanced Neural Net            |  Standard Neural Net
 
 * Multi-Task Learning : predict more than one output with same model Y = f(X) where Y = [y1, y2, ...]
 * Jacobian prediction : analytically compute the Jacobian (_i.e._ forward propagation of dY/dX)
-* Gradient-Enhancement: minimize prediction error of partials during training (_i.e._ back-prop accounts for dY/dX)
+* Gradient-Enhancement: minimize prediction error of partials (_i.e._ back-prop accounts for dY/dX)
 
 ----
 

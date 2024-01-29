@@ -83,7 +83,7 @@ class Cache:
         """Return predicted partials."""
         return self.A_prime[-1]
 
-    def __init__(self, layer_sizes: list[int], m: int = 1):
+    def __init__(self, layer_sizes: list[int], m: int = 1):  # noqa: D107
         self.layer_sizes = layer_sizes
         self.Z = []  # store z = w a_prev + b
         self.Z_prime = []  # store z' = dz/dx[j] for all j = 1, .., n_x

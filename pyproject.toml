@@ -33,3 +33,62 @@ where = ["src"]  # list of folders that contain the packages (["."] by default)
 include = ["jenn*"]  # package names should match these glob patterns (["*"] by default)
 exclude = ["jenn.tests*"]  # exclude packages matching these glob patterns (empty by default)
 namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+
+[tool.ruff]
+select = [
+  "ANN",  # flake8-annotations
+  "D",  # pydocstyle
+  "E",  # pycodestyle errors
+  "F",  # pyflakes
+  "I",  # isort
+  "PL", # pylint
+  "UP", # pyupgra
+  "W",  # pycodestyle warnings
+  "NPY", # NumPy-specific rules
+]
+ignore = [
+  "ANN101", # Missing type annotation for `self` in method
+  "ANN102", # Missing type annotation for `cls` in classmethod
+  "ANN002",  # Missing type annotation for `*args`
+  "ANN003",  # Missing type annotation for `**kwargs`
+  "ANN204",  # Missing return type annotation for special method `__init__`
+  "PLR0913",  # Too many arguments in function definition
+  "E501", # if it doesn't bother black
+  "D105",
+  "D107",
+  "D205",
+  "D209",
+  "D400",
+  "D203",
+  "D213", # pydocstyle opinion
+  "D417", # FIXME Missing argument description
+]
+cache-dir = "build/.cache/ruff"
+
+[tool.ruff.per-file-ignores]
+"src/jenn/utils/plot.py" = [
+  "PLR0913",  # Too many arguments in function definition
+  "PLR2004",  # Magic value used in comparison
+]
+"src/jenn/synthetic.py" = [
+  "D102",  # Missing docstring in public method
+]
+"src/jenn/core/activation.py" = [
+  "D102",  # Missing docstring in public method
+]
+"src/jenn/core/model.py" = [
+  "PLR0913",  # Too many arguments in function definition
+]
+"src/jenn/core/optimization.py" = [
+  "PLR0913",  # Too many arguments in function definition
+  "PLR0912",  # Too many branches 
+  "PLR0915",  # Too many statement
+]
+"src/jenn/core/training.py" = [
+  "PLR0913",  # Too many arguments in function definition
+]
+"src/jenn/model.py" = [
+  "PLR0913",  # Too many arguments in function definition
+]
+
+ 

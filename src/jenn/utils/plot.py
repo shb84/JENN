@@ -1,6 +1,7 @@
 """Check goodness of fit."""
+from collections.abc import Callable
 from importlib.util import find_spec
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 
@@ -572,7 +573,7 @@ def contours(
     ylabel: str = "",
     resolution: int = 100,
     ax: Axes | None = None,
-):
+) -> Figure:
     """Plot contours of a scalar function of two variables.
 
     Parameters

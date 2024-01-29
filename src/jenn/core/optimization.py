@@ -1,10 +1,4 @@
-"""
-J A C O B I A N - E N H A N C E D   N E U R A L   N E T W O R K S  (J E N N)
-
-Author: Steven H. Berguin <stevenberguin@gmail.com>
-
-This package is distributed under the MIT license.
-"""
+"""Gradient-Based Optimization."""
 
 from abc import ABC, abstractmethod
 
@@ -12,9 +6,11 @@ import numpy as np
 
 
 class Update(ABC):
-    """Take a single step along the search direction, where the update
-    algorithm determines the search direction based on the current value of the
-    gradient."""
+    """Take a single step along the search direction.
+
+    Base class. The search direction is determined by the "update"
+    method implemented in the base class.
+    """
 
     @abstractmethod
     def _update(
@@ -31,9 +27,7 @@ class Update(ABC):
         grads: np.ndarray,
         alpha: float,
     ) -> np.ndarray:
-        """Take a single step along the search direction, where gradient
-        descent determines the search direction based on the current value of
-        the gradient.
+        """Take a single step along the search direction.
 
             x_new = x + alpha * search_direction
 
@@ -52,9 +46,10 @@ class Update(ABC):
 
 
 class GD(Update):
-    """Take a single step along the search direction, where gradient descent
-    determines the search direction based on the current value of the
-    gradient."""
+    """Take a single step along the search direction.
+
+    The search direction is determined using gradient descent.
+    """
 
     def _update(
         self,
@@ -66,8 +61,12 @@ class GD(Update):
 
 
 class ADAM(Update):
-    """Take a single step along the search direction, where the ADAM algorithm
-    determines the search direction based on the current value of the gradient.
+    """Take a single step along search direction.
+
+    The search direction is determined using ADAM [REF].
+
+    [REF] Kingma, D. P. and Ba, J., “Adam: A
+          Method for Stochastic Optimization,” 12 2014.
 
     Parameters
     ----------
@@ -86,7 +85,7 @@ class ADAM(Update):
         self,
         beta_1: float = 0.9,
         beta_2: float = 0.99,
-    ):
+    ):  # noqa D107
         self.beta_1 = beta_1
         self.beta_2 = beta_2
 
@@ -152,7 +151,7 @@ class LineSearch(ABC):
     def __init__(
         self,
         update: Update,
-    ):
+    ):  # noqa D107
         self.update = update
 
     @abstractmethod
@@ -217,7 +216,7 @@ class Backtracking(LineSearch):
         tau: float = 0.5,
         tol: float = 1e-6,
         max_count: int = 1_000,
-    ):
+    ):  # noqa D107
         super().__init__(update)
         self.tau = tau
         self.tol = tol
@@ -230,8 +229,7 @@ class Backtracking(LineSearch):
         cost: callable,
         learning_rate: float = 0.05,
     ) -> np.ndarray:
-        """Take multiple update steps along search direction determined by
-        update.
+        """Take multiple update steps along search direction.
 
         Parameters
         ----------
@@ -281,7 +279,7 @@ class Optimizer:
     def __init__(
         self,
         line_search: LineSearch,
-    ):
+    ):  # noqa D107
         self.line_search = line_search
         self.vars_history = None
         self.cost_history = None
@@ -433,7 +431,7 @@ class GDOptimizer(Optimizer):
         tau: float = 0.5,
         tol: float = 1e-6,
         max_count: int = 1_000,
-    ):
+    ):  # noqa D107
         line_search = Backtracking(
             update=GD(),
             tau=tau,
@@ -481,7 +479,7 @@ class ADAMOptimizer(Optimizer):
         tau: float = 0.5,
         tol: float = 1e-6,
         max_count: int = 1_000,
-    ):
+    ):  # noqa D107
         line_search = Backtracking(
             update=ADAM(beta_1, beta_2),
             tau=tau,

@@ -9,11 +9,11 @@ else:
     MATPLOTLIB_INSTALLED = False
 
 
-def timeit(func):
+def timeit(func):  # noqa: ANN001, ANN201
     """Return elapsed time to run a function."""
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):  # noqa: ANN202
         tic = time()
         results = func(*args, **kwargs)
         toc = time()
@@ -23,11 +23,11 @@ def timeit(func):
     return wrapper
 
 
-def requires_matplotlib(func):
+def requires_matplotlib(func):  # noqa: ANN001, ANN201
     """Return elapsed time to run a function."""
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):  # noqa: ANN202
         if MATPLOTLIB_INSTALLED:
             return func(*args, **kwargs)
         raise ValueError("Matplotlib is not installed.")

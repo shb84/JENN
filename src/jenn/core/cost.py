@@ -6,15 +6,15 @@ from .parameters import Parameters
 
 
 class SquaredLoss:
-    """Least Squares Estimator."""
+    """Least Squares Estimator.
 
-    def __init__(self, Y_true: np.ndarray):
-        """
-        Parameters
-        ----------
-        Y_true: np.ndarray
-            Training data outputs. An array of shape (n_y, m)
-        """
+    Parameters
+    ----------
+    Y_true: np.ndarray
+        Training data outputs. An array of shape (n_y, m)
+    """
+
+    def __init__(self, Y_true: np.ndarray):  # noqa: D107
         self.Y_true = Y_true
         self.Y_error = np.zeros(Y_true.shape)  # preallocate to save resources
 
@@ -50,7 +50,7 @@ class GradientEnhancement:
                              m = number examples
     """
 
-    def __init__(self, dY_true: np.ndarray):
+    def __init__(self, dY_true: np.ndarray):  # noqa: D107
         self.dY_true = dY_true
         self.dY_error = np.zeros(dY_true.shape)
 
@@ -81,16 +81,16 @@ class GradientEnhancement:
 
 
 class Regularization:
-    """Compute regularization penalty."""
+    """Compute regularization penalty.
 
-    def __init__(self, weights: np.ndarray):
-        """
-        Parameters
-        ----------
-        weights: List[np.ndarray]
-            Parameters W associated with each layer of neural network
-            i.e. a = g(z) where z = w * a_prev + b
-        """
+    Parameters
+    ----------
+    weights: List[np.ndarray]
+        Parameters W associated with each layer of neural network
+        i.e. a = g(z) where z = w * a_prev + b
+    """
+
+    def __init__(self, weights: np.ndarray):  # noqa: D107
         # Preallocate for speed
         self.weights = weights
         self._squared_weights = [np.zeros(W.shape) for W in weights]
@@ -138,14 +138,14 @@ class Cost:
         parameters: Parameters,
         lambd: float = 0.0,
         gamma: float = 0.0,
-    ):
+    ):  # noqa: D107
         self.data = data
         self.parameters = parameters
         self.lambd = lambd
         self.gamma = gamma
         self.squared_loss = SquaredLoss(data.Y)
         self.regularization = Regularization(parameters.W)
-        if data.J is not None and gamma > 0.0:
+        if data.J is not None and gamma > 0.0:  # noqa: PLR2004
             self.gradient_enhancement = GradientEnhancement(data.J)
 
     def evaluate(self, Y_pred: np.ndarray, J_pred: np.ndarray = None) -> float:

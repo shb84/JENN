@@ -12,8 +12,7 @@ import numpy as np
 from .core.cache import Cache
 from .core.data import Dataset, denormalize, denormalize_partials, normalize
 from .core.parameters import Parameters
-from .core.propagation import (model_forward, model_partials_forward,
-                               partials_forward)
+from .core.propagation import model_forward, model_partials_forward, partials_forward
 from .core.training import train_model
 from .utils.decorators import timeit
 
@@ -43,7 +42,7 @@ class NeuralNet:
         layer_sizes: list[int],
         hidden_activation: str = "tanh",
         output_activation: str = "linear",
-    ):
+    ):  # noqa D107
         self.history = None
         self.parameters = Parameters(
             layer_sizes,
@@ -63,14 +62,14 @@ class NeuralNet:
         beta1: float = 0.900,
         beta2: float = 0.999,
         epochs: int = 1,
-        batch_size: int = None,
+        batch_size: int | None = None,
         max_iter: int = 200,
         shuffle: bool = True,
-        random_state: int = None,
+        random_state: int | None = None,
         is_backtracking: bool = False,
         is_verbose: bool = False,
         is_timed: bool = False,
-    ) -> Self:
+    ) -> Self:  # noqa: PLR0913
         """Train neural network.
 
         Parameters
@@ -171,7 +170,7 @@ class NeuralNet:
         if is_timed:
 
             @timeit
-            def fit(*args):
+            def fit(*args) -> Self:
                 return self.fit(*args)
 
             return fit(

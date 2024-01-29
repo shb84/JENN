@@ -5,7 +5,7 @@ import abc
 import numpy as np
 
 
-def _fullfact(n_x: int, m_levels: int):
+def _fullfact(n_x: int, m_levels: int) -> np.ndarray:
     """Return full factorial with sample values between 0 and 1."""
     array = np.linspace(0, 1, m_levels)
     arrays = [array] * n_x
@@ -55,12 +55,35 @@ class TestFunction:
         m_levels: int,
         lb: np.ndarray | float,
         ub: np.ndarray | float,
+        random_state: int | None = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Generate synthetic data by sampling test function."""
+        """Generate synthetic data by sampling test function.
+
+        The sampling plan is a mixture or lating hypercube
+        and full factorial.
+
+        Parameters
+        ----------
+        m_lhs: int
+            Number of latin hypercube samples
+
+        m_levels: int
+            Number of levels per factor for full factorial
+
+        lb: np.ndarray | float
+            Lower bound on the factors
+
+        ub: np.ndarray | float
+            Upper bound on the factors
+
+        random_state: int | None, optional
+            Random seed
+        """
+        rng = np.random.default_rng(seed=random_state)
         lb = np.array([lb]).reshape((-1, 1))  # make sure it's an numpy array
         ub = np.array([ub]).reshape((-1, 1))  # make sure it's an numpy array
         n_x = lb.size
-        lh = np.random.rand(n_x, m_lhs)
+        lh = rng.random(size=(n_x, m_lhs))
         ff = _fullfact(n_x, m_levels)
         doe = np.concatenate([lh, ff], axis=1)
         m = doe.shape[1]

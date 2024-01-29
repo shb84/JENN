@@ -13,8 +13,10 @@ class Activation:
         cls,
         x: np.ndarray,
         y: np.ndarray | None = None,
-    ) -> np.ndarray:
-        """Evaluate activation function in place: y = g(x)
+    ) -> np.ndarray:  # noqa: D102
+        """Evaluate activation function.
+
+        y = g(x)
 
         Parameters
         ----------
@@ -34,8 +36,10 @@ class Activation:
         x: np.ndarray,
         y: np.ndarray | None = None,
         dy: np.ndarray | None = None,
-    ) -> np.ndarray:
-        """Evaluate gradient of activation function in place: dy = g'(x)
+    ) -> np.ndarray:  # noqa: D102
+        """Evaluate 1st derivative of activation function.
+
+        dy = g'(x)
 
         Parameters
         ----------
@@ -61,8 +65,10 @@ class Activation:
         y: np.ndarray | None = None,
         dy: np.ndarray | None = None,
         ddy: np.ndarray | None = None,
-    ) -> np.ndarray:
-        """Evaluate second derivative of activation function: ddy = g''(x)
+    ) -> np.ndarray:  # noqa: D102
+        """Evaluate second derivative of activation function.
+
+        ddy = g''(x)
 
         Parameters
         ----------
@@ -86,15 +92,14 @@ class Activation:
 
 
 class Tanh(Activation):
-    """Evaluate hyperbolic tangent activation function dynamically or in
-    place."""
+    """Hyperbolic tangent activation."""
 
     @classmethod
     def evaluate(
         cls,
         x: np.ndarray,
         y: np.ndarray | None = None,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         return np.tanh(x, out=y)  # evaluated in place if y is not None
 
     @classmethod
@@ -103,7 +108,7 @@ class Tanh(Activation):
         x: np.ndarray,
         y: np.ndarray | None = None,
         dy: np.ndarray | None = None,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         if y is None:
             y = cls.evaluate(x)
         if dy is None:
@@ -118,7 +123,7 @@ class Tanh(Activation):
         y: np.ndarray | None = None,
         dy: np.ndarray | None = None,
         ddy: np.ndarray | None = None,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         if y is None:
             y = cls.evaluate(x)
         if dy is None:
@@ -130,14 +135,14 @@ class Tanh(Activation):
 
 
 class Relu(Activation):
-    """Evaluate rectified linear unit function dynamically or in place."""
+    """Rectified linear unit activation."""
 
     @classmethod
     def evaluate(
         cls,
         x: np.ndarray,
         y: np.ndarray = None,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         if y is None:
             y = (x > 0) * x
         else:
@@ -150,7 +155,7 @@ class Relu(Activation):
         x: np.ndarray,
         y: np.ndarray | None = None,
         dy: np.ndarray | None = None,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         if dy is None:
             dy = np.asarray(x > 0, dtype=x.dtype)
         else:
@@ -164,7 +169,7 @@ class Relu(Activation):
         y: np.ndarray | None = None,
         dy: np.ndarray | None = None,
         ddy: np.ndarray | None = None,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         if ddy is None:
             return np.zeros(x.shape)
         ddy[:] = 0.0
@@ -172,14 +177,14 @@ class Relu(Activation):
 
 
 class Linear(Activation):
-    """Evaluate linear activation function dynamically or in place."""
+    """Linear activation function."""
 
     @classmethod
     def evaluate(
         cls,
         x: np.ndarray,
         y: np.ndarray | None = None,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         if y is None:
             y = x.copy()
         else:
@@ -193,7 +198,7 @@ class Linear(Activation):
         y: np.ndarray | None = None,
         dy: np.ndarray | None = None,
         **kwargs,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         if dy is None:
             dy = np.ones(x.shape)
         else:
@@ -208,7 +213,7 @@ class Linear(Activation):
         dy: np.ndarray | None = None,
         ddy: np.ndarray | None = None,
         **kwargs,
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: D102
         if ddy is None:
             return np.zeros(x.shape)
         ddy[:] = 0

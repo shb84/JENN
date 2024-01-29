@@ -77,11 +77,18 @@ class Parameters:
         """Return number of layers."""
         return len(self.layer_sizes)
 
-    def __post_init__(self):
+    def __post_init__(self):  # noqa D105
         self.initialize()
 
-    def initialize(self) -> None:
-        """Use 'He initialization' to initialize neural net parameters."""
+    def initialize(self, random_state: int | None = None) -> None:
+        """Use 'He initialization' to initialize parameters.
+
+        Parameters
+        ----------
+        random_state: int | None, optional
+            Random seed. Default is None.
+        """
+        rng = np.random.default_rng()
         self.W = []
         self.b = []
         self.a = []
@@ -98,13 +105,13 @@ class Parameters:
                 b = np.zeros((layer_size, 1))
                 a = "linear"
             elif i == self.L - 1:  # output layer
-                W = np.random.randn(layer_size, previous_layer_size) * np.sqrt(
+                W = rng.normal(size=(layer_size, previous_layer_size)) * np.sqrt(
                     1.0 / previous_layer_size
                 )
                 b = np.zeros((layer_size, 1))
                 a = self.output_activation
             else:  # hidden layer
-                W = np.random.randn(layer_size, previous_layer_size) * np.sqrt(
+                W = rng.normal(size=(layer_size, previous_layer_size)) * np.sqrt(
                     1.0 / previous_layer_size
                 )
                 b = np.zeros((layer_size, 1))
@@ -162,8 +169,10 @@ class Parameters:
         return np.concatenate(stacks).reshape((-1, 1))
 
     def _column_to_stacks(self, params: np.ndarray) -> list[np.ndarray]:
-        """Convert neural net parameters from single stack for all layers
-        representation to list of stacks per layer.
+        """Convert parameters from single stack to list of stacks.
+
+        Neural net parameters are converted from single stack
+        representation (for all layers) to a list of stacks (per layer).
 
         Parameters
         ----------
@@ -212,7 +221,7 @@ class Parameters:
         return stacks
 
     def unstack(self, parameters: np.ndarray | list[np.ndarray]) -> None:
-        """Unstack parameters W, b back into list of arrays:
+        """Unstack parameters W, b back into list of arrays.
 
             W = [W1, W2, W3, ...]
             b = [b1, b2, b3, ...]
@@ -256,8 +265,10 @@ class Parameters:
             self.b[i][:] = array[n * p :].reshape(n, 1)
 
     def stack_partials(self, per_layer: bool = False) -> np.ndarray | list[np.ndarray]:
-        """Stack backprop partials dW, db into either a single stack for all
-        layers or a list of stacks for each layer.
+        """Stack backprop partials dW, db.
+
+        dW, db are either stacked into a single stack (for all layers)
+        or a list of stacks (one per layer).
 
         Parameters
         ----------
@@ -303,7 +314,7 @@ class Parameters:
         return np.concatenate(stacks).reshape((-1, 1))
 
     def unstack_partials(self, partials: np.ndarray | list[np.ndarray]) -> None:
-        """Unstack backprop partials dW, db back into list of arrays:
+        """Unstack backprop partials dW, db back into list of arrays.
 
             dW = [dW1, dW2, dW3, ...]
             db = [db1, db2, db3, ...]
@@ -347,8 +358,7 @@ class Parameters:
             self.db[i][:] = array[n * p :].reshape(n, 1)
 
     def serialize(self) -> bytes:
-        """Serialize neural parameters into byte stream that can be stored as
-        json."""
+        """Serialize parameters into byte stream for json."""
         return orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY)
 
     def deserialize(self, saved_parameters: bytes) -> None:
