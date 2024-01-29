@@ -16,10 +16,19 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml
-      - name: Build app
+      - name: Create dev environment
         shell: bash -el {0}
         run: | 
           doit env 
+      - name: Build app
+        shell: bash -el {0}
+        run: | 
           doit install 
+      - name: Test app
+        shell: bash -el {0}
+        run: | 
           doit test
+      - name: Lint code
+        shell: bash -el {0}
+        run: | 
           doit lint 
