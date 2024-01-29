@@ -216,13 +216,13 @@ def task_lint():
         ),
     )
 
-    # yield dict(
-    #     name="mypy",
-    #     doc="check for well-typed python",
-    #     **U.run_in(
-    #         "qa", actions=[["mypy", *P.ALL_PY]], file_dep=[*P.ALL_PY, P.PPT],
-    #     ),
-    # )
+    yield dict(
+        name="mypy",
+        doc="check for well-typed python",
+        **U.run_in(
+            "qa", actions=[["mypy", *P.ALL_PY]], file_dep=[*P.ALL_PY, P.PPT],
+        ),
+    )
 
 
 

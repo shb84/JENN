@@ -10,7 +10,7 @@ import numpy as np
 
 def mini_batches(
     X: np.ndarray,
-    batch_size: int,
+    batch_size: int | None,
     shuffle: bool = True,
     random_state: int = None,
 ) -> list[tuple[int, ...]]:
@@ -23,7 +23,7 @@ def mini_batches(
         where n_x = number of inputs
                 m = number of examples
 
-    batch_size: int
+    batch_size: int | None
         mini batch size (if None, then batch_size = m)
 
     shuffle: bool
@@ -270,15 +270,15 @@ class Dataset:
 
     def mini_batches(
         self,
-        batch_size: int,
+        batch_size: int | None,
         shuffle: bool = True,
-        random_state: int = None,
+        random_state: int | None = None,
     ) -> list[Self]:
         """Breakup data into multiple batches and return list of Datasets.
 
         Parameters
         ----------
-        batch_size: int
+        batch_size: int | None
             Number of examples to include in each batch. This
             number ultimate determines how many batches will
             be created.

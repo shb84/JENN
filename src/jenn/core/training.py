@@ -120,9 +120,9 @@ def train_model(
     beta2: float = 0.999,
     epochs: int = 1,
     max_iter: int = 200,
-    batch_size: int = None,
+    batch_size: int | None = None,
     shuffle: bool = True,
-    random_state: int = None,
+    random_state: int | None = None,
     is_backtracking: bool = False,
     is_verbose: bool = False,
 ) -> dict:  # noqa: PLR0913
@@ -220,7 +220,7 @@ def train_model(
 
             cost = history['epoch_2']['batch_5'][9]
     """
-    history = defaultdict(dict)
+    history: dict[str, dict[str, list[float] | None]] = defaultdict(dict)
 
     update = ADAM(beta1, beta2)
     line_search = Backtracking(update, max_count=is_backtracking * 1_000)

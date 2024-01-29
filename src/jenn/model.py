@@ -5,7 +5,7 @@ predictions. It is in charge of setting up and calling the right support
 functions to accomplish these various tasks.
 """
 
-from typing import Self
+from typing import Any, Self
 
 import numpy as np
 
@@ -43,7 +43,7 @@ class NeuralNet:
         hidden_activation: str = "tanh",
         output_activation: str = "linear",
     ):  # noqa D107
-        self.history = None
+        self.history: dict[Any, Any] | None = None
         self.parameters = Parameters(
             layer_sizes,
             hidden_activation,
@@ -54,7 +54,7 @@ class NeuralNet:
         self,
         x: np.ndarray,
         y: np.ndarray,
-        dydx: np.ndarray = None,
+        dydx: np.ndarray | None = None,
         is_normalize: bool = False,
         alpha: float = 0.050,
         lambd: float = 0.000,
@@ -167,12 +167,12 @@ class NeuralNet:
         is_timed: bool, optional
             Print elapsed time. Default is False.
         """
+
+        @timeit
+        def fit(*args) -> Self:
+            return self.fit(*args)
+
         if is_timed:
-
-            @timeit
-            def fit(*args) -> Self:
-                return self.fit(*args)
-
             return fit(
                 x,
                 y,
@@ -191,21 +191,6 @@ class NeuralNet:
                 is_backtracking,
                 is_verbose,
             )
-
-        hyperparams = dict(
-            alpha=alpha,
-            lambd=lambd,
-            gamma=gamma,
-            beta1=beta1,
-            beta2=beta2,
-            epochs=epochs,
-            max_iter=max_iter,
-            batch_size=batch_size,
-            shuffle=shuffle,
-            random_state=random_state,
-            is_backtracking=is_backtracking,
-            is_verbose=is_verbose,
-        )
         data = Dataset(x, y, dydx)
         params = self.parameters
         params.mu_x[:] = 0.0
@@ -218,7 +203,24 @@ class NeuralNet:
             params.sigma_x[:] = data.std_x
             params.sigma_y[:] = data.std_y
             data = data.normalize()
-        self.history = train_model(data, params, **hyperparams)
+        self.history = train_model(
+            data,
+            params,
+            # hyperparameters
+            alpha=alpha,
+            lambd=lambd,
+            gamma=gamma,
+            beta1=beta1,
+            beta2=beta2,
+            # options
+            epochs=epochs,
+            max_iter=max_iter,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            random_state=random_state,
+            is_backtracking=is_backtracking,
+            is_verbose=is_verbose,
+        )
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:

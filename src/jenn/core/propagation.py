@@ -59,7 +59,9 @@ def first_layer_partials(X: np.ndarray, cache: Cache) -> None:
     cache.A_prime[0][:] = eye(n_x, m)
 
 
-def next_layer_partials(layer: int, parameters: Parameters, cache: Cache) -> None:
+def next_layer_partials(
+    layer: int, parameters: Parameters, cache: Cache
+) -> list[np.ndarray]:
     """Compute j^th partial in place for one layer (in place).
 
     Parameters

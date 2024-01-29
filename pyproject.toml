@@ -91,4 +91,29 @@ cache-dir = "build/.cache/ruff"
   "PLR0913",  # Too many arguments in function definition
 ]
 
+
+[tool.mypy]
+cache_dir = "build/.cache/mypy"
+sqlite_cache = true
+python_version = "3.11"
+# settings
+allow_redefinition = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+no_implicit_optional = true
+show_error_codes = true
+show_error_context = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+  "numpy",
+  "orjson",
+  "matplotlib",
+]
+ignore_missing_imports = true
+
+
  
