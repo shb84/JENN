@@ -77,7 +77,7 @@ class Parameters:
         """Return number of layers."""
         return len(self.layer_sizes)
 
-    def __post_init__(self):  # noqa D105
+    def __post_init__(self) -> None:  # noqa D105
         self.initialize()
 
     def initialize(self, random_state: int | None = None) -> None:
@@ -359,7 +359,7 @@ class Parameters:
 
     def serialize(self) -> bytes:
         """Serialize parameters into byte stream for json."""
-        return orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY)
+        return orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY)  # type: ignore[no-any-return]
 
     def deserialize(self, saved_parameters: bytes) -> None:
         """Deserialize and apply saved parameters."""

@@ -66,17 +66,17 @@ class Cache:
     @property
     def m(self) -> int:
         """Return number of examples."""
-        return self.A[0].shape[1]
+        return int(self.A[0].shape[1])
 
     @property
     def n_x(self) -> int:
         """Return number of inputs."""
-        return self.layer_sizes[0]
+        return int(self.layer_sizes[0])
 
     @property
     def n_y(self) -> int:
         """Return number of outputs."""
-        return self.layer_sizes[-1]
+        return int(self.layer_sizes[-1])
 
     @property
     def J(self) -> np.ndarray:

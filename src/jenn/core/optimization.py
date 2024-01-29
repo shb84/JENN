@@ -1,6 +1,7 @@
 """Gradient-Based Optimization."""
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 
 import numpy as np
 
@@ -112,8 +113,8 @@ class ADAM(Update):
         if s is None:
             s = np.zeros(params.shape)
 
-        a = [id(x) for x in grads]
-        b = []
+        a: list[int] = [id(x) for x in grads]
+        b: list[int] = []
         if self._grads is not None:
             b = [id(x) for x in self._grads]
 
@@ -159,7 +160,7 @@ class LineSearch(ABC):
         self,
         params: np.ndarray,
         grads: np.ndarray,
-        cost: callable,
+        cost: Callable,
         learning_rate: float,
     ) -> np.ndarray:
         """Take multiple steps along the search direction.
@@ -172,7 +173,7 @@ class LineSearch(ABC):
         grads: np.ndarray
             Gradient of objective function w.r.t. each parameter
 
-        cost: callable
+        cost: Callable
             Cost function: cost = f(params)
 
         learning_rate: float
@@ -226,7 +227,7 @@ class Backtracking(LineSearch):
         self,
         params: np.ndarray,
         grads: np.ndarray,
-        cost: callable,
+        cost: Callable,
         learning_rate: float = 0.05,
     ) -> np.ndarray:
         """Take multiple update steps along search direction.
@@ -239,7 +240,7 @@ class Backtracking(LineSearch):
         grads: np.ndarray
             Gradient of objective function w.r.t. each parameter
 
-        cost: callable
+        cost: Callable
             Objective function y = f(x) where x = params
 
         learning_rate: float, optional
@@ -281,19 +282,19 @@ class Optimizer:
         line_search: LineSearch,
     ):  # noqa D107
         self.line_search = line_search
-        self.vars_history = None
-        self.cost_history = None
+        self.vars_history: list[np.ndarray] | None = None
+        self.cost_history: list[np.ndarray] | None = None
 
     def minimize(
         self,
         x: np.ndarray,
-        f: callable,
-        dfdx: callable,
+        f: Callable,
+        dfdx: Callable,
         alpha: float = 0.01,
         max_iter: int = 100,
         verbose: bool = False,
-        epoch: int = None,
-        batch: int = None,
+        epoch: int | None = None,
+        batch: int | None = None,
     ) -> np.ndarray:
         """Minimize single objective function.
 
@@ -302,7 +303,7 @@ class Optimizer:
         x: np.ndarray
             Parameters to be updated
 
-        f: callable
+        f: Callable
             Objective function y = f(x)
 
         alpha: float
@@ -337,8 +338,8 @@ class Optimizer:
         epsilon_absolute = 1e-6  # absolute error criterion
         epsilon_relative = 1e-6  # relative error criterion
 
-        cost_history = []
-        vars_history = []
+        cost_history: list[np.ndarray] = []
+        vars_history: list[np.ndarray] = []
 
         # Iterative update
         for i in range(0, max_iter):

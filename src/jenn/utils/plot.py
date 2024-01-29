@@ -8,10 +8,6 @@ import numpy as np
 if find_spec("matplotlib"):
     import matplotlib.pyplot as plt
 
-    Axes, Figure = plt.Axes, plt.Figure
-else:
-    Figure = Axes = Any
-
 from .decorators import requires_matplotlib
 from .metrics import r_square
 
@@ -43,12 +39,12 @@ LINE_STYLES = {
 def actual_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
-    ax: Axes | None = None,
+    ax: Any | None = None,  # noqa: ANN401
     figsize: tuple[float, float] = (3.25, 3),
     title: str | None = None,
     fontsize: int = 9,
-    alpha: int = 1.0,
-) -> Figure:
+    alpha: float = 1.0,
+) -> Any:  # noqa: ANN401
     """Create actual by predicted plot for a single response.
 
     Parameters
@@ -61,7 +57,7 @@ def actual_by_predicted(
         True values. An array of shape (m,)
         where m is the number of observations.
 
-    ax: Axes | None, optional
+    ax: Any | None, optional
         The matplotlib axes on which to plot the data. Default is None.
 
     figsize: tuple[float, float], optional
@@ -115,12 +111,12 @@ def residuals_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
     percent_residuals: bool = False,
-    ax: Axes | None = None,
+    ax: Any | None = None,  # noqa: ANN401
     figsize: tuple[float, float] = (3.25, 3),
     title: str | None = None,
     fontsize: int = 9,
-    alpha: int = 1.0,
-) -> Figure:
+    alpha: float = 1.0,
+) -> Any:  # noqa: ANN401
     """Create residual by predicted plot for a single response.
 
     Parameters
@@ -136,7 +132,7 @@ def residuals_by_predicted(
     percent_residuals: bool, optional
         Compute residuals as percentages. Default is False.
 
-    ax: Axes | None, optional
+    ax: Any | None, optional
         The matplotlib axes on which to plot the data. Default is None.
 
     figsize: tuple[float, float], optional
@@ -203,9 +199,9 @@ def goodness_of_fit(
     percent_residuals: bool = False,
     figsize: tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
-    alpha: int = 1.0,
+    alpha: float = 1.0,
     title: str | None = None,
-) -> Figure:
+) -> Any:  # noqa: ANN401
     """Create 'residual by predicted' and 'actual by predicted' plots.
 
     Parameters
@@ -259,25 +255,25 @@ def goodness_of_fit(
 
 @requires_matplotlib
 def sensitivity_profile(
-    ax: Axes,
+    ax: Any,  # noqa: ANN401
     x0: np.ndarray,
     y0: np.ndarray,
     x_pred: np.ndarray,
     y_pred: np.ndarray | list[np.ndarray],
     x_true: np.ndarray | None = None,
     y_true: np.ndarray | None = None,
-    alpha: int = 1.0,
+    alpha: float = 1.0,
     xlabel: str = "x",
     ylabel: str = "y",
     legend: list[str] | None = None,
     figsize: tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
-) -> Figure:
+) -> Any:  # noqa: ANN401
     """Plot sensitivity profile for one input / output.
 
     Parameters
     ----------
-    ax: Axes
+    ax: Any
         The matplotlib axes on which to plot the data
 
     x0: np.ndarray
@@ -368,13 +364,13 @@ def sensitivity_profiles(
     y_true: np.ndarray | None = None,
     figsize: tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
-    alpha: int = 1.0,
+    alpha: float = 1.0,
     title: str = "",
-    xlabels: list[str] = None,
-    ylabels: list[str] = None,
+    xlabels: list[str] | None = None,
+    ylabels: list[str] | None = None,
     legend: list[str] | None = None,
     resolution: int = 100,
-) -> Figure:
+) -> Any:  # noqa: ANN401
     """Plot grid of sensitivity profiles for all inputs / outputs.
 
     Parameters
@@ -472,7 +468,7 @@ def convergence(
     alpha: float = 1.0,
     title: str = "",
     legend: list[str] | None = None,
-) -> Figure | None:
+) -> Any | None:  # noqa: ANN401
     """Plot training history.
 
     Parameters
@@ -572,8 +568,8 @@ def contours(
     xlabel: str = "",
     ylabel: str = "",
     resolution: int = 100,
-    ax: Axes | None = None,
-) -> Figure:
+    ax: Any | None = None,  # noqa: ANN401
+) -> Any:  # noqa: ANN401
     """Plot contours of a scalar function of two variables.
 
     Parameters
@@ -599,7 +595,7 @@ def contours(
     resolution: int, optional
         Line resolution. Default is 100 points.
 
-    ax: Axes | None = None
+    ax: Any | None = None
         Axes on which to draw. Default is None.
     """
     # Domain

@@ -95,7 +95,7 @@ class Regularization:
         self.weights = weights
         self._squared_weights = [np.zeros(W.shape) for W in weights]
 
-    def evaluate(self, lambd: float) -> float:
+    def evaluate(self, lambd: float) -> np.float64:
         """Compute L2 norm penalty.
 
         Parameters
@@ -148,7 +148,7 @@ class Cost:
         if data.J is not None and gamma > 0.0:  # noqa: PLR2004
             self.gradient_enhancement = GradientEnhancement(data.J)
 
-    def evaluate(self, Y_pred: np.ndarray, J_pred: np.ndarray = None) -> float:
+    def evaluate(self, Y_pred: np.ndarray, J_pred: np.ndarray = None) -> np.float64:
         """Evaluate cost function.
 
         Parameters

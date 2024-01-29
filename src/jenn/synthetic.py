@@ -88,8 +88,8 @@ class TestFunction:
         doe = np.concatenate([lh, ff], axis=1)
         m = doe.shape[1]
         x = lb + (ub - lb) * doe
-        y = cls.evaluate(x).reshape((-1, m))
-        dydx = cls.first_derivative(x).reshape((-1, n_x, m))
+        y = cls.evaluate(x).reshape((-1, m))  # type: ignore[call-arg]
+        dydx = cls.first_derivative(x).reshape((-1, n_x, m))  # type: ignore[call-arg]
         return x, y, dydx
 
 
@@ -135,8 +135,9 @@ class Linear(TestFunction):
         m_levels: int = 0,
         lb: np.ndarray | float = -1.0,
         ub: np.ndarray | float = 1.0,
+        random_state: int | None = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
-        return super().sample(m_lhs, m_levels, lb, ub)
+        return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
 
 class Parabola(TestFunction):
@@ -174,8 +175,9 @@ class Parabola(TestFunction):
         m_levels: int = 0,
         lb: np.ndarray | float = -1.0,
         ub: np.ndarray | float = 1.0,
+        random_state: int | None = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
-        return super().sample(m_lhs, m_levels, lb, ub)
+        return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
 
 class Sinusoid(TestFunction):
@@ -207,8 +209,9 @@ class Sinusoid(TestFunction):
         m_levels: int = 0,
         lb: np.ndarray | float = -np.pi,
         ub: np.ndarray | float = np.pi,
+        random_state: int | None = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
-        return super().sample(m_lhs, m_levels, lb, ub)
+        return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
 
 class Rastrigin(TestFunction):
@@ -252,8 +255,9 @@ class Rastrigin(TestFunction):
         * np.ones(
             2,
         ),
+        random_state: int | None = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
-        return super().sample(m_lhs, m_levels, lb, ub)
+        return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
 
 class Rosenbrock(TestFunction):
@@ -294,5 +298,6 @@ class Rosenbrock(TestFunction):
         * np.ones(
             2,
         ),
+        random_state: int | None = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
-        return super().sample(m_lhs, m_levels, lb, ub)
+        return super().sample(m_lhs, m_levels, lb, ub, random_state)

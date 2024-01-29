@@ -3,7 +3,6 @@
 import math
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Self
 
 import numpy as np
 
@@ -12,7 +11,7 @@ def mini_batches(
     X: np.ndarray,
     batch_size: int | None,
     shuffle: bool = True,
-    random_state: int = None,
+    random_state: int | None = None,
 ) -> list[tuple[int, ...]]:
     """Create randomized mini-batches.
 
@@ -221,7 +220,7 @@ class Dataset:
     Y: np.ndarray
     J: np.ndarray | None = None
 
-    def __post_init__(self):  # noqa: D105
+    def __post_init__(self) -> None:  # noqa: D105
         if self.X.shape[1] != self.Y.shape[1]:
             msg = "X and Y must have the same number of examples"
             raise ValueError(msg)
@@ -236,17 +235,17 @@ class Dataset:
     @property
     def m(self) -> int:
         """Return number of training examples."""
-        return self.X.shape[1]
+        return int(self.X.shape[1])
 
     @property
     def n_x(self) -> int:
         """Return number of inputs."""
-        return self.X.shape[0]
+        return int(self.X.shape[0])
 
     @property
     def n_y(self) -> int:
         """Return number of outputs."""
-        return self.Y.shape[0]
+        return int(self.Y.shape[0])
 
     @cached_property
     def avg_x(self) -> np.ndarray:
@@ -273,7 +272,7 @@ class Dataset:
         batch_size: int | None,
         shuffle: bool = True,
         random_state: int | None = None,
-    ) -> list[Self]:
+    ) -> list["Dataset"]:
         """Breakup data into multiple batches and return list of Datasets.
 
         Parameters
@@ -296,9 +295,9 @@ class Dataset:
         batches = mini_batches(X, batch_size, shuffle, random_state)
         if self.J is None:
             return [Dataset(X[:, b], Y[:, b]) for b in batches]
-        return [Dataset(X[:, b], Y[:, b], J[:, :, b]) for b in batches]
+        return [Dataset(X[:, b], Y[:, b], J[:, :, b]) for b in batches]  # type: ignore[index]
 
-    def normalize(self) -> Self:
+    def normalize(self) -> "Dataset":
         """Return normalized Dataset."""
         X_norm = normalize(self.X, self.avg_x, self.std_x)
         Y_norm = normalize(self.Y, self.avg_y, self.std_y)

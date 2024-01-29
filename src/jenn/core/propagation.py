@@ -36,10 +36,11 @@ def first_layer_forward(X: np.ndarray, cache: Cache | None = None) -> None:
         during forward prop, so they can be
         accessed during backprop. Default is None.
     """
-    cache.A[0][:] = X
+    if cache is not None:
+        cache.A[0][:] = X
 
 
-def first_layer_partials(X: np.ndarray, cache: Cache) -> None:
+def first_layer_partials(X: np.ndarray, cache: Cache | None) -> None:
     """Compute input layer partial (in place).
 
     Parameters
@@ -49,14 +50,15 @@ def first_layer_partials(X: np.ndarray, cache: Cache) -> None:
         where n_x = number of inputs
                 m = number of examples
 
-    cache: Cache
+    cache: Cache | None
         Neural net cache. Object that stores
         neural net quantities for each layer,
         during forward prop, so they can be
         accessed during backprop. Default is None.
     """
-    n_x, m = X.shape
-    cache.A_prime[0][:] = eye(n_x, m)
+    if cache is not None:
+        n_x, m = X.shape
+        cache.A_prime[0][:] = eye(n_x, m)
 
 
 def next_layer_partials(
@@ -89,7 +91,7 @@ def next_layer_partials(
         cache.A_prime[r][:, j, :] = cache.G_prime[r] * np.dot(
             W, cache.A_prime[s][:, j, :]
         )
-    return cache.A_prime[r]
+    return cache.A_prime[r]  # type: ignore[no-any-return]
 
 
 def next_layer_forward(layer: int, parameters: Parameters, cache: Cache) -> None:
@@ -145,7 +147,7 @@ def model_partials_forward(
     """
     first_layer_forward(X, cache)
     first_layer_partials(X, cache)
-    for layer in parameters.layers[1:]:
+    for layer in parameters.layers[1:]:  # type: ignore[index]
         next_layer_forward(layer, parameters, cache)
         next_layer_partials(layer, parameters, cache)
     return cache.A[-1], cache.A_prime[-1]
@@ -172,7 +174,7 @@ def model_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.nda
         accessed during backprop.
     """
     first_layer_forward(X, cache)
-    for layer in parameters.layers[1:]:
+    for layer in parameters.layers[1:]:  # type: ignore[index]
         next_layer_forward(layer, parameters, cache)
     return cache.A[-1]
 
