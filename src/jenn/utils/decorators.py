@@ -1,7 +1,9 @@
 """Decorators."""
+from collections.abc import Callable
 from functools import wraps
 from importlib.util import find_spec
 from time import time
+from typing import Any
 
 if find_spec("matplotlib"):
     MATPLOTLIB_INSTALLED = True
@@ -9,11 +11,11 @@ else:
     MATPLOTLIB_INSTALLED = False
 
 
-def timeit(func):  # noqa: ANN001, ANN201
+def timeit(func: Callable) -> Callable:
     """Return elapsed time to run a function."""
 
     @wraps(func)
-    def wrapper(*args, **kwargs):  # noqa: ANN202
+    def wrapper(*args: list, **kwargs: dict) -> Any:  # noqa: ANN401
         tic = time()
         results = func(*args, **kwargs)
         toc = time()
@@ -23,11 +25,11 @@ def timeit(func):  # noqa: ANN001, ANN201
     return wrapper
 
 
-def requires_matplotlib(func):  # noqa: ANN001, ANN201
+def requires_matplotlib(func: Callable) -> Callable:
     """Return elapsed time to run a function."""
 
     @wraps(func)
-    def wrapper(*args, **kwargs):  # noqa: ANN202
+    def wrapper(*args: list, **kwargs: dict) -> Any:  # noqa: ANN401
         if MATPLOTLIB_INSTALLED:
             return func(*args, **kwargs)
         raise ValueError("Matplotlib is not installed.")

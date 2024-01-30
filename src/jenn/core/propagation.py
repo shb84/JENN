@@ -91,7 +91,7 @@ def next_layer_partials(
         cache.A_prime[r][:, j, :] = cache.G_prime[r] * np.dot(
             W, cache.A_prime[s][:, j, :]
         )
-    return cache.A_prime[r]  # type: ignore[no-any-return]
+    return cache.A_prime[r]
 
 
 def next_layer_forward(layer: int, parameters: Parameters, cache: Cache) -> None:
@@ -346,28 +346,28 @@ def model_backward(
     Parameters
     ----------
     parameters: Parameters
-         Neural net parameters. Object that stores
-         neural net parameters for each layer.
+        Neural net parameters. Object that stores
+        neural net parameters for each layer.
 
-     cache: Cache
-         Neural net cache. Object that stores
-         neural net quantities for each layer,
-         during forward prop, so they can be
-         accessed during backprop.
+    cache: Cache
+        Neural net cache. Object that stores
+        neural net quantities for each layer,
+        during forward prop, so they can be
+        accessed during backprop.
 
-     data: Dataset
-         Object containing training and associated metadata.
+    data: Dataset
+        Object containing training and associated metadata.
 
-     lambd: int, optional
-         Coefficient that multiplies regularization term in cost function.
-         Default is 0.0
+    lambd: int, optional
+        Coefficient that multiplies regularization term in cost function.
+        Default is 0.0
 
-     gamma: int, optional
-         Coefficient that multiplies gradient-enhancement term in cost function.
-         Default is 0.0
+    gamma: int, optional
+        Coefficient that multiplies gradient-enhancement term in cost function.
+        Default is 0.0
     """
     last_layer_backward(cache, data)
-    for layer in reversed(parameters.layers):
+    for layer in reversed(parameters.layers):  # type: ignore[call-overload]
         if layer > 0:
             next_layer_backward(layer, parameters, cache, data, lambd)
             gradient_enhancement(layer, parameters, cache, data, gamma)

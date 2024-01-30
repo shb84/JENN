@@ -169,7 +169,7 @@ class NeuralNet:
         """
 
         @timeit
-        def fit(*args) -> Self:
+        def fit(*args) -> NeuralNet:  # type: ignore[no-untyped-def]
             return self.fit(*args)
 
         if is_timed:

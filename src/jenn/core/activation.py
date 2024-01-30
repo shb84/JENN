@@ -197,7 +197,6 @@ class Linear(Activation):
         x: np.ndarray,
         y: np.ndarray | None = None,
         dy: np.ndarray | None = None,
-        **kwargs,
     ) -> np.ndarray:  # noqa: D102
         if dy is None:
             dy = np.ones(x.shape)
@@ -212,7 +211,6 @@ class Linear(Activation):
         y: np.ndarray | None = None,
         dy: np.ndarray | None = None,
         ddy: np.ndarray | None = None,
-        **kwargs,
     ) -> np.ndarray:  # noqa: D102
         if ddy is None:
             return np.zeros(x.shape)

@@ -1,6 +1,8 @@
 """Test Parameter class."""
 import pytest 
 import numpy as np 
+import tempfile
+import pathlib
 
 import jenn 
 
@@ -20,8 +22,10 @@ class TestSerialization:
     
     def test_serialization(self, params: jenn.core.parameters.Parameters) -> None: 
         """Test that saved parameters can be reloaded into a new object."""
-        params.save('params.json')
-        parameters = jenn.core.parameters.Parameters(params.layer_sizes) 
-        assert params != parameters 
-        parameters.load('params.json')
-        assert params == parameters
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            tmpfile = pathlib.Path(tmpdirname) / 'params.json'
+            params.save(tmpfile)
+            parameters = jenn.core.parameters.Parameters(params.layer_sizes) 
+            assert params != parameters 
+            parameters.load(tmpfile)
+            assert params == parameters

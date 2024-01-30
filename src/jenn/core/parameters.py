@@ -359,7 +359,7 @@ class Parameters:
 
     def serialize(self) -> bytes:
         """Serialize parameters into byte stream for json."""
-        return orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY)  # type: ignore[no-any-return]
+        return orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY)
 
     def deserialize(self, saved_parameters: bytes) -> None:
         """Deserialize and apply saved parameters."""
