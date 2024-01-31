@@ -32,7 +32,7 @@ jobs:
         shell: bash -el {0}
         run: | 
           doit test
-      - name: Archive pytest results
+      - name: Archive test results
         uses: actions/upload-artifact@v4
         with:
           name: pytest-report
