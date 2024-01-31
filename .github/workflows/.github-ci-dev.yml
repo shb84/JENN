@@ -6,24 +6,24 @@ on: [push]
 jobs:
   doit:
     name: doit
-    runs-on: ubuntu-latest 
+    runs-on: macos-latest 
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Create base environment
+      - name: Create base env
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml
-      - name: Create dev environment
+      - name: Create qa and ci envs
         shell: bash -el {0}
         run: | 
           doit env 
       - name: Lint code
         shell: bash -el {0}
         run: | 
-          doit fix lint 
+          doit lint 
       - name: Build app
         shell: bash -el {0}
         run: | 
@@ -36,9 +36,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pytest-report
-          path: reports/pytest/linux-64/report.html
+          path: reports/pytest/osx-64/report.html
       - name: Archive code coverage
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
-          path: reports/pytest/linux-64/coverage
+          path: reports/pytest/osx-64/coverage
