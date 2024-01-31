@@ -5,7 +5,7 @@ import numpy as np
 
 
 class Activation:
-    """Evaluate activation function dynamically or in place."""
+    """Evaluate activation function."""
 
     @classmethod
     @abc.abstractmethod
@@ -15,8 +15,6 @@ class Activation:
         y: np.ndarray | None = None,
     ) -> np.ndarray:  # noqa: D102
         """Evaluate activation function.
-
-        y = g(x)
 
         Parameters
         ----------
@@ -38,8 +36,6 @@ class Activation:
         dy: np.ndarray | None = None,
     ) -> np.ndarray:  # noqa: D102
         """Evaluate 1st derivative of activation function.
-
-        dy = g'(x)
 
         Parameters
         ----------
@@ -66,9 +62,7 @@ class Activation:
         dy: np.ndarray | None = None,
         ddy: np.ndarray | None = None,
     ) -> np.ndarray:  # noqa: D102
-        """Evaluate second derivative of activation function.
-
-        ddy = g''(x)
+        """Evaluate 2nd derivative of activation function.
 
         Parameters
         ----------
