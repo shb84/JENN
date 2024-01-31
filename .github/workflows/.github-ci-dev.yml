@@ -41,4 +41,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
-          path: ./buildreports/pytest/linux-64/coverage
+          path: ./build/reports/pytest/linux-64/coverage
