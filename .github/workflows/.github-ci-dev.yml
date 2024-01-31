@@ -36,9 +36,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pytest-report
-          path: reports/pytest/linux/report.html
+          path: reports/pytest/linux-64/report.html
       - name: Archive code coverage
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
-          path: reports/pytest/linux/coverage
+          path: reports/pytest/linux-64/coverage

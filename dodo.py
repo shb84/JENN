@@ -225,11 +225,6 @@ def task_lint():
     )
 
 
-
-def task_release(): 
-    yield NotImplementedError  # TODO
-
-
 #####################
 # SUPPORT FUNCTIONS #
 #####################
