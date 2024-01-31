@@ -227,7 +227,7 @@ def task_lint():
 
 
 def task_release(): 
-    pass 
+    yield NotImplementedError  # TODO
 
 
 #####################
