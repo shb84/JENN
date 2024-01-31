@@ -1,4 +1,5 @@
 """Neural net parameters."""
+
 from collections.abc import Iterable
 from dataclasses import dataclass
 

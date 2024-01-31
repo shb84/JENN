@@ -1,4 +1,5 @@
 """Goodness of fit metrics."""
+
 import numpy as np
 
 

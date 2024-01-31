@@ -1,4 +1,5 @@
 """Cost Function."""
+
 import numpy as np
 
 from .data import Dataset

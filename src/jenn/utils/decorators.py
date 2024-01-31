@@ -1,4 +1,5 @@
 """Decorators."""
+
 from collections.abc import Callable
 from functools import wraps
 from importlib.util import find_spec

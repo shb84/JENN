@@ -6,7 +6,7 @@ on: [push]
 jobs:
   doit:
     name: doit
-    runs-on: macos-latest 
+    runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -16,7 +16,7 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml
-      - name: Create qa and ci envs
+      - name: Create qa/ci envs
         shell: bash -el {0}
         run: | 
           doit env 
@@ -36,9 +36,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pytest-report
-          path: reports/pytest/osx-64/report.html
+          path: reports/pytest/linux-64/report.html
       - name: Archive code coverage
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
-          path: reports/pytest/osx-64/coverage
+          path: reports/pytest/linux-64/coverage

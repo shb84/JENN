@@ -1,4 +1,5 @@
 """Check goodness of fit."""
+
 from collections.abc import Callable
 from importlib.util import find_spec
 from typing import Any

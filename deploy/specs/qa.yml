@@ -1,6 +1,6 @@
 dependencies:
   # lint
-  - black ==23.1.0
-  - docformatter ==1.5.1
+  - black 
+  - docformatter 
   - mypy 
   - ruff 

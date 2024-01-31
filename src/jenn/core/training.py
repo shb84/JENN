@@ -1,4 +1,5 @@
 """Train neural network."""
+
 import functools
 from collections import defaultdict
 

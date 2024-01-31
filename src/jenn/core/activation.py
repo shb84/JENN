@@ -1,4 +1,5 @@
 """Activation functions."""
+
 import abc
 
 import numpy as np

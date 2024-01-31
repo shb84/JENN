@@ -1,4 +1,5 @@
 """Entry point for core modules."""
+
 # Copyright (c) 2023 Steven H. Berguin
 # Distributed under the terms of the MIT License.
 

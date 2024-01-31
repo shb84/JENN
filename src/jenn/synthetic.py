@@ -245,13 +245,11 @@ class Rastrigin(TestFunction):
         cls,
         m_lhs: int = 100,
         m_levels: int = 0,
-        lb: np.ndarray
-        | float = -1.0
+        lb: np.ndarray | float = -1.0
         * np.ones(
             2,
         ),
-        ub: np.ndarray
-        | float = 1.5
+        ub: np.ndarray | float = 1.5
         * np.ones(
             2,
         ),
@@ -288,13 +286,11 @@ class Rosenbrock(TestFunction):
         cls,
         m_lhs: int = 100,
         m_levels: int = 0,
-        lb: np.ndarray
-        | float = -2
+        lb: np.ndarray | float = -2
         * np.ones(
             2,
         ),
-        ub: np.ndarray
-        | float = 2.0
+        ub: np.ndarray | float = 2.0
         * np.ones(
             2,
         ),

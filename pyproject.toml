@@ -62,6 +62,7 @@ ignore = [
   "D203",
   "D213", # pydocstyle opinion
   "D417", # FIXME Missing argument description
+  "D413", # Missing blank line after last section ("Parameters")
 ]
 cache-dir = "build/.cache/ruff"
 

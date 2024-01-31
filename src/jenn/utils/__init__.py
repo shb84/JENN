@@ -1,4 +1,5 @@
-"""utils module entry point."""
+"""Utils module entry point."""
+
 # Copyright (c) 2018 Steven H. Berguin
 # Distributed under the terms of the MIT License.
 
