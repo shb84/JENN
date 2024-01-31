@@ -10,13 +10,13 @@ jobs:
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Create base env
+      - name: Create base environment
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml
-      - name: Create "qa" and "ci" envs
+      - name: Create runtime environment
         shell: bash -el {0}
         run: | 
           doit env 
@@ -32,13 +32,8 @@ jobs:
         shell: bash -el {0}
         run: | 
           doit test
-      - name: Archive pytest report
+      - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: pytest-report
-          path: ./build/reports/pytest/linux-64/report.html
-      - name: Archive code coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-report
-          path: ./build/reports/pytest/linux-64/coverage
+          path: ./build
