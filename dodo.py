@@ -159,6 +159,7 @@ def task_fix():
             "qa",
             actions=[["black", "--quiet", *P.ALL_PY]],
             file_dep=[*P.ALL_PY, P.PPT],
+            ok=OK.BLACKENED,
         ),
     )
     
