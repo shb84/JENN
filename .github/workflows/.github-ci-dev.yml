@@ -31,7 +31,7 @@ jobs:
       - name: Lint code
         shell: bash -el {0}
         run: | 
-          doit lint 
+          doit fix lint 
       - name: Archive test results
         uses: actions/upload-artifact@v4
         with:
