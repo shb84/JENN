@@ -20,6 +20,10 @@ jobs:
         shell: bash -el {0}
         run: | 
           doit env 
+      - name: Lint code
+        shell: bash -el {0}
+        run: | 
+          doit fix lint 
       - name: Build app
         shell: bash -el {0}
         run: | 
@@ -28,10 +32,6 @@ jobs:
         shell: bash -el {0}
         run: | 
           doit test
-      - name: Lint code
-        shell: bash -el {0}
-        run: | 
-          doit fix lint 
       - name: Archive test results
         uses: actions/upload-artifact@v4
         with:
