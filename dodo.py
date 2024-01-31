@@ -159,7 +159,6 @@ def task_fix():
             "qa",
             actions=[["black", "--quiet", *P.ALL_PY]],
             file_dep=[*P.ALL_PY, P.PPT],
-            ok=OK.BLACKENED,
         ),
     )
     
@@ -182,7 +181,7 @@ def task_fix():
             actions=[
                 ["docformatter", "--in-place", *P.ALL_PY],
             ],
-            file_dep=[*P.ALL_PY, OK.ISORTED],
+            file_dep=[*P.ALL_PY, OK.RUFFENED],
             ok=OK.DOCFORMATTED,
         ),
     ) 
@@ -337,7 +336,6 @@ class OK:
     INSTALL = P.BUILD / "install.ok"
     RUFFENED = P.BUILD / "lint.ruff.ok"
     BLACKENED = P.BUILD / "lint.black.ok"
-    ISORTED = P.BUILD / "lint.isorted.ok"
     DOCFORMATTED = P.BUILD / "lint.docformatted.ok"
     DOCS = P.BUILD / "docs.ok"
 
