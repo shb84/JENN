@@ -24,17 +24,25 @@ jobs:
         shell: bash -el {0}
         run: | 
           doit lint 
-      - name: Build app
+      - name: Install app
         shell: bash -el {0}
         run: | 
           doit install 
-          python -m build --outdir ./build/dist
       - name: Test app
         shell: bash -el {0}
         run: | 
           doit test
-      - name: Archive build artifacts
+      - name: Store report artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
-          path: ./build
+          name: report-artifacts
+          path: ./build/reports
+      - name: Package app
+        shell: bash -el {0}
+        run: | 
+          doit package
+      - name: Store package artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./build/dist/*.whl
+          path: ./build/dist/*.tar.gz

@@ -42,6 +42,27 @@ def task_env():
         yield from U.env(env_name)
 
 
+def task_package():
+    """Build wheel and *.tar.gz files."""
+    yield dict(
+        name=f"{C.PPT_DATA['project']['name']}-build",
+        **U.run_in(
+            "ci",
+            [
+                [
+                    "python",
+                    "-m",
+                    "build",
+                    "--outdir",
+                    P.DIST,
+                ]
+            ],
+            cwd=P.ROOT,
+            ok=OK.BUILD,
+        ),
+    )
+
+
 def task_install():
     """Install locally."""
     yield dict(
@@ -241,6 +262,7 @@ class P:
     ROOT = DODO.parent
     BUILD = ROOT / "build"
     DOCS = ROOT / "docs"
+    DIST = ROOT / "./build/dist"
     SOURCE = ROOT / "src"
     DEPLOY = ROOT / "deploy"
     DEPLOY_SPECS = DEPLOY / "specs"
@@ -392,7 +414,8 @@ class U:
 
         args += sum([["--file", spec] for spec in specs], [])
         args += [
-            "--filename-template",
+            # "--filename-template",
+            "--lockfile",
             env_stem + f"-{platform}.conda.lock",
         ]
         env_info = (
@@ -427,7 +450,10 @@ class U:
     def solve(cls, args: Iterable[Any]):
         """Create the lock file."""
         solve_rc = 1
-        base_args = ["conda-lock", "--kind=explicit"]
+        base_args = [
+            "conda-lock", 
+            # "--kind=explicit"  
+        ]
 
         for solver_args in [["--micromamba"], ["--mamba"], ["--no-mamba"], []]:
             solve_rc = subprocess.call(
@@ -449,19 +475,16 @@ class U:
         prefix = P.ENVS / name
         lockfile = P.LOCKS / f"{name}-{cls.this_platform()}.conda.lock"
         history = prefix / C.HISTORY
-        conda = C.MAMBA_EXE if C.MAMBA_EXE else C.CONDA_EXE 
         yield dict(
             name=name,
             file_dep=[lockfile],
             actions=[
                 U.cmd(
                     [
-                        conda,
-                        "create",
-                        "--yes",
+                        "conda-lock",
+                        "install",
                         "--prefix",
                         prefix,
-                        "--file",
                         lockfile,
                     ],
                 ),
