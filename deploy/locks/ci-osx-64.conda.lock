@@ -2678,6 +2678,19 @@ package:
     sha256: 665d1fe6d20c6cc672ff20e6ebb405860f878b487d3d8d86a5952733fb7bbc42
   category: main
   optional: false
+- name: sphinx-multiversion
+  version: 0.2.4
+  manager: conda
+  platform: osx-64
+  dependencies:
+    python: '>=3.6'
+    sphinx: '>=2.1'
+  url: https://conda.anaconda.org/conda-forge/noarch/sphinx-multiversion-0.2.4-pyhd8ed1ab_0.conda
+  hash:
+    md5: bbf32e248ecda61e6a69b2e78871a8ca
+    sha256: 92008e2dd6f05bcc398562bbb786491c8191c86692ec0d2d4733f56607d45fcc
+  category: main
+  optional: false
 - name: sphinx_rtd_theme
   version: 2.0.0
   manager: conda

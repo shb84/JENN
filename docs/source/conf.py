@@ -25,10 +25,19 @@ copyright = '2018, Steven H. Berguin'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc']
+extensions = [
+    'sphinx.ext.autodoc',
+    "sphinx_multiversion",
+]
 
 templates_path = ['_templates']
 exclude_patterns = []
+
+html_sidebars = {
+    '**': [
+        'versioning.html',
+    ],
+}
 
 
 

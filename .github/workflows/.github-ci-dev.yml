@@ -20,27 +20,27 @@ jobs:
         shell: bash -el {0}
         run: | 
           doit env 
-      - name: Lint code
+      - name: Linting
         shell: bash -el {0}
         run: | 
           doit lint 
-      - name: Install app
+      - name: Installation
         shell: bash -el {0}
         run: | 
           doit install 
-      - name: Test app
+      - name: Testing
         shell: bash -el {0}
         run: | 
           doit test
+      - name: Packaging
+        shell: bash -el {0}
+        run: | 
+          doit package
       - name: Store report artifacts
         uses: actions/upload-artifact@v4
         with:
           name: reports
           path: ./build/reports
-      - name: Package app
-        shell: bash -el {0}
-        run: | 
-          doit package
       - name: Store wheel artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -51,3 +51,30 @@ jobs:
         with:
           name: source
           path: ./build/dist/*.tar.gz
+  deploy-docs:
+    name: doit docs
+    needs: test-linux
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Build docs
+        shell: bash -el {0}
+        run: | 
+          doit docs 
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: './build/docs/html'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
