@@ -53,7 +53,6 @@ jobs:
           path: ./build/dist/*.tar.gz
   deploy-docs:
     name: doit docs
-    needs: test-linux
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
