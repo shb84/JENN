@@ -38,17 +38,18 @@ Jacobian-Enhanced Neural Net            |  Standard Neural Net
 
 _See demo notebooks for more details_
 
+Import library:  
+
     import jenn
 
-    # Generate example training data 
+Generate example training and test data:  
+
     x_train, y_train, dydx_train = jenn.synthetic.Sinusoid.sample(
         m_lhs=0, 
         m_levels=4, 
         lb=-3.14, 
         ub=3.14,
     )
-
-    # Generate example test data 
     x_test, y_test, dydx_test = jenn.synthetic.Sinusoid.sample(
         m_lhs=30, 
         m_levels=0, 
@@ -56,7 +57,9 @@ _See demo notebooks for more details_
         ub=3.14,
     )
 
-    # Train model 
+
+Train a model: 
+
     nn = jenn.model.NeuralNet(
         layer_sizes=[1, 12, 1],
     ).fit(
@@ -67,23 +70,34 @@ _See demo notebooks for more details_
         is_normalize=True,  # normalize data before fitting it
     )
     
-    # Predict
+ Make predictions: 
+
     y, dydx = nn.evaluate(x)
 
-    # save model parameters for later use
-    nn.parameters.save('parameters.json')  
+    # OR 
 
-    # reload saved model 
-    reloaded = jenn.model.NeuralNet().load('parameters.json')
+    y = nn.predict(x)
+    dydx = nn.predict_partials(x)
 
-    # Check goodness of fit (optional - if matplotlib installed)
+
+Save model (parameters) for later use: 
+
+    nn.save('parameters.json')  
+
+Reload saved parameters into new model: 
+
+    reloaded = jenn.model.NeuralNet(layer_sizes=[1, 12, 1]).load('parameters.json')
+
+Optionally, if `matplotlib` is installed, check goodness of fit: 
+
     jenn.utils.plot.goodness_of_fit(
         y_true=dydx_test[0], 
         y_pred=nn.predict_partials(x_test)[0], 
         title="Partial Derivative: dy/dx (JENN)"
     )
 
-    # Show sensitivity profiles (optional - if matplotlib installed)
+Optionally, if `matplotlib` is installed, show sensitivity profiles:
+
     jenn.utils.plot.sensitivity_profiles(
         f=[jenn.synthetic.Sinusoid.evaluate, nn.predict], 
         x_min=x_train.min(), 
@@ -115,23 +129,15 @@ order to save time for further analysis down the line. The field of aerospace en
 that come to mind: 
 
 * Surrgate-based optimization 
-* Monte-Carlo simulation 
+* Uncertainty quantification
 
 In both cases, the value proposition is that the computational expense of 
 generating the training data to fit a surrogate is much less than the 
 computational expense of performing the analysis with the original model itself. 
 Since the “surrogate model” emulates the original model accurately 
-in real time, it offers a speed benefit that can be used to carry out additional 
-analysis, such as uncertainty quantification where the surrogate model enables
-Monte Carlo simulations, which would’ve been much too slow otherwise.  
-
-Aerospace engineers often train models according to the following process: 
-
-1. Generate a Design Of Experiment (DOE) over the domain of interest
-2. Evaluate the DOE by running the computationally expensive computer model at each DOE point
-3. Use the results as training data to train a “surrogate model” (such as JENN)
-
-
+in real time, it offers a speed benefit that can be used to carry out orders of magnitude 
+more function calls quickly. For example, Monte Carlo simulation is now a 
+computationally viable option to propagate uncertainty distributions.  
 
 ----
 
@@ -141,10 +147,7 @@ Gradient-enhanced methods requires responses to be continuous and smooth (_i.e._
 defined everywhere), but is only beneficial when  the cost of obtaining the gradient 
 is not excessive in the first place or the need for accuracy outweighs the cost of 
 computing partials. The user should therefore carefully weigh the benefit of 
-gradient-enhanced methods relative to the needs of the application. For example, in the very special 
-case of computational fluid dynamics, where adjoint design methods 
-provide a scalable and efficient way to compute the gradient, gradient-enhanced methods 
- are almost always attractive if not compelling.
+gradient-enhanced methods relative to the needs of the application.
 
 --- 
 # License
