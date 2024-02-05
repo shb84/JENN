@@ -15,9 +15,10 @@ regularization and mini-batch is available as an option.
 
 The core algorithm was written in Python 3. It requires only `numpy` and `orjson` for serialization; `matplotlib` is only optional. If installed, it is used to offer basic plotting utilities such as viewing sensivity profiles and checking goodness of fit.  
 
-Jacobian-Enhanced Neural Net            |  Standard Neural Net
-:-------------------------:|:-------------------------:
-![](pics/JENN.png)  |  ![](pics/NN.png)
+For illustration, the plot below shows how JENN yields a near perfect prediction with only four training points (black dots), which is not the case for NN. 
+
+![](pics/JENN_vs_NN.png)  
+
 
 ----
 # Main Features
