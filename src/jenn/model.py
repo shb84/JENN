@@ -319,12 +319,12 @@ class NeuralNet:
         y = denormalize(y_norm, params.mu_y, params.sigma_y)
         dydx = denormalize_partials(dydx_norm, params.sigma_x, params.sigma_y)
         return y, dydx
-    
+
     def save(self, file: str = "parameters.json") -> None:
         """Serialize parameters and save to JSON file."""
         self.parameters.save(file)
-    
-    def load(self, file: str = "parameters.json") -> None:
+
+    def load(self, file: str = "parameters.json") -> Self:
         """Load parameters from specified json file."""
         self.parameters.load(file)
-        return self 
+        return self
