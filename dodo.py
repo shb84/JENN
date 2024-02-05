@@ -339,8 +339,8 @@ class OK:
     BLACKENED = P.BUILD / "lint.black.ok"
     DOCFORMATTED = P.BUILD / "lint.docformatted.ok"
     DOCS = P.BUILD / "docs.ok"
-
-
+    PYTEST = P.BUILD / "pytest.ok"
+    BUILD = P.BUILD / "build.ok"
 
 
 class U: 
@@ -444,12 +444,6 @@ class U:
         return solve_rc == 0
     
     @classmethod
-    def cmd(cls, *args, **kwargs):  # noqa: D102
-        if "shell" not in kwargs:
-            kwargs["shell"] = False
-        return doit.tools.CmdAction(*args, **kwargs)
-    
-    @classmethod
     def env(cls, name: str):
         """Create an environment from a lockfile."""
         prefix = P.ENVS / name
@@ -489,6 +483,12 @@ class U:
             "--no-capture-output",
         ]
         return prefix, run_args
+    
+    @classmethod
+    def cmd(cls, *args, **kwargs):  # noqa: D102
+        if "shell" not in kwargs:
+            kwargs["shell"] = False
+        return doit.tools.CmdAction(*args, **kwargs)
 
     @classmethod
     def run_in(cls, env_, actions, ok=None, **kwargs):
@@ -499,6 +499,7 @@ class U:
         targets = kwargs.pop("targets", [])
         task = dict(
             file_dep=[history, *file_dep],
+            # actions=[U.cmd([*run_args, *action], **kwargs) for action in actions],
             actions=[U.cmd([*run_args, *action], **kwargs) for action in actions],
             targets=[*targets],
         )

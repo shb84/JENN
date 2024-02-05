@@ -2,6 +2,7 @@
 
 from collections.abc import Iterable
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import orjson
@@ -378,12 +379,12 @@ class Parameters:
         self.output_activation = self.a[-1]
         self.hidden_activation = self.a[-2]
 
-    def save(self, binary_file: str = "parameters.json") -> None:
+    def save(self, binary_file: str | Path = "parameters.json") -> None:
         """Save parameters to specified json file."""
         with open(binary_file, "wb") as file:
             file.write(self.serialize())
 
-    def load(self, binary_file: str = "parameters.json") -> None:
+    def load(self, binary_file: str | Path = "parameters.json") -> None:
         """Load parameters from specified json file."""
         with open(binary_file, "rb") as file:
             byte_stream = file.read()

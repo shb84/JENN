@@ -50,7 +50,7 @@ jobs:
       - name: Build app
         shell: bash -el {0}
         run: | 
-          doit install 
+          python -m build --outdir ./build/dist
       - name: Test app
         shell: bash -el {0}
         run: | 
