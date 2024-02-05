@@ -41,8 +41,11 @@ jobs:
         shell: bash -el {0}
         run: | 
           doit package
-      - name: Store package artifacts
+      - name: Store wheel artifacts
         uses: actions/upload-artifact@v3
         with:
           path: ./build/dist/*.whl
+      - name: Store source artifacts
+        uses: actions/upload-artifact@v3
+        with:
           path: ./build/dist/*.tar.gz
