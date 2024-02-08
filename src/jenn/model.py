@@ -5,8 +5,8 @@ predictions. It is in charge of setting up and calling the right support
 functions to accomplish these various tasks.
 """
 
-from typing import Any, Self
 from pathlib import Path
+from typing import Any, Self
 
 import numpy as np
 
