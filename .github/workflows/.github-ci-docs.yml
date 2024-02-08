@@ -11,7 +11,7 @@ on:
   workflow_call:
     inputs:
       config-path:
-        required: true
+        required: false
         type: string
     secrets:
       token:
@@ -19,7 +19,7 @@ on:
 
 
 jobs:
-  deploy-docs:
+  docs:
     name: doit docs
     runs-on: ubuntu-latest 
     steps: 
