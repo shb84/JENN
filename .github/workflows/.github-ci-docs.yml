@@ -9,12 +9,13 @@ permissions:
   
 on:
   workflow_call:
-    secrets: inherit
+    secrets:
+      token:
+        required: true
 
 
 jobs:
   docs:
-    name: doit docs
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
