@@ -58,4 +58,4 @@ jobs:
           name: source
           path: ./build/dist/*.tar.gz
   deploy-docs:
-    uses: .github/workflows/.github-ci-docs.yml@refactor
+    uses: ./.github/workflows/.github-ci-docs.yml
