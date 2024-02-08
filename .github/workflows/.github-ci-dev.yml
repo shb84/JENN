@@ -59,5 +59,3 @@ jobs:
           path: ./build/dist/*.tar.gz
   deploy:
     uses: ./.github/workflows/.github-ci-docs.yml
-    with: 
-      secrets: inherit 
