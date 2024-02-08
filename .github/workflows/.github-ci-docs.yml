@@ -9,10 +9,6 @@ permissions:
   
 on:
   workflow_call:
-    inputs:
-      config-path:
-        required: false
-        type: string
     secrets:
       token:
         required: true
