@@ -58,28 +58,4 @@ jobs:
           name: source
           path: ./build/dist/*.tar.gz
   deploy-docs:
-    name: doit docs
-    runs-on: ubuntu-latest 
-    steps: 
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Create base environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: deploy/specs/base.yml
-      - name: Build docs
-        shell: bash -el {0}
-        run: | 
-          doit docs 
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v4
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: './build/docs/html'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    uses: .github/workflows/.github-ci-docs.yml

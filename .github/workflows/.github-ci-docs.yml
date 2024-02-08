@@ -1,0 +1,47 @@
+name: jenn-ci
+run-name: ${{ github.actor }}-jenn-ci
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  
+on:
+  workflow_call:
+    inputs:
+      config-path:
+        required: true
+        type: string
+    secrets:
+      token:
+        required: true
+
+
+jobs:
+  deploy-docs:
+    name: doit docs
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Build docs
+        shell: bash -el {0}
+        run: | 
+          doit docs 
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: './build/docs/html'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
