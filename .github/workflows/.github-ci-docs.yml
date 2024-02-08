@@ -9,9 +9,7 @@ permissions:
   
 on:
   workflow_call:
-    secrets:
-      token:
-        required: true
+    secrets: inherit
 
 
 jobs:
