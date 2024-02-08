@@ -59,3 +59,5 @@ jobs:
           path: ./build/dist/*.tar.gz
   deploy-docs:
     uses: ./.github/workflows/.github-ci-docs.yml
+    with: 
+      configuration-path: ${{ inputs.config-path }}

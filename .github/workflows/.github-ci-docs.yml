@@ -1,3 +1,6 @@
+name: jenn-ci-docs
+run-name: ${{ github.actor }}-jenn-ci-docs
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
