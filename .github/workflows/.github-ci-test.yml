@@ -12,8 +12,38 @@ on:
 
 # TODO: run notebooks 
 jobs:
-  install:
+  install-linux:
     runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Install package
+        shell: bash -el {0}
+        run: | 
+          doit install
+  install-windows:
+    runs-on: windows-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Install package
+        shell: bash -el {0}
+        run: | 
+          doit install
+  install-macos:
+    runs-on: macos-latest 
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
