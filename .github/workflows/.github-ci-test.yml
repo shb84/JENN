@@ -28,7 +28,6 @@ jobs:
         run: | 
           doit install
   unit-tests:
-    needs: install 
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
@@ -53,7 +52,6 @@ jobs:
           name: reports
           path: ./build/reports
   demo-notebooks:
-    needs: install
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
