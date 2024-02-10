@@ -1,0 +1,38 @@
+name: jenn-ci-docs
+run-name: ${{ github.actor }}-jenn-ci-test
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Install package
+        shell: bash -el {0}
+        run: | 
+          doit install 
+      - name: Run unit tests
+        shell: bash -el {0}
+        run: | 
+          doit test
+      - name: Store report artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: ./build/reports
+    

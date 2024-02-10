@@ -15,7 +15,7 @@ regularization and mini-batch is available as an option.
 
 The core algorithm was written in Python 3. It requires only `numpy` and `orjson` for serialization; `matplotlib` is only optional. If installed, it is used to offer basic plotting utilities such as viewing sensivity profiles and checking goodness of fit.  
 
-For illustration, the plot below shows how JENN yields a near perfect prediction with only four training points (black dots), which is not the case for NN. 
+For illustration, the plot below shows how JENN yields a near perfect prediction with only four training points (black dots), which is not the case for NN. The algorithm was verified to scale linearly [$\mathcal{O}{(n)}$](./docs/examples/runtime.ipynb) with number of samples, neurons, and layers. 
 
 ![](pics/JENN_vs_NN.png)  
 
@@ -37,7 +37,7 @@ For illustration, the plot below shows how JENN yields a near perfect prediction
 
 # Example Usage
 
-_See demo notebooks for more details_
+_See [demo](./docs/examples/) notebooks for more details_
 
 Import library:  
 

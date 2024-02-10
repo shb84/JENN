@@ -30,23 +30,10 @@ jobs:
         shell: bash -el {0}
         run: | 
           doit lint 
-      - name: Installation
-        shell: bash -el {0}
-        run: | 
-          doit install 
-      - name: Testing
-        shell: bash -el {0}
-        run: | 
-          doit test
       - name: Packaging
         shell: bash -el {0}
         run: | 
           doit package
-      - name: Store report artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: reports
-          path: ./build/reports
       - name: Store wheel artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -57,5 +44,8 @@ jobs:
         with:
           name: source
           path: ./build/dist/*.tar.gz
+  test:
+    uses: ./.github/workflows/.github-ci-test.yml
   deploy:
+    needs: test
     uses: ./.github/workflows/.github-ci-docs.yml
