@@ -12,8 +12,5 @@ on: [push]
 jobs:
   qa:
     uses: ./.github/workflows/.github-ci-qa.yml
-  test:
+  run:
     uses: ./.github/workflows/.github-ci-test.yml
-  deploy:
-    needs: test
-    uses: ./.github/workflows/.github-ci-docs.yml

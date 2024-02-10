@@ -85,8 +85,31 @@ def task_install():
     )
 
 
+def task_notebooks():
+    """Execute all notebooks (from command line)."""
+
+    def execute():
+        _, run_args = U.run_args("ci")
+        proc = subprocess.Popen(
+            [*run_args, "jupyter", "execute", *P.EXAMPLE_NOTEBOOKS]
+        )
+        try:
+            proc.wait()
+        except KeyboardInterrupt:
+            proc.terminate()
+            proc.terminate()
+            proc.wait()
+
+    yield dict(
+        name="notebooks",
+        uptodate=[lambda: False],
+        file_dep=[OK.INSTALL],
+        actions=[doit.tools.PythonInteractiveAction(execute)],
+    )
+
+
 def task_lab():
-    """Run JupyterLab (not run by default)."""
+    """Run JupyterLab."""
 
     def lab():
         _, run_args = U.run_args("ci")
@@ -263,6 +286,7 @@ class P:
     ROOT = DODO.parent
     BUILD = ROOT / "build"
     DOCS = ROOT / "docs"
+    EXAMPLES = DOCS / "examples"
     DIST = ROOT / "./build/dist"
     SOURCE = ROOT / "src"
     DEPLOY = ROOT / "deploy"
@@ -287,6 +311,12 @@ class P:
     PPT = ROOT / "pyproject.toml"
     REPORTS = BUILD / "reports"
     ALL_PY = sorted(list(SOURCE.rglob('*.py')))
+    EXAMPLE_NOTEBOOKS = [
+        item 
+        for item in sorted(list(EXAMPLES.rglob('*.ipynb')))
+        if not ".ipynb_checkpoints" in str(item)
+    ]
+
 
 
 class B: 

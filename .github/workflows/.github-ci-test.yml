@@ -10,8 +10,9 @@ permissions:
 on:
   workflow_call:
 
+# TODO: run notebooks 
 jobs:
-  install:
+  demo-notebooks:
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
@@ -22,17 +23,11 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml
-      - name: Install package
+      - name: Run demo notebooks
         shell: bash -el {0}
         run: | 
-          doit install 
-      - name: Store report artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: reports
-          path: ./build/reports
+          doit notebooks
   unit-tests:
-    needs: install
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
@@ -43,10 +38,6 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml
-      - name: Install package
-        shell: bash -el {0}
-        run: | 
-          doit install 
       - name: Run unit tests
         shell: bash -el {0}
         run: | 
