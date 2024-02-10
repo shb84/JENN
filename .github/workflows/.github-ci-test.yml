@@ -12,7 +12,48 @@ on:
 
 # TODO: run notebooks 
 jobs:
+  install:
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Install package
+        shell: bash -el {0}
+        run: | 
+          doit install
+  unit-tests:
+    needs: install 
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Install package
+        shell: bash -el {0}
+        run: | 
+          doit install
+      - name: Run unit tests
+        shell: bash -el {0}
+        run: | 
+          doit test
+      - name: Store report artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: ./build/reports
   demo-notebooks:
+    needs: install
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
@@ -27,25 +68,5 @@ jobs:
         shell: bash -el {0}
         run: | 
           doit notebooks
-  unit-tests:
-    runs-on: ubuntu-latest 
-    steps: 
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Create base environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: deploy/specs/base.yml
-      - name: Run unit tests
-        shell: bash -el {0}
-        run: | 
-          doit test
-      - name: Store report artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: reports
-          path: ./build/reports
           
     
