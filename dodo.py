@@ -91,7 +91,7 @@ def task_notebooks():
     def execute():
         _, run_args = U.run_args("ci")
         proc = subprocess.Popen(
-            [*run_args, "jupyter", "execute", *P.EXAMPLE_NOTEBOOKS]
+            [*run_args, "jupyter", "execute", *P.DEMO_NOTEBOOKS]
         )
         try:
             proc.wait()
@@ -311,7 +311,7 @@ class P:
     PPT = ROOT / "pyproject.toml"
     REPORTS = BUILD / "reports"
     ALL_PY = sorted(list(SOURCE.rglob('*.py')))
-    EXAMPLE_NOTEBOOKS = [
+    DEMO_NOTEBOOKS = [
         item 
         for item in sorted(list(EXAMPLES.rglob('*.ipynb')))
         if not ".ipynb_checkpoints" in str(item)

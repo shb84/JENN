@@ -37,6 +37,7 @@ extensions = [
 ]
 templates_path = ['_templates']
 html_static_path = ['_static']
+master_doc = "index"
 source_suffix = '.rst'
 exclude_patterns = []
 
@@ -44,17 +45,13 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
+
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'logo_only': True,
     'navigation_depth': 5,
 }
 html_context = {}
-# html_sidebars = {
-#     '**': [
-#         'versioning.html',
-#     ],
-# }
 
 
 

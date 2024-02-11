@@ -5,6 +5,5 @@ dependencies:
   - python >=3.11,<3.12
   - doit[toml]
   - conda-lock
+  - build
   - pip 
-  - pip: 
-    - build
