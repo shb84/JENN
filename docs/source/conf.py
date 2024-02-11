@@ -1,5 +1,6 @@
 """Sphinx configuration file."""
 import tomllib
+import re
 from pathlib import Path
 
 SRC_DOCS = Path(__file__).parent
@@ -18,6 +19,7 @@ PPT_DATA = tomllib.loads(PPT.read_text(encoding="utf-8"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = PPT_DATA["project"]["name"]
+slug = re.sub(r'\W+', '-', project.lower())
 authors = [author["name"] for author in PPT_DATA["project"]["authors"]]
 release =  PPT_DATA["project"]["version"]
 copyright = '2018, Steven H. Berguin'
@@ -27,23 +29,32 @@ copyright = '2018, Steven H. Berguin'
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
+    'sphinx_rtd_theme',
     "sphinx_multiversion",
 ]
-
 templates_path = ['_templates']
+html_static_path = ['_static']
+source_suffix = '.rst'
 exclude_patterns = []
-
-html_sidebars = {
-    '**': [
-        'versioning.html',
-    ],
-}
-
 
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_theme_options = {
+    'logo_only': True,
+    'navigation_depth': 5,
+}
+html_context = {}
+# html_sidebars = {
+#     '**': [
+#         'versioning.html',
+#     ],
+# }
+
+
 
