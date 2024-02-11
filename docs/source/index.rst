@@ -21,12 +21,32 @@ defined as:
 
 .. math::
 
+   \left(
    \begin{matrix}
    y_1 \\
-   \dots \\
+   \vdots \\
    y_K
    \end{matrix}
+   \right)
    =
+   f
+   \left(
+   \begin{matrix}
+   x_1 \\
+   \vdots \\
+   x_p
+   \end{matrix}
+   \right)
+   \qquad
+   J
+   =
+   \left(
+   \begin{matrix}
+   \frac{\partial y_1}{\partial x_1} & \dots & \frac{\partial y_1}{\partial x_p}  \\
+   \vdots & \ddots & \vdot \\
+   \frac{\partial y_K}{\partial x_1} & \dots & \frac{\partial y_K}{\partial x_p}  \\
+   \end{matrix}
+   \right)
 
 
 
