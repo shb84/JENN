@@ -11,16 +11,24 @@ Welcome to jenn's documentation!
    :caption: Contents:
 
 Jacobian-Enhanced Neural Networks (JENN) are fully connected multi-layer
-perceptrons, whose training process was modified to accurately predict its
-Jacobian. Specifically, the parameters are learned by minimizing the Least
-Squares Estimator (LSE), modified to minimize prediction error of both 
-response values and partial derivatives. Mathematically, the Jacobian is 
+perceptrons, whose training process was modified to accurately predict 
+response values and partial derivatives. This accomplished by minimizing 
+the Least Squares Estimator (LSE), modified to include prediction error 
+of response values and partial derivatives.
+
+Mathematically, the Jacobian is 
 defined as: 
 
 .. math::
 
-   (a + b)^2 = a^2 + 2ab + b^2
-   (a - b)^2 = a^2 - 2ab + b^2
+   \begin{matrix}
+   y_1 \\
+   \dots \\
+   y_K
+   \end{matrix}
+   =
+
+
 
 The main benefit of gradient-enhancement is better accuracy with
 fewer training points, compared to full-connected neural nets without
