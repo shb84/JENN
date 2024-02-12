@@ -19,7 +19,7 @@ fewer training points compared to standard fully connected neural nets, as illus
  
 
 .. image:: ../pics/JENN_vs_NN_1D.png
-  :width: 250
+  :width: 225
   :align: center 
 
 
@@ -202,9 +202,8 @@ Programmatically, these data structures are exclusively represented using shaped
 Usage
 -----
 
-Elaborated example notebooks can be found here (todo: link), 
-but this section provides a quick example to get started. 
-Consider the task of fitting a simple 1D sinusoid using only four data points:: 
+This section provides a quick example to get started. Consider the task of fitting 
+a simple 1D sinusoid using only four data points:: 
 
     import numpy as np 
     import jenn 
@@ -269,7 +268,6 @@ Optional plotting tools are available for convenience, provided `matplotlib` is 
         title="Partial Derivative: dy/dx (NN)"
     )
 
-
 .. image:: ../pics/example_goodness_of_fit.png
   :width: 500
 
@@ -292,15 +290,69 @@ Optional plotting tools are available for convenience, provided `matplotlib` is 
 .. image:: ../pics/example_sensitivity_profile.png
   :width: 250
 
+Examples 
+--------
+
+Elaborated `demo``` notebooks can be found in the project's `repo <https://github.com/shb84/JENN.git>`_ under `docs/examples`. 
+
 Runtime
 -------
 
-TODO 
+The algorithm was verified to scale as :math:`\mathcal{O}(n)`, as shown below. 
+
+.. image:: ../pics/scalability.png
+  :width: 750
+  :align: center  
+
+| 
+
+Audience
+--------
+
+There exist many excellent deeplearning framework, such as `tensorflow`, which 
+are more performant than `jenn`. However, gradient-enhancement is not inherently 
+part of them and requires additional effort to implement. The present library is 
+intended for those engineers in a rush with a need to accurately predict partials and 
+seeking an api with a low-barrier to entry.  
 
 Use Case(s)
 -----------
 
-TODO 
+JENN is primarily intended for the field of computer aided design, when there is often 
+a need to replace computationally expensive, physics-based models with so-called `surrogate models` in
+order to save time for further analysis down the line. The field of aerospace engineering is 
+rich in examples with two important use-cases that come to mind: 
+
+* Surrgate-based optimization 
+* Uncertainty quantification
+
+In both cases, the value proposition is that the computational expense of 
+generating the training data to fit a surrogate is much less than the 
+computational expense of performing the analysis with the original model itself. 
+Since the `surrogate model` emulates the original model accurately 
+in real time, it offers a speed benefit that can be used to carry out orders of magnitude 
+more function calls quickly, enabling Monte Carlo simulations of computationally expensive functions for example. 
+
+Limitations
+-----------
+
+Gradient-enhanced methods require responses to be continuous and smooth, 
+but they are only beneficial if the cost of obtaining the gradient 
+is not excessive in the first place, or if the need for accuracy outweighs the cost of 
+computing the partials. The user should therefore carefully weigh the benefit of 
+gradient-enhanced methods relative to the needs of their application. 
+
+Acknowledgements
+----------------
+
+This code used the exercises by Prof. Andrew Ng in the
+`Coursera Deep Learning Specialization <https://www.coursera.org/specializations/deep-learning>`_
+as a starting point. It then built upon it to include additional features such
+as line search and plotting but, most of all, it fundamentally changed the formulation 
+to include gradient-enhancement and made sure all vectored were updated in place (data is never copied). 
+The author would like to thank Andrew Ng for
+offering the fundamentals of deep learning on Coursera, which took a complicated
+subject and explained it in simple terms that made it accessible to laymen like the present author.
 
 Indices and tables
 ==================

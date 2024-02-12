@@ -269,7 +269,7 @@ def sensitivity_profile(
     legend: list[str] | None = None,
     figsize: tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
-    show_cursor: bool = True, 
+    show_cursor: bool = True,
 ) -> Any:  # noqa: ANN401
     """Plot sensitivity profile for one input / output.
 
@@ -326,9 +326,9 @@ def sensitivity_profile(
     fontsize: int, optional
         Text size. Default is 9
 
-    show_cursor: bool, optional 
+    show_cursor: bool, optional
         Show the current point of evaluation (as red dot)
-        Default is True. 
+        Default is True.
     """
     fig = plt.figure(figsize=figsize, layout="tight")
     if not ax:
@@ -351,7 +351,7 @@ def sensitivity_profile(
         ax.scatter(x_true, y_true, color="k", alpha=alpha)
         legend.append("data")
     ax.legend(legend, fontsize=fontsize)
-    if show_cursor: 
+    if show_cursor:
         for n in range(y0.size):
             ax.scatter(x0, y0[n], color="r")
     ax.set_xlabel(xlabel, fontsize=fontsize)
@@ -377,7 +377,7 @@ def sensitivity_profiles(
     ylabels: list[str] | None = None,
     legend: list[str] | None = None,
     resolution: int = 100,
-    show_cursor: bool = True, 
+    show_cursor: bool = True,
 ) -> Any:  # noqa: ANN401
     """Plot grid of sensitivity profiles for all inputs / outputs.
 
@@ -423,10 +423,10 @@ def sensitivity_profiles(
 
     legend: list[str] | None, optional
         Label for each model. Default is None.
-        
-    show_cursor: bool = True, 
+
+    show_cursor: bool = True,
         Show the current point of evaluation (as red dot)
-        Default is True. 
+        Default is True.
     """
     funcs = f
     if not isinstance(funcs, list):
@@ -467,7 +467,7 @@ def sensitivity_profiles(
                 xlabel=xlabels[i],
                 ylabel=ylabels[j],
                 legend=legend,
-                show_cursor=show_cursor, 
+                show_cursor=show_cursor,
             )
         plt.close(fig)
     return fig
