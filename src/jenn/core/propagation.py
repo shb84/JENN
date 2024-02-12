@@ -36,6 +36,7 @@ def first_layer_forward(X: np.ndarray, cache: Cache | None = None) -> None:
         during forward prop, so they can be
         accessed during backprop. Default is None.
     """
+    X = X.astype(float, copy=False)
     if cache is not None:
         cache.A[0][:] = X
 
@@ -56,6 +57,7 @@ def first_layer_partials(X: np.ndarray, cache: Cache | None) -> None:
         during forward prop, so they can be
         accessed during backprop. Default is None.
     """
+    X = X.astype(float, copy=False)
     if cache is not None:
         n_x, m = X.shape
         cache.A_prime[0][:] = eye(n_x, m)
