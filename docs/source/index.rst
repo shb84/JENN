@@ -23,7 +23,7 @@ prediction with only four training points (black dots), which is not the case wi
 jacobian-enhancement.
 
 .. image:: ../pics/JENN_vs_NN_2D.png
-  :width: 600
+  :width: 1000
   :alt: JENN vs. regular NN
 
 Mathematically, JENN solves the multi-task learning problem of predicting 
