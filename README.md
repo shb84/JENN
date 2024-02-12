@@ -17,7 +17,7 @@ The core algorithm was written in Python 3. It requires only `numpy` and `orjson
 
 For illustration, the plot below shows how JENN yields a near perfect prediction with only four training points (black dots), which is not the case for NN. The algorithm was verified to scale linearly [$\mathcal{O}{(n)}$](./docs/examples/runtime.ipynb) with number of samples, neurons, and layers. 
 
-![](pics/JENN_vs_NN.png)  
+![](docs/pics/JENN_vs_NN.png)  
 
 
 ----
