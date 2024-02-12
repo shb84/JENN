@@ -16,7 +16,7 @@ derivatives accurately. This is accomplished by minimizing a modified version
 of the Least Squares Estimator (LSE) which accounts for Jacobian prediction error.
 
 .. image:: ../pics/JENN_vs_NN.png
-  :width: 400
+  :width: 300
   :alt: JENN vs. regular NN
 
 Mathematically, JENN solves the multi-task learning problem of predicting 
