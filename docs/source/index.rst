@@ -11,16 +11,18 @@ Welcome to jenn's documentation!
    :caption: Contents:
 
 Jacobian-Enhanced Neural Networks (JENN) are fully connected multi-layer
-perceptrons, whose training process was modified to accurately predict 
-response values and partial derivatives. This accomplished by minimizing 
-the Least Squares Estimator (LSE), modified to include prediction error 
-of response values and partial derivatives.
+perceptrons, whose training process is modified to predict partial 
+derivatives accurately. This is accomplished by minimizing the Least 
+Squares Estimator (LSE), augmented with a Jacobian prediction error term.
 
-Mathematically, the Jacobian is 
-defined as: 
+Mathematically, JENN solves the multi-task learning problem of predicting 
+:math: \boldsymbol{y} = \hat{f}(\boldsymbol{x}) where the hypothesis 
+:math: \hat{f} is a multi-layer perceptron and the Jacobian :math: J is given by: 
 
 .. math::
 
+   \boldsymbol{y} 
+   =
    \left(
    \begin{matrix}
    y_1 \\
@@ -28,8 +30,11 @@ defined as:
    y_K
    \end{matrix}
    \right)
+
+   \qquad 
+
+   \boldsymbol{x} 
    =
-   f
    \left(
    \begin{matrix}
    x_1 \\
@@ -37,26 +42,30 @@ defined as:
    x_p
    \end{matrix}
    \right)
+
    \qquad
+
    J
+   =
+   \frac{\partial \boldsymbol{y}}{\partial \boldsymbol{x}}
    =
    \left(
    \begin{matrix}
    \frac{\partial y_1}{\partial x_1} & \dots & \frac{\partial y_1}{\partial x_p}  \\
-   \vdots & \ddots & \vdot \\
+   \vdots & \ddots & \vdots \\
    \frac{\partial y_K}{\partial x_1} & \dots & \frac{\partial y_K}{\partial x_p}  \\
    \end{matrix}
    \right)
 
+The main benefit of jacobian-enhancement is better accuracy with
+fewer training points, compared to standard fully connected neural nets. 
+JENN applies to regression, but not classification since 
+there partials are not defined in that case. 
 
-
-The main benefit of gradient-enhancement is better accuracy with
-fewer training points, compared to full-connected neural nets without
-gradient-enhancement. JENN applies to regression, but not classification since 
-there is no gradient in that case. This particular implementation is fully 
-vectorized and arrays updated in place. It uses Adam optimization with L2-norm 
-regularization and mini-batch is available as an option.
-
+This particular implementation uses is fully vectorized and arrays updated in place.
+It uses Adam optimization with L2-norm regularization. The core algorithm is written in 
+Python 3 and requires only `numpy` and `orjson` (for serialization). Optionally, if `matplotlib` 
+is installed, basic plotting utilities are offered to view sensivity profiles and check goodness of fit.  
 
 
 Indices and tables
