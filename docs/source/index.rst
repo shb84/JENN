@@ -22,8 +22,11 @@ of the Least Squares Estimator (LSE) to account for Jacobian prediction error.
 
 The main benefit of jacobian-enhancement is better accuracy with
 fewer training points, compared to standard fully connected neural nets, as illustrated 
-above for a simple 1D sinusoid with only four points in the training data. 
+above and below for a 1D and 2D sinusoidal function, respectively. 
 
+.. image:: ../pics/JENN_vs_NN_2D.png
+  :width: 900
+  :align: center
 
 Mathematically, JENN solves the multi-task learning problem of predicting 
 :math: \boldsymbol{y} = \hat{f}(\boldsymbol{x}) where the hypothesis 
