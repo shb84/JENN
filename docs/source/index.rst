@@ -23,15 +23,21 @@ prediction with only four training points (black dots), which is not the case wi
 jacobian-enhancement.
 
 .. image:: ../pics/JENN_vs_NN_1D.png
-  :width: 300
+  :width: 200
   :class: with-border
+  :align: center
 
-Example: 1D Sinusoidal Function
+  .. 
+
+  Example: 1D Sinusoidal Function
 
 .. image:: ../pics/JENN_vs_NN_2D.png
   :width: 900
+  :align: center
   
-Example: 2D Rastrigin Function
+  .. 
+
+  Example: 2D Rastrigin Function
 
 Mathematically, JENN solves the multi-task learning problem of predicting 
 :math: \boldsymbol{y} = \hat{f}(\boldsymbol{x}) where the hypothesis 
