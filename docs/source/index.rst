@@ -22,7 +22,7 @@ is shown below for a single-input, single-output function. JENN yields a near pe
 prediction with only four training points (black dots), which is not the case without 
 jacobian-enhancement.
 
-.. image:: ../pics/JENN_vs_NN.png
+.. image:: ../pics/JENN_vs_NN_2D.png
   :width: 300
   :alt: JENN vs. regular NN
 
