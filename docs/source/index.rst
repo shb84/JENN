@@ -30,9 +30,7 @@ Mathematically, JENN solves the multi-task learning problem of predicting
    y_K
    \end{matrix}
    \right)
-
    \qquad 
-
    \boldsymbol{x} 
    =
    \left(
@@ -42,9 +40,7 @@ Mathematically, JENN solves the multi-task learning problem of predicting
    x_p
    \end{matrix}
    \right)
-
    \qquad
-
    J
    =
    \frac{\partial \boldsymbol{y}}{\partial \boldsymbol{x}}
