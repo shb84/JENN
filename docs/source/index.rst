@@ -15,7 +15,7 @@ perceptrons, whose training process is modified to predict partial
 derivatives accurately. This is accomplished by minimizing a modified version 
 of the Least Squares Estimator (LSE) which accounts for Jacobian prediction error.
 
-.. image:: ../pics/JENN_vs_NN.png
+.. image:: pics/JENN_vs_NN.png
   :width: 400
   :alt: Comparison of JENN vs. standard neural net
 
