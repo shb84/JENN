@@ -23,7 +23,7 @@ prediction with only four training points (black dots), which is not the case wi
 jacobian-enhancement.
 
 .. image:: ../pics/JENN_vs_NN_1D.png
-  :width: 250
+  :width: 225
   :class: with-border
   :align: center
 
