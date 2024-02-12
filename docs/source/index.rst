@@ -14,6 +14,8 @@ Jacobian-Enhanced Neural Networks (JENN) are fully connected multi-layer
 perceptrons, whose training process is modified to predict partial 
 derivatives accurately. This is accomplished by minimizing a modified version 
 of the Least Squares Estimator (LSE) which accounts for Jacobian prediction error.
+
+
 The main benefit of jacobian-enhancement is better accuracy with
 fewer training points, compared to standard fully connected neural nets. An example 
 is shown below for a single-input, single-output function. JENN yields a near perfect 
