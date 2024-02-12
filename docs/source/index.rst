@@ -17,7 +17,7 @@ of the Least Squares Estimator (LSE) which accounts for Jacobian prediction erro
 
 .. image:: /Users/sberguin3/Developer/jenn/docs/pics/JENN_vs_NN.png
   :width: 400
-  :alt: Comparison of JENN vs. standard neural net
+  :alt: JENN vs. regular NN
 
 Mathematically, JENN solves the multi-task learning problem of predicting 
 :math: \boldsymbol{y} = \hat{f}(\boldsymbol{x}) where the hypothesis 
