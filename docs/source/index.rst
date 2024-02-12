@@ -26,13 +26,12 @@ jacobian-enhancement.
   :width: 300
   :class: with-border
 
-  Example: 1D Sinusoidal Function
+Example: 1D Sinusoidal Function
 
 .. image:: ../pics/JENN_vs_NN_2D.png
   :width: 900
   
-
-  Example: 2D Rastrigin Function
+Example: 2D Rastrigin Function
 
 Mathematically, JENN solves the multi-task learning problem of predicting 
 :math: \boldsymbol{y} = \hat{f}(\boldsymbol{x}) where the hypothesis 
