@@ -52,7 +52,13 @@ html_theme_options = {
     'navigation_depth': 4,
     'prev_next_buttons_location': 'Bottom'
 }
-html_context = {}
+html_context = {
+    "display_github": True, # Integrate GitHub
+    "github_user": "shb84", # Username
+    "github_repo": "JENN", # Repo name
+    "github_version": "refactor", # Version
+    "conf_py_path": "/docs/source/", # Path in the checkout to the docs root
+}
 
 
 
