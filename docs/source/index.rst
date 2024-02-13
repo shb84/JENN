@@ -203,7 +203,7 @@ Usage
 -----
 
 This section provides a quick example to get started. Consider the task of fitting 
-a simple 1D sinusoid using only four data points:: 
+a simple 1D sinusoid using only three data points:: 
 
     import numpy as np 
     import jenn 
@@ -213,7 +213,7 @@ a simple 1D sinusoid using only four data points::
     f_prime = lambda x: np.cos(x).reshape((1, 1, -1))  # note: jacobian adds a dimension
 
     # Generate training data 
-    x_train = np.linspace(-np.pi , np.pi, 4).reshape((1, -1))
+    x_train = np.linspace(-np.pi , np.pi, 3).reshape((1, -1))
     y_train = f(x_train)
     dydx_train = f_prime(x_train)
 
@@ -230,7 +230,7 @@ a simple 1D sinusoid using only four data points::
             y_train.shape[0]   # output layer 
          ],  
         ).fit(
-            x_train, y_train, dydx_train, is_normalize=True  
+            x_train, y_train, dydx_train,
         )
 
     # Predict response only 
