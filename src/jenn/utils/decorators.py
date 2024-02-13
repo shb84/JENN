@@ -27,7 +27,7 @@ def timeit(func: Callable) -> Callable:
 
 
 def requires_matplotlib(func: Callable) -> Callable:
-    """Return elapsed time to run a function."""
+    """Return error if matplotlib not installed."""
 
     @wraps(func)
     def wrapper(*args: list, **kwargs: dict) -> Any:  # noqa: ANN401

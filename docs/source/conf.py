@@ -48,8 +48,9 @@ exclude_patterns = []
 
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
-    'logo_only': True,
-    'navigation_depth': 5,
+    'logo_only': False,
+    'navigation_depth': 4,
+    'prev_next_buttons_location': 'Bottom'
 }
 html_context = {}
 
