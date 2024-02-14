@@ -1,4 +1,5 @@
-"""Check goodness of fit."""
+"""Plotting.
+============"""
 
 from collections.abc import Callable
 from importlib.util import find_spec
@@ -45,33 +46,17 @@ def actual_by_predicted(
     title: str | None = None,
     fontsize: int = 9,
     alpha: float = 1.0,
-) -> Any:  # noqa: ANN401
+) -> plt.Figure:  # noqa: ANN401
     """Create actual by predicted plot for a single response.
 
-    Parameters
-    ----------
-    y_pred: np.ndarray
-        Predicted values. An array of shape (m,)
-        where m is the number of observations.
-
-    y_true: np.ndarray
-        True values. An array of shape (m,)
-        where m is the number of observations.
-
-    ax: Any | None, optional
-        The matplotlib axes on which to plot the data. Default is None.
-
-    figsize: tuple[float, float], optional
-        Figure size. Default is (3.25, 3).
-
-    title: str, optional
-        Title of figure. Default is None.
-
-    fontsize: int, optional
-        Text size. Default is 9.
-
-    alpha: float, optional
-        Transparency of dots between 0 and 1. Default is 0.15
+    :param y_pred: predicted values, array of shape (m,)
+    :param y_true: true values, array of shape (m,)
+    :param ax: the matplotlib axes on which to plot the data (if
+        provided)
+    :param figsize: figure size
+    :param title: title of figure
+    :param fontsize: text size
+    :param alpha: transparency of dots (between 0 and 1)
     """
     if y_pred.ndim > 1:
         if y_pred.ndim == 2 and 1 in y_pred.shape:
@@ -117,36 +102,18 @@ def residuals_by_predicted(
     title: str | None = None,
     fontsize: int = 9,
     alpha: float = 1.0,
-) -> Any:  # noqa: ANN401
+) -> plt.Figure:  # noqa: ANN401
     """Create residual by predicted plot for a single response.
 
-    Parameters
-    ----------
-    y_pred: np.ndarray
-        Predicted values. An array of shape (m,)
-        where m is the number of observations.
-
-    y_true: np.ndarray
-        True values. An array of shape (m,)
-        where m is the number of observations.
-
-    percent_residuals: bool, optional
-        Compute residuals as percentages. Default is False.
-
-    ax: Any | None, optional
-        The matplotlib axes on which to plot the data. Default is None.
-
-    figsize: tuple[float, float], optional
-        Figure size. Default is (3.25, 3).
-
-    title: str, optional
-        Title of figure. Default is None.
-
-    fontsize: int, optional
-        Text size. Default is 9.
-
-    alpha: float, optional
-        Transparency of dots between 0 and 1. Default is 0.15
+    :param y_pred: predicted values, array of shape (m,)
+    :param y_true: true values, array of shape (m,)
+    :param percent_residuals: shows residuals as percentages if True
+    :param ax: the matplotlib axes on which to plot the data (if
+        provided)
+    :param figsize: figure size
+    :param title: title of figure
+    :param fontsize: text size
+    :param alpha: transparency of dots (between 0 and 1)
     """
     if y_pred.ndim > 1:
         if y_pred.ndim == 2 and 1 in y_pred.shape:
@@ -202,7 +169,7 @@ def goodness_of_fit(
     fontsize: int = 9,
     alpha: float = 1.0,
     title: str | None = None,
-) -> Any:  # noqa: ANN401
+) -> plt.Figure:  # noqa: ANN401
     """Create 'residual by predicted' and 'actual by predicted' plots.
 
     Parameters
@@ -270,7 +237,7 @@ def sensitivity_profile(
     figsize: tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
     show_cursor: bool = True,
-) -> Any:  # noqa: ANN401
+) -> plt.Figure:  # noqa: ANN401
     """Plot sensitivity profile for one input / output.
 
     Parameters
@@ -378,7 +345,7 @@ def sensitivity_profiles(
     legend: list[str] | None = None,
     resolution: int = 100,
     show_cursor: bool = True,
-) -> Any:  # noqa: ANN401
+) -> plt.Figure:  # noqa: ANN401
     """Plot grid of sensitivity profiles for all inputs / outputs.
 
     Parameters
@@ -481,7 +448,7 @@ def convergence(
     alpha: float = 1.0,
     title: str = "",
     legend: list[str] | None = None,
-) -> Any | None:  # noqa: ANN401
+) -> plt.Figure | None:  # noqa: ANN401
     """Plot training history.
 
     Parameters
@@ -582,7 +549,7 @@ def contours(
     ylabel: str = "",
     resolution: int = 100,
     ax: Any | None = None,  # noqa: ANN401
-) -> Any:  # noqa: ANN401
+) -> plt.Figure:  # noqa: ANN401
     """Plot contours of a scalar function of two variables.
 
     Parameters
@@ -608,7 +575,7 @@ def contours(
     resolution: int, optional
         Line resolution. Default is 100 points.
 
-    ax: Any | None = None
+    ax: Optional[Any] = None
         Axes on which to draw. Default is None.
     """
     # Domain
@@ -632,10 +599,10 @@ def contours(
     ax.contour(x1, x2, y, 20, cmap="RdGy", alpha=alpha)
     legend = []
     if x_train is not None:
-        ax.scatter(x_train[0], x_train[1], marker=".", c="r", alpha=1)
+        ax.scatter(x_train[0], x_train[1], marker=".", c="k", alpha=1)
         legend.append("train")
     if x_test is not None:
-        ax.scatter(x_test[0], x_test[1], marker="+", c="k", alpha=1)
+        ax.scatter(x_test[0], x_test[1], marker="+", c="r", alpha=1)
         legend.append("test")
     if legend:
         ax.legend(legend, loc=1)

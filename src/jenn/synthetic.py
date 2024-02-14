@@ -1,4 +1,5 @@
-"""Canonical test functions."""
+"""Synthetic Data.
+=================="""
 
 import abc
 

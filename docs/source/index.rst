@@ -45,7 +45,7 @@ a need to replace computationally expensive, physics-based models with so-called
 order to save time for further analysis down the line. The field of aerospace engineering is 
 rich in examples with two important use-cases that come to mind: 
 
-* Surrgate-based optimization 
+* Surrogate-based optimization 
 * Uncertainty quantification
 
 In both cases, the value proposition is that the computational expense of 
@@ -53,7 +53,8 @@ generating the training data to fit a surrogate is much less than the
 computational expense of performing the analysis with the original model itself. 
 Since the `surrogate model` emulates the original model accurately 
 in real time, it offers a speed benefit that can be used to carry out orders of magnitude 
-more function calls quickly, enabling Monte Carlo simulations of computationally expensive functions for example. 
+more function calls quickly, such as enabling Monte Carlo simulations of computationally expensive functions 
+or repeatedly running gradient-based optimization from different starting points to find local minima.  
 
 Runtime
 -------

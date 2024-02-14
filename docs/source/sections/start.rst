@@ -136,14 +136,14 @@ Programmatically, these data structures are exclusively represented using shaped
        [21, 22, 23, 24], 
        [31, 32, 33, 34], 
     ]
-    )  # array of shape (p, m) = (3, 4)
+    )  # array of shape (n_x, m) = (3, 4)
 
     y = np.array(
     [
        [11, 12, 13, 14], 
        [21, 22, 23, 24], 
     ]
-    )  # array of shape (K, m) = (2, 4)
+    )  # array of shape (n_y, m) = (2, 4)
 
     dydx = np.array(
     [
@@ -158,7 +158,7 @@ Programmatically, these data structures are exclusively represented using shaped
           [231, 232, 233, 234],
        ]
     ]
-    )  # array of shape (K, p, m) = (2, 3, 4)
+    )  # array of shape (n_y, n_x, m) = (2, 3, 4)
 
     p, m = x.shape 
     K, m = y.shape 
@@ -206,14 +206,14 @@ a simple 1D sinusoid using only three data points::
     y_pred = nn.predict(x_test)
 
     # Predict partials only 
-    dydx_{n_x}red = nn.predict_partials(x_train)
+    dydx_pred = nn.predict_partials(x_train)
 
     # Predict response and partials in one step 
-    y_pred, dydx_{n_x}red = nn.evaluate(x_test) 
+    y_pred, dydx_pred = nn.evaluate(x_test) 
 
     # Check how well model generalizes 
     assert jenn.utils.metrics.r_square(y_pred, y_test) > 0.99
-    assert jenn.utils.metrics.r_square(dydx_{n_x}red, dydx_test) > 0.99
+    assert jenn.utils.metrics.r_square(dydx_pred, dydx_test) > 0.99
 
 Saving a model for later re-use::
 
@@ -226,7 +226,7 @@ Reloading the parameters a previously trained model::
     y_reloaded, dydx_reloaded = new_model.evaluate(x_test) 
 
     assert np.allclose(y_reloaded, y_pred)
-    assert np.allclose(dydx_reloaded, dydx_{n_x}red)
+    assert np.allclose(dydx_reloaded, dydx_pred)
 
 Optional plotting tools are available for convenience, provided `matplotlib` is installed:: 
 

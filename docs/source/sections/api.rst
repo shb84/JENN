@@ -1,23 +1,13 @@
-User API 
-========
 
-Machine Learning
-----------------
 
 .. automodule:: jenn.model
    :members:
-
-Plotting & Metrics
-------------------
 
 .. automodule:: jenn.utils.plot
    :members:
    
 .. automodule:: jenn.utils.metrics
    :members:
-
-Synthetic Data
---------------
 
 .. automodule:: jenn.synthetic
    :members:

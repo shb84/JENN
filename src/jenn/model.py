@@ -1,9 +1,49 @@
-"""Neural network model.
+"""Neural Network Model.
+========================
 
 This module contains the main class to train a neural net and make
-predictions. It is in charge of setting up and calling the right support
-functions to accomplish these various tasks.
-"""
+predictions. It acts as an interface between the user and the core 
+functions doing computations under-the-hood. 
+
+.. code-block:: python
+
+    #################
+    # Example Usage #
+    #################
+
+    import jenn 
+
+    # Fit model
+    nn = jenn.model.NeuralNet(
+        layer_sizes=[
+            x_train.shape[0],  # input layer 
+            7, 7,              # hidden layer(s) -- user defined
+            y_train.shape[0]   # output layer 
+         ],  
+        ).fit(
+            x_train, y_train, dydx_train, **kwargs # note: user must provide this
+        )
+
+    # Predict response only 
+    y_pred = nn.predict(x_test)
+
+    # Predict partials only 
+    dydx_pred = nn.predict_partials(x_train)
+
+    # Predict response and partials in one step (preferred)
+    y_pred, dydx_pred = nn.evaluate(x_test) 
+
+.. Note::
+    The method `evaluate()` is preferred over separately 
+    calling `predict()` followed by `predict_partials()` 
+    whenever both the response and its partials are needed at the same point. 
+    This saves computations since, in the latter approach, forward propagation 
+    is unecessarily performed twice. Similarly, to avoid unecessary partial
+    deerivative calculations, the `predict()` method should be preferred whenever
+    only response values are needed. The method `predict_partials()` is provided 
+    for those situations where it is necessary to separate out Jacobian predictions, 
+    due to how some target optimization software architected for example.  
+"""  # noqa: W291
 
 from pathlib import Path
 from typing import Any, Self
@@ -23,19 +63,10 @@ __all__ = ["NeuralNet"]
 class NeuralNet:
     """Neural network model.
 
-    Parameters
-    ----------
-    layer_sizes: list[int]
-        The number of nodes in each layer of the neural
-        network, including input and output layers.
-
-    hidden_activation: str, optional
-        The activation function to use for hidden layers.
-        Default is "tanh". Options are: "relu", "linear", "tanh"
-
-    output_activation: str, optional
-        The activation function to use for the output layer.
-        Default is "linear". Options are: "relu", "linear", "tanh"
+    :param layer_sizes: number of nodes in each layer (including
+        input/output layers)
+    :param hidden_activation: activation function used in hidden layers
+    :param output_activation: activation function used in output layer
     """
 
     def __init__(
@@ -73,162 +104,30 @@ class NeuralNet:
     ) -> Self:  # noqa: PLR0913
         r"""Train neural network.
 
-        Parameters
-        ----------
-        x: numpy.ndarray
-            Training data inputs. Array of shape (n_x, m)
+        :param x: training data inputs, array of shape (n_x, m)
+        :param y: training data outputs, array of shape (n_y, m)
+        :param dydx: training data Jacobian, array of shape (n_y, n_x, m)
+        :param is_normalize: normalize training by mean and variance
+        :param alpha: optimizer learning rate for line search
+        :param lambd: regularization coefficient to avoid overfitting
+        :param gamma: jacobian-enhancement regularization coefficient
+        :param beta1: `ADAM <https://arxiv.org/abs/1412.6980>`_ optimizer hyperparameter to control momentum
+        :param beta2: ADAM optimizer hyperparameter to control momentum
+        :param epochs: number of passes through data
+        :param batch_size: size of each batch for minibatch
+        :param max_iter: max number of optimizer iterations
+        :param shuffle: shuffle minibatches or not
+        :param random_state: control repeatability
+        :param is_backtracking: use backtracking line search or not
+        :param is_verbose: print out progress for each (iteration, batch, epoch)
+        :param is_timed: print elapsed time
+        :return: NeuralNet instance (self)
 
-            .. math::
-                \boldsymbol{X}
-                =
-                \left(
-                \begin{matrix}
-                x_1^{(1)} & \dots & x_1^{(m)} \\
-                \vdots & \ddots & \vdots \\
-                x_{n_x}^{(1)} & \dots & x_{n_x}^{(m)} \\
-                \end{matrix}
-                \right)
-                \in
-                \mathbb{R}^{n_x \times m}
-
-        y: numpy.ndarray
-            Training data outputs. Array of shape (n_y, m)
-
-            .. math::
-                \boldsymbol{Y}
-                =
-                \left(
-                \begin{matrix}
-                y_1^{(1)} & \dots & y_1^{(m)} \\
-                \vdots & \ddots & \vdots \\
-                y_{n_y}^{(1)} & \dots & y_{n_y}^{(m)} \\
-                \end{matrix}
-                \right)
-                \in
-                \mathbb{R}^{n_y \times m}
-
-        dydx: numpy.ndarray
-            Training data gradients. Array of shape (n_y, n_x, m)
-
-            .. math::
-                \boldsymbol{J}
-                =
-                \left(
-                \begin{matrix}
-                {\left(
-                \begin{matrix}
-                \frac{\partial y_1}{\partial x_1} & \dots & \frac{\partial y_1}{\partial x_{n_x}}  \\
-                \vdots & \ddots & \vdots \\
-                \frac{\partial y_{n_y}}{\partial x_1} & \dots & \frac{\partial y_{n_y}}{\partial x_{n_x}}  \\
-                \end{matrix}
-                \right)}^{(1)}
-                &
-                \dots
-                &
-                {\left(
-                \begin{matrix}
-                \frac{\partial y_1}{\partial x_1} & \dots & \frac{\partial y_1}{\partial x_{n_x}}  \\
-                \vdots & \ddots & \vdots \\
-                \frac{\partial y_{n_y}}{\partial x_1} & \dots & \frac{\partial y_{n_y}}{\partial x_{n_x}}  \\
-                \end{matrix}
-                \right)}^{(m)}
-                \end{matrix}
-                \right)
-                \in
-                \mathbb{R}^{n_y \times n_x \times m}
-
-        is_normalize: bool, optional
-            Normalize training data by mean and variance. Default is False.
-
-            .. math::
-                \bar{x} = \frac{x - \mu_x}{\sigma_x}
-                \qquad
-                \bar{y} = \frac{y - \mu_y}{\sigma_y}
-                \qquad
-                \frac{\partial \bar{y}}{\partial \bar{x}} = \frac{\sigma_y}{\sigma_x} \frac{\partial y}{\partial x}
-
-            .. warning::
-                Use this option wisely! Normalization usually helps,
-                except when the training data is made up of very small
-                numbers. In that case, normalizing by the variance
-                has the undesirable effect of dividing by a very small number.
-
-        alpha: float, optional
-            Learning rate to control step size during optimizer line search.
-            Default is 0.05
-
-            .. math::
-                \theta := \theta - \alpha \frac{\partial \mathcal{J}}{\partial \theta}
-
-        lambd: float, optional
-            Regularization coefficient (controls how much to penalize
-            objective function for over-fitting)
-            Default is 0.0
-
-        gamma: float, optional
-            Gradient-enhancement coefficient (controls important of 1st-order
-            accuracy errors in objective function.)
-            Default is 1.0 (full gradient-enhancement)
-            Note: only active when dydx is provided (ignored otherwise)
-
-        beta1: float, optional
-            Hyperparameter that controls momentum for
-            [ADAM](https://arxiv.org/abs/1412.6980) optimizer.
-            Default is 0.9
-
-        beta2: float, optional
-            Hyperparameter that controls momentum for
-            [ADAM](https://arxiv.org/abs/1412.6980) optimizer.
-            Default is 0.999
-
-        epochs: int, optional
-            Number of epochs (passes through data). Default is 1.
-            Note: total number of objective function calls =
-                    number of epochs
-                        x number of batches
-                            x number of iterations (search directions)
-                                x number of evaluations along each line search
-
-        batch_size: int, optional
-            Size of each batch for minibatch, which is a routine that randomly
-            splits the data into discrete batches to train faster (in cases
-            where data is very large).
-            Note: total number of objective function calls =
-                    number of epochs
-                        x number of batches
-                            x number of iterations (search directions)
-                                x number of evaluations along each line search
-
-        max_iter: int, optional
-            Maximum number of optimizer iterations. Default 200.
-            Note: total number of objective function calls =
-                    number of epochs
-                        x number of batches
-                            x number of iterations (search directions)
-                                x number of evaluations along each line search
-
-        shuffle: bool, optional
-            Shuffle data for minibatch. Default is True.
-
-        random_state: int, optional
-            Random seed for minibatch repeatability. Default is None.
-
-        is_backtracking: bool, optional
-            Use backtracking line search, where step size is progressively
-            reduced (multiple steps) until cost function no longer improves
-            along search direction. Default is False (single step).
-            Note: total number of objective function calls =
-                    number of epochs
-                        x number of batches
-                            x number of iterations (search directions)
-                                x number of evaluations along each line search
-
-        is_verbose: bool, optional
-            Print out progress for each iteration, each batch, each epoch.
-            Default is False.
-
-        is_timed: bool, optional
-            Print elapsed time. Default is False.
+        .. warning::
+                Normalization usually helps, except when the training
+                data is made up of very small numbers. In that case,
+                normalizing by the variance has the undesirable effect
+                of dividing by a very small number and should not be used.
         """
 
         @timeit
@@ -289,41 +188,8 @@ class NeuralNet:
     def predict(self, x: np.ndarray) -> np.ndarray:
         r"""Predict responses.
 
-        Parameters
-        ----------
-        x: numpy.ndarray
-            Training data inputs. Array of shape (n_x, m)
-
-            .. math::
-                \boldsymbol{X}
-                =
-                \left(
-                \begin{matrix}
-                x_1^{(1)} & \dots & x_1^{(m)} \\
-                \vdots & \ddots & \vdots \\
-                x_{n_x}^{(1)} & \dots & x_{n_x}^{(m)} \\
-                \end{matrix}
-                \right)
-                \in
-                \mathbb{R}^{n_x \times m}
-
-        Return
-        ------
-        y: numpy.ndarray
-            Training data outputs. Array of shape (n_y, m)
-
-            .. math::
-                \boldsymbol{Y}
-                =
-                \left(
-                \begin{matrix}
-                y_1^{(1)} & \dots & y_1^{(m)} \\
-                \vdots & \ddots & \vdots \\
-                y_{n_y}^{(1)} & \dots & y_{n_y}^{(m)} \\
-                \end{matrix}
-                \right)
-                \in
-                \mathbb{R}^{n_y \times m}
+        :param x: vectorized inputs, array of shape (n_x, m)
+        :return: predicted response(s), array of shape (n_y, m)
         """
         params = self.parameters
         cache = Cache(params.layer_sizes, m=x.shape[1])
@@ -335,64 +201,8 @@ class NeuralNet:
     def predict_partials(self, x: np.ndarray) -> np.ndarray:
         r"""Predict partials.
 
-        Note:
-            This function needs to call model_forward before
-            calling partials_forward because partials require
-            information computed during model_forward. Consider
-            using 'evaluate(x)' instead if both partials and function
-            evaluations are needed at the same x (its more
-            efficient than running predict(x) followed by predict_partials(x)
-            which would end up running model_forward(x) twice under the hood)
-
-        Parameters
-        ----------
-        x: numpy.ndarray
-            Training data inputs. Array of shape (n_x, m)
-
-            .. math::
-                \boldsymbol{X}
-                =
-                \left(
-                \begin{matrix}
-                x_1^{(1)} & \dots & x_1^{(m)} \\
-                \vdots & \ddots & \vdots \\
-                x_{n_x}^{(1)} & \dots & x_{n_x}^{(m)} \\
-                \end{matrix}
-                \right)
-                \in
-                \mathbb{R}^{n_x \times m}
-
-        Returns
-        -------
-        dydx: numpy.ndarray
-            Training data gradients. Array of shape (n_y, n_x, m)
-
-            .. math::
-                \boldsymbol{J}
-                =
-                \left(
-                \begin{matrix}
-                {\left(
-                \begin{matrix}
-                \frac{\partial y_1}{\partial x_1} & \dots & \frac{\partial y_1}{\partial x_{n_x}}  \\
-                \vdots & \ddots & \vdots \\
-                \frac{\partial y_{n_y}}{\partial x_1} & \dots & \frac{\partial y_{n_y}}{\partial x_{n_x}}  \\
-                \end{matrix}
-                \right)}^{(1)}
-                &
-                \dots
-                &
-                {\left(
-                \begin{matrix}
-                \frac{\partial y_1}{\partial x_1} & \dots & \frac{\partial y_1}{\partial x_{n_x}}  \\
-                \vdots & \ddots & \vdots \\
-                \frac{\partial y_{n_y}}{\partial x_1} & \dots & \frac{\partial y_{n_y}}{\partial x_{n_x}}  \\
-                \end{matrix}
-                \right)}^{(m)}
-                \end{matrix}
-                \right)
-                \in
-                \mathbb{R}^{n_y \times n_x \times m}
+        :param x: vectorized inputs, array of shape (n_x, m)
+        :return: predicted partial(s), array of shape (n_y, n_x, m)
         """
         params = self.parameters
         cache = Cache(params.layer_sizes, m=x.shape[1])
@@ -404,77 +214,9 @@ class NeuralNet:
     def evaluate(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         r"""Predict responses and their partials.
 
-        .. note::
-            This is the preferred method whenever y and dy/dx are both
-            needed. It is more efficient than separately calling
-            `predict(x)` followed by `predict_partials(x)` which, under the hood,
-            would unecessarily require running `model_forward(x)` twice.
-
-        Parameters
-        ----------
-        x: numpy.ndarray
-            Training data inputs. Array of shape (n_x, m)
-
-            .. math::
-                \boldsymbol{X}
-                =
-                \left(
-                \begin{matrix}
-                x_1^{(1)} & \dots & x_1^{(m)} \\
-                \vdots & \ddots & \vdots \\
-                x_{n_x}^{(1)} & \dots & x_{n_x}^{(m)} \\
-                \end{matrix}
-                \right)
-                \in
-                \mathbb{R}^{n_x \times m}
-
-        Returns
-        -------
-        y: numpy.ndarray
-            Training data outputs. Array of shape (n_y, m)
-
-            .. math::
-                \boldsymbol{Y}
-                =
-                \left(
-                \begin{matrix}
-                y_1^{(1)} & \dots & y_1^{(m)} \\
-                \vdots & \ddots & \vdots \\
-                y_{n_y}^{(1)} & \dots & y_{n_y}^{(m)} \\
-                \end{matrix}
-                \right)
-                \in
-                \mathbb{R}^{n_y \times m}
-
-        dydx: numpy.ndarray
-            Training data gradients. Array of shape (n_y, n_x, m)
-
-            .. math::
-                \boldsymbol{J}
-                =
-                \left(
-                \begin{matrix}
-                {\left(
-                \begin{matrix}
-                \frac{\partial y_1}{\partial x_1} & \dots & \frac{\partial y_1}{\partial x_{n_x}}  \\
-                \vdots & \ddots & \vdots \\
-                \frac{\partial y_{n_y}}{\partial x_1} & \dots & \frac{\partial y_{n_y}}{\partial x_{n_x}}  \\
-                \end{matrix}
-                \right)}^{(1)}
-                &
-                \dots
-                &
-                {\left(
-                \begin{matrix}
-                \frac{\partial y_1}{\partial x_1} & \dots & \frac{\partial y_1}{\partial x_{n_x}}  \\
-                \vdots & \ddots & \vdots \\
-                \frac{\partial y_{n_y}}{\partial x_1} & \dots & \frac{\partial y_{n_y}}{\partial x_{n_x}}  \\
-                \end{matrix}
-                \right)}^{(m)}
-                \end{matrix}
-                \right)
-                \in
-                \mathbb{R}^{n_y \times n_x \times m}
+        :param x: vectorized inputs, array of shape (n_x, m)
+        :return: predicted response(s), array of shape (n_y, m)
+        :return: predicted partial(s), array of shape (n_y, n_x, m)
         """
         params = self.parameters
         cache = Cache(params.layer_sizes, m=x.shape[1])
@@ -489,6 +231,6 @@ class NeuralNet:
         self.parameters.save(file)
 
     def load(self, file: str | Path = "parameters.json") -> Self:
-        """Load parameters from specified json file."""
+        """Load previously saved parameters from json file."""
         self.parameters.load(file)
         return self
