@@ -18,6 +18,8 @@ pip install -e .
 pytest
 ```
 
+All tests should pass. 
+
 #### `ci` 
 
 Commands are run with [`doit`](https://pydoit.org/) defined in a `dodo.py` file. To see all `doit` commands:

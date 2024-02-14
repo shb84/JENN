@@ -1,23 +1,17 @@
 # Jacobian-Enhanced Neural Network (JENN)
 
 Jacobian-Enhanced Neural Networks (JENN) are fully connected multi-layer
-perceptrons, whose training process was modified to account for gradient
-information. Specifically, the parameters are learned by minimizing the Least
-Squares Estimator (LSE), modified to minimize prediction error of both 
-response values and partial derivatives. 
+perceptrons, whose training process is modified to predict partial 
+derivatives accurately. This is accomplished by minimizing a modified version 
+of the Least Squares Estimator (LSE) that accounts for Jacobian prediction error (see theory). 
+The main benefit of jacobian-enhancement is better accuracy with
+fewer training points compared to standard fully connected neural nets, as illustrated below. 
 
-The chief benefit of gradient-enhancement is better accuracy with
-fewer training points, compared to full-connected neural nets without
-gradient-enhancement. JENN applies to regression, but not classification since 
-there is no gradient in that case. This particular implementation is fully 
-vectorized and arrays updated in place. It uses Adam optimization with L2-norm 
-regularization and mini-batch is available as an option.  
+|                  Example #1                    |      Example #2                 |             Example #3           |
+|:----------------------------------------------:|:-------------------------------:|:--------------------------------:|
+| ![](docs/pics/example_sensitivity_profile.png) | ![](docs/pics/JENN_vs_NN_1D.png)| ![](docs/pics/JENN_vs_NN_2D.png) |
 
-The core algorithm was written in Python 3. It requires only `numpy` and `orjson` for serialization; `matplotlib` is only optional. If installed, it is used to offer basic plotting utilities such as viewing sensivity profiles and checking goodness of fit.  
-
-For illustration, the plot below shows how JENN yields a near perfect prediction with only four training points (black dots), which is not the case for NN. The algorithm was verified to scale linearly [$\mathcal{O}{(n)}$](./docs/examples/runtime.ipynb) with number of samples, neurons, and layers. 
-
-![](docs/pics/JENN_vs_NN_1D.png)  
+ 
 
 
 ----
@@ -124,31 +118,31 @@ Optionally, if `matplotlib` is installed, show sensitivity profiles:
 
 # Use Case
 
-JENN is intended for the field of computer aided design, when there is a need to replace
-computationally expensive, physics-based models with so-called “surrogate models” in
-order to save time for further analysis down the line. The field of aerospace engineering is rich in examples with two important use-cases
-that come to mind: 
+JENN is primarily intended for the field of computer aided design, when there is often 
+a need to replace computationally expensive, physics-based models with so-called `surrogate models` in
+order to save time for further analysis down the line. The field of aerospace engineering is 
+rich in examples with two important use-cases that come to mind: 
 
-* Surrgate-based optimization 
+* Surrogate-based optimization 
 * Uncertainty quantification
 
 In both cases, the value proposition is that the computational expense of 
 generating the training data to fit a surrogate is much less than the 
 computational expense of performing the analysis with the original model itself. 
-Since the “surrogate model” emulates the original model accurately 
+Since the `surrogate model` emulates the original model accurately 
 in real time, it offers a speed benefit that can be used to carry out orders of magnitude 
-more function calls quickly. For example, Monte Carlo simulation is now a 
-computationally viable option to propagate uncertainty distributions.  
+more function calls quickly, such as enabling Monte Carlo simulations of computationally expensive functions 
+or repeatedly running gradient-based optimization from different starting points to find local minima. 
 
 ----
 
 # Limitations
 
-Gradient-enhanced methods requires responses to be continuous and smooth (_i.e._ gradient is 
-defined everywhere), but is only beneficial when  the cost of obtaining the gradient 
-is not excessive in the first place or the need for accuracy outweighs the cost of 
-computing partials. The user should therefore carefully weigh the benefit of 
-gradient-enhanced methods relative to the needs of the application.
+Gradient-enhanced methods require responses to be continuous and smooth, 
+but they are only beneficial if the cost of obtaining partials 
+is not excessive in the first place (e.g. adjoint methods), or if the need for accuracy outweighs the cost of 
+computing the partials. Users should therefore carefully weigh the benefit of 
+gradient-enhanced methods relative to the needs of their application. 
 
 --- 
 # License
@@ -162,8 +156,8 @@ This code used the code by Prof. Andrew Ng in the
 [Coursera Deep Learning Specialization](https://www.coursera.org/specializations/deep-learning)
 as a starting point. It then built upon it to include additional features such
 as line search and plotting but, most of all, it fundamentally changed the formulation 
-to include gradient-enhancement and made sure all vectored were updated in place (data is never copied). 
+to include gradient-enhancement and made sure all arrays were updated in place (data is never copied). 
 The author would like to thank Andrew Ng for
 offering the fundamentals of deep learning on Coursera, which took a complicated
-subject and explained it in simple terms that made it accessible to laymen, such as the present author.
+subject and explained it in simple terms that even an aerospace engineer could understand.
 
