@@ -35,7 +35,7 @@ exclude = ["jenn.tests*"]  # exclude packages matching these glob patterns (empt
 namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 
 [tool.ruff]
-select = [
+lint.select = [
   "ANN",  # flake8-annotations
   "D",  # pydocstyle
   "E",  # pycodestyle errors
@@ -46,7 +46,7 @@ select = [
   "W",  # pycodestyle warnings
   "NPY", # NumPy-specific rules
 ]
-ignore = [
+lint.ignore = [
   "ANN101", # Missing type annotation for `self` in method
   "ANN102", # Missing type annotation for `cls` in classmethod
   "ANN002",  # Missing type annotation for `*args`
@@ -66,7 +66,7 @@ ignore = [
 ]
 cache-dir = "build/.cache/ruff"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "src/jenn/utils/plot.py" = [
   "PLR0913",  # Too many arguments in function definition
   "PLR2004",  # Magic value used in comparison

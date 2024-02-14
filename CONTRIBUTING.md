@@ -14,6 +14,7 @@ Assuming [conda](https://conda.org/) is installed:
 ```bash
 conda env update --file environment.yml --name jenn
 conda activate jenn
+pip install -e .
 pytest
 ```
 

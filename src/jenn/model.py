@@ -55,7 +55,6 @@ from .core.data import Dataset, denormalize, denormalize_partials, normalize
 from .core.parameters import Parameters
 from .core.propagation import model_forward, model_partials_forward, partials_forward
 from .core.training import train_model
-from .utils.decorators import timeit
 
 __all__ = ["NeuralNet"]
 
@@ -100,7 +99,6 @@ class NeuralNet:
         random_state: int | None = None,
         is_backtracking: bool = False,
         is_verbose: bool = False,
-        is_timed: bool = False,
     ) -> Self:  # noqa: PLR0913
         r"""Train neural network.
 
@@ -120,7 +118,6 @@ class NeuralNet:
         :param random_state: control repeatability
         :param is_backtracking: use backtracking line search or not
         :param is_verbose: print out progress for each (iteration, batch, epoch)
-        :param is_timed: print elapsed time
         :return: NeuralNet instance (self)
 
         .. warning::
@@ -129,30 +126,6 @@ class NeuralNet:
                 normalizing by the variance has the undesirable effect
                 of dividing by a very small number and should not be used.
         """
-
-        @timeit
-        def fit(*args) -> NeuralNet:  # type: ignore[no-untyped-def]
-            return self.fit(*args)
-
-        if is_timed:
-            return fit(
-                x,
-                y,
-                dydx,
-                is_normalize,
-                alpha,
-                lambd,
-                gamma,
-                beta1,
-                beta2,
-                epochs,
-                batch_size,
-                max_iter,
-                shuffle,
-                random_state,
-                is_backtracking,
-                is_verbose,
-            )
         data = Dataset(x, y, dydx)
         params = self.parameters
         params.mu_x[:] = 0.0

@@ -1,4 +1,5 @@
-"""Activation functions."""
+"""Activation Functions.
+========================"""
 
 import abc
 

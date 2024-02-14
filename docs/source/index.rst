@@ -93,7 +93,7 @@ subject and explained it in simple terms that even an aerospace engineer could u
     :caption: Getting Started
     :hidden:
 
-    sections/start
+    sections/quickstart
 
 .. toctree::
     :numbered:

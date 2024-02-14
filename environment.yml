@@ -11,9 +11,11 @@ dependencies:
   - jupyterlab >=3.6,<4.0.0a0
   # test
   - pytest
+  # docs
+  - sphinx 
+  - sphinx_rtd_theme 
+  - sphinx-multiversion
   # runtime
   - numpy 
   - orjson 
   - matplotlib-base
-  -pip: 
-    - -e .
