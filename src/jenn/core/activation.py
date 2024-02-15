@@ -63,7 +63,7 @@ class Activation:
 
 class Tanh(Activation):
     r"""Hyperbolic tangent.
-    
+
     .. math::
         y = \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}
     """
@@ -110,10 +110,10 @@ class Tanh(Activation):
 
 class Relu(Activation):
     r"""Rectified linear unit activation.
-    
+
     .. math::
-        y = \begin{cases} 
-            x & \text{if}~ x \ge 0 \\ 
+        y = \begin{cases}
+            x & \text{if}~ x \ge 0 \\
             0 & \text{otherwise}
         \end{cases}
     """
@@ -159,7 +159,7 @@ class Relu(Activation):
 
 class Linear(Activation):
     r"""Linear activation function.
-    
+
     .. math::
         y = x
     """

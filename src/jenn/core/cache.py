@@ -3,7 +3,8 @@
 
 This module defines a convenience class to  all quantities 
 computed during forward propagation, so they don't have to be 
-recomputed again during backward propgation."""
+recomputed again during backward propgation.
+"""  # noqa: W291
 
 import numpy as np
 
@@ -15,9 +16,9 @@ class Cache:
     forward prop for each layer, so they don't have to be
     recomputed again during backprop. This makes the algorithm faster.
 
-    .. warning:: 
+    .. warning::
         The attributes of this class are not protected. It's possible
-        to overwrite them instead of updating them in place. To ensure 
+        to overwrite them instead of updating them in place. To ensure
         that an array is updated in place, use the numpy `[:]` syntax:
 
         .. code-block:: python
@@ -26,9 +27,9 @@ class Cache:
             layer_1_activations = cache.A[1]
             layer_1_activations[:] = new_array_values  # note [:]
 
-    .. note:: 
-        The variables and their symbols refer to the theory in the companion 
-        `paper`_ for this library. 
+    .. note::
+        The variables and their symbols refer to the theory in the companion
+        `paper`_ for this library.
 
     :param layer_sizes: number of nodes in each layer (including input/output layers)
     :param m: number of examples (used to preallocate arrays)
@@ -51,10 +52,10 @@ class Cache:
     :ivar G_prime_prime:  :math:`G^{\prime\prime} = g^{\prime\prime}(Z^{[l]}) \in \mathbb{R}^{n^{[l]} \times m}`
     :vartype G_prime_prime: list[numpy.ndarray]
 
-    :ivar dA: :math:`{\partial \mathcal{J}}/{dA^{[l]}}  \in \mathbb{R}^{n^{[l]} \times m}~\forall~ l = 1 \dots L` 
+    :ivar dA: :math:`{\partial \mathcal{J}}/{dA^{[l]}}  \in \mathbb{R}^{n^{[l]} \times m}~\forall~ l = 1 \dots L`
     :vartype dA: list[numpy.ndarray]
 
-    :ivar dA_prime: :math:`{\partial \mathcal{J}}/{dA^{\prime[l]}}  \in \mathbb{R}^{n^{[l]} \times p \times m}~\forall~ l = 1 \dots L` 
+    :ivar dA_prime: :math:`{\partial \mathcal{J}}/{dA^{\prime[l]}}  \in \mathbb{R}^{n^{[l]} \times p \times m}~\forall~ l = 1 \dots L`
     :vartype dA: list[numpy.ndarray]
     """
 
