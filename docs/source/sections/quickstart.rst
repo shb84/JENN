@@ -191,25 +191,28 @@ a simple 1D sinusoid using only three data points::
     y_test = f(x_test)
     dydx_test = f_prime(x_test)
 
-    # Fit model
-    nn = jenn.model.NeuralNet(
-        layer_sizes=[
-            x_train.shape[0],  # input layer 
-            7, 7,              # hidden layer(s) -- user defined
-            y_train.shape[0]   # output layer 
-         ],  
+    # Fit jacobian-enhanced neural net
+    genn = jenn.model.NeuralNet(
+        layer_sizes=[x_train.shape[0], 3, 3, y_train.shape[0]],  # note: user defines hidden layer architecture
         ).fit(
-            x_train, y_train, dydx_train,
+            x_train, y_train, dydx_train  # see docstr for full list of hyperparameters
+        )
+
+    # Fit regular neural net (for comparison)
+    nn = jenn.model.NeuralNet(
+        layer_sizes=[x_train.shape[0], 3, 3, y_train.shape[0]]  # note: user defines hidden layer architecture
+        ).fit(
+            x_train, y_train  # see docstr for full list of hyperparameters
         )
 
     # Predict response only 
-    y_pred = nn.predict(x_test)
+    y_pred = genn.predict(x_test)
 
     # Predict partials only 
-    dydx_pred = nn.predict_partials(x_train)
+    dydx_pred = genn.predict_partials(x_train)
 
     # Predict response and partials in one step 
-    y_pred, dydx_pred = nn.evaluate(x_test) 
+    y_pred, dydx_pred = genn.evaluate(x_test) 
 
     # Check how well model generalizes 
     assert jenn.utils.metrics.r_square(y_pred, y_test) > 0.99
@@ -217,7 +220,7 @@ a simple 1D sinusoid using only three data points::
 
 Saving a model for later re-use::
 
-    nn.save("parameters.json")
+    genn.save("parameters.json")
 
 Reloading the parameters a previously trained model::
 
@@ -233,7 +236,7 @@ Optional plotting tools are available for convenience, provided `matplotlib` is 
     # Example: show goodness of fit of the partials 
     jenn.utils.plot.goodness_of_fit(
         y_true=dydx_test[0], 
-        y_pred=nn.predict_partials(x_test)[0], 
+        y_pred=genn.predict_partials(x_test)[0], 
         title="Partial Derivative: dy/dx (NN)"
     )
 
@@ -244,13 +247,13 @@ Optional plotting tools are available for convenience, provided `matplotlib` is 
 
     # Example: visualize local trends
     jenn.utils.plot.sensitivity_profiles(
-        f=[f, nn.predict], 
+        f=[f, genn.predict, nn.predict], 
         x_min=x_train.min(), 
         x_max=x_train.max(), 
         x_true=x_train, 
         y_true=y_train, 
         resolution=100, 
-        legend=['sin(x)', 'nn'], 
+        legend=['sin(x)', 'jenn', 'nn'], 
         xlabels=['x'], 
         ylabels=['y'],
         show_cursor=False

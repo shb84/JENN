@@ -13,15 +13,19 @@ of the Least Squares Estimator (LSE) that accounts for Jacobian prediction error
 The main benefit of jacobian-enhancement is better accuracy with
 fewer training points compared to standard fully connected neural nets, as illustrated below. 
  
+.. list-table:: 
+   :header-rows: 1
 
-.. image:: ../pics/JENN_vs_NN_1D.png
-  :width: 225
-  :align: center 
+   * - Example #1
+     - Example #2
+   * - .. image:: ../pics/example_sensitivity_profile.png
+     - .. image:: ../pics/JENN_vs_NN_1D.png
 
+.. list-table:: 
+   :header-rows: 1
 
-.. image:: ../pics/JENN_vs_NN_2D.png
-  :width: 750
-  :align: center 
+   * - Example #3
+   * - .. image:: ../pics/JENN_vs_NN_2D.png
 
 | 
 

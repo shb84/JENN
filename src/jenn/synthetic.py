@@ -1,5 +1,41 @@
 """Synthetic Data.
-=================="""
+==================
+
+This module provide synthetic test functions 
+that can be used to generate exmaple data for 
+illustration and testing. Simply inherit from 
+the base class to implement new test functions. 
+
+.. code-block:: python
+
+    #################
+    # Example Usage #
+    #################
+
+    import jenn 
+
+    (
+        x_train, 
+        y_train, 
+        dydx_train,
+    ) = jenn.synthetic.Sinusoid.sample(
+        m_lhs=0,    # number latin hypercube samples 
+        m_levels=4, # number of full factorial levels per factor
+        lb=-3.14,   # lower bound of domain 
+        ub=3.14,    # upper bound of domain 
+    )
+
+    (
+        x_test, 
+        y_test, 
+        dydx_test,
+    ) = jenn.synthetic.Sinusoid.sample(
+        m_lhs=30, 
+        m_levels=0, 
+        lb=-3.14,
+        ub=3.14,
+    )
+"""  # noqa: W291
 
 import abc
 
@@ -21,15 +57,8 @@ class TestFunction:
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """Evaluate function.
 
-        Parameters
-        ----------
-        x: np.ndarray
-            Input array of shape (n_x, m) where m is the number of examples
-
-        Returns
-        -------
-        y: np.ndarray
-            Output array of shape (n_y, m)
+        :param x: inputs, array of shape (n_x, m)
+        :return: response, array of shape (n_y, m)
         """
         raise NotImplementedError
 
@@ -37,15 +66,8 @@ class TestFunction:
     def first_derivative(self, x: np.ndarray) -> np.ndarray:
         """Evaluate partial derivative.
 
-        Parameters
-        ----------
-        x: np.ndarray
-            Input array of shape (n_x, m) where m is the number of examples
-
-        Returns
-        -------
-        dydx: np.ndarray
-            Output array of shape (n_y, n_x, m)
+        :param x: inputs, array of shape (n_x, m)
+        :return: partials, array of shape (n_y, n_x, m)
         """
         raise NotImplementedError
 
@@ -58,27 +80,13 @@ class TestFunction:
         ub: np.ndarray | float,
         random_state: int | None = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Generate synthetic data by sampling test function.
+        """Generate synthetic data by sampling the test function.
 
-        The sampling plan is a mixture or lating hypercube
-        and full factorial.
-
-        Parameters
-        ----------
-        m_lhs: int
-            Number of latin hypercube samples
-
-        m_levels: int
-            Number of levels per factor for full factorial
-
-        lb: np.ndarray | float
-            Lower bound on the factors
-
-        ub: np.ndarray | float
-            Upper bound on the factors
-
-        random_state: int | None, optional
-            Random seed
+        :param m_lhs: number of latin hypercube samples
+        :param m_levels: number of levels per factor for full factorial
+        :param lb: lower bound on the factors
+        :param ub: upper bound on the factors
+        :param random_state: random seed (for repeatability)
         """
         rng = np.random.default_rng(seed=random_state)
         lb = np.array([lb]).reshape((-1, 1))  # make sure it's an numpy array
@@ -95,10 +103,10 @@ class TestFunction:
 
 
 class Linear(TestFunction):
-    """Linear test function.
+    r"""Linear function.
 
-    f(x1, ..., xn) = b + ∑ a[i] * x[i]
-                        i=0
+    .. math::
+        f(x) = \beta_0 + \sum_{i=1}^p \beta_i x_i
     """
 
     @classmethod
@@ -142,11 +150,10 @@ class Linear(TestFunction):
 
 
 class Parabola(TestFunction):
-    """Parabola test function.
+    r"""Parabolic function.
 
-                           n
-    f(x1, ..., xn) = 1/n * ∑ (x[i] - x0[i]) ** 2
-                          i=0
+    .. math::
+        f(x) = \frac{1}{n} \sum_{i=1}^p (x_i - {x_0}_i)^2
     """
 
     @classmethod
@@ -182,9 +189,10 @@ class Parabola(TestFunction):
 
 
 class Sinusoid(TestFunction):
-    """Sinusoidal test function.
+    r"""Sinusoidal function.
 
-    y =x * np.sin(x)
+    .. math::
+        f(x) = x \sin(x)
     """
 
     @classmethod
@@ -216,11 +224,10 @@ class Sinusoid(TestFunction):
 
 
 class Rastrigin(TestFunction):
-    """Rastrigin (egg crate) test function.
+    r"""Rastrigin function.
 
-    n
-    f(x1, ..., xn) = ∑ (x[i] ** 2 − 10 cos(2πxi))
-                    i=0
+    .. math::
+        f(x) = \sum_{i=1}^p ( x_i^2 - 10 \cos(2\pi x_i) )
     """
 
     @classmethod
@@ -260,9 +267,10 @@ class Rastrigin(TestFunction):
 
 
 class Rosenbrock(TestFunction):
-    """Banana Rosenbrock test function.
+    r"""Banana Rosenbrock function.
 
-    y = (1 - x1) ** 2 + 100 * (x2 - x1 ** 2) ** 2
+    .. math::
+        f(x) = (1 - x_1)^2 + 100 (x_2 - x_1^2)^ 2
     """
 
     @classmethod
