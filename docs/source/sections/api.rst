@@ -2,6 +2,8 @@
 User API
 ========
 
+This section describes the main API users are expected to interact with.  
+
 .. automodule:: jenn.model
    :members:
 
@@ -16,6 +18,10 @@ User API
 
 Core API
 ========
+
+.. _paper: https://github.com/shb84/JENN/blob/refactor/docs/theory.pdf
+
+The core API implements all theory described in the `paper`_. This section is mostly for developers.  
 
 .. automodule:: jenn.core.activation
    :members:

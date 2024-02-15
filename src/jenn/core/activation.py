@@ -7,7 +7,7 @@ import numpy as np
 
 
 class Activation:
-    """Evaluate activation function."""
+    """Activation function base class."""
 
     @classmethod
     @abc.abstractmethod
@@ -18,14 +18,9 @@ class Activation:
     ) -> np.ndarray:  # noqa: D102
         """Evaluate activation function.
 
-        Parameters
-        ----------
-        x: np.ndarray
-            Point at which to evaluate function
-
-        y: np.ndarray, optional
-            If provided, the function writes the result into it and returns a
-            reference to y. Otherwise, new array is created. Default is None.
+        :param x: input array at which to evaluate the function
+        :param y: output array in which to write the results (optional)
+        :return: activation function evaluated at `x` (as new array if `y` not provided as input)
         """
         raise NotImplementedError
 
@@ -39,19 +34,10 @@ class Activation:
     ) -> np.ndarray:  # noqa: D102
         """Evaluate 1st derivative of activation function.
 
-        Parameters
-        ----------
-        x: np.ndarray
-            Point at which to evaluate function
-
-        y: np.ndarray, optional
-            If provided, the function uses the values; otherwise, it computes
-            it. Providing avoids having to recompute y. Default is None.
-
-        dy: np.ndarray, optional
-            If provided, the function writes the 1st derivative into it and
-            returns a reference to dy. Otherwise, new array is created. Default
-            is None.
+        :param x: input array at which to evaluate the function
+        :param y: response already evaluated at x (optional)
+        :param dy: output array in which to write the 1st derivative (optional)
+        :return: 1st derivative (as new array if `dy` not provided as input)
         """
         raise NotImplementedError
 
@@ -66,29 +52,21 @@ class Activation:
     ) -> np.ndarray:  # noqa: D102
         """Evaluate 2nd derivative of activation function.
 
-        Parameters
-        ----------
-        x: np.ndarray
-            Point at which to evaluate function
-
-        y: np.ndarray, optional
-            If provided, the function uses the values; otherwise, it computes
-            it. Providing avoids having to recompute y. Default is None.
-
-        dy: np.ndarray, optional
-            If provided, the function uses the values; otherwise, it computes
-            it. Providing avoids having to recompute dy. Default is None.
-
-        ddy: np.ndarray, optional
-            If provided, the function writes the 2nd derivative into it and
-            returns a reference to ddy. Otherwise, new array is created.
-            Default is None.
+        :param x: input array at which to evaluate the function
+        :param y: response already evaluated at x (optional)
+        :param y: 1st derivative already evaluated at x (optional)
+        :param ddy: output array in which to write the 2nd derivative (optional)
+        :return: 2nd derivative (as new array if `ddy` not provided as input)
         """
         raise NotImplementedError
 
 
 class Tanh(Activation):
-    """Hyperbolic tangent activation."""
+    r"""Hyperbolic tangent.
+    
+    .. math::
+        y = \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}
+    """
 
     @classmethod
     def evaluate(
@@ -131,7 +109,14 @@ class Tanh(Activation):
 
 
 class Relu(Activation):
-    """Rectified linear unit activation."""
+    r"""Rectified linear unit activation.
+    
+    .. math::
+        y = \begin{cases} 
+            x & \text{if}~ x \ge 0 \\ 
+            0 & \text{otherwise}
+        \end{cases}
+    """
 
     @classmethod
     def evaluate(
@@ -173,7 +158,11 @@ class Relu(Activation):
 
 
 class Linear(Activation):
-    """Linear activation function."""
+    r"""Linear activation function.
+    
+    .. math::
+        y = x
+    """
 
     @classmethod
     def evaluate(

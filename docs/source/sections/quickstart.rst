@@ -1,3 +1,6 @@
+.. _demo notebooks: https://github.com/shb84/JENN/tree/refactor/docs/examples
+.. _project repo: https://github.com/shb84/JENN.git
+
 Installation 
 ------------
 
@@ -265,5 +268,5 @@ Optional plotting tools are available for convenience, provided `matplotlib` is 
 Examples 
 --------
 
-Elaborated `demo` notebooks can be found in the project's `repo <https://github.com/shb84/JENN.git>`_ under `docs/examples`. 
+Elaborated `demo notebooks`_ can be found on the `project repo`_. 
 

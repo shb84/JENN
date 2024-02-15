@@ -3,13 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. _paper: https://github.com/shb84/JENN/blob/refactor/docs/theory.pdf
+
 Welcome to jenn's documentation!
 ================================
 
 Jacobian-Enhanced Neural Networks (JENN) are fully connected multi-layer
 perceptrons, whose training process is modified to predict partial 
 derivatives accurately. This is accomplished by minimizing a modified version 
-of the Least Squares Estimator (LSE) that accounts for Jacobian prediction error (see theory). 
+of the Least Squares Estimator (LSE) that accounts for Jacobian prediction error (see `paper`_). 
 The main benefit of jacobian-enhancement is better accuracy with
 fewer training points compared to standard fully connected neural nets, as illustrated below. 
  

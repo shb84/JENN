@@ -1,4 +1,5 @@
-"""Cost Function."""
+"""Cost Function.
+================="""
 
 import numpy as np
 
