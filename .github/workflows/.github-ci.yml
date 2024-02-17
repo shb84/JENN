@@ -18,9 +18,9 @@ on:
 jobs:
   qa:
     uses: ./.github/workflows/.github-ci-qa.yml
-  # test:
-  #   needs: qa
-  #   uses: ./.github/workflows/.github-ci-test.yml
+  test:
+    needs: qa
+    uses: ./.github/workflows/.github-ci-test.yml
   deploy: 
     # needs: test
     uses: ./.github/workflows/.github-ci-deploy.yml
