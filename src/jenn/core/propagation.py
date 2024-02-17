@@ -1,4 +1,7 @@
-"""Forward and backward propagation."""
+"""Propagation.
+==============
+
+This module contains the critical functionality to propagate information forward and backward through the neural net."""
 
 import numpy as np
 
@@ -23,18 +26,10 @@ def eye(n: int, m: int) -> np.ndarray:
 def first_layer_forward(X: np.ndarray, cache: Cache | None = None) -> None:
     """Compute input layer activations (in place).
 
-    Parameters
-    ----------
-    X: np.ndarray
-        Inputs. Array of shape (n_x, m)
-        where n_x = number of inputs
-                m = number of examples
-
-    cache: Cache | None
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop. Default is None.
+    :param X: training data inputs, array of shape (n_x, m)
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
     """
     X = X.astype(float, copy=False)
     if cache is not None:
@@ -44,18 +39,10 @@ def first_layer_forward(X: np.ndarray, cache: Cache | None = None) -> None:
 def first_layer_partials(X: np.ndarray, cache: Cache | None) -> None:
     """Compute input layer partial (in place).
 
-    Parameters
-    ----------
-    X: np.ndarray
-        Inputs. Array of shape (n_x, m)
-        where n_x = number of inputs
-                m = number of examples
-
-    cache: Cache | None
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop. Default is None.
+    :param X: training data inputs, array of shape (n_x, m)
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
     """
     X = X.astype(float, copy=False)
     if cache is not None:
@@ -68,20 +55,12 @@ def next_layer_partials(
 ) -> list[np.ndarray]:
     """Compute j^th partial in place for one layer (in place).
 
-    Parameters
-    ----------
-    layer: int
-        Index of current layer.
-
-    parameters: Parameters
-        Neural net parameters. Object that stores
-        neural net parameters for each layer.
-
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
+    :param layer: index of current layer.
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
     """
     r = layer
     s = layer - 1
@@ -99,19 +78,12 @@ def next_layer_partials(
 def next_layer_forward(layer: int, parameters: Parameters, cache: Cache) -> None:
     """Propagate forward through one layer (in place).
 
-    Parameters
-    ----------
-    layer: int
-        Index of current neural net layer.
-
-    parameters: Parameters
-        Neural net parameters for each layer.
-
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
+    :param layer: index of current layer.
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
     """
     r = layer
     s = layer - 1
@@ -130,22 +102,12 @@ def model_partials_forward(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Propagate forward in order to predict reponse(s) and partial(s).
 
-    Parameters
-    ----------
-    X: np.ndarray
-        Inputs. Array of shape (n_x, m)
-        where n_x = number of inputs
-                m = number of examples
-
-    parameters: Parameters
-        Neural net parameters. Object that stores
-        neural net parameters for each layer.
-
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
+    :param X: training data inputs, array of shape (n_x, m)
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
     """
     first_layer_forward(X, cache)
     first_layer_partials(X, cache)
@@ -158,22 +120,12 @@ def model_partials_forward(
 def model_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.ndarray:
     """Propagate forward in order to predict reponse(s).
 
-    Parameters
-    ----------
-    X: np.ndarray
-        Inputs. Array of shape (n_x, m)
-        where n_x = number of inputs
-                m = number of examples
-
-    parameters: Parameters
-        Neural net parameters. Object that stores
-        neural net parameters for each layer.
-
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
+    :param X: training data inputs, array of shape (n_x, m)
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
     """
     first_layer_forward(X, cache)
     for layer in parameters.layers[1:]:  # type: ignore[index]
@@ -184,22 +136,12 @@ def model_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.nda
 def partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.ndarray:
     """Propagate forward in order to predict partial(s).
 
-    Parameters
-    ----------
-    X: np.ndarray
-        Inputs. Array of shape (n_x, m)
-        where n_x = number of inputs
-                m = number of examples
-
-    parameters: Parameters
-        Neural net parameters. Object that stores
-        neural net parameters for each layer.
-
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
+    :param X: training data inputs, array of shape (n_x, m)
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
     """
     return model_partials_forward(X, parameters, cache)[-1]
 
@@ -207,16 +149,10 @@ def partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.
 def last_layer_backward(cache: Cache, data: Dataset) -> None:
     """Propagate backward through last layer (in place).
 
-    Parameters
-    ----------
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
-
-    data: Dataset
-        Object containing training and associated metadata.
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
+    :param data: object containing training and associated metadata
     """
     cache.dA[-1][:] = cache.A[-1] - data.Y
     if data.J is not None:
@@ -230,26 +166,15 @@ def next_layer_backward(
 ) -> None:
     """Propagate backward through next layer (in place).
 
-    Parameters
-    ----------
-    layer: int
-        Index of current neural net layer.
-
-    parameters: Parameters
-        Neural net parameters. Object that stores
-        neural net parameters for each layer.
-
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
-
-    data: Dataset
-        Object containing training and associated metadata.
-
-    lambd: int
-        Coefficient that multiplies regularization term in cost function.
+    :param layer: index of current layer.
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
+    :param data: object containing training and associated metadata
+    :param lambd: coefficient that multiplies regularization term in
+        cost function
     """
     r = layer
     s = layer - 1
@@ -268,26 +193,15 @@ def gradient_enhancement(
 ) -> None:
     """Add gradient enhancement to backprop (in place).
 
-    Parameters
-    ----------
-    layer: int
-        Index of current neural net layer.
-
-    parameters: Parameters
-        Neural net parameters. Object that stores
-        neural net parameters for each layer.
-
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
-
-    data: Dataset
-        Object containing training and associated metadata.
-
-    gamma: int
-        Coefficient that multiplies gradient-enhancement term in cost function.
+    :param layer: index of current layer.
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
+    :param data: object containing training and associated metadata
+    :param gamma: coefficient that multiplies jacobian-enhancement term
+        in cost function
     """
     if np.allclose(gamma, 0.0):
         return
@@ -345,28 +259,16 @@ def model_backward(
 ) -> None:
     """Propagate backward through all layers (in place).
 
-    Parameters
-    ----------
-    parameters: Parameters
-        Neural net parameters. Object that stores
-        neural net parameters for each layer.
-
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
-
-    data: Dataset
-        Object containing training and associated metadata.
-
-    lambd: int, optional
-        Coefficient that multiplies regularization term in cost function.
-        Default is 0.0
-
-    gamma: int, optional
-        Coefficient that multiplies gradient-enhancement term in cost function.
-        Default is 0.0
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
+    :param data: object containing training and associated metadata
+    :param lambd: coefficient that multiplies regularization term in
+        cost function
+    :param gamma: coefficient that multiplies jacobian-enhancement term
+        in cost function
     """
     last_layer_backward(cache, data)
     for layer in reversed(parameters.layers):  # type: ignore[call-overload]

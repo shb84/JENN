@@ -65,7 +65,8 @@ or repeatedly running gradient-based optimization from different starting points
 Runtime
 -------
 
-The algorithm was verified to scale as :math:`\mathcal{O}(n)`, as shown below. 
+The algorithm was verified to scale as :math:`\mathcal{O}(n)` using this
+`notebook <.https://github.com/shb84/JENN/blob/refactor/notebooks/runtime.ipynbb>`_, as shown below. 
 
 .. image:: ../pics/scalability.png
   :width: 750

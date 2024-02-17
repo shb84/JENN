@@ -21,7 +21,7 @@ Core API
 
 .. _paper: https://github.com/shb84/JENN/blob/refactor/docs/theory.pdf
 
-The core API implements all theory described in the `paper`_. This section is mostly for developers.  
+The core API implements all theory described in the `paper`_. This section is intended for developers.  
 
 .. automodule:: jenn.core.activation
    :members:

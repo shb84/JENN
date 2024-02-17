@@ -1,4 +1,9 @@
-"""Training data dataclass."""
+"""Data.
+========
+
+This module contains convenience utilities to 
+manage and handle training data. 
+"""  # noqa: W291
 
 import math
 from dataclasses import dataclass
@@ -13,32 +18,15 @@ def mini_batches(
     shuffle: bool = True,
     random_state: int | None = None,
 ) -> list[tuple[int, ...]]:
-    """Create randomized mini-batches.
+    r"""Create randomized mini-batches.
 
-    Parameters
-    ----------
-    X: np.ndarray
-        input features of the training data shape (n_x, m)
-        where n_x = number of inputs
-                m = number of examples
-
-    batch_size: int | None
-        mini batch size (if None, then batch_size = m)
-
-    shuffle: bool
-        Shuffle data points
-        Default = True
-
-    random_state: int
-        Random seed (set to make runs repeatable)
-        Default = None
-
-    Returns
-    -------
-    batches: list[tuple[int, ...]]
-        A list of tuples of integers, where each tuple contains
-        the indices of the training data for that batch, where the
-        index is in the interval [1, m]
+    :param X: training data input :math:`X\in\mathbb{R}^{n_x\times m}`
+    :param batch_size: mini batch size (if None, single batch with all
+        data)
+    :param shuffle: swhether to huffle data points or not
+    :param random_state: random seed (useful to make runs repeatable)
+    :return: list of tuples containing training data indices allocated
+        to each batch
     """
     rng = np.random.default_rng(random_state)
 
@@ -73,33 +61,19 @@ def mini_batches(
 
 
 def avg(array: np.ndarray) -> np.ndarray:
-    """Compute training data mean.
+    """Compute mean and reshape as column array.
 
-    Parameters
-    ----------
-    array: np.ndarray
-        Array of shape (n, m) where m is the number of examples.
-
-    Returns
-    -------
-    mean: np.ndarray
-        Array of shape (n, 1) representing mean along each dimension.
+    :param array: array of shape (-1, m)
+    :return: column array corresponding to mean of each row
     """
     return np.mean(array, axis=1).reshape((-1, 1))
 
 
 def std(array: np.ndarray) -> np.ndarray:
-    """Compute training data standard deviation.
+    """Compute standard deviation and reshape as column array.
 
-    Parameters
-    ----------
-    array: np.ndarray
-        Array of shape (n, m) where m is the number of examples.
-
-    Returns
-    -------
-    std: np.ndarray
-        Array of shape (n, 1) representing std along each dimension.
+    :param array: array of shape (-1, m)
+    :return: column array corresponding to std dev of each row
     """
     return np.std(array, axis=1).reshape((-1, 1))
 
@@ -114,17 +88,10 @@ def _safe_divide(value: np.ndarray, eps: float = np.finfo(float).eps) -> np.ndar
 def normalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarray:
     """Center data about mean and normalize by standard deviation.
 
-    Parameters
-    ----------
-    data: np.ndarray
-        The data to be normalized. An array of shape (n, m)
-        where m is the number of examples.
-
-    mu: np.ndarray
-        The mean of the data. An array of shape (n, 1).
-
-    sigma: np.ndarray
-        The standard deviation of the data. An array of shape (n, 1).
+    :param data: data to be normalized, array of shape (-1, m)
+    :param mu: mean of the data, array of shape (-1, 1)
+    :param sigma: std deviation of the data, array of shape (-1, 1)
+    :return: normalized data, array of shape (-1, m)
     """
     return (data - mu) / _safe_divide(sigma)
 
@@ -132,17 +99,10 @@ def normalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarray
 def denormalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarray:
     """Undo normalization.
 
-    Parameters
-    ----------
-    data: np.ndarray
-        Normalized data. An array of shape (n, m)
-        where m is the number of examples.
-
-    mu: np.ndarray
-        The mean of the data. An array of shape (n, 1).
-
-    sigma: np.ndarray
-        The standard deviation of the data. An array of shape (n, 1).
+    :param data: normalized data, array of shape (-1, m)
+    :param mu: mean of the data, array of shape (-1, 1)
+    :param sigma: std deviation of the data, array of shape (-1, 1)
+    :return: denormalized data, array of shape (-1, m)
     """
     return sigma * data + mu
 
@@ -150,21 +110,15 @@ def denormalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarr
 def normalize_partials(
     partials: np.ndarray, sigma_x: np.ndarray, sigma_y: np.ndarray
 ) -> np.ndarray:
-    """Normalize partials.
+    r"""Normalize partials.
 
-    Parameters
-    ----------
-    partials: np.ndarray
-        The partials to be normalized. An array of shape (n_y, n_x, m)
-        where n_x = number of inputs
-              n_y = number of outputs
-                m = number of examples
-
-    sigma_x: np.ndarray
-        The standard deviation of the inputs. An array of shape (n_x, 1).
-
-    sigma_y: np.ndarray
-        The standard deviation of the outputs. An array of shape (n_y, 1).
+    :param partials: training data partials to be normalized
+        :math:`J\in\mathbb{R}^{n_y\times n_x \times m}`
+    :param sigma_x: std dev of training data factors :math:`\sigma_x`,
+        array of shape (-1, 1)
+    :param sigma_y: std dev of training data responses :math:`\sigma_y`,
+        array of shape (-1, 1)
+    :return: normalized partials, array of shape (n_y, n_x, m)
     """
     if partials is None:
         return partials
@@ -177,19 +131,15 @@ def normalize_partials(
 def denormalize_partials(
     partials: np.ndarray, sigma_x: np.ndarray, sigma_y: np.ndarray
 ) -> np.ndarray:
-    """Undo normalization of partials.
+    r"""Undo normalization of partials.
 
-    Parameters
-    ----------
-    partials: np.ndarray
-        Normalized partials. An array of shape (n, m)
-        where m is the number of examples.
-
-    mu: np.ndarray
-        The mean of the data. An array of shape (n, 1).
-
-    sigma: np.ndarray
-        The standard deviation of the data. An array of shape (n, 1).
+    :param partials: normalized training data partials
+        :math:`\bar{J}\in\mathbb{R}^{n_y\times n_x \times m}`
+    :param sigma_x: std dev of training data factors :math:`\sigma_x`,
+        array of shape (-1, 1)
+    :param sigma_y: std dev of training data responses :math:`\sigma_y`,
+        array of shape (-1, 1)
+    :return: denormalized partials, array of shape (n_y, n_x, m)
     """
     n_y, n_x, _ = partials.shape
     sigma_x = sigma_x.T.reshape((1, n_x, 1))
@@ -201,19 +151,9 @@ def denormalize_partials(
 class Dataset:
     """Store training data and associated metadata for easy access.
 
-    Parameters
-    ----------
-    X: np.ndarray
-        Training data outputs. An array of shape (n_x, m)
-
-    Y: np.ndarray
-        Training data outputs. An array of shape (n_y, m)
-
-    J: np.ndarray, optional
-        Training data gradients. An array of shape (n_y, n_x, m)
-        Y' = d(Y)/dX where n_y = number outputs
-                           n_x = number inputs
-                           m = number examples
+    :param X: training data outputs, array of shape (n_x, m)
+    :param Y: training data outputs, array of shape (n_y, m)
+    :param J: training data Jacobians, array of shape (n_y, n_x, m)
     """
 
     X: np.ndarray
@@ -275,19 +215,12 @@ class Dataset:
     ) -> list["Dataset"]:
         """Breakup data into multiple batches and return list of Datasets.
 
-        Parameters
-        ----------
-        batch_size: int | None
-            Number of examples to include in each batch. This
-            number ultimate determines how many batches will
-            be created.
-
-        shuffle: bool, optional
-            Shuffle the data before putting it into batches.
-            Default is True
-
-        random_state: int, optional
-            Random seed to use for shuffling. Default is None.
+        :param batch_size: mini batch size (if None, single batch with
+            all data)
+        :param shuffle: swhether to huffle data points or not
+        :param random_state: random seed (useful to make runs
+            repeatable)
+        :return: list of Dataset representing data broken up in batches
         """
         X = self.X
         Y = self.Y

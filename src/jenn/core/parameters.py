@@ -1,4 +1,7 @@
-"""Neural net parameters."""
+"""Parameters.
+==============
+
+This module defines a utility class to store and manage neural net parameters and metadata."""
 
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -10,44 +13,55 @@ import orjson
 
 @dataclass
 class Parameters:
-    """Neural network parameters.
+    r"""Neural network parameters.
 
-    Note that the attributes of this class are not protected. It's possible
-    to overwrite them instead of updating them in place. To
-    ensure that an array is updated in place, use proper numpy syntax:
+    .. warning::
+        The attributes of this class are not protected. It's possible
+        to overwrite them instead of updating them in place. To ensure
+        that an array is updated in place, use the numpy `[:]` syntax:
 
-        e.g. cache = Cache(shapes)
-             layer_1_weights = cache.W[1]
-             layer_1_weights[:] = new_array_values  # note [:]
+        .. code-block:: python
 
-    Attributes
-    ----------
-    W: list[np.ndarray]
-        Store weights for each layer: Z = W.T A_prev + b
+            parameters = Parameters(**kwargs)
+            layer_1_weights = parameters.W[1]
+            layer_1_weights[:] = new_array_values  # note [:]
 
-    b: list[np.ndarray]
-        Store biases for each layer: Z = W.T A_prev + b
+    .. note::
 
-    a: list[str] = layer activations
-        Store activations for each layer: A = g(Z)
+        The variables and their symbols refer to the theory in the companion
+        `paper`_ for this library.
 
-    dW: list[np.ndarray]
-         Store d/dW (L) for backprop
+    :param layer_sizes: number of nodes in each layer (including
+        input/output layers)
+    :param hidden_activation: activation function used in hidden layers
+    :param output_activation: activation function used in output layer
 
-    db: list[np.ndarray]
-         Store d/db (L) for backprop
+    :ivar W: weights :math:`\boldsymbol{W} \in \mathbb{R}^{n^{[l]} \times n^{[l-1]}}` for each layer
+    :vartype W: list[np.ndarray]
 
-    mu_x: list[np.ndarray]
-        Mean of training data inputs used for normalization
+    :ivar b: biases :math:`\boldsymbol{b} \in \mathbb{R}^{n^{[l]} \times 1}` for each layer
+    :vartype b: list[np.ndarray]
 
-    mu_y: list[np.ndarray]
-        Mean of training data outputs used for normalization
+    :ivar a: activation names for each layer
+    :vartype a: list[str]
 
-    sigma_x: list[np.ndarray]
-        Standard deviation of training data inputs used for normalization
+    :ivar dW: partials w.r.t. weight :math:`dL/dW^{[l]} \in \mathbb{R}^{n^{[l]} \times n^{[l-1]}}`
+    :vartype dW: list[np.ndarray]
 
-    sigma_y: list[np.ndarray]
-        Standard deviation of training data outputs used for normalization
+    :ivar db: partials w.r.t. bias :math:`dL/db^{[l]} \in \mathbb{R}^{n^{[l]} \times 1}`
+    :vartype db: list[np.ndarray]
+
+    :ivar mu_x: mean of training data inputs used for normalization :math:`\mu_x \in \mathbb{R}^{n_x \times 1}`
+    :vartype mu_x: list[np.ndarray]
+
+    :ivar mu_y: mean of training data outputs used for normalization :math:`\mu_y \in \mathbb{R}^{n_y \times 1}`
+    :vartype mu_x: list[np.ndarray]
+
+    :ivar sigma_x: standard deviation of training data inputs used for normalization :math:`\sigma_x \in \mathbb{R}^{n_x \times 1}`
+    :vartype sigma_x: list[np.ndarray]
+
+    :ivar sigma_y: standard deviation of training data outputs used for normalization :math:`\sigma_y \in \mathbb{R}^{n_y \times 1}`
+    :vartype sigma_y: list[np.ndarray]
     """
 
     layer_sizes: list[int]
@@ -83,12 +97,9 @@ class Parameters:
         self.initialize()
 
     def initialize(self, random_state: int | None = None) -> None:
-        """Use 'He initialization' to initialize parameters.
+        """Use `He initialization <https://arxiv.org/pdf/1502.01852.pdf>`_ to initialize parameters.
 
-        Parameters
-        ----------
-        random_state: int | None, optional
-            Random seed. Default is None.
+        :param random_state: optional random seed (for repeatability)
         """
         rng = np.random.default_rng()
         self.W = []
@@ -130,35 +141,21 @@ class Parameters:
     def stack(self, per_layer: bool = False) -> np.ndarray | list[np.ndarray]:
         """Stack W, b into a single array for each layer.
 
-        Parameters
-        ----------
-        per_layer: bool, optional
-            Return list of stacks if True (one per layer).
-                e.g. [
-                    np.array([
-                        [W1],
-                        [b1]
-                        ]),
-                    np.array([
-                        [W2],
-                        [b2]
-                        ]),
-                    np.array([
-                        [W3],
-                        [b3]
-                        ]),
-                    ...
-                ]
-            Return stack of stacks as single array if False (default).
-                e.g. np.array([
-                    [W1],
-                    [b1],
-                    [W2],
-                    [b2],
-                    [W3],
-                    [b3],
-                    ...
-                ])
+        :param per_layer: whether to return answer as list of stacks (one per layer)
+        :return: parameter as either single stacked array or list of stacks (if specified)
+
+        .. code-block::
+
+            parameters.stack(per_layer=True)
+            >> [np.array([[W1], [b1]]), [W2], [b2]]), np.array([[W3], [b3]])]
+
+            parameters.stack()
+            >> np.array([[W1], [b1], [W2], [b2], [W3], [b3]])
+
+        .. note::
+            This method is used to convert the list format
+            used by the neural net into a single array of stacked parameters
+            for optimization.
         """
         stacks = []
         for i in range(self.L):
@@ -181,35 +178,13 @@ class Parameters:
         params: np.ndarray
             Neural network parameters as single array where all layers
             are stacked on top of each other.
-            e.g. np.array([
-                    [W1],
-                    [b1],
-                    [W2],
-                    [b2],
-                    [W3],
-                    [b3],
-                    ...
-                ])
+            e.g. np.array([[W1], [b1], [W2], [b2], [W3], [b3]])
 
         Returns
         -------
         params: list[np.ndarray]
             List of stacks (one per layer)
-            e.g. [
-                    np.array([
-                        [W1],
-                        [b1]
-                        ]),
-                    np.array([
-                        [W2],
-                        [b2]
-                        ]),
-                    np.array([
-                        [W3],
-                        [b3]
-                        ]),
-                    ...
-                ]
+            e.g. [np.array([[W1], [b1]]), [W2], [b2]]), np.array([[W3], [b3]])]
         """
         stacks = []
         k = 0
@@ -225,39 +200,26 @@ class Parameters:
     def unstack(self, parameters: np.ndarray | list[np.ndarray]) -> None:
         """Unstack parameters W, b back into list of arrays.
 
-            W = [W1, W2, W3, ...]
-            b = [b1, b2, b3, ...]
+        :param parameters: neural network parameters as either a single
+            array where all layers are stacked on top of each other or a list of
+            stacked parameters for each layer.
 
-        Parameters
-        ----------
-        parameters: np.ndarray
-            Neural network parameters as either a single array where
-            all layers are stacked on top of each other.
-                e.g. np.array([
-                        [W1],
-                        [b1],
-                        [W2],
-                        [b2],
-                        [W3],
-                        [b3],
-                        ...
-                    ])
-            or a list of stacks per layer
-                e.g. [
-                        np.array([
-                            [W1],
-                            [b1]
-                            ]),
-                        np.array([
-                            [W2],
-                            [b2]
-                            ]),
-                        np.array([
-                            [W3],
-                            [b3]
-                            ]),
-                        ...
-                    ]
+        .. code-block::
+
+            # Unstack from single stack
+            parameters.unstack(np.array([[W1], [b1], [W2], [b2], [W3], [b3]]))
+            parameters.W, parameters.b
+            >> [W1, W2, W3], [b1, b2, b3]
+
+            # Unstack from list of stacks
+            parameters.unstack([np.array([[W1], [b1]]), [W2], [b2]]), np.array([[W3], [b3]])])
+            parameters.W, parameters.b
+            >> [W1, W2, W3], [b1, b2, b3]
+
+        .. note::
+            This method is used to convert optimization results expressed
+            as a single array of stacked parameters, back into the list format
+            used by the neural net.
         """
         if isinstance(parameters, np.ndarray):  # single column
             parameters = self._column_to_stacks(parameters)
@@ -272,35 +234,20 @@ class Parameters:
         dW, db are either stacked into a single stack (for all layers)
         or a list of stacks (one per layer).
 
-        Parameters
-        ----------
-        per_layer: bool, optional
-            Return list of stacks if True (one per layer).
-                e.g. [
-                    np.array([
-                        [dW1],
-                        [db1]
-                        ]),
-                    np.array([
-                        [dW2],
-                        [db2]
-                        ]),
-                    np.array([
-                        [dW3],
-                        [db3]
-                        ]),
-                    ...
-                ]
-            Return stack of stacks as single array if False (default).
-                e.g. np.array([
-                    [dW1],
-                    [db1],
-                    [dW2],
-                    [db2],
-                    [dW3],
-                    [db3],
-                    ...
-                ])
+        :param per_layer: whether to return answer as list of stacks (one per layer)
+        :return: partials as either single stacked array or list of stacks (if specified)
+
+        .. code-block::
+
+            parameters.stack_partials(per_layer=True)
+            >> [np.array([[dW1], [db1]]), np.array([[dW2], [db2]]), np.array([[dW3], [db3]]),]
+
+            parameters.stack_partials()
+            >> np.array([[dW1], [db1], [dW2], [db2], [dW3], [db3]])
+
+        .. note::
+            This method is used to convert the list format used by the neural
+            net into a single array of stacked parameters for optimization.
         """
         stacks = []
         for i in range(self.L):
@@ -318,39 +265,26 @@ class Parameters:
     def unstack_partials(self, partials: np.ndarray | list[np.ndarray]) -> None:
         """Unstack backprop partials dW, db back into list of arrays.
 
-            dW = [dW1, dW2, dW3, ...]
-            db = [db1, db2, db3, ...]
+        :param partials: neural network partials as either a single
+            array where all layers are stacked on top of each other or a list of
+            stacked parameters for each layer.
 
-        Parameters
-        ----------
-        partials: np.ndarray
-            Neural network partials for backprop as either a single array where
-            all layers are stacked on top of each other.
-                e.g. np.array([
-                        [dW1],
-                        [db1],
-                        [dW2],
-                        [db2],
-                        [dW3],
-                        [db3],
-                        ...
-                    ])
-            or a list of stacks per layer
-                e.g. [
-                        np.array([
-                            [dW1],
-                            [db1]
-                            ]),
-                        np.array([
-                            [dW2],
-                            [db2]
-                            ]),
-                        np.array([
-                            [dW3],
-                            [db3]
-                            ]),
-                        ...
-                    ]
+        .. code-block::
+
+            # Unstack from single stack
+            parameters.unstack(np.array([[dW1], [db1], [dW2], [db2], [dW3], [db3]]))
+            parameters.dW, parameters.db
+            >> [dW1, dW2, dW3], [db1, db2, db3]
+
+            # Unstack from list of stacks
+            parameters.unstack([np.array([[dW1], [db1]]), [dW2], [db2]]), np.array([[dW3], [db3]])])
+            parameters.dW, parameters.db
+            >> [dW1, dW2, dW3], [db1, db2, db3]
+
+        .. note::
+            This method is used to convert optimization results expressed
+            as a single array of stacked parameters, back into the list format
+            used by the neural net.
         """
         if isinstance(partials, np.ndarray):  # single column
             partials = self._column_to_stacks(partials)

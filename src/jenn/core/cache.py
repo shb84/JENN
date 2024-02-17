@@ -3,7 +3,8 @@
 
 This module defines a convenience class to  all quantities 
 computed during forward propagation, so they don't have to be 
-recomputed again during backward propgation.
+recomputed again during backward propgation. See
+`paper`_ for details and notation.
 """  # noqa: W291
 
 import numpy as np
@@ -37,13 +38,13 @@ class Cache:
     :ivar Z:  :math:`Z^{[l]} \in \mathbb{R}^{n^{[l]}\times m}~\forall~ l = 1 \dots L`
     :vartype Z: list[numpy.ndarray]
 
-    :ivar Z_prime:  :math:`{Z^\prime}^{[l]} \in \mathbb{R}^{n^{[l]}\times p \times m}~\forall~ l = 1 \dots L`
+    :ivar Z_prime:  :math:`{Z^\prime}^{[l]} \in \mathbb{R}^{n^{[l]}\times n_x \times m}~\forall~ l = 1 \dots L`
     :vartype Z_prime: list[numpy.ndarray]
 
     :ivar A:  :math:`A^{[l]} = g(Z^{[l]}) \in \mathbb{R}^{n^{[l]} \times m}~\forall~ l = 1 \dots L`
     :vartype A: list[numpy.ndarray]
 
-    :ivar A_prime:  :math:`{A^\prime}^{[l]} = g^\prime(Z^{[l]})Z^{\prime[l]} \in \mathbb{R}^{n^{[l]}\times p \times m}`
+    :ivar A_prime:  :math:`{A^\prime}^{[l]} = g^\prime(Z^{[l]})Z^{\prime[l]} \in \mathbb{R}^{n^{[l]}\times n_x \times m}`
     :vartype A_prime: list[numpy.ndarray]
 
     :ivar G_prime:  :math:`G^{\prime} = g^{\prime}(Z^{[l]}) \in \mathbb{R}^{n^{[l]} \times m}~\forall~ l = 1 \dots L`
@@ -55,7 +56,7 @@ class Cache:
     :ivar dA: :math:`{\partial \mathcal{J}}/{dA^{[l]}}  \in \mathbb{R}^{n^{[l]} \times m}~\forall~ l = 1 \dots L`
     :vartype dA: list[numpy.ndarray]
 
-    :ivar dA_prime: :math:`{\partial \mathcal{J}}/{dA^{\prime[l]}}  \in \mathbb{R}^{n^{[l]} \times p \times m}~\forall~ l = 1 \dots L`
+    :ivar dA_prime: :math:`{\partial \mathcal{J}}/{dA^{\prime[l]}}  \in \mathbb{R}^{n^{[l]} \times n_x \times m}~\forall~ l = 1 \dots L`
     :vartype dA: list[numpy.ndarray]
     """
 

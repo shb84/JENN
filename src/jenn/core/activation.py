@@ -1,5 +1,7 @@
-"""Activation Functions.
-========================"""
+"""Activation.
+==============
+
+This module implements activation functions used by the neural network."""
 
 import abc
 

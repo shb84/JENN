@@ -1,4 +1,7 @@
-"""Train neural network."""
+"""Training.
+============
+
+This class implements the core algorithm responsible for training the neural networks."""
 
 import functools
 from collections import defaultdict
@@ -22,38 +25,15 @@ def objective_function(
 ) -> np.float64:
     """Evaluate cost function for training.
 
-    Parameters
-    ----------
-    X: np.ndarray
-        Training data inputs. An array of shape (n_x, m)
-        where n_x = number of inputs
-                m = number of examples
-
-    cost: Cost
-        Cost function to be evaluated.
-
-    parameters: Parameters
-        Neural net parameters. Object that stores
-        neural net parameters for each layer.
-
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
-
-    stacked_params: np.ndarray
-        Neural network parameters, represented as single
-        array of stacked parameters for all layers.
-        e.g. np.array([
-                    [W1],
-                    [b1],
-                    [W2],
-                    [b2],
-                    [W3],
-                    [b3],
-                    ...
-                ])
+    :param X: training data inputs, array of shape (n_x, m)
+    cost: cost function to be evaluated
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
+    stacked_params: neural network parameters returned by the optimizer,
+        represented as single array of stacked parameters for all layers.
     """
     parameters.unstack(stacked_params)
     Y_pred, J_pred = model_partials_forward(X, parameters, cache)
@@ -70,41 +50,19 @@ def objective_gradient(
 ) -> np.ndarray:  # noqa: PLR0913
     """Evaluate cost function gradient for backprop.
 
-    Parameters
-    ----------
-    data: Dataset
-        Object containing training and associated metadata.
-
-    parameters: Parameters
-        Neural net parameters. Object that stores
-        neural net parameters for each layer.
-
-    cache: Cache
-        Neural net cache. Object that stores
-        neural net quantities for each layer,
-        during forward prop, so they can be
-        accessed during backprop.
-
-    lambd: int, optional
-        Coefficient that multiplies regularization term in cost function.
-        Default is 0.0
-
-    gamma: int, optional
-        Coefficient that multiplies gradient-enhancement term in cost function.
-        Default is 0.0
-
-    stacked_params: np.ndarray
-        Neural network parameters, represented as single
-        array of stacked parameters for all layers.
-        e.g. np.array([
-                    [W1],
-                    [b1],
-                    [W2],
-                    [b2],
-                    [W3],
-                    [b3],
-                    ...
-                ])
+    :param data: object containing training and associated metadata
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
+    :param lambd: coefficient that multiplies regularization term in
+        cost function
+    :param gamma: coefficient that multiplies jacobian-enhancement term
+        in cost function
+    :param stacked_params: neural network parameters returned by the
+        optimizer, represented as single array of stacked parameters for
+        all layers.
     """
     parameters.unstack(stacked_params)
     model_backward(data, parameters, cache, lambd, gamma)
@@ -127,99 +85,32 @@ def train_model(
     is_backtracking: bool = False,
     is_verbose: bool = False,
 ) -> dict:  # noqa: PLR0913
-    """Train neural net.
+    r"""Train neural net.
 
     Note:
+    ----
         Model parameters are updated in place.
 
-    Parameters
-    ----------
-    data: Dataset
-        Object containing training and associated metadata.
-
-    parameters: Parameters
-        Neural net parameters. Object that stores
-        neural net parameters for each layer.
-
-    alpha: float, optional
-        Learning rate (controls optimizer step size for line search)
-        Default is 0.05
-
-    lambd: float, optional
-        Regularization coefficient (controls how much to penalize
-        objective function for over-fitting)
-        Default is 0.0
-
-    gamma: float, optional
-        Gradient-enhancement coefficient (controls important of 1st-order
-        accuracy errors in objective function.)
-        Default is 1.0 (full gradient-enhancement)
-        Note: only active when dydx is provided (ignored otherwise)
-
-    beta1: float, optional
-        Hyperparameter that controls momentum for
-        [ADAM](https://arxiv.org/abs/1412.6980) optimizer.
-        Default is 0.9
-
-    beta2: float, optional
-        Hyperparameter that controls momentum for
-        [ADAM](https://arxiv.org/abs/1412.6980) optimizer.
-        Default is 0.999
-
-    epochs: int, optional
-        Number of epochs (passes through data). Default is 1.
-        Note: total number of objective function calls =
-                number of epochs
-                    x number of batches
-                        x number of iterations (search directions)
-                            x number of evaluations along each line search
-
-    batch_size: int, optional
-        Size of each batch for minibatch, which is a routine that randomly
-        splits the data into discrete batches to train faster (in cases
-        where data is very large).
-        Note: total number of objective function calls =
-                number of epochs
-                    x number of batches
-                        x number of iterations (search directions)
-                            x number of evaluations along each line search
-
-    max_iter: int, optional
-        Maximum number of optimizer iterations. Default 200.
-        Note: total number of objective function calls =
-                number of epochs
-                    x number of batches
-                        x number of iterations (search directions)
-                            x number of evaluations along each line search
-
-    shuffle: bool, optional
-        Shuffle data for minibatch. Default is True.
-
-    random_state: int, optional
-        Random seed for minibatch repeatability. Default is None.
-
-    is_backtracking: bool, optional
-        Use backtracking line search, where step size is progressively
-        reduced (multiple steps) until cost function no longer improves
-        along search direction. Default is False (single step).
-        Note: total number of objective function calls =
-                number of epochs
-                    x number of batches
-                        x number of iterations (search directions)
-                            x number of evaluations along each line search
-
-    is_verbose: bool, optional
-        Print out progress for each iteration, each batch, each epoch.
-        Default is False.
-
-    Returns
-    -------
-    history: dict[int, dict[int, list[np.float64]]]
-        Cost function history for each epoch, batch, iteration. The cost history
-        is useful for plotting convergence. For example, to access the cost
-        history of epoch 2, batch 5, iteration 9:
-
-            cost = history['epoch_2']['batch_5'][9]
+    :param data: object containing training and associated metadata
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param alpha: learning rate :math:`\alpha`
+    :param lambd: regularization term coefficient in cost function
+    :param gamma: jacobian-enhancement term coefficient in cost function
+    :param beta_1: exponential decay rate of 1st moment vector
+        :math:`\beta_1\in[0, 1)`
+    :param beta_2: exponential decay rate of 2nd moment vector
+        :math:`\beta_2\in[0, 1)`
+    :param epochs: number of passes through data
+    :param batch_size: mini batch size (if None, single batch with
+            all data)
+    :param max_iter: maximum number of optimizer iterations allowed
+    :param shuffle: swhether to huffle data points or not
+    :param random_state: random seed (useful to make runs
+            repeatable)
+    :param is_backtracking: whether or not to use backtracking during line search
+    :param is_verbose: print out progress for each iteration, each batch, each epoch
+    :return: cost function training history accessed as `cost = history[epoch][batch][iter]`
     """
     history: dict[str, dict[str, list[float] | None]] = defaultdict(dict)
 

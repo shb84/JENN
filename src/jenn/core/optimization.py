@@ -1,4 +1,10 @@
-"""Gradient-Based Optimization."""
+"""Optimization.
+================
+
+.. ADAM: https://doi.org/10.48550/arXiv.1412.6980
+
+This module implements gradient-based optimization using `ADAM`_. 
+"""  # noqa W291
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
@@ -7,11 +13,15 @@ import numpy as np
 
 
 class Update(ABC):
-    """Take a single step along the search direction.
+    r"""Base class for line search.
 
-    Base class. The search direction is determined by the "update"
-    method implemented in the base class.
-    """
+    Update parameters :math:`\boldsymbol{x}` by taking a step along
+    the search direction :math:`\boldsymbol{s}` according to
+    :math:`\boldsymbol{x} := \boldsymbol{x} + \alpha
+    \boldsymbol{s}`
+
+    .. automethod:: __call__
+    """  # noqa W291
 
     @abstractmethod
     def _update(
@@ -28,28 +38,23 @@ class Update(ABC):
         grads: np.ndarray,
         alpha: float,
     ) -> np.ndarray:
-        """Take a single step along the search direction.
+        r"""Take a single step along search direction.
 
-            x_new = x + alpha * search_direction
-
-        Parameters
-        ----------
-        params: np.ndarray
-            Parameters to be updated
-
-        grads: np.ndarray
-            Gradient of objective function w.r.t. each parameter
-
-        alpha: float
-            Learning rate
+        :param params: parameters :math:`x` to be updated
+        :param grads: gradient :math:`\nabla_x f` of
+            objective function :math:`f` w.r.t. each parameter
+            :math:`x`
+        :param alpha: learning rate :math:`\alpha`
         """
         return self._update(params, grads, alpha)
 
 
 class GD(Update):
-    """Take a single step along the search direction.
+    r"""Take single step along the search direction using gradient descent.
 
-    The search direction is determined using gradient descent.
+    GD simply follows the steepest path according to
+    :math:`\boldsymbol{x} := \boldsymbol{x} + \alpha \boldsymbol{s}`
+    where :math:`\boldsymbol{s} = \nabla_x f`
     """
 
     def _update(
@@ -62,24 +67,18 @@ class GD(Update):
 
 
 class ADAM(Update):
-    """Take a single step along search direction.
+    r"""Take single step along the search direction as determined by `ADAM`_.
 
-    The search direction is determined using ADAM [REF].
+    Parameters :math:`\boldsymbol{x}` are updated according to
+    :math:`\boldsymbol{x} := \boldsymbol{x} + \alpha \boldsymbol{s}`
+    where :math:`\boldsymbol{s}` is determined by ADAM in such a way to
+    improve efficiency. This is accomplished making use of previous
+    information (see paper).
 
-    [REF] Kingma, D. P. and Ba, J., “Adam: A
-          Method for Stochastic Optimization,” 12 2014.
-
-    Parameters
-    ----------
-    beta_1: float
-        Exponential decay rate for estimates of first moment vector
-        in adam, should be in [0, 1). Only used when solver="adam"
-        Default is 0.9
-
-    beta_2: float
-        Exponential decay rate for estimates of second moment vector
-        in adam, should be in [0, 1). Only used when solver="adam"
-        Default is 0.99
+    :param beta_1: exponential decay rate of 1st moment vector
+        :math:`\beta_1\in[0, 1)`
+    :param beta_2: exponential decay rate of 2nd moment vector
+        :math:`\beta_2\in[0, 1)`
     """
 
     def __init__(
@@ -138,15 +137,14 @@ class ADAM(Update):
 
 
 class LineSearch(ABC):
-    """Take multiple steps along the search direction.
+    r"""Take multiple steps of varying size by progressively varying
+    :math:`\alpha` along the search direction.
 
-    Parameters
-    ----------
-    update: Update
-        Take a single step along the search direction.
-        Note: the update algorithm determines the search
-        direction based on the current value of the gradient.
-        x_new = x + alpha * search_direction
+    :param update: object that implements Update base class to update
+        parameters according to :math:`\boldsymbol{x} :=
+        \boldsymbol{x} + \alpha \boldsymbol{s}`
+
+    .. automethod:: __call__
     """
 
     def __init__(
@@ -163,52 +161,27 @@ class LineSearch(ABC):
         cost: Callable,
         learning_rate: float,
     ) -> np.ndarray:
-        """Take multiple steps along the search direction.
+        r"""Take multiple steps along the search direction.
 
-        Parameters
-        ----------
-        params: np.ndarray
-            Parameters to be updated
-
-        grads: np.ndarray
-            Gradient of objective function w.r.t. each parameter
-
-        cost: Callable
-            Cost function: cost = f(params)
-
-        learning_rate: float
-            The initial step size.
-
-        Returns
-        -------
-        new_params: np.ndarray
-            Updated parameters
+        :param params: parameters to be updated, array of shape (n,)
+        :param grads: cost function gradient w.r.t. parameters, array of
+            shape (n,)
+        :param cost: cost function, array of shape (1,)
+        :param learning_rate: initial step size :math:`\alpha`
+        :return: new_params: updated parameters, array of shape (n,)
         """
         raise NotImplementedError
 
 
 class Backtracking(LineSearch):
-    """Search for optimum along a search direction.
+    r"""Search for optimum along a search direction.
 
-    Parameters
-    ----------
-    update: Update
-        Take a single step along the search direction.
-        Note: the update algorithm determines the search
-        direction based on the current value of the gradient.
-        x_new = x + alpha * search_direction
+    :param update: object that updates parameters according to :math:`\boldsymbol{x} := \boldsymbol{x} + \alpha \boldsymbol{s}`
+    :param tau: amount by which to reduce :math:`\alpha := \tau \times \alpha` on each iteration
+    :param tol: stop when cost function doesn't improve more than specified tolerance
+    :param max_count: stop when line search iterations exceed maximum count specified
 
-    tau: float, optional
-        Amount by which to reduce alpha (step size) on each iteration.
-        alpha_new = alpha * tau
-        Default is 0.5
-
-    tol: float, optional
-        Tolerance criterion to stop iteration (i.e. stop whenever cost
-        function doesn't improve more than tol). Default is 1e-6.
-
-    max_count: int, optional
-        Stop when line search iterations exceed max_count. Default is 1000.
+    .. automethod:: __call__
     """
 
     def __init__(
@@ -230,21 +203,17 @@ class Backtracking(LineSearch):
         cost: Callable,
         learning_rate: float = 0.05,
     ) -> np.ndarray:
-        """Take multiple update steps along search direction.
+        r"""Take multiple "update" steps along search direction.
 
-        Parameters
-        ----------
-        params: np.ndarray
-            Parameters to be updated
-
-        grads: np.ndarray
-            Gradient of objective function w.r.t. each parameter
-
-        cost: Callable
-            Objective function y = f(x) where x = params
-
-        learning_rate: float, optional
-            The maximum allowed step size. Default is 0.05
+        :param params: parameters :math:`x` to be updated, array of
+            shape (n,)
+        :param grads: gradient :math:`\nabla_x f` of
+            objective function :math:`f` w.r.t. each
+            parameter, array of shape (n,)
+        :param cost: objective function :math:`f`
+        :param learning_rate: maximum allowed step size :math:`\alpha
+            \le \alpha_{max}`
+        :return: updated parameters :math:`x`, array of shape (n,)
         """
         tau = self.tau
         tol = self.tol
@@ -267,14 +236,14 @@ class Backtracking(LineSearch):
 
 
 class Optimizer:
-    """Find optimum using gradient-based optimization.
+    r"""Find optimum using gradient-based optimization.
 
-    Parameters
-    ----------
-    line_search: LineSearch
-        The algorithm to use for determine best search direction
-        given current value of gradient and searching for optimum
-        along that direction.
+    :param line_search: object that implements algorithm to compute
+        search direction :math:`\boldsymbol{s}` given the gradient
+        :math:`\nabla_x f` at the current parameter values
+        :math:`\boldsymbol{x}` and take multiple steps along it to
+        update them according to :math:`\boldsymbol{x} := \boldsymbol{x}
+        + \alpha \boldsymbol{s}`
     """
 
     def __init__(
@@ -296,39 +265,21 @@ class Optimizer:
         epoch: int | None = None,
         batch: int | None = None,
     ) -> np.ndarray:
-        """Minimize single objective function.
+        r"""Minimize single objective function.
 
-        Parameters
-        ----------
-        x: np.ndarray
-            Parameters to be updated
-
-        f: Callable
-            Objective function y = f(x)
-
-        alpha: float
-            Learning rate
-            Default is 0.01
-
-        max_iter: int
-            Maximum number of optimizer iterations allowed
-            Default is 100
-
-        verbose: bool
-            Send progress output to standard out
-            Default is False
-
-        epoch: int
-            The epoch in which this optimization is being run (only used
-            for printing progress output messages)
-            Default is None
-
-        batch: int
-            The batch in which this optimization is being run (only used
-            for printing progress output messages)
-            Default is None
+        :param x: parameters to be updated, array of shape (n,)
+        :param f: cost function :math:`y = f(\boldsymbol{x})`
+        :param alpha: learning rate :math:`\boldsymbol{x} :=
+            \boldsymbol{x} + \alpha \boldsymbol{s}`
+        :param max_iter: maximum number of optimizer iterations allowed
+        :param verbose: whether or not to send progress output to
+            standard out
+        :param epoch: the epoch in which this optimization is being run
+            (for printing)
+        :param batch: the batch in which this optimization is being run
+            (for printing)
         """
-        # Stopping criteria (Vanderplaats, ch. 3, p. 121)
+        # Stopping criteria (Vanderplaats, "Multidiscipline Design Optimization," ch. 3, p. 121)
         converged = False
         N1 = 0
         N1_max = 100
@@ -407,24 +358,15 @@ class Optimizer:
 
 
 class GDOptimizer(Optimizer):
-    """Search for optimum using gradient descent.
+    r"""Search for optimum using gradient descent.
 
-    Parameters
-    ----------
-    tau: float, optional
-        Backtracking line search parameter. Amount by which
-        to reduce alpha (step size) on each iteration.
-        alpha_new = alpha * tau
-        Default is 0.5
+    .. warning::
+        This optimizer is very inefficient. It was intended
+        as a baseline during development. It is not recommended. Use ADAM instead.
 
-    tol: float, optional
-        Backtracking line search parameter. Tolerance criterion
-        to stop iteration (i.e. stop whenever cost function
-        doesn't improve more than tol). Default is 1e-6.
-
-    max_count: int, optional
-        Backtracking line search parameter. Stop when line search
-        iterations exceed max_count. Default is 1000.
+    :param tau: amount by which to reduce :math:`\alpha := \tau \times \alpha` on each iteration
+    :param tol: stop when cost function doesn't improve more than specified tolerance
+    :param max_count: stop when line search iterations exceed maximum count specified
     """
 
     def __init__(
@@ -443,34 +385,18 @@ class GDOptimizer(Optimizer):
 
 
 class ADAMOptimizer(Optimizer):
-    """Search for optimum using ADAM algorithm.
+    r"""Search for optimum using ADAM algorithm.
 
-    Parameters
-    ----------
-    beta_1: float
-        Exponential decay rate for estimates of first moment vector
-        in adam, should be in [0, 1). Only used when solver="adam"
-        Default is 0.9
-
-    beta_2: float
-        Exponential decay rate for estimates of second moment vector
-        in adam, should be in [0, 1). Only used when solver="adam"
-        Default is 0.99
-
-    tau: float, optional
-        Backtracking line search parameter. Amount by which
-        to reduce alpha (step size) on each iteration.
-        alpha_new = alpha * tau
-        Default is 0.5
-
-    tol: float, optional
-        Backtracking line search parameter. Tolerance criterion
-        to stop iteration (i.e. stop whenever cost function
-        doesn't improve more than tol). Default is 1e-6.
-
-    max_count: int, optional
-        Backtracking line search parameter. Stop when line search
-        iterations exceed max_count. Default is 1000.
+    :param beta_1: exponential decay rate of 1st moment vector
+        :math:`\beta_1\in[0, 1)`
+    :param beta_2: exponential decay rate of 2nd moment vector
+        :math:`\beta_2\in[0, 1)`
+    :param tau: amount by which to reduce :math:`\alpha := \tau \times
+        \alpha` on each iteration
+    :param tol: stop when cost function doesn't improve more than
+        specified tolerance
+    :param max_count: stop when line search iterations exceed maximum
+        count specified
     """
 
     def __init__(

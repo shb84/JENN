@@ -1,5 +1,5 @@
-"""Neural Network Model.
-========================
+"""Model.
+=========
 
 This module contains the main class to train a neural net and make
 predictions. It acts as an interface between the user and the core 

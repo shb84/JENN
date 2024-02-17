@@ -55,11 +55,11 @@ html_theme_options = {
     # 'vcs_pageview_mode': '',
     # 'style_nav_header_background': 'white',
     # Toc options
-    # 'collapse_navigation': True,
-    # 'sticky_navigation': True,
-    # 'navigation_depth': 2,
-    # 'includehidden': True,
-    'titles_only': True,  # this prevents collapsible sections
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': 2,
+    'includehidden': True,
+    # 'titles_only': True,  # this prevents collapsible sections
 }
 html_context = {
     "display_github": True, # Integrate GitHub

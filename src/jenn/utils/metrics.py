@@ -1,5 +1,6 @@
 """Metrics.
-==========="""
+===========
+"""  # noqa: W291
 
 import numpy as np
 
