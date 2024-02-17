@@ -87,10 +87,6 @@ def train_model(
 ) -> dict:  # noqa: PLR0913
     r"""Train neural net.
 
-    Note:
-    ----
-        Model parameters are updated in place.
-
     :param data: object containing training and associated metadata
     :param parameters: object that stores neural net parameters for each
         layer
