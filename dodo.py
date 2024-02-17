@@ -186,6 +186,7 @@ def task_docs():
                 "sphinx-multiversion",
                 P.DOCS_SOURCE, 
                 P.DOCS_BUILD / "html",
+                "--dump-metadata",
             ]],
             ok=OK.DOCS,
             file_dep=[OK.INSTALL],
