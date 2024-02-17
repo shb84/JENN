@@ -125,21 +125,18 @@ Optionally, if `matplotlib` is installed, show sensitivity profiles:
 
 # Use Case
 
-JENN is primarily intended for the field of computer aided design, when there is often 
-a need to replace computationally expensive, physics-based models with so-called `surrogate models` in
-order to save time for further analysis down the line. The field of aerospace engineering is 
-rich in examples with two important use-cases that come to mind: 
-
-* Surrogate-based optimization 
-* Uncertainty quantification
-
-In both cases, the value proposition is that the computational expense of 
-generating the training data to fit a surrogate is much less than the 
-computational expense of performing the analysis with the original model itself. 
-Since the `surrogate model` emulates the original model accurately 
+JENN is intended for the field of computer aided design, where there is often 
+a need to replace computationally expensive, physics-based models with so-called _surrogate models_ in
+order to save time down the line. Since the _surrogate model_ emulates the original model accurately 
 in real time, it offers a speed benefit that can be used to carry out orders of magnitude 
-more function calls quickly, such as enabling Monte Carlo simulations of computationally expensive functions 
-or repeatedly running gradient-based optimization from different starting points to find local minima. 
+more function calls quickly, opening the door to Monte Carlo simulation of expensive functions for example. 
+
+In general, the value proposition of a surrogate is that the computational 
+expense of generating training data to fit the model 
+is much less than the computational expense of performing the analysis with the original physics-based model itself. 
+However, in the special case of gradient-enhanced methods, there is the additional value proposition that partials 
+are accurate which is a critical property for one important use-case: **surrogate-based optimization**. The field of 
+aerospace engineering is rich in [applications](https://doi.org/10.1002/9780470686652.eae496) of such a use-case. 
 
 ----
 
