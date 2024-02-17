@@ -33,6 +33,7 @@ _This release introduces breaking changes but makes the algorithm about 5x faste
 ### Documentation
 
 - Added documentation using `sphinx` and published on GitHub Pages
+- Added more example notebooks
 
 ### Refactor 
 
