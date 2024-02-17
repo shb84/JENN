@@ -1,12 +1,21 @@
-name: jenn-dev
 channels:
 - conda-forge
 - defaults
 dependencies:
-- numpy  # for neural computations
-- matplotlib  # for goodness of fit
-- jupyterlab  # for examples
-- pytest  # for unit testing
-- pip
-- pip:
-    - -r requirements.txt
+  - python >=3.11,<3.12
+  # build
+  - doit[toml]
+  - conda-lock
+  - pip 
+  # protyping
+  - jupyterlab >=3.6,<4.0.0a0
+  # test
+  - pytest
+  # docs
+  - sphinx 
+  - sphinx_rtd_theme 
+  - sphinx-multiversion
+  # runtime
+  - numpy 
+  - orjson 
+  - matplotlib-base

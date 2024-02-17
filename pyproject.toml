@@ -1,6 +1,118 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "jenn"
+version = "1.0.0"
+authors = [
+  { name="Steven H. Berguin", email="stevenberguin@gmail.com" },
+]
+description = "Jacobian-Enhanced Neural Nets (JENN)"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "orjson>=3.9",
+  "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+viz = ["matplotlib-base>=3.8"]
+
+[project.urls]
+Homepage = "https://github.com/shb84/JENN"
+Issues = "https://github.com/shb84/JENN/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]  # list of folders that contain the packages (["."] by default)
+include = ["jenn*"]  # package names should match these glob patterns (["*"] by default)
+exclude = ["jenn.tests*"]  # exclude packages matching these glob patterns (empty by default)
+namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+
+[tool.ruff]
+lint.select = [
+  "ANN",  # flake8-annotations
+  "D",  # pydocstyle
+  "E",  # pycodestyle errors
+  "F",  # pyflakes
+  "I",  # isort
+  "PL", # pylint
+  "UP", # pyupgra
+  "W",  # pycodestyle warnings
+  "NPY", # NumPy-specific rules
+]
+lint.ignore = [
+  "ANN101", # Missing type annotation for `self` in method
+  "ANN102", # Missing type annotation for `cls` in classmethod
+  "ANN002",  # Missing type annotation for `*args`
+  "ANN003",  # Missing type annotation for `**kwargs`
+  "ANN204",  # Missing return type annotation for special method `__init__`
+  "PLR0913",  # Too many arguments in function definition
+  "E501", # if it doesn't bother black
+  "D105",
+  "D107",
+  "D205",
+  "D209",
+  "D400",
+  "D203",
+  "D213", # pydocstyle opinion
+  "D417", # FIXME Missing argument description
+  "D413", # Missing blank line after last section ("Parameters")
+]
+cache-dir = "build/.cache/ruff"
+
+[tool.ruff.lint.per-file-ignores]
+"src/jenn/utils/plot.py" = [
+  "PLR0913",  # Too many arguments in function definition
+  "PLR2004",  # Magic value used in comparison
+]
+"src/jenn/synthetic.py" = [
+  "D102",  # Missing docstring in public method
+]
+"src/jenn/core/activation.py" = [
+  "D102",  # Missing docstring in public method
+]
+"src/jenn/core/model.py" = [
+  "PLR0913",  # Too many arguments in function definition
+]
+"src/jenn/core/optimization.py" = [
+  "PLR0913",  # Too many arguments in function definition
+  "PLR0912",  # Too many branches 
+  "PLR0915",  # Too many statement
+]
+"src/jenn/core/training.py" = [
+  "PLR0913",  # Too many arguments in function definition
+]
+"src/jenn/model.py" = [
+  "PLR0913",  # Too many arguments in function definition
+]
+
+
+[tool.mypy]
+cache_dir = "build/.cache/mypy"
+sqlite_cache = true
+python_version = "3.11"
+# settings
+allow_redefinition = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+no_implicit_optional = true
+show_error_codes = true
+show_error_context = true
+warn_return_any = false
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+  "matplotlib",
+]
+ignore_missing_imports = true
+
+
+ 

@@ -1,0 +1,64 @@
+name: jenn-ci-deploy
+run-name: ${{ github.actor }}-jenn-ci-deploy
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  
+on:
+  workflow_call:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Build docs
+        shell: bash -el {0}
+        run: | 
+          doit docs 
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: './build/docs/html'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+  dist:
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml 
+      - name: Package
+        shell: bash -el {0}
+        run: | 
+          doit package
+      - name: Store wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel
+          path: ./build/dist/*.whl
+      - name: Store source artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: source
+          path: ./build/dist/*.tar.gz
+    # TODO: release

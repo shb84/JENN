@@ -1,173 +1,156 @@
 # Jacobian-Enhanced Neural Network (JENN)
 
 Jacobian-Enhanced Neural Networks (JENN) are fully connected multi-layer
-perceptrons, whose training process was modified to account for gradient
-information. Specifically, the parameters are learned by minimizing the Least
-Squares Estimator (LSE), modified to minimize prediction error of both 
-response values and partial derivatives. 
+perceptrons, whose training process is modified to predict partial 
+derivatives accurately. This is accomplished by minimizing a modified version 
+of the Least Squares Estimator (LSE) that accounts for Jacobian prediction error (see theory). 
+The main benefit of jacobian-enhancement is better accuracy with
+fewer training points compared to standard fully connected neural nets, as illustrated below. 
 
-The chief benefit of gradient-enhancement is better accuracy with
-fewer training points, compared to full-connected neural nets without
-gradient-enhancement. JENN applies to regression, but not classification since there is no gradient in that case.
+<div align="center">
 
-This particular implementation is fully vectorized and uses Adam optimization,
-mini-batch, and L2-norm regularization. Batch norm is not implemented and,
-therefore, very deep networks might suffer from exploding and vanishing
-gradients. This would be a useful addition for those who would like to
-contribute. 
+|                  Example #1                    |      Example #2                 |
+|:----------------------------------------------:|:-------------------------------:|
+| ![](docs/pics/example_sensitivity_profile.png) | ![](docs/pics/JENN_vs_NN_1D.png)|
 
-The core algorithm was written in Python 3 and requires only numpy. However, 
-Matplotlib is required for plotting, some examples 
-depend on pyDOE2 for generating synthetic data, and example notebooks 
-require Jupyter to run. For now, documentation only exists in the form of a 
-[PDF](https://github.com/shb84/JENN/blob/master/docs/theory.pdf) with the 
-theory and [jupyter notebook examples](https://github.com/shb84/JENN/tree/master/demo) on the project website. 
+|             Example #3           |
+|:--------------------------------:|
+| ![](docs/pics/JENN_vs_NN_2D.png) |
 
-Jacobian-Enhanced Neural Net            |  Standard Neural Net
-:-------------------------:|:-------------------------:
-![](pics/JENN.png)  |  ![](pics/NN.png)
+</div>
+ 
 
-> NOTE: this project was originally called GENN, but was renamed since a pypi package of that name already exists.
 
 ----
-
 # Main Features
 
 * Multi-Task Learning : predict more than one output with same model Y = f(X) where Y = [y1, y2, ...]
 * Jacobian prediction : analytically compute the Jacobian (_i.e._ forward propagation of dY/dX)
-* Gradient-Enhancement: minimize prediction error of partials during training (_i.e._ back-prop accounts for dY/dX)
+* Gradient-Enhancement: minimize prediction error of partials (_i.e._ back-prop accounts for dY/dX)
 
 ----
 
 # Installation
 
-# Users
-
-    pip install jenn
-
-# Developers
-
-Clone the repo: 
-
-    git clone https://github.com/shb84/JENN.git 
-    
-From inside the repo, create a new conda environment for the project (called `jenn-dev` by default): 
-    
-    conda env create -f environment.yml 
-    conda activate jenn-dev 
-
-Test that your environment is working by running unit tests. From the root directory of the repo, type: 
-
-    pytest 
-
-All tests should pass. You should also try running the notebooks in `demo/` and the the usage example below. 
-
-> NOTE: If jupyter throws `ModuleNotFoundError: No module named` but the package is installed, 
-> then Jupyter might be running a different kernel then the one associated 
-> with your conda env. To fix this, add your conda environment as kernel so that it can 
-> be selected when running Jupyter: 
->
-    ipython kernel install --user --name=<env_name>
+    pip install jenn 
 
 ----
 
-# Usage
+# Example Usage
 
-**Checkout demo for more detailed tutorials in the form of jupyter notebooks**
+_See [demo](./docs/examples/) notebooks for more details_
 
-    import numpy as np
-    from jenn import JENN
-    import pickle
+Import library:  
 
-    def synthetic_data(): 
-        f = lambda x: x * np.sin(x)
-        df_dx = lambda x: np.sin(x) + x * np.cos(x) 
+    import jenn
 
-        # Domain 
-        lb = -np.pi
-        ub = np.pi
+Generate example training and test data:  
 
-        # Training data 
-        m = 4    # number of training examples
-        n_x = 1  # number of inputs
-        n_y = 1  # number of outputs
-        X_train = np.linspace(lb, ub, m).reshape((m, n_x))
-        Y_train = f(X_train).reshape((m, n_y))
-        J_train = df_dx(X_train).reshape((m, n_y, n_x))
+    x_train, y_train, dydx_train = jenn.synthetic.Sinusoid.sample(
+        m_lhs=0, 
+        m_levels=4, 
+        lb=-3.14, 
+        ub=3.14,
+    )
+    x_test, y_test, dydx_test = jenn.synthetic.Sinusoid.sample(
+        m_lhs=30, 
+        m_levels=0, 
+        lb=-3.14, 
+        ub=3.14,
+    )
 
-        # Test data 
-        m = 30  # number of test examples
-        X_test = lb + np.random.rand(m, 1).reshape((m, n_x)) * (ub - lb)
-        Y_test = f(X_test).reshape((m, n_y))
-        J_test = df_dx(X_test).reshape((m, n_y, n_x))
 
-        return X_train, Y_train, J_train, X_test, Y_test, J_test
+Train a model: 
 
-    # Generate synthetic data for this example 
-    X_train, Y_train, J_train, X_test, Y_test, J_test = synthetic_data() 
+    nn = jenn.model.NeuralNet(
+        layer_sizes=[1, 12, 1],
+    ).fit(
+        x=x_train,  
+        y=y_train, 
+        dydx=dydx_train,
+        lambd=0.1,  # regularization parameter 
+        is_normalize=True,  # normalize data before fitting it
+    )
+    
+ Make predictions: 
 
-    # Initialize model (gamma = 1 implies gradient enhancement)
-    model = JENN(hidden_layer_sizes=(12,), activation='tanh',
-                 num_epochs=1, max_iter=200, batch_size=None,
-                 learning_rate='backtracking', random_state=None, tol=1e-6,
-                 learning_rate_init=0.05, alpha=0.1, gamma=1, verbose=False)
+    y, dydx = nn.evaluate(x)
 
-    # Train neural net 
-    model.fit(X_train, Y_train, J_train) 
+    # OR 
 
-    # Plot training history 
-    history = model.training_history()
+    y = nn.predict(x)
+    dydx = nn.predict_partials(x)
 
-    # Visualize fit quality 
-    r_square = model.goodness_fit(X_test, Y_test)
 
-    # Predict
-    Y_pred = model.predict(X_train)
-    J_pred = model.jacobian(X_train)
+Save model (parameters) for later use: 
 
-    # Save as pkl file for re-use
-    file = open('model.pkl', 'wb')
-    pickle.dump(model, file)
-    file.close()
+    nn.save('parameters.json')  
 
-    # Assume you are starting a new script and want to reload a previously trained model:
-    pkl_file = open('model.pkl', 'rb')
-    model = pickle.load(pkl_file)
-    pkl_file.close()
+Reload saved parameters into new model: 
 
-----
+    reloaded = jenn.model.NeuralNet(layer_sizes=[1, 12, 1]).load('parameters.json')
 
-# Limitations
+Optionally, if `matplotlib` is installed, check goodness of fit: 
 
-Gradient-enhanced methods requires responses to be continuous and smooth (_i.e._ gradient is 
-defined everywhere), but is only beneficial when  the cost of obtaining the gradient 
-is not excessive in the first place or the need for accuracy outweighs the cost of 
-computing partials. The user should therefore carefully weigh the benefit of 
-gradient-enhanced methods relative to the needs of the application.
+    jenn.utils.plot.goodness_of_fit(
+        y_true=dydx_test[0], 
+        y_pred=nn.predict_partials(x_test)[0], 
+        title="Partial Derivative: dy/dx (JENN)"
+    )
+
+Optionally, if `matplotlib` is installed, show sensitivity profiles:
+
+    jenn.utils.plot.sensitivity_profiles(
+        f=[jenn.synthetic.Sinusoid.evaluate, nn.predict], 
+        x_min=x_train.min(), 
+        x_max=x_train.max(), 
+        x_true=x_train, 
+        y_true=y_train, 
+        resolution=100, 
+        legend=['true', 'pred'], 
+        xlabels=['x'], 
+        ylabels=['y'],
+    )
+
+--- 
+# Documentation
+
+
+* [API](shb84.github.io/JENN/ ) 
+* [Theory](https://github.com/shb84/JENN/blob/master/docs/theory.pdf)
+* [Example 1: sinusoid](https://github.com/shb84/JENN/blob/master/notebooks/demo_1_sinusoid.ipynb)  
+* [Example 2: Rastrigin](https://github.com/shb84/JENN/blob/master/notebooks/demo_2_rastrigin.ipynb)  
 
 ----
 
 # Use Case
 
-JENN is unlikely to apply to real-world data since real data is usually
-discrete, incomplete, and gradients are not available. However, in the field of
-computer aided design, there exist a well known use case: the need to replace
-computationally expensive computer models with so-called “surrogate models” in
-order to save time for further analysis down the line. The field of aerospace
-engineering and, more specifically, multi-disciplinary analysis and optimization
-is rich in examples. In this scenario, the process typically consists of
-generating a small Design Of Experiment (DOE), running the computationally
-expensive computer model for each DOE point, and using the results as training
-data to train a “surrogate model” (such as JENN). Since the “surrogate model”
-emulates the original physics-based model accurately in real time, it offers a
-speed benefit that can be used to carry out additional analysis such as
-uncertainty quantification by means of Monte Carlo simulation, which would’ve
-been computationally inefficient otherwise. Moreover, in the very special case
-of computational fluid dynamics, adjoint design methods provide a scalable and 
-efficient way to compute the gradient, making gradient-enhanced methods 
-attractive (if not compelling). Otherwise, the cost of generating the gradient 
-will have to be weighed against the benefit of improved accuracy depending on 
-the needs of the application. 
+JENN is intended for the field of computer aided design, where there is often 
+a need to replace computationally expensive, physics-based models with so-called _surrogate models_ in
+order to save time down the line. Since the _surrogate model_ emulates the original model accurately 
+in real time, it offers a speed benefit that can be used to carry out orders of magnitude 
+more function calls quickly, opening the door to Monte Carlo simulation of expensive functions for example. 
+
+In general, the value proposition of a surrogate is that the computational 
+expense of generating training data to fit the model 
+is much less than the computational expense of performing the analysis with the original physics-based model itself. 
+However, in the special case of gradient-enhanced methods, there is the additional value proposition that partials 
+are accurate which is a critical property for one important use-case: **surrogate-based optimization**. The field of 
+aerospace engineering is rich in [applications](https://doi.org/10.1002/9780470686652.eae496) of such a use-case. 
+
+----
+
+# Limitations
+
+Gradient-enhanced methods require responses to be continuous and smooth, 
+but they are only beneficial if the cost of obtaining partials 
+is not excessive in the first place (e.g. adjoint methods), or if the need for accuracy outweighs the cost of 
+computing the partials. Users should therefore carefully weigh the benefit of 
+gradient-enhanced methods relative to the needs of their application. 
+
+--- 
+# License
+Distributed under the terms of the MIT License.
 
 ----
 
@@ -176,8 +159,9 @@ the needs of the application.
 This code used the code by Prof. Andrew Ng in the
 [Coursera Deep Learning Specialization](https://www.coursera.org/specializations/deep-learning)
 as a starting point. It then built upon it to include additional features such
-as line search or plotting, but most of all, it fundamentally changed the software architecture
-from pure functional programming to object oriented programming and modified the formulation 
-to include a gradient-enhancement. The author would like to thank Andrew Ng for
+as line search and plotting but, most of all, it fundamentally changed the formulation 
+to include gradient-enhancement and made sure all arrays were updated in place (data is never copied). 
+The author would like to thank Andrew Ng for
 offering the fundamentals of deep learning on Coursera, which took a complicated
-subject and explained it in simple terms that made it accessible to laymen, such as the present author.
+subject and explained it in simple terms that even an aerospace engineer could understand.
+

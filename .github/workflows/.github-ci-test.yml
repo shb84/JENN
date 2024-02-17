@@ -1,0 +1,100 @@
+name: jenn-ci-test
+run-name: ${{ github.actor }}-jenn-ci-test
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  
+on:
+  workflow_call:
+
+# TODO: run notebooks 
+jobs:
+  install-linux:
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Install package
+        shell: bash -el {0}
+        run: | 
+          doit install
+  install-windows:
+    runs-on: windows-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Install package
+        shell: bash -el {0}
+        run: | 
+          doit install
+  install-macos:
+    runs-on: macos-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Install package
+        shell: bash -el {0}
+        run: | 
+          doit install
+  unit-tests:
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Install package
+        shell: bash -el {0}
+        run: | 
+          doit install
+      - name: Run unit tests
+        shell: bash -el {0}
+        run: | 
+          doit test
+      - name: Store report artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: ./build/reports
+  demo-notebooks:
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Run demo notebooks
+        shell: bash -el {0}
+        run: | 
+          doit notebooks
+          
+    
