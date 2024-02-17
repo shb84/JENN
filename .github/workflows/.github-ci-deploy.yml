@@ -25,6 +25,7 @@ jobs:
       - name: Build docs
         shell: bash -el {0}
         run: | 
+          git fetch --all
           doit docs 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v4

@@ -31,8 +31,7 @@ doit list --all --status
 ---
 ## Procedure
 
-The recommended process is to do all work in the `dev` environment. 
-Upon satisfaction, before merge requests, follow the steps below which ensure `ci` will pass. 
+The recommended process is to do all local work in the `dev` environment. Upon satisfaction, before merge requests, follow the steps below which ensure `ci` will pass. 
 
 #### Step 1: Update Environment Specs (optional)
 
@@ -65,6 +64,20 @@ _If applicable, mannually check notebooks in `ci` environment_:
 ```bash
 doit lab
 ```
+
+#### Step 5: Pull Request
+
+_Create a draft PR on GitHub in order to trigger CI and push changes_: 
+
+```bash
+git add -u 
+git status 
+git commit -m "description"
+git push
+```
+
+When satisfied, change PR status to ready for review. 
+
 --- 
 ## License
 Distributed under the terms of the MIT License.
