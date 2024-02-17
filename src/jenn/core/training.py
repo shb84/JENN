@@ -98,15 +98,17 @@ def train_model(
     :param beta_2: exponential decay rate of 2nd moment vector
         :math:`\beta_2\in[0, 1)`
     :param epochs: number of passes through data
-    :param batch_size: mini batch size (if None, single batch with
-            all data)
+    :param batch_size: mini batch size (if None, single batch with all
+        data)
     :param max_iter: maximum number of optimizer iterations allowed
     :param shuffle: swhether to huffle data points or not
-    :param random_state: random seed (useful to make runs
-            repeatable)
-    :param is_backtracking: whether or not to use backtracking during line search
-    :param is_verbose: print out progress for each iteration, each batch, each epoch
-    :return: cost function training history accessed as `cost = history[epoch][batch][iter]`
+    :param random_state: random seed (useful to make runs repeatable)
+    :param is_backtracking: whether or not to use backtracking during
+        line search
+    :param is_verbose: print out progress for each iteration, each
+        batch, each epoch
+    :return: cost function training history accessed as `cost =
+        history[epoch][batch][iter]`
     """
     history: dict[str, dict[str, list[float] | None]] = defaultdict(dict)
 
