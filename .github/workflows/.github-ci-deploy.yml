@@ -66,5 +66,5 @@ jobs:
       - name: Shipping 🚚
         shell: bash -el {0}
         run: | 
-          doit release
+          doit test_release
         
