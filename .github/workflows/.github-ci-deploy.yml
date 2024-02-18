@@ -49,7 +49,7 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml 
-      - name: Packaging 📦
+      - name: Build distribution artifacts 🧱
         shell: bash -el {0}
         run: | 
           doit build
@@ -58,16 +58,11 @@ jobs:
         with:
           name: wheel
           path: ./build/dist/*.whl
-      - name: Store source artifact
+      - name: Store zip
         uses: actions/upload-artifact@v4
         with:
           name: source
           path: ./build/dist/*.tar.gz
-      - name: Download all the dists
-        uses: actions/download-artifact@v3
-        with:
-          name: python-package-distributions
-          path: build/dist/
       - name: Publish distribution 📦 to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:

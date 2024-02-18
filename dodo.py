@@ -81,7 +81,6 @@ def task_release_testpypi():
                     "--skip-existing",
                     "--repository",
                     "testpypi",
-                    ""
                 ]
             ],
             cwd=P.ROOT,
@@ -315,7 +314,7 @@ class P:
     BUILD = ROOT / "build"
     DOCS = ROOT / "docs"
     EXAMPLES = DOCS / "examples"
-    DIST = ROOT / "./build/dist"
+    DIST = ROOT / "dist"
     SOURCE = ROOT / "src"
     DEPLOY = ROOT / "deploy"
     DEPLOY_SPECS = DEPLOY / "specs"
