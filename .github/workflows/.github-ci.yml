@@ -21,9 +21,9 @@ jobs:
   # test:
   #   needs: qa
   #   uses: ./.github/workflows/.github-ci-test.yml
-  deploy: 
-    # needs: test
-    uses: ./.github/workflows/.github-ci-deploy.yml
+  # deploy: 
+  #   needs: test
+  #   uses: ./.github/workflows/.github-ci-deploy.yml
   release:  
     runs-on: ubuntu-latest 
     permissions:
