@@ -11,7 +11,7 @@ on:
   workflow_call:
 
 jobs:
-  pages:
+  docs:
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
@@ -54,8 +54,8 @@ jobs:
       - name: Store distribution
         uses: actions/upload-artifact@v4
         with:
-          name: dist
-          path: ./dist
+          name: python-package-distributions
+          path: ./build/dist
       # - name: 📦 Publish distribution to TestPyPI
       #   uses: pypa/gh-action-pypi-publish@release/v1
       #   with:
