@@ -63,8 +63,8 @@ def task_build():
     )
 
 
-def task_release_testpypi():
-    """Release to TestPyPi."""
+def task_release():
+    """Release to TestPyPi only (PyPi is reserved for CI)."""
             
     yield dict(
         name=f"{C.PPT_DATA['project']['name']}-test-release",
