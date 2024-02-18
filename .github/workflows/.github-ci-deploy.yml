@@ -36,7 +36,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-  testpypi:  
+  artifacts:  
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
@@ -47,25 +47,20 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml 
-      - name: 🧱 Build distribution artifacts 
+      - name: 🧱 Build distribution 
         shell: bash -el {0}
         run: | 
           doit build
-      - name: Store wheel 
+      - name: Store distribution
         uses: actions/upload-artifact@v4
         with:
-          name: wheel
-          path: ./dist/*.whl
-      - name: Store source artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: source
-          path: ./dist/*.tar.gz
-      - name: 📦 Publish distribution to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          verbose: true
-          repository-url: https://test.pypi.org/legacy/
-          user: __token__
-          password: ${{ secrets.TESTPYPI_TOKEN }}
+          name: dist
+          path: ./dist
+      # - name: 📦 Publish distribution to TestPyPI
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     verbose: true
+      #     repository-url: https://test.pypi.org/legacy/
+      #     user: __token__
+      #     password: ${{ secrets.TESTPYPI_TOKEN }}
         
