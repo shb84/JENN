@@ -180,10 +180,10 @@ def task_docs():
         **U.run_in(
             "ci",
             actions=[[
-                "sphinx-build",
-                "-b", 
-                "html", 
-                # "sphinx-multiversion",
+                # "sphinx-build",
+                # "-b", 
+                # "html", 
+                "sphinx-multiversion",
                 P.DOCS_SOURCE, 
                 P.DOCS_BUILD / "html",
             ]],
