@@ -36,7 +36,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-  # testpypi:  # commented because "reusable workflows cannot currently be used as the workflow in a trusted publisher" on pypi
+  # testpypi:  # moved to parent worflow because "reusable workflows cannot currently be used as the workflow in a trusted publisher" on pypi
   #   runs-on: ubuntu-latest 
   #   steps: 
   #     - name: Checkout repo
