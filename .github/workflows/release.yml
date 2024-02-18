@@ -36,8 +36,8 @@ jobs:
       - name: Store distribution
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
-          path: ./dist
+          name: build-artifacts
+          path: ./build
   release:  
     needs: build 
     runs-on: ubuntu-latest
@@ -45,8 +45,8 @@ jobs:
       - name: Download distribution
         uses: actions/download-artifact@v4
         with:
-          name: python-package-distributions
-          path: ./build/dist
+          name: build-artifacts
+          path: ./build
       - name: Stage distribution for release 
         # GitHub Actions needs dist/ to be at root level
         shell: bash -el {0}
