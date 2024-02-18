@@ -22,5 +22,5 @@ jobs:
   #   needs: qa
   #   uses: ./.github/workflows/.github-ci-test.yml
   deploy: 
-    needs: test
+    # needs: test
     uses: ./.github/workflows/.github-ci-deploy.yml
