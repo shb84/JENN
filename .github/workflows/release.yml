@@ -1,12 +1,6 @@
 name: jenn-ci
 run-name: ${{ github.actor }}-jenn-ci
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages / trusted publishing
-permissions:
-  contents: read
-  pages: write
-  id-token: write  
-  
 on:
   push: 
     branches: 
@@ -43,3 +37,5 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.TESTPYPI_TOKEN }}
