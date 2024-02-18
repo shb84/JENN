@@ -76,7 +76,7 @@ git commit -m "description"
 git push
 ```
 
-When satisfied, change PR status to ready for review. 
+_When satisfied, change PR status to ready for review._ 
 
 --- 
 ## License

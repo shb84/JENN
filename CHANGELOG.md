@@ -44,7 +44,7 @@ _This release introduces breaking changes but makes the algorithm about 5x faste
 - Renamed user API modules, classes, and functions
 - Changed user API by adding NeuralNet model
 - Changed user API plotting utility functions names and kwards 
-- Changed datastructure exposed to user (compared to `v0.1.01`, `X, Y, J` are now transposed)
+- Changed datastructure exposed to user (compared to `v0.1.0`, `X, Y, J` are now transposed)
 - Simplified almost all functions for easier maintainability/readability
 
 ### Style
@@ -53,7 +53,7 @@ _This release introduces breaking changes but makes the algorithm about 5x faste
 
 ### Performance 
 
-- Arrays updated in place (code about 5x faster)
+- Arrays are now updated in place (code about 5x faster)
 
 ### Tests
 
