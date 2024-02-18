@@ -49,7 +49,7 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml 
-      - name: Build all the dists 🧱
+      - name: Build distribution 🧱
         shell: bash -el {0}
         run: | 
           doit build
