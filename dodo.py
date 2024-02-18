@@ -63,9 +63,9 @@ def task_build():
     )
 
 
-def task_test_release():
-    """Release to pypi."""
-
+def task_release_testpypi():
+    """Release to TestPyPi."""
+            
     yield dict(
         name=f"{C.PPT_DATA['project']['name']}-test-release",
         **U.run_in(
@@ -76,11 +76,12 @@ def task_test_release():
                     "-m",
                     "twine",
                     "upload",
+                    P.DIST / "*", 
+                    "--verbose",
                     "--skip-existing",
                     "--repository",
-                    "testpypi", 
-                    P.DIST / "*", 
-                    "--verbose"
+                    "testpypi",
+                    ""
                 ]
             ],
             cwd=P.ROOT,
@@ -582,7 +583,6 @@ class U:
         targets = kwargs.pop("targets", [])
         task = dict(
             file_dep=[history, *file_dep],
-            # actions=[U.cmd([*run_args, *action], **kwargs) for action in actions],
             actions=[U.cmd([*run_args, *action], **kwargs) for action in actions],
             targets=[*targets],
         )
