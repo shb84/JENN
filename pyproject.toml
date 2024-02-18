@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jenn"
-version = "1.0.0"
+version = "1.0.0.dev0"
 authors = [
   { name="Steven H. Berguin", email="stevenberguin@gmail.com" },
 ]
@@ -25,6 +25,7 @@ dependencies = [
 viz = ["matplotlib-base>=3.8"]
 
 [project.urls]
+Documentation = "https://shb84.github.io/JENN/"
 Homepage = "https://github.com/shb84/JENN"
 Issues = "https://github.com/shb84/JENN/issues"
 

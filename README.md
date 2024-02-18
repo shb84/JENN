@@ -11,11 +11,11 @@ fewer training points compared to standard fully connected neural nets, as illus
 
 |                  Example #1                    |      Example #2                 |
 |:----------------------------------------------:|:-------------------------------:|
-| ![](docs/pics/example_sensitivity_profile.png) | ![](docs/pics/JENN_vs_NN_1D.png)|
+| ![](https://github.com/shb84/JENN/raw/master/docs/pics/example_sensitivity_profile.png) | ![](https://github.com/shb84/JENN/raw/master/docs/pics/JENN_vs_NN_1D.png)|
 
 |             Example #3           |
 |:--------------------------------:|
-| ![](docs/pics/JENN_vs_NN_2D.png) |
+| ![](https://github.com/shb84/JENN/raw/master/docs/pics/JENN_vs_NN_2D.png) |
 
 </div>
  
@@ -111,15 +111,6 @@ Optionally, if `matplotlib` is installed, show sensitivity profiles:
         xlabels=['x'], 
         ylabels=['y'],
     )
-
---- 
-# Documentation
-
-
-* [API](shb84.github.io/JENN/ ) 
-* [Theory](https://github.com/shb84/JENN/blob/master/docs/theory.pdf)
-* [Example 1: sinusoid](https://github.com/shb84/JENN/blob/master/notebooks/demo_1_sinusoid.ipynb)  
-* [Example 2: Rastrigin](https://github.com/shb84/JENN/blob/master/notebooks/demo_2_rastrigin.ipynb)  
 
 ----
 

@@ -6,4 +6,5 @@ dependencies:
   - doit[toml]
   - conda-lock
   - build
+  - twine 
   - pip 

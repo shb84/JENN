@@ -13,6 +13,8 @@ on:
 jobs:
   docs:
     runs-on: ubuntu-latest 
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -47,10 +49,10 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml 
-      - name: Package
+      - name: Packaging 📦
         shell: bash -el {0}
         run: | 
-          doit package
+          doit build
       - name: Store wheel artifact
         uses: actions/upload-artifact@v4
         with:
@@ -61,4 +63,8 @@ jobs:
         with:
           name: source
           path: ./build/dist/*.tar.gz
-    # TODO: release
+      - name: Shipping 🚚
+        shell: bash -el {0}
+        run: | 
+          doit release
+        

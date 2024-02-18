@@ -42,7 +42,7 @@ def task_env():
         yield from U.env(env_name)
 
 
-def task_package():
+def task_build():
     """Build wheel and *.tar.gz files."""
     yield dict(
         name=f"{C.PPT_DATA['project']['name']}-build",
@@ -60,6 +60,33 @@ def task_package():
             cwd=P.ROOT,
             ok=OK.BUILD,
         ),
+    )
+
+
+def task_test_release():
+    """Release to pypi."""
+
+    yield dict(
+        name=f"{C.PPT_DATA['project']['name']}-test-release",
+        **U.run_in(
+            "ci",
+            [
+                [
+                    "python",
+                    "-m",
+                    "twine",
+                    "upload",
+                    "--skip-existing",
+                    "--repository",
+                    "testpypi", 
+                    P.DIST / "*", 
+                    "--verbose"
+                ]
+            ],
+            cwd=P.ROOT,
+            ok=OK.TESTPYPI,
+            file_dep=[OK.BUILD],
+        )
     )
 
 
@@ -351,6 +378,7 @@ class F:
     SKIP = "SKIP " if B.IS_WIN else "⏭️ "
     STAR = "YAY " if B.IS_WIN else "🌟 "
     UPDATE = "UPDATE " if B.IS_WIN else "🔄 "
+    PACKAGE = "PACKAGE" if B.IS_WIN else "📦 "
     UTF8 = TUTF8(encoding="utf-8")
 
 
@@ -394,6 +422,7 @@ class OK:
     DOCS = P.BUILD / "docs.ok"
     PYTEST = P.BUILD / "pytest.ok"
     BUILD = P.BUILD / "build.ok"
+    TESTPYPI = P.BUILD / "testpypi.ok"
 
 
 class U: 
