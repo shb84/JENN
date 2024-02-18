@@ -10,34 +10,34 @@ on:
 
 
 jobs:
-  # qa:
-  #   uses: ./.github/workflows/.github-ci-qa.yml
-  # test:
-  #   needs: qa
-  #   uses: ./.github/workflows/.github-ci-test.yml
-  # deploy: 
-  #   needs: test
-  #   uses: ./.github/workflows/.github-ci-deploy.yml
-  release:  
-    runs-on: ubuntu-latest
-    steps: 
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Create base environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: deploy/specs/base.yml
-      - name: 🧱 Build distribution artifacts 
-        shell: bash -el {0}
-        run: | 
-          doit build
-      - name: 📦 Publish distribution to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          verbose: true
-          skip-existing: true
-          repository-url: https://test.pypi.org/legacy/
-          user: __token__
-          password: ${{ secrets.TESTPYPI_TOKEN }}
+  qa:
+    uses: ./.github/workflows/.github-ci-qa.yml
+  test:
+    needs: qa
+    uses: ./.github/workflows/.github-ci-test.yml
+  deploy: 
+    needs: test
+    uses: ./.github/workflows/.github-ci-deploy.yml
+  # release:  
+  #   runs-on: ubuntu-latest
+  #   steps: 
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4
+  #     - name: Create base environment
+  #       uses: conda-incubator/setup-miniconda@v3
+  #       with:
+  #         auto-update-conda: false
+  #         activate-environment: explicit-env
+  #         environment-file: deploy/specs/base.yml
+  #     - name: 🧱 Build distribution artifacts 
+  #       shell: bash -el {0}
+  #       run: | 
+  #         doit build
+  #     - name: 📦 Publish distribution to TestPyPI
+  #       uses: pypa/gh-action-pypi-publish@release/v1
+  #       with:
+  #         verbose: true
+  #         skip-existing: true
+  #         repository-url: https://test.pypi.org/legacy/
+  #         user: __token__
+  #         password: ${{ secrets.TESTPYPI_TOKEN }}
