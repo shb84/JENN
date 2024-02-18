@@ -314,7 +314,7 @@ class P:
     BUILD = ROOT / "build"
     DOCS = ROOT / "docs"
     EXAMPLES = DOCS / "examples"
-    DIST = ROOT / "dist"
+    DIST = BUILD / "dist"
     SOURCE = ROOT / "src"
     DEPLOY = ROOT / "deploy"
     DEPLOY_SPECS = DEPLOY / "specs"
