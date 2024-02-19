@@ -80,11 +80,11 @@ def task_release():
                     "--verbose",
                     "--skip-existing",
                     "--repository",
-                    "testpypi",
+                    "testpypi",  # TODO: actual release done in ci
                 ]
             ],
             cwd=P.ROOT,
-            ok=OK.TESTPYPI,
+            ok=OK.RELEASE,
             file_dep=[OK.BUILD],
         )
     )
@@ -420,9 +420,8 @@ class OK:
     BLACKENED = P.BUILD / "lint.black.ok"
     DOCFORMATTED = P.BUILD / "lint.docformatted.ok"
     DOCS = P.BUILD / "docs.ok"
-    PYTEST = P.BUILD / "pytest.ok"
     BUILD = P.BUILD / "build.ok"
-    TESTPYPI = P.BUILD / "testpypi.ok"
+    RELEASE = P.BUILD / "release.ok"
 
 
 class U: 
