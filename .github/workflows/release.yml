@@ -18,13 +18,31 @@ on:
 jobs:
   # qa:
   #   uses: ./.github/workflows/.github-ci-qa.yml
-  # test:
-  #   needs: qa
-  #   uses: ./.github/workflows/.github-ci-test.yml
-  # deploy: 
-  #   needs: test
-  #   uses: ./.github/workflows/.github-ci-deploy.yml
+  test:
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Create base environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: false
+          activate-environment: explicit-env
+          environment-file: deploy/specs/base.yml
+      - name: Linting
+        shell: bash -el {0}
+        run: | 
+          doit lint 
+      - name: Installation 
+        shell: bash -el {0}
+        run: | 
+          doit install
+      - name: Unit Testing
+        shell: bash -el {0}
+        run: | 
+          doit test
   build:  
+    needs: test
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
