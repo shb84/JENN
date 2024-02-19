@@ -18,9 +18,12 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-<!--next-version-placeholder-->
 
 ## [Unreleased] - yyyy-mm-dd
+
+<!--next-version-placeholder-->
+
+## v1.0.0 - 2024-02-19
 
 _This release introduces breaking changes but makes the algorithm about 5x faster._ 
 
