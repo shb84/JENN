@@ -7,17 +7,11 @@ permissions:
   pages: write
   id-token: write
   
-on:
-  push: 
-    branches: 
-      - "master"
-    tags:        
-      - '*' 
+on: push
 
 jobs:
   test:
     runs-on: ubuntu-latest 
-    if: contains(github.ref, 'master') || contains(github.ref, 'merge')
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -51,8 +45,6 @@ jobs:
   build:  
     needs: test
     runs-on: ubuntu-latest 
-    # only build on tag pushes in master
-    if: contains(github.ref, 'master') && startsWith(github.ref, 'refs/tags/')  
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -84,8 +76,8 @@ jobs:
   deploy:  
     needs: build 
     runs-on: ubuntu-latest
-    # only release on tag pushes in master
-    if: contains(github.ref, 'master') && startsWith(github.ref, 'refs/tags/')  
+    # only release on tag pushes 
+    if: startsWith(github.ref, 'refs/tags/v')  
     steps: 
       - name: ⬇️ Download build artifacts
         uses: actions/download-artifact@v4
