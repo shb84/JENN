@@ -29,6 +29,10 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml
+      - name: Environments 
+        shell: bash -el {0}
+        run: | 
+          doit env
       - name: Linting
         shell: bash -el {0}
         run: | 
