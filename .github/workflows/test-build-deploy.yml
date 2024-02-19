@@ -10,7 +10,7 @@ permissions:
 on:
   push: 
     branches: 
-      - "master"
+      - "*"
   pull_request:
     branches: [ master ]
 
@@ -53,6 +53,7 @@ jobs:
   build:  
     needs: test
     runs-on: ubuntu-latest 
+    if: contains(github.ref, 'merge')
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -84,6 +85,7 @@ jobs:
   deploy:  
     needs: build 
     runs-on: ubuntu-latest
+    if: contains(github.ref, 'merge')
     steps: 
       - name: ⬇️ Download build artifacts
         uses: actions/download-artifact@v4
