@@ -1,6 +1,11 @@
 name: jenn-ci
 run-name: ${{ github.actor }}-jenn-ci
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  
 on:
   push: 
     branches: 
@@ -29,20 +34,24 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml 
-      - name: 🧱 Build distribution 
+      - name: 🧱 Distribution
         shell: bash -el {0}
         run: | 
           doit build
-      - name: Store distribution
+      - name: 📚 Documentation  
+        shell: bash -el {0}
+        run: | 
+          doit docs
+      - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: ./build
-  release:  
+  deploy:  
     needs: build 
     runs-on: ubuntu-latest
     steps: 
-      - name: Download distribution
+      - name: ⬇️ Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
@@ -52,7 +61,7 @@ jobs:
         shell: bash -el {0}
         run: | 
           mv ./build/dist .
-      - name: 📦 Publish distribution to TestPyPI
+      - name: 📦 Ship package to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           verbose: true
@@ -60,3 +69,11 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
           user: __token__
           password: ${{ secrets.TESTPYPI_TOKEN }}
+      - name: Upload documentation to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: './build/docs/html'
+      - name: 📰 Publish Docs to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
