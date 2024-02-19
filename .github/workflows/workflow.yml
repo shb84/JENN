@@ -92,7 +92,7 @@ jobs:
         with:
           name: build-artifacts
           path: ./build
-      - name: Stage distribution for release 
+      - name: Stage distribution for test release 
         # GitHub Actions needs dist/ to be at root level
         shell: bash -el {0}
         run: | 
@@ -113,3 +113,13 @@ jobs:
       - name: 📰 Publish Docs to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: 📦 Ship package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
+          skip-existing: true
+          repository-url: https://upload.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.TESTPYPI_TOKEN }}
+        if: startsWith(github.ref, 'refs/tags/')
+  
