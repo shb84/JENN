@@ -41,6 +41,16 @@ jobs:
         shell: bash -el {0}
         run: | 
           doit test
+      - name: ⬆️ Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./build
+      - name: ⬆️ Upload conda environments
+        uses: actions/upload-artifact@v4
+        with:
+          name: conda-environments
+          path: ./envs
   build:  
     needs: test
     runs-on: ubuntu-latest 
@@ -53,6 +63,16 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: deploy/specs/base.yml 
+      - name: ⬇️ Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./build
+      - name: ⬇️ Download conda environments
+        uses: actions/download-artifact@v4
+        with:
+          name: conda-environments
+          path: ./envs
       - name: 🧱 Distribution
         shell: bash -el {0}
         run: | 
@@ -75,6 +95,11 @@ jobs:
         with:
           name: build-artifacts
           path: ./build
+      - name: ⬇️ Download conda environments
+        uses: actions/download-artifact@v4
+        with:
+          name: conda-environments
+          path: ./envs
       - name: Stage distribution for release 
         # GitHub Actions needs dist/ to be at root level
         shell: bash -el {0}
