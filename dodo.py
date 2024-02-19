@@ -80,7 +80,7 @@ def task_release():
                     "--verbose",
                     "--skip-existing",
                     "--repository",
-                    "testpypi",  # TODO: actual release done in ci
+                    "testpypi",  # replace with pypi for actual upload 
                 ]
             ],
             cwd=P.ROOT,
