@@ -11,10 +11,13 @@ on:
   push: 
     branches: 
       - "master"
+    tags:        
+      - '*' 
 
 jobs:
   test:
     runs-on: ubuntu-latest 
+    if: contains(github.ref, 'master') || contains(github.ref, 'merge')
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
