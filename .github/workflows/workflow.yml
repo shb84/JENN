@@ -96,6 +96,7 @@ jobs:
         run: | 
           mv ./build/dist .
       - name: 📦 Ship package to TestPyPI
+        id: testpypi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           verbose: true
@@ -119,7 +120,7 @@ jobs:
           repository-url: https://upload.pypi.org/legacy/
           user: __token__
           password: ${{ secrets.TESTPYPI_TOKEN }}
-        if: startsWith(github.ref, 'refs/tags/') && github.event.pull_request.merged == true
+        if: startsWith(github.ref, 'refs/tags/') && steps.testpypi.conclusion == 'success' && github.event.pull_request.merged == true 
       - name: Sign the dists with Sigstore
         uses: sigstore/gh-action-sigstore-python@v1.2.3
         with:
