@@ -84,11 +84,6 @@ jobs:
     needs: build 
     runs-on: ubuntu-latest
     steps: 
-      - name: ⬇️ Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: test-reports
-          path: ./build/reports
       - name: Stage distribution for release 
         # GitHub Actions needs dist/ to be at root level
         shell: bash -el {0}
