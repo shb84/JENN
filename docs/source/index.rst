@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. _paper: https://github.com/shb84/JENN/blob/refactor/docs/theory.pdf
+.. _paper: https://github.com/shb84/JENN/blob/master/docs/theory.pdf
 
 Welcome to jenn's documentation!
 ================================
