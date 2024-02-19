@@ -1,14 +1,14 @@
-# Contribution 
+# CONTRIBUTING 
 
-A distinction is made between the `dev` environment and the `ci` environment. The former is generated from the 
-`environment.yml` file and serves as the local environment in which to try things out. The latter is generated 
-from `conda-lock` files that define the frozen specs of the build environment (located in `deploy/specs`). 
-Hence, after local decisions are made in the `dev` environment, the lock files must be updated accordingly for testing under `ci`. 
+Contibutions are welcome. Thank you for helping make the project better! 
 
 --- 
 ## Installation
 
-#### `dev`
+### `dev` environment
+
+_The `dev` environment serves as the local environment in which to try things._ 
+
 Assuming [conda](https://conda.org/) is installed:
 
 ```bash
@@ -20,54 +20,56 @@ pytest
 
 All tests should pass. 
 
-#### `ci` 
+### `ci` environment
 
-Commands are run with [`doit`](https://pydoit.org/) defined in a `dodo.py` file. To see all `doit` commands:
+_The `ci` environment serves as the remote environment used by Github Actions. It is generated from frozen specs with `conda-lock`. Commands are run with [`doit`](https://pydoit.org/) (defined in the `dodo.py` file)._ 
+
+To see all `doit` commands:
 
 ```bash
 doit list --all --status
 ```
 
 ---
-## Procedure
+## Making Changes
 
-The recommended process is to do all local work in the `dev` environment. Upon satisfaction, before merge requests, follow the steps below which ensure `ci` will pass. 
+Do all local work in the `dev` environment. Upon satisfaction, before making a commit or merge request, manually follow the steps below to improve chances of passing `ci` (which are the same steps run in `ci`). 
 
-#### Step 1: Update Environment Specs (optional)
+### Step 1: Update Environment Specs (optional)
 
-_**IF AND ONLY IF** the `environment.yml` file was updated during development, then the `ci` environment must also be updated accordingly. To do so, update `deploy/specs/*.yml` accordingly and re-generate the lock files_: 
+_**IF** the `environment.yml` file was updated, then the `ci` environment must also be updated. To do so, modify `deploy/specs/*.yml` accordingly and re-generate the lock files_: 
  
 ```bash
 doit lock
 ```
 
-#### Step 2: Run Unit Tests
+### Step 2: Run Unit Tests
 
-_Make sure the unit tests are passing_: 
+Make sure the unit tests are passing in the `ci` environment: 
 
 ```bash
-doit install test
+doit test
 ```
 
-#### Step 3: Fix Lint Issues 
+### Step 3: Fix Lint Issues 
 
-_Make sure the code is well formatted. Fix manually if needed_: 
+Make sure the code is well formatted (fix manually if needed): 
 
 ```bash
 doit fix lint
 ```
 
-#### Step 4: Run Notebooks (optional) 
+### Step 4: Run Notebooks (optional) 
 
-_If applicable, mannually check notebooks in `ci` environment_: 
+If applicable, mannually check notebooks in `ci` environment: 
 
 ```bash
 doit lab
 ```
 
-#### Step 5: Pull Request
+### Step 5: Commit / Pull Request
 
-_Create a draft PR on GitHub in order to trigger CI and push changes_: 
+Commit changes. CI is triggered on push: 
 
 ```bash
 git add -u 
@@ -76,8 +78,43 @@ git commit -m "description"
 git push
 ```
 
-_When satisfied, change PR status to ready for review._ 
+_Create a PR on GitHub when ready_ 
 
---- 
-## License
-Distributed under the terms of the MIT License.
+## Release 
+
+**Only project owners and administrators can make new releases.** 
+
+The release process has been automated via Github Actions. In summary, a new release is created by pushing a new tag to the remote (e.g. `v1.0.0`), which triggers a _test-build-deploy_ workflow that publishes to `pypi.org`, `GitHub Pages` and `Github Release`. Tag pattern must be `v*`.
+
+### Steps 
+
+Assuming `master` is locally up-to-date, manually update the pyproject.toml version number:
+
+```bash
+version = "1.0.0"
+```
+
+Push the version change to the remote: 
+
+```bash
+git add -u 
+git commit -m "changed version to v1.0.0"
+git push 
+```
+
+Tag commit for release and push to trigger release pipeline: 
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Once the pipeline has succeeded, check that there is now a new release on `pypi.org`, `GitHub Pages` and `Github Release`. If so, the last step is to lock the branch associated with the release, so it can be easily accessed but not changed. 
+
+```bash
+git checkout -b jenn-v1.0.0 
+git push --set-upstream origin jenn-v1.0.0 
+```
+
+On GitHub, go to Project `Settings > Branches` and add a "Lock branch" rule for `jenn-v1.0.0`.
+
