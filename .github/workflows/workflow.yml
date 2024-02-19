@@ -16,8 +16,6 @@ on:
 
 
 jobs:
-  # qa:
-  #   uses: ./.github/workflows/.github-ci-qa.yml
   test:
     runs-on: ubuntu-latest 
     steps: 
