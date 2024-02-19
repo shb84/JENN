@@ -94,15 +94,15 @@ jobs:
         shell: bash -el {0}
         run: | 
           mv ./build/dist .
-      # - name: 📦 Ship package to TestPyPI
-      #   id: testpypi
-      #   uses: pypa/gh-action-pypi-publish@release/v1
-      #   with:
-      #     verbose: true
-      #     skip-existing: true
-      #     repository-url: https://test.pypi.org/legacy/
-      #     user: __token__
-      #     password: ${{ secrets.TESTPYPI_TOKEN }}
+      - name: 📦 Ship package to TestPyPI
+        id: testpypi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
+          # skip-existing: true
+          repository-url: https://test.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.TESTPYPI_TOKEN }}
       - name: ⬆️ Upload documentation to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
@@ -115,7 +115,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           verbose: true
-          skip-existing: true
+          # skip-existing: true
           repository-url: https://upload.pypi.org/legacy/
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
