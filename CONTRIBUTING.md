@@ -67,7 +67,32 @@ If applicable, mannually check notebooks in `ci` environment:
 doit lab
 ```
 
-### Step 5: Commit / Pull Request
+### Step 5: Test Release (optional)
+
+Test release on `testpypi`: 
+
+```bash
+doit build release
+```
+
+This will require creating an API token on `testpypi`: 
+
+* In your account settings, go to the API tokens section and select "Add API token" 
+
+Then use that token to configure your local [`.pyprc`](https://packaging.python.org/en/latest/specifications/pypirc/) file: 
+
+```bash
+[distutils]
+index-servers =
+    testpypi
+
+[testpypi]
+repository: https://test.pypi.org/legacy/
+username: __token__
+password: pypi-...
+```
+
+### Step 6: Commit / Pull Request
 
 Commit changes. CI is triggered on push: 
 
