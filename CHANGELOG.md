@@ -21,7 +21,9 @@ build: Changes to the build process or tools.
 
 ## [Unreleased] - yyyy-mm-dd
 
-<!--next-version-placeholder-->
+### Documentation
+
+- Update [paper link](https://github.com/shb84/JENN/blob/master/docs/theory.pdf) to point to version on `master` instead of `refactor` branch
 
 ## v1.0.0 - 2024-02-19
 
