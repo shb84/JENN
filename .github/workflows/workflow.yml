@@ -82,7 +82,7 @@ jobs:
     needs: build 
     runs-on: ubuntu-latest
     # only release on tag pushes 
-    if: startsWith(github.ref, 'master') || startsWith(github.ref, 'refs/tags/v')  
+    if: startsWith(github.ref, 'refs/tags/v')  
     steps: 
       - name: ⬇️ Download build artifacts
         uses: actions/download-artifact@v4
@@ -112,7 +112,6 @@ jobs:
         id: pypi
         uses: actions/deploy-pages@v4
       - name: 📦 Ship package to PyPI
-        if: startsWith(github.ref, 'refs/tags/v') 
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           verbose: true
@@ -121,14 +120,12 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
       - name: Sign the dists with Sigstore
-        if: startsWith(github.ref, 'refs/tags/v') 
         uses: sigstore/gh-action-sigstore-python@v1.2.3
         with:
           inputs: >-
             ./dist/*.tar.gz
             ./dist/*.whl
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v') 
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
@@ -137,7 +134,6 @@ jobs:
           --repo '${{ github.repository }}'
           --notes ""
       - name: Upload artifact signatures to GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v') 
         env:
           GITHUB_TOKEN: ${{ github.token }}
         # Upload to GitHub Release using the `gh` CLI.
