@@ -11,7 +11,6 @@ if find_spec("matplotlib"):
 else:
     MATPLOTLIB_INSTALLED = False
 
-
 class TestLineSearch: 
     """Check that line search is working 
     using 1D parabola as test function."""
@@ -111,7 +110,8 @@ class TestOptimizer:
                 Y[i, j] = f(X)
 
         if not MATPLOTLIB_INSTALLED:
-            raise ImportError("Matplotlib must be installed.")
+            # raise ImportError("Matplotlib must be installed.")
+            return 
 
         if is_plot:
             x1_his = np.array([x[0] for x in opt.vars_history]).squeeze()
