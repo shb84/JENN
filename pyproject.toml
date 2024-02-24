@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jenn"
-version = "1.0.0.dev0"
+version = "1.0.0.dev1"
 authors = [
   { name="Steven H. Berguin", email="stevenberguin@gmail.com" },
 ]
 description = "Jacobian-Enhanced Neural Nets (JENN)"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",

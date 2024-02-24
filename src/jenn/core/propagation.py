@@ -3,6 +3,8 @@
 
 This module contains the critical functionality to propagate information forward and backward through the neural net."""
 
+from typing import Union
+
 import numpy as np
 
 from .activation import Linear, Relu, Tanh
@@ -23,7 +25,7 @@ def eye(n: int, m: int) -> np.ndarray:
     return np.repeat(eye.reshape((n, n, 1)), m, axis=2)
 
 
-def first_layer_forward(X: np.ndarray, cache: Cache | None = None) -> None:
+def first_layer_forward(X: np.ndarray, cache: Union[Cache, None] = None) -> None:
     """Compute input layer activations (in place).
 
     :param X: training data inputs, array of shape (n_x, m)
@@ -36,7 +38,7 @@ def first_layer_forward(X: np.ndarray, cache: Cache | None = None) -> None:
         cache.A[0][:] = X
 
 
-def first_layer_partials(X: np.ndarray, cache: Cache | None) -> None:
+def first_layer_partials(X: np.ndarray, cache: Union[Cache, None]) -> None:
     """Compute input layer partial (in place).
 
     :param X: training data inputs, array of shape (n_x, m)

@@ -19,7 +19,7 @@ This section describes the main API users are expected to interact with.
 Core API
 ========
 
-.. _paper: https://github.com/shb84/JENN/blob/refactor/docs/theory.pdf
+.. _paper: https://github.com/shb84/JENN/blob/master/docs/theory.pdf
 
 The core API implements all theory described in the `paper`_. This section is intended for developers.  
 

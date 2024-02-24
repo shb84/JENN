@@ -4,6 +4,7 @@
 This module implements activation functions used by the neural network."""
 
 import abc
+from typing import Union
 
 import numpy as np
 
@@ -16,7 +17,7 @@ class Activation:
     def evaluate(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         """Evaluate activation function.
 
@@ -31,8 +32,8 @@ class Activation:
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
-        dy: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
+        dy: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         """Evaluate 1st derivative of activation function.
 
@@ -48,9 +49,9 @@ class Activation:
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
-        dy: np.ndarray | None = None,
-        ddy: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
+        dy: Union[np.ndarray, None] = None,
+        ddy: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         """Evaluate 2nd derivative of activation function.
 
@@ -74,7 +75,7 @@ class Tanh(Activation):
     def evaluate(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         return np.tanh(x, out=y)  # evaluated in place if y is not None
 
@@ -82,8 +83,8 @@ class Tanh(Activation):
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
-        dy: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
+        dy: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         if y is None:
             y = cls.evaluate(x)
@@ -96,9 +97,9 @@ class Tanh(Activation):
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
-        dy: np.ndarray | None = None,
-        ddy: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
+        dy: Union[np.ndarray, None] = None,
+        ddy: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         if y is None:
             y = cls.evaluate(x)
@@ -136,8 +137,8 @@ class Relu(Activation):
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
-        dy: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
+        dy: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         if dy is None:
             dy = np.asarray(x > 0, dtype=x.dtype)
@@ -149,9 +150,9 @@ class Relu(Activation):
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
-        dy: np.ndarray | None = None,
-        ddy: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
+        dy: Union[np.ndarray, None] = None,
+        ddy: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         if ddy is None:
             return np.zeros(x.shape)
@@ -170,7 +171,7 @@ class Linear(Activation):
     def evaluate(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         if y is None:
             y = x.copy()
@@ -182,8 +183,8 @@ class Linear(Activation):
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
-        dy: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
+        dy: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         if dy is None:
             dy = np.ones(x.shape)
@@ -195,9 +196,9 @@ class Linear(Activation):
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,
-        dy: np.ndarray | None = None,
-        ddy: np.ndarray | None = None,
+        y: Union[np.ndarray, None] = None,
+        dy: Union[np.ndarray, None] = None,
+        ddy: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         if ddy is None:
             return np.zeros(x.shape)

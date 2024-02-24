@@ -23,7 +23,17 @@ build: Changes to the build process or tools.
 
 ### Documentation
 
-- Update [paper link](https://github.com/shb84/JENN/blob/master/docs/theory.pdf) to point to version on `master` instead of `refactor` branch
+- Update [paper link](https://github.com/shb84/JENN/blob/master/docs/theory.pdf) to point to version on `master` instead of `refactor` branch 
+
+### Fix
+
+- Fixed `minibatch` which was previously not reusing parameters from one batch to another 
+- Fixed `random_state` which was previously was not being passed everywhere it should 
+- Resolved rrror messages when optional `matplotlib` library not installed 
+
+### Feature 
+
+- Added support for `python >= 3.9` 
 
 ## v1.0.0 - 2024-02-19
 

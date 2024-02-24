@@ -42,7 +42,7 @@ assess goodness of fit and visualize trends.
 from collections.abc import Callable
 from functools import wraps
 from importlib.util import find_spec
-from typing import Any
+from typing import Any, Union
 
 import numpy as np
 
@@ -95,9 +95,9 @@ def requires_matplotlib(func: Callable) -> Callable:
 def actual_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
-    ax: plt.Axes | None = None,  # noqa: ANN401
+    ax: Union[plt.Axes, None] = None,  # noqa: ANN401
     figsize: tuple[float, float] = (3.25, 3),
-    title: str | None = None,
+    title: Union[str, None] = None,
     fontsize: int = 9,
     alpha: float = 1.0,
 ) -> plt.Figure:  # noqa: ANN401
@@ -150,8 +150,8 @@ def contours(
     func: Callable,
     lb: tuple[float, float],
     ub: tuple[float, float],
-    x_train: np.ndarray | None = None,
-    x_test: np.ndarray | None = None,
+    x_train: Union[np.ndarray, None] = None,
+    x_test: Union[np.ndarray, None] = None,
     figsize: tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
     alpha: float = 0.5,
@@ -159,7 +159,7 @@ def contours(
     xlabel: str = "",
     ylabel: str = "",
     resolution: int = 100,
-    ax: plt.Axes | None = None,  # noqa: ANN401
+    ax: Union[plt.Axes, None] = None,  # noqa: ANN401
 ) -> plt.Figure:  # noqa: ANN401
     """Plot contours of a scalar function of two variables.
 
@@ -215,8 +215,8 @@ def convergence(
     fontsize: int = 9,
     alpha: float = 1.0,
     title: str = "",
-    legend: list[str] | None = None,
-) -> plt.Figure | None:  # noqa: ANN401
+    legend: Union[list[str], None] = None,
+) -> Union[plt.Figure, None]:  # noqa: ANN401
     """Plot training history.
 
     :param histories: training history for each model
@@ -296,9 +296,9 @@ def residuals_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
     percent_residuals: bool = False,
-    ax: plt.Axes | None = None,  # noqa: ANN401
+    ax: Union[plt.Axes, None] = None,  # noqa: ANN401
     figsize: tuple[float, float] = (3.25, 3),
-    title: str | None = None,
+    title: Union[str, None] = None,
     fontsize: int = 9,
     alpha: float = 1.0,
 ) -> plt.Figure:  # noqa: ANN401
@@ -367,7 +367,7 @@ def goodness_of_fit(
     figsize: tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
     alpha: float = 1.0,
-    title: str | None = None,
+    title: Union[str, None] = None,
 ) -> plt.Figure:  # noqa: ANN401
     """Create 'residual by predicted' and 'actual by predicted' plots.
 
@@ -413,13 +413,13 @@ def sensitivity_profile(
     x0: np.ndarray,
     y0: np.ndarray,
     x_pred: np.ndarray,
-    y_pred: np.ndarray | list[np.ndarray],
-    x_true: np.ndarray | None = None,
-    y_true: np.ndarray | None = None,
+    y_pred: Union[np.ndarray, list[np.ndarray]],
+    x_true: Union[np.ndarray, None] = None,
+    y_true: Union[np.ndarray, None] = None,
     alpha: float = 1.0,
     xlabel: str = "x",
     ylabel: str = "y",
-    legend: list[str] | None = None,
+    legend: Union[list[str], None] = None,
     figsize: tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
     show_cursor: bool = True,
@@ -477,19 +477,19 @@ def sensitivity_profile(
 
 @requires_matplotlib
 def sensitivity_profiles(
-    f: Callable | list[Callable],
+    f: Union[Callable, list[Callable]],
     x_min: np.ndarray,
     x_max: np.ndarray,
-    x0: np.ndarray | None = None,
-    x_true: np.ndarray | None = None,
-    y_true: np.ndarray | None = None,
+    x0: Union[np.ndarray, None] = None,
+    x_true: Union[np.ndarray, None] = None,
+    y_true: Union[np.ndarray, None] = None,
     figsize: tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
     alpha: float = 1.0,
     title: str = "",
-    xlabels: list[str] | None = None,
-    ylabels: list[str] | None = None,
-    legend: list[str] | None = None,
+    xlabels: Union[list[str], None] = None,
+    ylabels: Union[list[str], None] = None,
+    legend: Union[list[str], None] = None,
     resolution: int = 100,
     show_cursor: bool = True,
 ) -> plt.Figure:  # noqa: ANN401

@@ -5,6 +5,7 @@ This class implements the core algorithm responsible for training the neural net
 
 import functools
 from collections import defaultdict
+from typing import Union
 
 import numpy as np
 
@@ -79,9 +80,9 @@ def train_model(
     beta2: float = 0.999,
     epochs: int = 1,
     max_iter: int = 200,
-    batch_size: int | None = None,
+    batch_size: Union[int, None] = None,
     shuffle: bool = True,
-    random_state: int | None = None,
+    random_state: Union[int, None] = None,
     is_backtracking: bool = False,
     is_verbose: bool = False,
 ) -> dict:  # noqa: PLR0913
@@ -110,13 +111,11 @@ def train_model(
     :return: cost function training history accessed as `cost =
         history[epoch][batch][iter]`
     """
-    history: dict[str, dict[str, list[float] | None]] = defaultdict(dict)
+    history: dict[str, dict[str, Union[list[float], None]]] = defaultdict(dict)
 
     update = ADAM(beta1, beta2)
     line_search = Backtracking(update, max_count=is_backtracking * 1_000)
     optimizer = Optimizer(line_search)
-
-    stacked_params = parameters.stack()
 
     for e in range(epochs):
         batches = data.mini_batches(batch_size, shuffle, random_state)
@@ -139,7 +138,7 @@ def train_model(
                 gamma,
             )
             optimizer.minimize(
-                x=stacked_params,
+                x=parameters.stack(),
                 f=func,
                 dfdx=grad,
                 alpha=alpha,
