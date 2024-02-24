@@ -1,14 +1,22 @@
 """Define 'doit' tasks"""
 import os
+import sys 
 import shutil
 import doit 
 import platform
 import subprocess
-import tomllib
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, Union 
 from pathlib import Path
 from typing_extensions import TypedDict
+from packaging import version 
+
+PYTHON_VERSION = version.parse(sys.version[:3]) 
+
+if version.parse("3.10") <= PYTHON_VERSION:
+    import tomllib  # type: ignore 
+else: 
+    from pip._vendor import tomli as tomllib
 
 
 DOIT_CONFIG = {
@@ -450,7 +458,7 @@ class U:
     
     @classmethod
     def lock(
-        cls, env_stem: str, platform: str, recipes: list[Path] | None = None
+        cls, env_stem: str, platform: str, recipes: Union[list[Path], None] = None
     ):
         """Generate a lock for recipe(s)."""
         env_files = recipes or []

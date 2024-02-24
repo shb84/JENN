@@ -111,6 +111,9 @@ _Create a PR on GitHub when ready_
 
 The release process has been automated via Github Actions. In summary, a new release is created by pushing a new tag to the remote (e.g. `v1.0.0`), which triggers a _test-build-deploy_ workflow that publishes to `pypi.org`, `GitHub Pages` and `Github Release`. Tag pattern must be `v*`.
 
+> NOTE: 
+> either [pypi](https://pypi.org/) and [testpypi](https://test.pypi.org/) need to be setup for [trusted publishing](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/) or Github must be provided an [API token](https://pypi.org/help/#apitoken) to enable communication between GitHub, TestPyPI, and PyPI. Currently, the latter is used.
+
 ### Steps 
 
 Assuming `master` is locally up-to-date, manually update the pyproject.toml version number:
