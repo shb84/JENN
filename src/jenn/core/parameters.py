@@ -102,7 +102,7 @@ class Parameters:
 
         :param random_state: optional random seed (for repeatability)
         """
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(random_state)
         self.W = []
         self.b = []
         self.a = []
