@@ -46,7 +46,7 @@ functions doing computations under-the-hood.
 """  # noqa: W291
 
 from pathlib import Path
-from typing import Any, Self
+from typing import Any, Union
 
 import numpy as np
 
@@ -74,7 +74,7 @@ class NeuralNet:
         hidden_activation: str = "tanh",
         output_activation: str = "linear",
     ):  # noqa D107
-        self.history: dict[Any, Any] | None = None
+        self.history: Union[dict[Any, Any], None] = None
         self.parameters = Parameters(
             layer_sizes,
             hidden_activation,
@@ -85,7 +85,7 @@ class NeuralNet:
         self,
         x: np.ndarray,
         y: np.ndarray,
-        dydx: np.ndarray | None = None,
+        dydx: Union[np.ndarray, None] = None,
         is_normalize: bool = False,
         alpha: float = 0.050,
         lambd: float = 0.000,
@@ -93,13 +93,13 @@ class NeuralNet:
         beta1: float = 0.900,
         beta2: float = 0.999,
         epochs: int = 1,
-        batch_size: int | None = None,
+        batch_size: Union[int, None] = None,
         max_iter: int = 200,
         shuffle: bool = True,
-        random_state: int | None = None,
+        random_state: Union[int, None] = None,
         is_backtracking: bool = False,
         is_verbose: bool = False,
-    ) -> Self:  # noqa: PLR0913
+    ) -> "NeuralNet":  # noqa: PLR0913
         r"""Train neural network.
 
         :param x: training data inputs, array of shape (n_x, m)
@@ -199,11 +199,11 @@ class NeuralNet:
         dydx = denormalize_partials(dydx_norm, params.sigma_x, params.sigma_y)
         return y, dydx
 
-    def save(self, file: str | Path = "parameters.json") -> None:
+    def save(self, file: Union[str, Path] = "parameters.json") -> None:
         """Serialize parameters and save to JSON file."""
         self.parameters.save(file)
 
-    def load(self, file: str | Path = "parameters.json") -> Self:
+    def load(self, file: Union[str, Path] = "parameters.json") -> "NeuralNet":
         """Load previously saved parameters from json file."""
         self.parameters.load(file)
         return self

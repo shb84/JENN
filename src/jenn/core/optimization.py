@@ -8,6 +8,7 @@ This module implements gradient-based optimization using `ADAM`_.
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
+from typing import Union
 
 import numpy as np
 
@@ -251,8 +252,8 @@ class Optimizer:
         line_search: LineSearch,
     ):  # noqa D107
         self.line_search = line_search
-        self.vars_history: list[np.ndarray] | None = None
-        self.cost_history: list[np.ndarray] | None = None
+        self.vars_history: Union[list[np.ndarray], None] = None
+        self.cost_history: Union[list[np.ndarray], None] = None
 
     def minimize(
         self,
@@ -262,8 +263,8 @@ class Optimizer:
         alpha: float = 0.01,
         max_iter: int = 100,
         verbose: bool = False,
-        epoch: int | None = None,
-        batch: int | None = None,
+        epoch: Union[int, None] = None,
+        batch: Union[int, None] = None,
     ) -> np.ndarray:
         r"""Minimize single objective function.
 

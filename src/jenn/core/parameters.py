@@ -6,6 +6,7 @@ This module defines a utility class to store and manage neural net parameters an
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 import orjson
@@ -96,7 +97,7 @@ class Parameters:
     def __post_init__(self) -> None:  # noqa D105
         self.initialize()
 
-    def initialize(self, random_state: int | None = None) -> None:
+    def initialize(self, random_state: Union[int, None] = None) -> None:
         """Use `He initialization <https://arxiv.org/pdf/1502.01852.pdf>`_ to initialize parameters.
 
         :param random_state: optional random seed (for repeatability)
@@ -138,7 +139,7 @@ class Parameters:
             self.a.append(a)
             previous_layer_size = layer_size
 
-    def stack(self, per_layer: bool = False) -> np.ndarray | list[np.ndarray]:
+    def stack(self, per_layer: bool = False) -> Union[np.ndarray, list[np.ndarray]]:
         """Stack W, b into a single array for each layer.
 
         :param per_layer: whether to return answer as list of stacks (one per layer)
@@ -197,7 +198,7 @@ class Parameters:
             k += n
         return stacks
 
-    def unstack(self, parameters: np.ndarray | list[np.ndarray]) -> None:
+    def unstack(self, parameters: Union[np.ndarray, list[np.ndarray]]) -> None:
         """Unstack parameters W, b back into list of arrays.
 
         :param parameters: neural network parameters as either a single
@@ -228,7 +229,9 @@ class Parameters:
             self.W[i][:] = array[: n * p].reshape(n, p)
             self.b[i][:] = array[n * p :].reshape(n, 1)
 
-    def stack_partials(self, per_layer: bool = False) -> np.ndarray | list[np.ndarray]:
+    def stack_partials(
+        self, per_layer: bool = False
+    ) -> Union[np.ndarray, list[np.ndarray]]:
         """Stack backprop partials dW, db.
 
         dW, db are either stacked into a single stack (for all layers)
@@ -262,7 +265,7 @@ class Parameters:
             return stacks
         return np.concatenate(stacks).reshape((-1, 1))
 
-    def unstack_partials(self, partials: np.ndarray | list[np.ndarray]) -> None:
+    def unstack_partials(self, partials: Union[np.ndarray, list[np.ndarray]]) -> None:
         """Unstack backprop partials dW, db back into list of arrays.
 
         :param partials: neural network partials as either a single
@@ -313,12 +316,12 @@ class Parameters:
         self.output_activation = self.a[-1]
         self.hidden_activation = self.a[-2]
 
-    def save(self, binary_file: str | Path = "parameters.json") -> None:
+    def save(self, binary_file: Union[str, Path] = "parameters.json") -> None:
         """Save parameters to specified json file."""
         with open(binary_file, "wb") as file:
             file.write(self.serialize())
 
-    def load(self, binary_file: str | Path = "parameters.json") -> None:
+    def load(self, binary_file: Union[str, Path] = "parameters.json") -> None:
         """Load parameters from specified json file."""
         with open(binary_file, "rb") as file:
             byte_stream = file.read()

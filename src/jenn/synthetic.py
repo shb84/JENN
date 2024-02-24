@@ -38,6 +38,7 @@ the base class to implement new test functions.
 """  # noqa: W291
 
 import abc
+from typing import Union
 
 import numpy as np
 
@@ -76,9 +77,9 @@ class TestFunction:
         cls,
         m_lhs: int,
         m_levels: int,
-        lb: np.ndarray | float,
-        ub: np.ndarray | float,
-        random_state: int | None = None,
+        lb: Union[np.ndarray, float],
+        ub: Union[np.ndarray, float],
+        random_state: Union[int, None] = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Generate synthetic data by sampling the test function.
 
@@ -113,7 +114,7 @@ class Linear(TestFunction):
     def evaluate(
         cls,
         x: np.ndarray,
-        a: float | np.ndarray = 1.0,
+        a: Union[float, np.ndarray] = 1.0,
         b: float = 0.0,
     ) -> np.ndarray:  # noqa: D102
         n_y = 1
@@ -126,7 +127,7 @@ class Linear(TestFunction):
     def first_derivative(
         cls,
         x: np.ndarray,
-        a: float | np.ndarray = 1.0,
+        a: Union[float, np.ndarray] = 1.0,
         b: float = 0.0,
     ) -> np.ndarray:  # noqa: D102
         n_y = 1
@@ -142,9 +143,9 @@ class Linear(TestFunction):
         cls,
         m_lhs: int = 100,
         m_levels: int = 0,
-        lb: np.ndarray | float = -1.0,
-        ub: np.ndarray | float = 1.0,
-        random_state: int | None = None,
+        lb: Union[np.ndarray, float] = -1.0,
+        ub: Union[np.ndarray, float] = 1.0,
+        random_state: Union[int, None] = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
@@ -158,7 +159,7 @@ class Parabola(TestFunction):
 
     @classmethod
     def evaluate(
-        cls, x: np.ndarray, x0: np.ndarray | float = 0.0
+        cls, x: np.ndarray, x0: Union[np.ndarray, float] = 0.0
     ) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
@@ -168,7 +169,7 @@ class Parabola(TestFunction):
 
     @classmethod
     def first_derivative(
-        cls, x: np.ndarray, x0: np.ndarray | float = 0.0
+        cls, x: np.ndarray, x0: Union[np.ndarray, float] = 0.0
     ) -> np.ndarray:  # noqa: D102
         n_y = 1
         n_x, m = x.shape
@@ -181,9 +182,9 @@ class Parabola(TestFunction):
         cls,
         m_lhs: int = 100,
         m_levels: int = 0,
-        lb: np.ndarray | float = -1.0,
-        ub: np.ndarray | float = 1.0,
-        random_state: int | None = None,
+        lb: Union[np.ndarray, float] = -1.0,
+        ub: Union[np.ndarray, float] = 1.0,
+        random_state: Union[int, None] = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
@@ -216,9 +217,9 @@ class Sinusoid(TestFunction):
         cls,
         m_lhs: int = 100,
         m_levels: int = 0,
-        lb: np.ndarray | float = -np.pi,
-        ub: np.ndarray | float = np.pi,
-        random_state: int | None = None,
+        lb: Union[np.ndarray, float] = -np.pi,
+        ub: Union[np.ndarray, float] = np.pi,
+        random_state: Union[int, None] = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
@@ -253,15 +254,15 @@ class Rastrigin(TestFunction):
         cls,
         m_lhs: int = 100,
         m_levels: int = 0,
-        lb: np.ndarray | float = -1.0
+        lb: Union[np.ndarray, float] = -1.0
         * np.ones(
             2,
         ),
-        ub: np.ndarray | float = 1.5
+        ub: Union[np.ndarray, float] = 1.5
         * np.ones(
             2,
         ),
-        random_state: int | None = None,
+        random_state: Union[int, None] = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
@@ -295,14 +296,14 @@ class Rosenbrock(TestFunction):
         cls,
         m_lhs: int = 100,
         m_levels: int = 0,
-        lb: np.ndarray | float = -2
+        lb: Union[np.ndarray, float] = -2
         * np.ones(
             2,
         ),
-        ub: np.ndarray | float = 2.0
+        ub: Union[np.ndarray, float] = 2.0
         * np.ones(
             2,
         ),
-        random_state: int | None = None,
+        random_state: Union[int, None] = None,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, random_state)

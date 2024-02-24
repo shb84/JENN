@@ -8,15 +8,16 @@ manage and handle training data.
 import math
 from dataclasses import dataclass
 from functools import cached_property
+from typing import Union
 
 import numpy as np
 
 
 def mini_batches(
     X: np.ndarray,
-    batch_size: int | None,
+    batch_size: Union[int, None],
     shuffle: bool = True,
-    random_state: int | None = None,
+    random_state: Union[int, None] = None,
 ) -> list[tuple[int, ...]]:
     r"""Create randomized mini-batches.
 
@@ -158,7 +159,7 @@ class Dataset:
 
     X: np.ndarray
     Y: np.ndarray
-    J: np.ndarray | None = None
+    J: Union[np.ndarray, None] = None
 
     def __post_init__(self) -> None:  # noqa: D105
         if self.X.shape[1] != self.Y.shape[1]:
@@ -209,9 +210,9 @@ class Dataset:
 
     def mini_batches(
         self,
-        batch_size: int | None,
+        batch_size: Union[int, None],
         shuffle: bool = True,
-        random_state: int | None = None,
+        random_state: Union[int, None] = None,
     ) -> list["Dataset"]:
         """Breakup data into multiple batches and return list of Datasets.
 
