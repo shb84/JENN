@@ -21,6 +21,12 @@ build: Changes to the build process or tools.
 
 ## [Unreleased] - yyyy-mm-dd
 
+## v1.0.2 - 2024-02-25
+
+### Feature 
+
+- Added support for `python >= 3.8` 
+
 ## v1.0.1 - 2024-02-24
 
 ### Documentation
