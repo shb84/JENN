@@ -38,7 +38,7 @@ the base class to implement new test functions.
 """  # noqa: W291
 
 import abc
-from typing import Union, Tuple
+from typing import Tuple, Union
 
 import numpy as np
 

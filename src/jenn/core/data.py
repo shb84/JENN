@@ -8,7 +8,7 @@ manage and handle training data.
 import math
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Union, List, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 

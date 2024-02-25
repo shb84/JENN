@@ -7,9 +7,9 @@ recomputed again during backward propgation. See
 `paper`_ for details and notation.
 """  # noqa: W291
 
-import numpy as np
-
 from typing import List
+
+import numpy as np
 
 
 class Cache:

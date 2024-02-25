@@ -5,7 +5,7 @@ This module defines a utility class to store and manage neural net parameters an
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union, List, Iterable
+from typing import Iterable, List, Union
 
 import numpy as np
 import orjson

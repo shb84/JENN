@@ -3,7 +3,7 @@
 
 This module contains the critical functionality to propagate information forward and backward through the neural net."""
 
-from typing import Union, List, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 

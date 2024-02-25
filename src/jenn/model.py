@@ -46,7 +46,7 @@ functions doing computations under-the-hood.
 """  # noqa: W291
 
 from pathlib import Path
-from typing import Any, Union, List, Tuple
+from typing import Any, List, Tuple, Union
 
 import numpy as np
 
