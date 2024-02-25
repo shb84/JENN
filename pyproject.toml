@@ -17,12 +17,12 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "orjson>=3.8",
+  "orjson>=3.9",
   "numpy>=1.22",
 ]
 
 [project.optional-dependencies]
-viz = ["matplotlib-base>=3.8"]
+viz = ["matplotlib>=3.7"]
 
 [project.urls]
 Documentation = "https://shb84.github.io/JENN/"
