@@ -9,6 +9,8 @@ recomputed again during backward propgation. See
 
 import numpy as np
 
+from typing import List
+
 
 class Cache:
     r"""Neural net cache.
@@ -36,28 +38,28 @@ class Cache:
     :param m: number of examples (used to preallocate arrays)
 
     :ivar Z:  :math:`Z^{[l]} \in \mathbb{R}^{n^{[l]}\times m}~\forall~ l = 1 \dots L`
-    :vartype Z: list[numpy.ndarray]
+    :vartype Z: List[numpy.ndarray]
 
     :ivar Z_prime:  :math:`{Z^\prime}^{[l]} \in \mathbb{R}^{n^{[l]}\times n_x \times m}~\forall~ l = 1 \dots L`
-    :vartype Z_prime: list[numpy.ndarray]
+    :vartype Z_prime: List[numpy.ndarray]
 
     :ivar A:  :math:`A^{[l]} = g(Z^{[l]}) \in \mathbb{R}^{n^{[l]} \times m}~\forall~ l = 1 \dots L`
-    :vartype A: list[numpy.ndarray]
+    :vartype A: List[numpy.ndarray]
 
     :ivar A_prime:  :math:`{A^\prime}^{[l]} = g^\prime(Z^{[l]})Z^{\prime[l]} \in \mathbb{R}^{n^{[l]}\times n_x \times m}`
-    :vartype A_prime: list[numpy.ndarray]
+    :vartype A_prime: List[numpy.ndarray]
 
     :ivar G_prime:  :math:`G^{\prime} = g^{\prime}(Z^{[l]}) \in \mathbb{R}^{n^{[l]} \times m}~\forall~ l = 1 \dots L`
-    :vartype G_prime: list[numpy.ndarray]
+    :vartype G_prime: List[numpy.ndarray]
 
     :ivar G_prime_prime:  :math:`G^{\prime\prime} = g^{\prime\prime}(Z^{[l]}) \in \mathbb{R}^{n^{[l]} \times m}`
-    :vartype G_prime_prime: list[numpy.ndarray]
+    :vartype G_prime_prime: List[numpy.ndarray]
 
     :ivar dA: :math:`{\partial \mathcal{J}}/{dA^{[l]}}  \in \mathbb{R}^{n^{[l]} \times m}~\forall~ l = 1 \dots L`
-    :vartype dA: list[numpy.ndarray]
+    :vartype dA: List[numpy.ndarray]
 
     :ivar dA_prime: :math:`{\partial \mathcal{J}}/{dA^{\prime[l]}}  \in \mathbb{R}^{n^{[l]} \times n_x \times m}~\forall~ l = 1 \dots L`
-    :vartype dA: list[numpy.ndarray]
+    :vartype dA: List[numpy.ndarray]
     """
 
     @property
@@ -75,16 +77,16 @@ class Cache:
         """Return number of outputs."""
         return int(self.layer_sizes[-1])
 
-    def __init__(self, layer_sizes: list[int], m: int = 1):  # noqa: D107
+    def __init__(self, layer_sizes: List[int], m: int = 1):  # noqa: D107
         self.layer_sizes = layer_sizes
-        self.Z: list[np.ndarray] = []  #  z = w a_prev + b
-        self.Z_prime: list[np.ndarray] = []  #  z' = dz/dx[j] for all j = 1, .., n_x
-        self.A: list[np.ndarray] = []  #  a = g(z)
-        self.A_prime: list[np.ndarray] = []  #  a' = da/dx[j] for all j = 1, .., n_x
-        self.G_prime: list[np.ndarray] = []  #  g' = da/dz
-        self.G_prime_prime: list[np.ndarray] = []  #  g'' = d/dz( da/dz )
-        self.dA: list[np.ndarray] = []
-        self.dA_prime: list[np.ndarray] = []
+        self.Z: List[np.ndarray] = []  #  z = w a_prev + b
+        self.Z_prime: List[np.ndarray] = []  #  z' = dz/dx[j] for all j = 1, .., n_x
+        self.A: List[np.ndarray] = []  #  a = g(z)
+        self.A_prime: List[np.ndarray] = []  #  a' = da/dx[j] for all j = 1, .., n_x
+        self.G_prime: List[np.ndarray] = []  #  g' = da/dz
+        self.G_prime_prime: List[np.ndarray] = []  #  g'' = d/dz( da/dz )
+        self.dA: List[np.ndarray] = []
+        self.dA_prime: List[np.ndarray] = []
         for n in self.layer_sizes:
             self.Z.append(np.zeros((n, m)))
             self.Z_prime.append(np.zeros((n, self.n_x, m)))

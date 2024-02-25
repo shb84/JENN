@@ -3,7 +3,7 @@
 
 This module contains the critical functionality to propagate information forward and backward through the neural net."""
 
-from typing import Union
+from typing import Union, List, Tuple
 
 import numpy as np
 
@@ -54,7 +54,7 @@ def first_layer_partials(X: np.ndarray, cache: Union[Cache, None]) -> None:
 
 def next_layer_partials(
     layer: int, parameters: Parameters, cache: Cache
-) -> list[np.ndarray]:
+) -> List[np.ndarray]:
     """Compute j^th partial in place for one layer (in place).
 
     :param layer: index of current layer.
@@ -101,7 +101,7 @@ def next_layer_forward(layer: int, parameters: Parameters, cache: Cache) -> None
 
 def model_partials_forward(
     X: np.ndarray, parameters: Parameters, cache: Cache
-) -> tuple[np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray]:
     """Propagate forward in order to predict reponse(s) and partial(s).
 
     :param X: training data inputs, array of shape (n_x, m)

@@ -4,6 +4,7 @@ parameters is known exactly."""
 import numpy as np
 import pytest 
 from copy import deepcopy
+from typing import List
 
 import jenn
 
@@ -35,14 +36,14 @@ def _finite_difference(cost, params, step=1e-6):
     return grads
 
 
-def _grad_check(dydx: list[np.ndarray], dydx_FD: list[np.ndarray],
+def _grad_check(dydx: List[np.ndarray], dydx_FD: List[np.ndarray],
                 atol: float = 1e-6, rtol: float = 1e-4) -> bool:
     """
     Compare analytical gradient against finite difference
 
     Parameters
     ----------
-    x: list[np.ndarray]
+    x: List[np.ndarray]
         Point at which to evaluate gradient
 
     f: callable

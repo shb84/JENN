@@ -3,10 +3,9 @@
 
 This module defines a utility class to store and manage neural net parameters and metadata."""
 
-from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union
+from typing import Union, List, Iterable
 
 import numpy as np
 import orjson
@@ -38,34 +37,34 @@ class Parameters:
     :param output_activation: activation function used in output layer
 
     :ivar W: weights :math:`\boldsymbol{W} \in \mathbb{R}^{n^{[l]} \times n^{[l-1]}}` for each layer
-    :vartype W: list[np.ndarray]
+    :vartype W: List[np.ndarray]
 
     :ivar b: biases :math:`\boldsymbol{b} \in \mathbb{R}^{n^{[l]} \times 1}` for each layer
-    :vartype b: list[np.ndarray]
+    :vartype b: List[np.ndarray]
 
     :ivar a: activation names for each layer
-    :vartype a: list[str]
+    :vartype a: List[str]
 
     :ivar dW: partials w.r.t. weight :math:`dL/dW^{[l]} \in \mathbb{R}^{n^{[l]} \times n^{[l-1]}}`
-    :vartype dW: list[np.ndarray]
+    :vartype dW: List[np.ndarray]
 
     :ivar db: partials w.r.t. bias :math:`dL/db^{[l]} \in \mathbb{R}^{n^{[l]} \times 1}`
-    :vartype db: list[np.ndarray]
+    :vartype db: List[np.ndarray]
 
     :ivar mu_x: mean of training data inputs used for normalization :math:`\mu_x \in \mathbb{R}^{n_x \times 1}`
-    :vartype mu_x: list[np.ndarray]
+    :vartype mu_x: List[np.ndarray]
 
     :ivar mu_y: mean of training data outputs used for normalization :math:`\mu_y \in \mathbb{R}^{n_y \times 1}`
-    :vartype mu_x: list[np.ndarray]
+    :vartype mu_x: List[np.ndarray]
 
     :ivar sigma_x: standard deviation of training data inputs used for normalization :math:`\sigma_x \in \mathbb{R}^{n_x \times 1}`
-    :vartype sigma_x: list[np.ndarray]
+    :vartype sigma_x: List[np.ndarray]
 
     :ivar sigma_y: standard deviation of training data outputs used for normalization :math:`\sigma_y \in \mathbb{R}^{n_y \times 1}`
-    :vartype sigma_y: list[np.ndarray]
+    :vartype sigma_y: List[np.ndarray]
     """
 
-    layer_sizes: list[int]
+    layer_sizes: List[int]
     hidden_activation: str = "relu"
     output_activation: str = "linear"
 
@@ -139,7 +138,7 @@ class Parameters:
             self.a.append(a)
             previous_layer_size = layer_size
 
-    def stack(self, per_layer: bool = False) -> Union[np.ndarray, list[np.ndarray]]:
+    def stack(self, per_layer: bool = False) -> Union[np.ndarray, List[np.ndarray]]:
         """Stack W, b into a single array for each layer.
 
         :param per_layer: whether to return answer as list of stacks (one per layer)
@@ -168,7 +167,7 @@ class Parameters:
             return stacks
         return np.concatenate(stacks).reshape((-1, 1))
 
-    def _column_to_stacks(self, params: np.ndarray) -> list[np.ndarray]:
+    def _column_to_stacks(self, params: np.ndarray) -> List[np.ndarray]:
         """Convert parameters from single stack to list of stacks.
 
         Neural net parameters are converted from single stack
@@ -183,7 +182,7 @@ class Parameters:
 
         Returns
         -------
-        params: list[np.ndarray]
+        params: List[np.ndarray]
             List of stacks (one per layer)
             e.g. [np.array([[W1], [b1]]), [W2], [b2]]), np.array([[W3], [b3]])]
         """
@@ -198,7 +197,7 @@ class Parameters:
             k += n
         return stacks
 
-    def unstack(self, parameters: Union[np.ndarray, list[np.ndarray]]) -> None:
+    def unstack(self, parameters: Union[np.ndarray, List[np.ndarray]]) -> None:
         """Unstack parameters W, b back into list of arrays.
 
         :param parameters: neural network parameters as either a single
@@ -231,7 +230,7 @@ class Parameters:
 
     def stack_partials(
         self, per_layer: bool = False
-    ) -> Union[np.ndarray, list[np.ndarray]]:
+    ) -> Union[np.ndarray, List[np.ndarray]]:
         """Stack backprop partials dW, db.
 
         dW, db are either stacked into a single stack (for all layers)
@@ -265,7 +264,7 @@ class Parameters:
             return stacks
         return np.concatenate(stacks).reshape((-1, 1))
 
-    def unstack_partials(self, partials: Union[np.ndarray, list[np.ndarray]]) -> None:
+    def unstack_partials(self, partials: Union[np.ndarray, List[np.ndarray]]) -> None:
         """Unstack backprop partials dW, db back into list of arrays.
 
         :param partials: neural network partials as either a single

@@ -8,7 +8,7 @@ manage and handle training data.
 import math
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Union
+from typing import Union, List, Tuple
 
 import numpy as np
 
@@ -18,7 +18,7 @@ def mini_batches(
     batch_size: Union[int, None],
     shuffle: bool = True,
     random_state: Union[int, None] = None,
-) -> list[tuple[int, ...]]:
+) -> List[Tuple[int, ...]]:
     r"""Create randomized mini-batches.
 
     :param X: training data input :math:`X\in\mathbb{R}^{n_x\times m}`
@@ -213,7 +213,7 @@ class Dataset:
         batch_size: Union[int, None],
         shuffle: bool = True,
         random_state: Union[int, None] = None,
-    ) -> list["Dataset"]:
+    ) -> List["Dataset"]:
         """Breakup data into multiple batches and return list of Datasets.
 
         :param batch_size: mini batch size (if None, single batch with

@@ -38,7 +38,7 @@ the base class to implement new test functions.
 """  # noqa: W291
 
 import abc
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np
 
@@ -80,7 +80,7 @@ class TestFunction:
         lb: Union[np.ndarray, float],
         ub: Union[np.ndarray, float],
         random_state: Union[int, None] = None,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Generate synthetic data by sampling the test function.
 
         :param m_lhs: number of latin hypercube samples
@@ -146,7 +146,7 @@ class Linear(TestFunction):
         lb: Union[np.ndarray, float] = -1.0,
         ub: Union[np.ndarray, float] = 1.0,
         random_state: Union[int, None] = None,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
 
@@ -185,7 +185,7 @@ class Parabola(TestFunction):
         lb: Union[np.ndarray, float] = -1.0,
         ub: Union[np.ndarray, float] = 1.0,
         random_state: Union[int, None] = None,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
 
@@ -220,7 +220,7 @@ class Sinusoid(TestFunction):
         lb: Union[np.ndarray, float] = -np.pi,
         ub: Union[np.ndarray, float] = np.pi,
         random_state: Union[int, None] = None,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
 
@@ -263,7 +263,7 @@ class Rastrigin(TestFunction):
             2,
         ),
         random_state: Union[int, None] = None,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, random_state)
 
 
@@ -305,5 +305,5 @@ class Rosenbrock(TestFunction):
             2,
         ),
         random_state: Union[int, None] = None,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, random_state)
