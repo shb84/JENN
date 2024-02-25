@@ -46,7 +46,7 @@ functions doing computations under-the-hood.
 """  # noqa: W291
 
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, List, Tuple, Union
 
 import numpy as np
 
@@ -70,7 +70,7 @@ class NeuralNet:
 
     def __init__(
         self,
-        layer_sizes: list[int],
+        layer_sizes: List[int],
         hidden_activation: str = "tanh",
         output_activation: str = "linear",
     ):  # noqa D107
@@ -184,7 +184,7 @@ class NeuralNet:
         dydx = denormalize_partials(dydx_norm, params.sigma_x, params.sigma_y)
         return dydx
 
-    def evaluate(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def evaluate(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         r"""Predict responses and their partials.
 
         :param x: vectorized inputs, array of shape (n_x, m)

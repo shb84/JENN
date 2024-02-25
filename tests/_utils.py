@@ -1,5 +1,6 @@
 """Test that activation functions are corrected."""
 import numpy as np
+from typing import List
 
 
 def model_backward_FD(cost, params, step=1e-6):
@@ -30,14 +31,14 @@ def model_backward_FD(cost, params, step=1e-6):
 
 
 def grad_check(
-        dydx: list[np.ndarray], dydx_FD: list[np.ndarray],
+        dydx: List[np.ndarray], dydx_FD: List[np.ndarray],
         tol: float = 1e-6, verbose: bool = True) -> bool:
     """
     Compare analytical gradient against finite difference
 
     Parameters
     ----------
-    x: list[np.ndarray]
+    x: List[np.ndarray]
         Point at which to evaluate gradient
 
     f: callable
