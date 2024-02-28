@@ -236,8 +236,10 @@ Reloading the parameters a previously trained model::
 
 Optional plotting tools are available for convenience, provided `matplotlib` is installed:: 
 
+    from jenn.utils import plot 
+
     # Example: show goodness of fit of the partials 
-    jenn.utils.plot.goodness_of_fit(
+    plot.goodness_of_fit(
         y_true=dydx_test[0], 
         y_pred=genn.predict_partials(x_test)[0], 
         title="Partial Derivative: dy/dx (NN)"
@@ -249,7 +251,7 @@ Optional plotting tools are available for convenience, provided `matplotlib` is 
 ::
 
     # Example: visualize local trends
-    jenn.utils.plot.sensitivity_profiles(
+    plot.sensitivity_profiles(
         f=[f, genn.predict, nn.predict], 
         x_min=x_train.min(), 
         x_max=x_train.max(), 

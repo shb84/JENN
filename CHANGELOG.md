@@ -21,6 +21,17 @@ build: Changes to the build process or tools.
 
 ## [Unreleased] - yyyy-mm-dd
 
+## v1.0.3 - 2024-02-28
+
+### Fix 
+
+- Updated annotations in `jenn.utils.plot` which were incompatible with Python 3.8 (causing runtime errors)
+- Manually updated `__version__` number inside `__init__` (previous oversight) 
+
+### Documentation 
+
+- Update demo examples to use `from jenn.utils import plot` instead of `jenn.utils.plot` (which failed a test on Python 3.11.7)
+
 ## v1.0.2 - 2024-02-25
 
 ### Feature 
