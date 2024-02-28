@@ -42,7 +42,7 @@ assess goodness of fit and visualize trends.
 from collections.abc import Callable
 from functools import wraps
 from importlib.util import find_spec
-from typing import Any, Union, Tuple, List, Dict
+from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 
