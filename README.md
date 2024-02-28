@@ -90,9 +90,13 @@ Reload saved parameters into new model:
 
     reloaded = jenn.model.NeuralNet(layer_sizes=[1, 12, 1]).load('parameters.json')
 
+Optionally, if `matplotlib` is installed, import plotting utilities:  
+
+    from jenn.utils import plot
+
 Optionally, if `matplotlib` is installed, check goodness of fit: 
 
-    jenn.utils.plot.goodness_of_fit(
+    plot.goodness_of_fit(
         y_true=dydx_test[0], 
         y_pred=nn.predict_partials(x_test)[0], 
         title="Partial Derivative: dy/dx (JENN)"
@@ -100,7 +104,7 @@ Optionally, if `matplotlib` is installed, check goodness of fit:
 
 Optionally, if `matplotlib` is installed, show sensitivity profiles:
 
-    jenn.utils.plot.sensitivity_profiles(
+    plot.sensitivity_profiles(
         f=[jenn.synthetic.Sinusoid.evaluate, nn.predict], 
         x_min=x_train.min(), 
         x_max=x_train.max(), 
