@@ -122,6 +122,12 @@ Assuming `master` is locally up-to-date, manually update the pyproject.toml vers
 version = "1.0.0"
 ```
 
+For now, this must also be done manually in `src/jenn/__init__.py`: 
+
+```bash
+__version__ = "1.0.0"
+```
+
 Push the version change to the remote: 
 
 ```bash

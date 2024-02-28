@@ -42,7 +42,7 @@ assess goodness of fit and visualize trends.
 from collections.abc import Callable
 from functools import wraps
 from importlib.util import find_spec
-from typing import Any, Union
+from typing import Any, Union, Tuple, List, Dict
 
 import numpy as np
 
@@ -96,7 +96,7 @@ def actual_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
     ax: Union[plt.Axes, None] = None,  # noqa: ANN401
-    figsize: tuple[float, float] = (3.25, 3),
+    figsize: Tuple[float, float] = (3.25, 3),
     title: Union[str, None] = None,
     fontsize: int = 9,
     alpha: float = 1.0,
@@ -148,11 +148,11 @@ def actual_by_predicted(
 
 def contours(
     func: Callable,
-    lb: tuple[float, float],
-    ub: tuple[float, float],
+    lb: Tuple[float, float],
+    ub: Tuple[float, float],
     x_train: Union[np.ndarray, None] = None,
     x_test: Union[np.ndarray, None] = None,
-    figsize: tuple[float, float] = (3.25, 3),
+    figsize: Tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
     alpha: float = 0.5,
     title: str = "",
@@ -210,12 +210,12 @@ def contours(
 
 @requires_matplotlib
 def convergence(
-    histories: list[dict[str, dict[str, list[float]]]],
-    figsize: tuple[float, float] = (3.25, 3),
+    histories: List[Dict[str, Dict[str, List[float]]]],
+    figsize: Tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
     alpha: float = 1.0,
     title: str = "",
-    legend: Union[list[str], None] = None,
+    legend: Union[List[str], None] = None,
 ) -> Union[plt.Figure, None]:  # noqa: ANN401
     """Plot training history.
 
@@ -297,7 +297,7 @@ def residuals_by_predicted(
     y_true: np.ndarray,
     percent_residuals: bool = False,
     ax: Union[plt.Axes, None] = None,  # noqa: ANN401
-    figsize: tuple[float, float] = (3.25, 3),
+    figsize: Tuple[float, float] = (3.25, 3),
     title: Union[str, None] = None,
     fontsize: int = 9,
     alpha: float = 1.0,
@@ -364,7 +364,7 @@ def goodness_of_fit(
     y_true: np.ndarray,
     y_pred: np.ndarray,
     percent_residuals: bool = False,
-    figsize: tuple[float, float] = (6.5, 3),
+    figsize: Tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
     alpha: float = 1.0,
     title: Union[str, None] = None,
@@ -413,14 +413,14 @@ def sensitivity_profile(
     x0: np.ndarray,
     y0: np.ndarray,
     x_pred: np.ndarray,
-    y_pred: Union[np.ndarray, list[np.ndarray]],
+    y_pred: Union[np.ndarray, List[np.ndarray]],
     x_true: Union[np.ndarray, None] = None,
     y_true: Union[np.ndarray, None] = None,
     alpha: float = 1.0,
     xlabel: str = "x",
     ylabel: str = "y",
-    legend: Union[list[str], None] = None,
-    figsize: tuple[float, float] = (6.5, 3),
+    legend: Union[List[str], None] = None,
+    figsize: Tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
     show_cursor: bool = True,
 ) -> plt.Figure:  # noqa: ANN401
@@ -477,19 +477,19 @@ def sensitivity_profile(
 
 @requires_matplotlib
 def sensitivity_profiles(
-    f: Union[Callable, list[Callable]],
+    f: Union[Callable, List[Callable]],
     x_min: np.ndarray,
     x_max: np.ndarray,
     x0: Union[np.ndarray, None] = None,
     x_true: Union[np.ndarray, None] = None,
     y_true: Union[np.ndarray, None] = None,
-    figsize: tuple[float, float] = (3.25, 3),
+    figsize: Tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
     alpha: float = 1.0,
     title: str = "",
-    xlabels: Union[list[str], None] = None,
-    ylabels: Union[list[str], None] = None,
-    legend: Union[list[str], None] = None,
+    xlabels: Union[List[str], None] = None,
+    ylabels: Union[List[str], None] = None,
+    legend: Union[List[str], None] = None,
     resolution: int = 100,
     show_cursor: bool = True,
 ) -> plt.Figure:  # noqa: ANN401
