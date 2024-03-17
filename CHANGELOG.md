@@ -22,7 +22,7 @@ build: Changes to the build process or tools.
 
 ### Refactor
 
-- Sdded jsonschema to validate reloaded parameters
+- Added jsonschema to validate reloaded parameters
 
 ## v1.0.3 (2024-02-28)
 

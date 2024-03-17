@@ -8,7 +8,6 @@ from typing import Union
 
 import numpy as np
 
-
 class Activation:
     """Activation function base class."""
 
@@ -204,3 +203,10 @@ class Linear(Activation):
             return np.zeros(x.shape)
         ddy[:] = 0
         return ddy
+
+
+ACTIVATIONS = dict(
+    relu=Relu,
+    tanh=Tanh,
+    linear=Linear,
+)

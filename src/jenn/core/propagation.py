@@ -7,16 +7,10 @@ from typing import List, Tuple, Union
 
 import numpy as np
 
-from .activation import Linear, Relu, Tanh
+from .activation import ACTIVATIONS
 from .cache import Cache
 from .data import Dataset
 from .parameters import Parameters
-
-ACTIVATIONS = dict(
-    relu=Relu,
-    tanh=Tanh,
-    linear=Linear,
-)
 
 
 def eye(n: int, m: int) -> np.ndarray:
