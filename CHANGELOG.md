@@ -18,10 +18,13 @@ build: Changes to the build process or tools.
 
 # Changelog
 
+## v1.0.3.dev0 (2024-02-28)
 
-## [Unreleased] - yyyy-mm-dd
+### Refactor
 
-## v1.0.3 - 2024-02-28
+- Sdded jsonschema to validate reloaded parameters
+
+## v1.0.3 (2024-02-28)
 
 ### Fix 
 
@@ -32,13 +35,13 @@ build: Changes to the build process or tools.
 
 - Update demo examples to use `from jenn.utils import plot` instead of `jenn.utils.plot` (which failed a test on Python 3.11.7)
 
-## v1.0.2 - 2024-02-25
+## v1.0.2 (2024-02-25)
 
 ### Feature 
 
 - Added support for `python >= 3.8` 
 
-## v1.0.1 - 2024-02-24
+## v1.0.1 (2024-02-24)
 
 ### Documentation
 
@@ -54,7 +57,7 @@ build: Changes to the build process or tools.
 
 - Added support for `python >= 3.9` 
 
-## v1.0.0 - 2024-02-19
+## v1.0.0 (2024-02-19)
 
 _This release introduces breaking changes but makes the algorithm about 5x faster._ 
 
