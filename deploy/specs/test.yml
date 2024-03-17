@@ -1,5 +1,0 @@
-dependencies:
-  # test
-  - pytest >=7.4,<8.0
-  - pytest-cov
-  - pytest-html

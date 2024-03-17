@@ -10,5 +10,4 @@ from . import metrics
 __all__ = ["metrics"]
 
 if find_spec("matplotlib"):
-
     __all__.append("plot")

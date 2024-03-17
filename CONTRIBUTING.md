@@ -12,7 +12,7 @@ _The `dev` environment serves as the local environment in which to try things._
 Assuming [conda](https://conda.org/) is installed:
 
 ```bash
-conda env update --file environment.yml --name jenn
+conda env update --file environment.yml
 conda activate jenn
 pip install -e .
 pytest

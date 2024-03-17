@@ -106,7 +106,8 @@ class Parameters:
         self.initialize()
 
     def initialize(self, random_state: Union[int, None] = None) -> None:
-        """Use `He initialization <https://arxiv.org/pdf/1502.01852.pdf>`_ to initialize parameters.
+        """Use `He initialization <https://arxiv.org/pdf/1502.01852.pdf>`_ to
+        initialize parameters.
 
         :param random_state: optional random seed (for repeatability)
         """
