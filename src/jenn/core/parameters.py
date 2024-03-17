@@ -8,8 +8,12 @@ from pathlib import Path
 from typing import Iterable, List, Union
 
 import numpy as np
-import orjson
+import orjson, json
+import os
+import jsonpointer, jsonschema
 
+_here = Path(os.path.dirname(os.path.abspath(__file__)))
+SCHEMA = json.loads((_here / "schema.json").read_text())
 
 @dataclass
 class Parameters:
@@ -295,18 +299,19 @@ class Parameters:
             self.dW[i][:] = array[: n * p].reshape(n, p)
             self.db[i][:] = array[n * p :].reshape(n, 1)
 
-    def serialize(self) -> bytes:
+    def _serialize(self) -> bytes:
         """Serialize parameters into byte stream for json."""
-        return orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY)
+        keys = jsonpointer.JsonPointer("/properties").get(SCHEMA) 
+        data = {key: getattr(self, key) for key in keys}
+        return orjson.dumps(data, option=orjson.OPT_SERIALIZE_NUMPY)
 
-    def deserialize(self, saved_parameters: bytes) -> None:
+    def _deserialize(self, saved_parameters: bytes) -> None:
         """Deserialize and apply saved parameters."""
         params = orjson.loads(saved_parameters)
+        jsonschema.validate(params, SCHEMA)
         self.W = [np.array(value) for value in params["W"]]
         self.b = [np.array(value) for value in params["b"]]
         self.a = params["a"]
-        self.dW = [np.array(value) for value in params["dW"]]
-        self.db = [np.array(value) for value in params["db"]]
         self.mu_x = np.array(params["mu_x"])
         self.mu_y = np.array(params["mu_y"])
         self.sigma_x = np.array(params["sigma_x"])
@@ -314,14 +319,16 @@ class Parameters:
         self.layer_sizes = [W.shape[0] for W in self.W]
         self.output_activation = self.a[-1]
         self.hidden_activation = self.a[-2]
+        self.dW = [np.zeros(array.shape) for array in self.W]
+        self.db = [np.zeros(array.shape) for array in self.b]
 
     def save(self, binary_file: Union[str, Path] = "parameters.json") -> None:
         """Save parameters to specified json file."""
         with open(binary_file, "wb") as file:
-            file.write(self.serialize())
+            file.write(self._serialize())
 
     def load(self, binary_file: Union[str, Path] = "parameters.json") -> None:
         """Load parameters from specified json file."""
         with open(binary_file, "rb") as file:
             byte_stream = file.read()
-        self.deserialize(byte_stream)
+        self._deserialize(byte_stream)

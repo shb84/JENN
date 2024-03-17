@@ -1,0 +1,104 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/shb84/JENN/schema.json",
+    "title": "Parameters",
+    "description": "serialized neural net parameters",
+    "type": "object",
+    "properties" : {
+        "layer_sizes" :{
+            "type": "array",
+            "items": {
+                "type": "integer",
+                "minimum": 1
+            }
+        },
+        "hidden_activation": {
+            "type": "string"
+        },
+        "output_activation": {
+            "type": "string"
+        }, 
+        "W": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "b": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "a": {
+            "type": "array", 
+            "items": {
+                "type": "string"
+            }
+        },
+        "mu_x": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                }
+            }
+        },
+        "mu_y": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                }
+            }
+        },
+        "sigma_x": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                }
+            }
+        },
+        "sigma_y": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                }
+            }
+        }
+    },
+    "required": [
+        "layer_sizes", 
+        "hidden_activation", 
+        "output_activation", 
+        "W", 
+        "b", 
+        "mu_x", 
+        "mu_y", 
+        "sigma_x",
+        "sigma_y"
+    ]
+}

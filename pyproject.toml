@@ -24,6 +24,9 @@ dependencies = [
 [project.optional-dependencies]
 viz = ["matplotlib>=3.7"]
 
+[tool.setuptools.package-data]
+jenn = ["*.json"]
+
 [project.urls]
 Documentation = "https://shb84.github.io/JENN/"
 Homepage = "https://github.com/shb84/JENN"
