@@ -3,17 +3,20 @@
 
 This module defines a utility class to store and manage neural net parameters and metadata."""
 
+import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Union
 
+import jsonpointer
+import jsonschema
 import numpy as np
-import orjson, json
-import os
-import jsonpointer, jsonschema
+import orjson
 
 _here = Path(os.path.dirname(os.path.abspath(__file__)))
 SCHEMA = json.loads((_here / "schema.json").read_text())
+
 
 @dataclass
 class Parameters:
@@ -301,7 +304,7 @@ class Parameters:
 
     def _serialize(self) -> bytes:
         """Serialize parameters into byte stream for json."""
-        keys = jsonpointer.JsonPointer("/properties").get(SCHEMA) 
+        keys = jsonpointer.JsonPointer("/properties").get(SCHEMA)
         data = {key: getattr(self, key) for key in keys}
         return orjson.dumps(data, option=orjson.OPT_SERIALIZE_NUMPY)
 
