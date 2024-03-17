@@ -8,6 +8,7 @@ from typing import Union
 
 import numpy as np
 
+
 class Activation:
     """Activation function base class."""
 

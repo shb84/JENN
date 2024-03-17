@@ -3,18 +3,18 @@
 
 This module defines a utility class to store and manage neural net parameters and metadata."""
 
-import jsonpointer
-import jsonschema
-import numpy as np
-import orjson
 import json
 import os
-
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Union
 
-from .activation import ACTIVATIONS  
+import jsonpointer
+import jsonschema
+import numpy as np
+import orjson
+
+from .activation import ACTIVATIONS
 
 _here = Path(os.path.dirname(os.path.abspath(__file__)))
 SCHEMA = json.loads((_here / "schema.json").read_text())
@@ -326,17 +326,37 @@ class Parameters:
         self.hidden_activation = self.a[-2]
         self.dW = [np.zeros(array.shape) for array in self.W]
         self.db = [np.zeros(array.shape) for array in self.b]
-        assert self.mu_x.size == self.layer_sizes[0], "mu_x size is different input layer size"
-        assert self.mu_y.size == self.layer_sizes[-1], "mu_y size is different output layer size"
-        assert self.sigma_x.size == self.layer_sizes[0], "sigma_x size is different input layer size"
-        assert self.sigma_y.size == self.layer_sizes[-1], "sigma_x size is different output layer size"
-        assert self.mu_x.shape == self.sigma_x.shape, "mu_x and sigma_x have different shapes"
-        assert self.mu_y.shape == self.sigma_y.shape, "mu_y and sigma_y have different shapes"
+        assert (
+            self.mu_x.size == self.layer_sizes[0]
+        ), "mu_x size is different input layer size"
+        assert (
+            self.mu_y.size == self.layer_sizes[-1]
+        ), "mu_y size is different output layer size"
+        assert (
+            self.sigma_x.size == self.layer_sizes[0]
+        ), "sigma_x size is different input layer size"
+        assert (
+            self.sigma_y.size == self.layer_sizes[-1]
+        ), "sigma_x size is different output layer size"
+        assert (
+            self.mu_x.shape == self.sigma_x.shape
+        ), "mu_x and sigma_x have different shapes"
+        assert (
+            self.mu_y.shape == self.sigma_y.shape
+        ), "mu_y and sigma_y have different shapes"
         m = self.layer_sizes[0]
-        for i, n in enumerate(self.layer_sizes): 
-            assert self.a[i] in ACTIVATIONS, f"a[{i}] must be one of {list(ACTIVATIONS.keys())}"
-            assert self.b[i].shape == (n, 1), f"b[{i}] has the wrong shape (expected {(n, 1)})"
-            assert self.W[i].shape == (n, m), f"W[{i}] has the wrong shape (expected {(n, m)})"
+        for i, n in enumerate(self.layer_sizes):
+            assert (
+                self.a[i] in ACTIVATIONS
+            ), f"a[{i}] must be one of {list(ACTIVATIONS.keys())}"
+            assert self.b[i].shape == (
+                n,
+                1,
+            ), f"b[{i}] has the wrong shape (expected {(n, 1)})"
+            assert self.W[i].shape == (
+                n,
+                m,
+            ), f"W[{i}] has the wrong shape (expected {(n, m)})"
             m = n
 
     def save(self, binary_file: Union[str, Path] = "parameters.json") -> None:

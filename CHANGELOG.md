@@ -18,11 +18,11 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-## v1.0.3.dev0 (2024-02-28)
+## v1.0.3.dev0 (YYYY-MM-DD)
 
 ### Refactor
 
-- Added jsonschema to validate reloaded parameters
+- Added jsonschema to validate reloaded parameters and check array shapes
 
 ## v1.0.3 (2024-02-28)
 
