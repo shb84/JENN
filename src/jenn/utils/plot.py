@@ -97,7 +97,7 @@ def actual_by_predicted(
     y_true: np.ndarray,
     ax: Union[plt.Axes, None] = None,  # noqa: ANN401
     figsize: Tuple[float, float] = (3.25, 3),
-    title: Union[str, None] = None,
+    title: str = "",
     fontsize: int = 9,
     alpha: float = 1.0,
 ) -> plt.Figure:  # noqa: ANN401
@@ -140,7 +140,7 @@ def actual_by_predicted(
     ax.set_xlabel("Predicted", fontsize=fontsize)
     ax.set_ylabel("Actual", fontsize=fontsize)
     ax.set_title(title, fontsize=fontsize)
-    ax.grid("on")
+    ax.grid(True)
     ax.legend(["predictions", "perfect fit line"], fontsize=fontsize)
     plt.close(fig)
     return fig
@@ -160,7 +160,7 @@ def contours(
     ylabel: str = "",
     resolution: int = 100,
     ax: Union[plt.Axes, None] = None,  # noqa: ANN401
-) -> plt.Figure:  # noqa: ANN401
+) -> Union[None, plt.Figure]:  # noqa: ANN401
     """Plot contours of a scalar function of two variables.
 
     :param figsize: figure size
@@ -298,7 +298,7 @@ def residuals_by_predicted(
     percent_residuals: bool = False,
     ax: Union[plt.Axes, None] = None,  # noqa: ANN401
     figsize: Tuple[float, float] = (3.25, 3),
-    title: Union[str, None] = None,
+    title: str = "",
     fontsize: int = 9,
     alpha: float = 1.0,
 ) -> plt.Figure:  # noqa: ANN401
@@ -353,7 +353,7 @@ def residuals_by_predicted(
     else:
         ax.set_ylabel("Residuals", fontsize=fontsize)
     ax.set_xlabel("Predicted", fontsize=fontsize)
-    ax.grid("on")
+    ax.grid(True)
     ax.legend([f"avg = {avg_error:.3f}", f"std = {std_error:.3f}"], fontsize=fontsize)
     plt.close(fig)
     return fig
@@ -367,7 +367,7 @@ def goodness_of_fit(
     figsize: Tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
     alpha: float = 1.0,
-    title: Union[str, None] = None,
+    title: str = "",
 ) -> plt.Figure:  # noqa: ANN401
     """Create 'residual by predicted' and 'actual by predicted' plots.
 
@@ -470,7 +470,7 @@ def sensitivity_profile(
             ax.scatter(x0, y0[n], color="r")
     ax.set_xlabel(xlabel, fontsize=fontsize)
     ax.set_ylabel(ylabel, fontsize=fontsize)
-    ax.grid("on")
+    ax.grid(True)
     plt.close(fig)
     return fig
 

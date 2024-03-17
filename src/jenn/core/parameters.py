@@ -148,16 +148,10 @@ class Parameters:
             self.a.append(a)
             previous_layer_size = layer_size
 
-    def stack(self, per_layer: bool = False) -> Union[np.ndarray, List[np.ndarray]]:
-        """Stack W, b into a single array for each layer.
-
-        :param per_layer: whether to return answer as list of stacks (one per layer)
-        :return: parameter as either single stacked array or list of stacks (if specified)
+    def stack(self) -> np.ndarray:
+        """Stack W, b into a single array.
 
         .. code-block::
-
-            parameters.stack(per_layer=True)
-            >> [np.array([[W1], [b1]]), [W2], [b2]]), np.array([[W3], [b3]])]
 
             parameters.stack()
             >> np.array([[W1], [b1], [W2], [b2], [W3], [b3]])
@@ -167,15 +161,58 @@ class Parameters:
             used by the neural net into a single array of stacked parameters
             for optimization.
         """
+        stacks = self.stack_per_layer()
+        return np.concatenate(stacks).reshape((-1, 1))
+
+    def stack_per_layer(self) -> List[np.ndarray]:
+        """Stack W, b into a single array for each layer.
+
+        .. code-block::
+
+            parameters.stack_per_layer()
+            >> [np.array([[W1], [b1]]), [W2], [b2]]), np.array([[W3], [b3]])]
+        """
         stacks = []
         for i in range(self.L):
             stack = np.concatenate([self.W[i].ravel(), self.b[i].ravel()]).reshape(
                 (-1, 1)
             )
             stacks.append(stack)
-        if per_layer:
-            return stacks
+        return stacks
+
+    def stack_partials(self) -> np.ndarray:
+        """Stack backprop partials dW, db.
+
+        .. code-block::
+
+            parameters.stack_partials()
+            >> np.array([[dW1], [db1], [dW2], [db2], [dW3], [db3]])
+
+        .. note::
+            This method is used to convert the list format used by the neural
+            net into a single array of stacked parameters for optimization.
+        """
+        stacks = self.stack_partials_per_layer()
         return np.concatenate(stacks).reshape((-1, 1))
+
+    def stack_partials_per_layer(self) -> List[np.ndarray]:
+        """Stack backprop partials dW, db per layer.
+
+        .. code-block::
+
+            parameters.stack_partials_per_layer()
+            >> [np.array([[dW1], [db1]]), np.array([[dW2], [db2]]), np.array([[dW3], [db3]]),]
+        """
+        stacks = []
+        for i in range(self.L):
+            stack = np.concatenate(
+                [
+                    self.dW[i].ravel(),
+                    self.db[i].ravel(),
+                ]
+            ).reshape((-1, 1))
+            stacks.append(stack)
+        return stacks
 
     def _column_to_stacks(self, params: np.ndarray) -> List[np.ndarray]:
         """Convert parameters from single stack to list of stacks.
@@ -237,42 +274,6 @@ class Parameters:
             n, p = self.W[i].shape
             self.W[i][:] = array[: n * p].reshape(n, p)
             self.b[i][:] = array[n * p :].reshape(n, 1)
-
-    def stack_partials(
-        self, per_layer: bool = False
-    ) -> Union[np.ndarray, List[np.ndarray]]:
-        """Stack backprop partials dW, db.
-
-        dW, db are either stacked into a single stack (for all layers)
-        or a list of stacks (one per layer).
-
-        :param per_layer: whether to return answer as list of stacks (one per layer)
-        :return: partials as either single stacked array or list of stacks (if specified)
-
-        .. code-block::
-
-            parameters.stack_partials(per_layer=True)
-            >> [np.array([[dW1], [db1]]), np.array([[dW2], [db2]]), np.array([[dW3], [db3]]),]
-
-            parameters.stack_partials()
-            >> np.array([[dW1], [db1], [dW2], [db2], [dW3], [db3]])
-
-        .. note::
-            This method is used to convert the list format used by the neural
-            net into a single array of stacked parameters for optimization.
-        """
-        stacks = []
-        for i in range(self.L):
-            stack = np.concatenate(
-                [
-                    self.dW[i].ravel(),
-                    self.db[i].ravel(),
-                ]
-            ).reshape((-1, 1))
-            stacks.append(stack)
-        if per_layer:
-            return stacks
-        return np.concatenate(stacks).reshape((-1, 1))
 
     def unstack_partials(self, partials: Union[np.ndarray, List[np.ndarray]]) -> None:
         """Unstack backprop partials dW, db back into list of arrays.

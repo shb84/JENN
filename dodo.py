@@ -7,9 +7,6 @@ import platform
 import subprocess
 from pathlib import Path
 from packaging import version 
-from dotenv import load_dotenv
-
-load_dotenv()  # load environment variables (if any)
 
 PYTHON_VERSION = version.parse(sys.version[:3]) 
 

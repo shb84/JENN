@@ -90,10 +90,10 @@ class ADAM(Update):
         self.beta_1 = beta_1
         self.beta_2 = beta_2
 
-        self._v = None
-        self._s = None
+        self._v: Union[np.ndarray, None] = None
+        self._s: Union[np.ndarray, None] = None
         self._t = 0
-        self._grads = None
+        self._grads: Union[np.ndarray, None] = None
 
     def _update(
         self,
@@ -332,7 +332,7 @@ class Optimizer:
 
                 # Relative convergence criterion
                 numerator = abs(cost_history[-1] - cost_history[-2])
-                denominator = max(abs(cost_history[-1]), 1e-6)
+                denominator = max(abs(float(cost_history[-1])), 1e-6)
                 dF2 = numerator / denominator
 
                 if dF2 < epsilon_relative:

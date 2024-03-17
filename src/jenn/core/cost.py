@@ -9,6 +9,8 @@ term which accounts for Jacobian prediction error. See
 `paper`_ for details and notation. 
 """  # noqa W291
 
+from typing import Union
+
 import numpy as np
 
 from .data import Dataset
@@ -81,7 +83,7 @@ class Regularization:
         layer
     """
 
-    def __init__(self, weights: np.ndarray):  # noqa: D107
+    def __init__(self, weights: list[np.ndarray]):  # noqa: D107
         # Preallocate for speed
         self.weights = weights
         self._squared_weights = [np.zeros(W.shape) for W in weights]
@@ -129,7 +131,9 @@ class Cost:
         if data.J is not None and gamma > 0.0:  # noqa: PLR2004
             self.gradient_enhancement = GradientEnhancement(data.J)
 
-    def evaluate(self, Y_pred: np.ndarray, J_pred: np.ndarray = None) -> np.float64:
+    def evaluate(
+        self, Y_pred: np.ndarray, J_pred: Union[np.ndarray, None] = None
+    ) -> np.float64:
         r"""Evaluate cost function.
 
         :param Y_pred: predicted outputs :math:`A^{[L]} \in

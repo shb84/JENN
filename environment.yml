@@ -7,7 +7,6 @@ dependencies:
   # build
   - doit[toml]
   - conda-lock
-  - python-dotenv
   - build 
   - twine 
   - pip 

@@ -125,7 +125,7 @@ class Relu(Activation):
     def evaluate(
         cls,
         x: np.ndarray,
-        y: np.ndarray = None,
+        y: Union[np.ndarray, None] = None,
     ) -> np.ndarray:  # noqa: D102
         if y is None:
             y = (x > 0) * x

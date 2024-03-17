@@ -38,10 +38,7 @@ def mini_batches(
     batch_size = min(batch_size, m)
 
     # Step 1: Shuffle the indices
-    if shuffle:
-        indices = list(rng.permutation(m))
-    else:
-        indices = np.arange(m)
+    indices: list[int] = list(rng.permutation(m)) if shuffle else np.arange(m).tolist()
 
     # Step 2: Partition (shuffled_X, shuffled_Y). Minus the end case.
     num_complete_minibatches = int(math.floor(m / batch_size))
@@ -79,7 +76,9 @@ def std(array: np.ndarray) -> np.ndarray:
     return np.std(array, axis=1).reshape((-1, 1))
 
 
-def _safe_divide(value: np.ndarray, eps: float = np.finfo(float).eps) -> np.ndarray:
+def _safe_divide(
+    value: np.ndarray, eps: float = float(np.finfo(float).eps)
+) -> np.ndarray:
     """Add small number to avoid dividing by zero."""
     mask = value == 0.0  # noqa: PLR2004
     value[mask] += eps
@@ -109,8 +108,8 @@ def denormalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarr
 
 
 def normalize_partials(
-    partials: np.ndarray, sigma_x: np.ndarray, sigma_y: np.ndarray
-) -> np.ndarray:
+    partials: Union[np.ndarray, None], sigma_x: np.ndarray, sigma_y: np.ndarray
+) -> Union[np.ndarray, None]:
     r"""Normalize partials.
 
     :param partials: training data partials to be normalized

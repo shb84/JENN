@@ -111,7 +111,7 @@ def train_model(
     :return: cost function training history accessed as `cost =
         history[epoch][batch][iter]`
     """
-    history: dict[str, dict[str, Union[list[float], None]]] = defaultdict(dict)
+    history: dict[str, dict[str, Union[list[np.ndarray], None]]] = defaultdict(dict)
 
     update = ADAM(beta1, beta2)
     line_search = Backtracking(update, max_count=is_backtracking * 1_000)

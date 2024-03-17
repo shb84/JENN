@@ -3,7 +3,7 @@
 
 This module contains the critical functionality to propagate information forward and backward through the neural net."""
 
-from typing import List, Tuple, Union
+from typing import Tuple, Union
 
 import numpy as np
 
@@ -46,9 +46,7 @@ def first_layer_partials(X: np.ndarray, cache: Union[Cache, None]) -> None:
         cache.A_prime[0][:] = eye(n_x, m)
 
 
-def next_layer_partials(
-    layer: int, parameters: Parameters, cache: Cache
-) -> List[np.ndarray]:
+def next_layer_partials(layer: int, parameters: Parameters, cache: Cache) -> np.ndarray:
     """Compute j^th partial in place for one layer (in place).
 
     :param layer: index of current layer.
