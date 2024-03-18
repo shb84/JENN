@@ -1,3 +1,4 @@
+# Base conda environment for github-ci
 channels:
 - conda-forge
 - defaults

@@ -64,14 +64,18 @@ jobs:
         with:
           name: build-artifacts
           path: ./build
+      - name: Create all environments 
+        shell: bash -el {0}
+        run: | 
+          doit env
       - name: 💾 Distribution
         shell: bash -el {0}
         run: | 
-          doit build
+          doit build:dist
       - name: 📚 Documentation  
         shell: bash -el {0}
         run: | 
-          doit docs
+          doit build:docs
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
