@@ -25,7 +25,7 @@ jobs:
         with:
           auto-update-conda: false
           activate-environment: explicit-env
-          environment-file: deploy/specs/base.yml
+          environment-file: .github/base.yml
       - name: Create all environments 
         shell: bash -el {0}
         run: | 
