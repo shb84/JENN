@@ -26,7 +26,7 @@ jobs:
           auto-update-conda: false
           activate-environment: explicit-env
           environment-file: .github/base.yml
-      - name: Create all environments 
+      - name: Create base environment 
         shell: bash -el {0}
         run: | 
           doit env
@@ -64,7 +64,7 @@ jobs:
         with:
           name: build-artifacts
           path: ./build
-      - name: Create all environments 
+      - name: Create base environment 
         shell: bash -el {0}
         run: | 
           doit env
