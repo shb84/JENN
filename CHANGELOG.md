@@ -24,6 +24,14 @@ build: Changes to the build process or tools.
 
 - Added jsonschema to validate reloaded parameters and check array shapes
 
+### Documentation 
+
+- Added airfoil example (large dataset)
+
+### Refactor 
+
+- Added levels as input to `plot.contours`
+
 ## v1.0.3 (2024-02-28)
 
 ### Fix 

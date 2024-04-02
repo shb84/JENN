@@ -158,6 +158,7 @@ def contours(
     title: str = "",
     xlabel: str = "",
     ylabel: str = "",
+    levels: int = 20, 
     resolution: int = 100,
     ax: Union[plt.Axes, None] = None,  # noqa: ANN401
 ) -> Union[None, plt.Figure]:  # noqa: ANN401
@@ -169,6 +170,7 @@ def contours(
     :param title: title of figure
     :param xlabel: factor #1 label
     :param ylabel: factor #2 label
+    :param levels: number of contour levels 
     :param resolution: line resolution
     :param ax: the matplotlib axes on which to plot the data
     :return: matplotlib figure instance
@@ -191,7 +193,7 @@ def contours(
     else:
         fig = plt.figure(figsize=figsize)
         ax = plt.gca()
-    ax.contour(x1, x2, y, 20, cmap="RdGy", alpha=alpha)
+    ax.contour(x1, x2, y, levels, cmap="RdGy", alpha=alpha)
     legend = []
     if x_train is not None:
         ax.scatter(x_train[0], x_train[1], marker=".", c="k", alpha=1)
