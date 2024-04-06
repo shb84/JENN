@@ -158,7 +158,7 @@ def contours(
     title: str = "",
     xlabel: str = "",
     ylabel: str = "",
-    levels: int = 20, 
+    levels: int = 20,
     resolution: int = 100,
     ax: Union[plt.Axes, None] = None,  # noqa: ANN401
 ) -> Union[None, plt.Figure]:  # noqa: ANN401
@@ -170,7 +170,7 @@ def contours(
     :param title: title of figure
     :param xlabel: factor #1 label
     :param ylabel: factor #2 label
-    :param levels: number of contour levels 
+    :param levels: number of contour levels
     :param resolution: line resolution
     :param ax: the matplotlib axes on which to plot the data
     :return: matplotlib figure instance

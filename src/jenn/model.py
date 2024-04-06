@@ -87,14 +87,15 @@ class NeuralNet:
         y: np.ndarray,
         dydx: Union[np.ndarray, None] = None,
         is_normalize: bool = False,
-        alpha: float = 0.050,
-        lambd: float = 0.000,
-        gamma: float = 1.000,
-        beta1: float = 0.900,
-        beta2: float = 0.999,
+        alpha: float = 0.05,
+        beta: Union[np.ndarray, float] = 1.0,
+        gamma: Union[np.ndarray, float] = 1.0,
+        lambd: float = 0.0,
+        beta1: float = 0.9,
+        beta2: float = 0.99,
         epochs: int = 1,
         batch_size: Union[int, None] = None,
-        max_iter: int = 200,
+        max_iter: int = 1000,
         shuffle: bool = True,
         random_state: Union[int, None] = None,
         is_backtracking: bool = False,
@@ -107,8 +108,9 @@ class NeuralNet:
         :param dydx: training data Jacobian, array of shape (n_y, n_x, m)
         :param is_normalize: normalize training by mean and variance
         :param alpha: optimizer learning rate for line search
-        :param lambd: regularization coefficient to avoid overfitting
-        :param gamma: jacobian-enhancement regularization coefficient
+        :param beta: LSE coefficients [defaulted to one] (optional)
+        :param gamma: jacobian-enhancement regularization coefficient [defaulted to zero] (optional) 
+        :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional) 
         :param beta1: `ADAM <https://arxiv.org/abs/1412.6980>`_ optimizer hyperparameter to control momentum
         :param beta2: ADAM optimizer hyperparameter to control momentum
         :param epochs: number of passes through data
@@ -143,8 +145,9 @@ class NeuralNet:
             params,
             # hyperparameters
             alpha=alpha,
-            lambd=lambd,
+            beta=beta,
             gamma=gamma,
+            lambd=lambd,
             beta1=beta1,
             beta2=beta2,
             # options

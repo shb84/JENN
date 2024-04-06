@@ -46,7 +46,6 @@ def objective_gradient(
     parameters: Parameters,
     cache: Cache,
     lambd: float,
-    gamma: float,
     stacked_params: np.ndarray,
 ) -> np.ndarray:  # noqa: PLR0913
     """Evaluate cost function gradient for backprop.
@@ -66,18 +65,19 @@ def objective_gradient(
         all layers.
     """
     parameters.unstack(stacked_params)
-    model_backward(data, parameters, cache, lambd, gamma)
+    model_backward(data, parameters, cache, lambd)
     return parameters.stack_partials()
 
 
 def train_model(
     data: Dataset,
     parameters: Parameters,
-    alpha: float = 0.050,
-    lambd: float = 0.000,
-    gamma: float = 0.000,
-    beta1: float = 0.900,
-    beta2: float = 0.999,
+    alpha: float = 0.05,
+    beta: Union[np.ndarray, float] = 1.0,
+    gamma: Union[np.ndarray, float] = 1.0,
+    lambd: float = 0.0,
+    beta1: float = 0.9,
+    beta2: float = 0.99,
     epochs: int = 1,
     max_iter: int = 200,
     batch_size: Union[int, None] = None,
@@ -92,8 +92,9 @@ def train_model(
     :param parameters: object that stores neural net parameters for each
         layer
     :param alpha: learning rate :math:`\alpha`
-    :param lambd: regularization term coefficient in cost function
-    :param gamma: jacobian-enhancement term coefficient in cost function
+    :param beta: LSE coefficients [defaulted to one] (optional)
+    :param gamma: jacobian-enhancement regularization coefficient [defaulted to zero] (optional) 
+    :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional) 
     :param beta_1: exponential decay rate of 1st moment vector
         :math:`\beta_1\in[0, 1)`
     :param beta_2: exponential decay rate of 2nd moment vector
@@ -117,11 +118,13 @@ def train_model(
     line_search = Backtracking(update, max_count=is_backtracking * 1_000)
     optimizer = Optimizer(line_search)
 
+    data.set_weights(beta, gamma)
+
     for e in range(epochs):
         batches = data.mini_batches(batch_size, shuffle, random_state)
         for b, batch in enumerate(batches):
             cache = Cache(parameters.layer_sizes, batch.m)
-            cost = Cost(batch, parameters, lambd, gamma)
+            cost = Cost(batch, parameters, lambd)
             func = functools.partial(
                 objective_function,
                 batch.X,
@@ -135,7 +138,6 @@ def train_model(
                 parameters,
                 cache,
                 lambd,
-                gamma,
             )
             optimizer.minimize(
                 x=parameters.stack(),

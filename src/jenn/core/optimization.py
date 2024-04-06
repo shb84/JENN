@@ -405,7 +405,7 @@ class ADAMOptimizer(Optimizer):
         beta_1: float = 0.9,
         beta_2: float = 0.99,
         tau: float = 0.5,
-        tol: float = 1e-6,
+        tol: float = 1e-12,
         max_count: int = 1_000,
     ):  # noqa D107
         line_search = Backtracking(
