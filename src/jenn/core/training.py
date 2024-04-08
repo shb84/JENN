@@ -12,7 +12,7 @@ import numpy as np
 from .cache import Cache
 from .cost import Cost
 from .data import Dataset
-from .optimization import ADAM, Backtracking, Optimizer
+from .optimization import ADAMOptimizer
 from .parameters import Parameters
 from .propagation import model_backward, model_partials_forward
 
@@ -78,6 +78,11 @@ def train_model(
     lambd: float = 0.0,
     beta1: float = 0.9,
     beta2: float = 0.99,
+    tau: float = 0.5,
+    tol: float = 1e-12,
+    max_count: int = 1000, 
+    epsilon_absolute: float = 1e-12,  
+    epsilon_relative: float = 1e-12,  
     epochs: int = 1,
     max_iter: int = 200,
     batch_size: Union[int, None] = None,
@@ -99,6 +104,14 @@ def train_model(
         :math:`\beta_1\in[0, 1)`
     :param beta_2: exponential decay rate of 2nd moment vector
         :math:`\beta_2\in[0, 1)`
+    :param tau: amount by which to reduce :math:`\alpha := \tau \times
+        \alpha` on each iteration
+    :param tol: stop when cost function doesn't improve more than
+        specified tolerance
+    :param max_count: stop when line search iterations exceed maximum
+        count specified
+    :param epsilon_absolute: absolute error stopping criterion
+    :param epsilon_relative: relative error stopping criterion
     :param epochs: number of passes through data
     :param batch_size: mini batch size (if None, single batch with all
         data)
@@ -113,13 +126,14 @@ def train_model(
         history[epoch][batch][iter]`
     """
     history: dict[str, dict[str, Union[list[np.ndarray], None]]] = defaultdict(dict)
-
-    update = ADAM(beta1, beta2)
-    line_search = Backtracking(update, max_count=is_backtracking * 1_000)
-    optimizer = Optimizer(line_search)
-
+    optimizer = ADAMOptimizer(
+        beta_1=beta1, 
+        beta_2=beta2, 
+        tau=tau, 
+        tol=tol, 
+        max_count=is_backtracking * max_count,
+    )
     data.set_weights(beta, gamma)
-
     for e in range(epochs):
         batches = data.mini_batches(batch_size, shuffle, random_state)
         for b, batch in enumerate(batches):
@@ -145,6 +159,8 @@ def train_model(
                 dfdx=grad,
                 alpha=alpha,
                 max_iter=max_iter,
+                epsilon_absolute=epsilon_absolute,  
+                epsilon_relative=epsilon_relative, 
                 verbose=is_verbose,
                 epoch=e,
                 batch=b,

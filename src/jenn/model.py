@@ -93,12 +93,18 @@ class NeuralNet:
         lambd: float = 0.0,
         beta1: float = 0.9,
         beta2: float = 0.99,
+        tau: float = 0.5,
+        tol: float = 1e-12,
+        max_count: int = 1000, 
+        epsilon_absolute: float = 1e-12,  
+        epsilon_relative: float = 1e-12,  
         epochs: int = 1,
         batch_size: Union[int, None] = None,
         max_iter: int = 1000,
         shuffle: bool = True,
         random_state: Union[int, None] = None,
         is_backtracking: bool = False,
+        is_warmstart: bool = False,
         is_verbose: bool = False,
     ) -> "NeuralNet":  # noqa: PLR0913
         r"""Train neural network.
@@ -113,12 +119,21 @@ class NeuralNet:
         :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional) 
         :param beta1: `ADAM <https://arxiv.org/abs/1412.6980>`_ optimizer hyperparameter to control momentum
         :param beta2: ADAM optimizer hyperparameter to control momentum
+        :param tau: amount by which to reduce :math:`\alpha := \tau \times
+            \alpha` on each iteration
+        :param tol: stop when cost function doesn't improve more than
+            specified tolerance
+        :param max_count: stop when line search iterations exceed maximum
+            count specified
+        :param epsilon_absolute: absolute error stopping criterion
+        :param epsilon_relative: relative error stopping criterion
         :param epochs: number of passes through data
         :param batch_size: size of each batch for minibatch
         :param max_iter: max number of optimizer iterations
         :param shuffle: shuffle minibatches or not
         :param random_state: control repeatability
         :param is_backtracking: use backtracking line search or not
+        :param is_warmstart: do not initialize parameters
         :param is_verbose: print out progress for each (iteration, batch, epoch)
         :return: NeuralNet instance (self)
 
@@ -130,6 +145,8 @@ class NeuralNet:
         """
         data = Dataset(x, y, dydx)
         params = self.parameters
+        if not is_warmstart: 
+            params.initialize(random_state)
         params.mu_x[:] = 0.0
         params.mu_y[:] = 0.0
         params.sigma_x[:] = 1.0
@@ -150,6 +167,11 @@ class NeuralNet:
             lambd=lambd,
             beta1=beta1,
             beta2=beta2,
+            tau=tau, 
+            tol=tol, 
+            max_count=max_count,
+            epsilon_absolute=epsilon_absolute,  
+            epsilon_relative=epsilon_relative,  
             # options
             epochs=epochs,
             max_iter=max_iter,

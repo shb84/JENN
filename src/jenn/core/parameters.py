@@ -102,9 +102,6 @@ class Parameters:
         """Return number of layers."""
         return len(self.layer_sizes)
 
-    def __post_init__(self) -> None:  # noqa D105
-        self.initialize()
-
     def initialize(self, random_state: Union[int, None] = None) -> None:
         """Use `He initialization <https://arxiv.org/pdf/1502.01852.pdf>`_ to
         initialize parameters.

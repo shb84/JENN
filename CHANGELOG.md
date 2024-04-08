@@ -20,13 +20,24 @@ build: Changes to the build process or tools.
 
 ## v1.0.3.dev0 (YYYY-MM-DD)
 
+### Fix 
+
+- Fixed random seed not working (previously not being passed to parameter initialization)
+
 ### Refactor
 
 - Added jsonschema to validate reloaded parameters and check array shapes
 
+### Features 
+
+- Added optional ability to prioritize individual training points (useful to ensure more accuracy in known regions of interest)
+- Added optional ability to warmstart; i.e. continue training from current parameters (without initialization)
+- Exposed more hyperparameters pertaining to optimizer (e.g. tolerance stopping criteria) 
+
 ### Documentation 
 
-- Added airfoil example (large dataset)
+- Added airfoil notebook as example of large dataset
+- Added surrogate-based optimization notebook to demonstrate benefit of JENN for SBO 
 
 ### Refactor 
 
