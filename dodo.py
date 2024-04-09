@@ -215,7 +215,7 @@ def task_lint():
         name="ruff",
         doc="check python code",
         **U.run(
-            actions=[["ruff", *P.ALL_PY]], 
+            actions=[["ruff", "check", *P.ALL_PY]], 
             file_dep=[P.PPT, *P.ALL_PY]
         ),
     )

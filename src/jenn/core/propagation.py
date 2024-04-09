@@ -181,7 +181,10 @@ def next_layer_backward(
 
 
 def gradient_enhancement(
-    layer: int, parameters: Parameters, cache: Cache, data: Dataset,
+    layer: int,
+    parameters: Parameters,
+    cache: Cache,
+    data: Dataset,
 ) -> None:
     """Add gradient enhancement to backprop (in place).
 
@@ -193,8 +196,8 @@ def gradient_enhancement(
         accessed during backprop to avoid re-computing them
     :param data: object containing training and associated metadata
     """
-    if data.J is None: 
-        return 
+    if data.J is None:
+        return
     if np.all(data.J_weights == 0.0):
         return
     r = layer
@@ -205,30 +208,24 @@ def gradient_enhancement(
     )
     coefficient = 1 / data.m
     for j in range(parameters.n_x):
-        parameters.dW[r] += (
-            coefficient
-            * (
-                np.dot(
-                    cache.dA_prime[r][:, j, :]
-                    * cache.G_prime_prime[r]
-                    * cache.Z_prime[r][:, j, :],
-                    cache.A[s].T,
-                )
-                + np.dot(
-                    cache.dA_prime[r][:, j, :] * cache.G_prime[r],
-                    cache.A_prime[s][:, j, :].T,
-                )
-            )
-        )
-        parameters.db[r] += (
-            coefficient
-            * np.sum(
+        parameters.dW[r] += coefficient * (
+            np.dot(
                 cache.dA_prime[r][:, j, :]
                 * cache.G_prime_prime[r]
                 * cache.Z_prime[r][:, j, :],
-                axis=1,
-                keepdims=True,
+                cache.A[s].T,
             )
+            + np.dot(
+                cache.dA_prime[r][:, j, :] * cache.G_prime[r],
+                cache.A_prime[s][:, j, :].T,
+            )
+        )
+        parameters.db[r] += coefficient * np.sum(
+            cache.dA_prime[r][:, j, :]
+            * cache.G_prime_prime[r]
+            * cache.Z_prime[r][:, j, :],
+            axis=1,
+            keepdims=True,
         )
         cache.dA[s] += np.dot(
             parameters.W[r].T,
@@ -256,8 +253,8 @@ def model_backward(
         accessed during backprop to avoid re-computing them
     :param data: object containing training and associated metadata
     :param beta: LSE coefficients [defaulted to one] (optional)
-    :param gamma: jacobian-enhancement regularization coefficient [defaulted to zero] (optional) 
-    :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional) 
+    :param gamma: jacobian-enhancement regularization coefficient [defaulted to zero] (optional)
+    :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional)
     """
     last_layer_backward(cache, data)
     for layer in reversed(parameters.layers):  # type: ignore[call-overload]

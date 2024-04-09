@@ -80,9 +80,9 @@ def train_model(
     beta2: float = 0.99,
     tau: float = 0.5,
     tol: float = 1e-12,
-    max_count: int = 1000, 
-    epsilon_absolute: float = 1e-12,  
-    epsilon_relative: float = 1e-12,  
+    max_count: int = 1000,
+    epsilon_absolute: float = 1e-12,
+    epsilon_relative: float = 1e-12,
     epochs: int = 1,
     max_iter: int = 200,
     batch_size: Union[int, None] = None,
@@ -98,8 +98,8 @@ def train_model(
         layer
     :param alpha: learning rate :math:`\alpha`
     :param beta: LSE coefficients [defaulted to one] (optional)
-    :param gamma: jacobian-enhancement regularization coefficient [defaulted to zero] (optional) 
-    :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional) 
+    :param gamma: jacobian-enhancement regularization coefficient [defaulted to zero] (optional)
+    :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional)
     :param beta_1: exponential decay rate of 1st moment vector
         :math:`\beta_1\in[0, 1)`
     :param beta_2: exponential decay rate of 2nd moment vector
@@ -127,10 +127,10 @@ def train_model(
     """
     history: dict[str, dict[str, Union[list[np.ndarray], None]]] = defaultdict(dict)
     optimizer = ADAMOptimizer(
-        beta_1=beta1, 
-        beta_2=beta2, 
-        tau=tau, 
-        tol=tol, 
+        beta_1=beta1,
+        beta_2=beta2,
+        tau=tau,
+        tol=tol,
         max_count=is_backtracking * max_count,
     )
     data.set_weights(beta, gamma)
@@ -159,8 +159,8 @@ def train_model(
                 dfdx=grad,
                 alpha=alpha,
                 max_iter=max_iter,
-                epsilon_absolute=epsilon_absolute,  
-                epsilon_relative=epsilon_relative, 
+                epsilon_absolute=epsilon_absolute,
+                epsilon_relative=epsilon_relative,
                 verbose=is_verbose,
                 epoch=e,
                 batch=b,

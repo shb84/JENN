@@ -178,12 +178,16 @@ class Dataset:
                 msg = f"J must be of shape ({n_y}, {n_x}, {m})"
                 raise ValueError(msg)
 
-    def set_weights(self, beta: Union[np.ndarray, float] = 1.0, gamma: Union[np.ndarray, float] = 1.0): 
+    def set_weights(
+        self,
+        beta: Union[np.ndarray, float] = 1.0,
+        gamma: Union[np.ndarray, float] = 1.0,
+    ) -> None:
         """Prioritize certain points more than others.
-        
-        Rational: this can be used to reward the optimizer more in certain regions. 
 
-        :param beta: multiplier(s) on Y 
+        Rational: this can be used to reward the optimizer more in certain regions.
+
+        :param beta: multiplier(s) on Y
         :param beta: multiplier(s) on J
         """
         self.Y_weights = beta * np.ones((self.n_y, self.m))
@@ -242,12 +246,17 @@ class Dataset:
         X = self.X
         Y = self.Y
         J = self.J
-        Y_weights = self.Y_weights
-        J_weights = self.J_weights
+        Y_weights = np.ones(Y.shape) * self.Y_weights
         batches = mini_batches(X, batch_size, shuffle, random_state)
-        if self.J is None:
-            return [Dataset(X[:, b], Y[:, b], Y_weights=Y_weights[:, b]) for b in batches]
-        return [Dataset(X[:, b], Y[:, b], J[:, :, b], Y_weights[:, b], J_weights[:, :, b]) for b in batches]  # type: ignore[index]
+        if J is None:
+            return [
+                Dataset(X[:, b], Y[:, b], Y_weights=Y_weights[:, b]) for b in batches
+            ]
+        J_weights = np.ones(J.shape) * self.J_weights
+        return [
+            Dataset(X[:, b], Y[:, b], J[:, :, b], Y_weights[:, b], J_weights[:, :, b])
+            for b in batches
+        ]
 
     def normalize(self) -> "Dataset":
         """Return normalized Dataset."""

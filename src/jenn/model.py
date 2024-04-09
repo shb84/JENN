@@ -95,9 +95,9 @@ class NeuralNet:
         beta2: float = 0.99,
         tau: float = 0.5,
         tol: float = 1e-12,
-        max_count: int = 1000, 
-        epsilon_absolute: float = 1e-12,  
-        epsilon_relative: float = 1e-12,  
+        max_count: int = 1000,
+        epsilon_absolute: float = 1e-12,
+        epsilon_relative: float = 1e-12,
         epochs: int = 1,
         batch_size: Union[int, None] = None,
         max_iter: int = 1000,
@@ -115,8 +115,8 @@ class NeuralNet:
         :param is_normalize: normalize training by mean and variance
         :param alpha: optimizer learning rate for line search
         :param beta: LSE coefficients [defaulted to one] (optional)
-        :param gamma: jacobian-enhancement regularization coefficient [defaulted to zero] (optional) 
-        :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional) 
+        :param gamma: jacobian-enhancement regularization coefficient [defaulted to zero] (optional)
+        :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional)
         :param beta1: `ADAM <https://arxiv.org/abs/1412.6980>`_ optimizer hyperparameter to control momentum
         :param beta2: ADAM optimizer hyperparameter to control momentum
         :param tau: amount by which to reduce :math:`\alpha := \tau \times
@@ -145,7 +145,7 @@ class NeuralNet:
         """
         data = Dataset(x, y, dydx)
         params = self.parameters
-        if not is_warmstart: 
+        if not is_warmstart:
             params.initialize(random_state)
         params.mu_x[:] = 0.0
         params.mu_y[:] = 0.0
@@ -167,11 +167,11 @@ class NeuralNet:
             lambd=lambd,
             beta1=beta1,
             beta2=beta2,
-            tau=tau, 
-            tol=tol, 
+            tau=tau,
+            tol=tol,
             max_count=max_count,
-            epsilon_absolute=epsilon_absolute,  
-            epsilon_relative=epsilon_relative,  
+            epsilon_absolute=epsilon_absolute,
+            epsilon_relative=epsilon_relative,
             # options
             epochs=epochs,
             max_iter=max_iter,

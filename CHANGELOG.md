@@ -23,6 +23,19 @@ build: Changes to the build process or tools.
 ### Fix 
 
 - Fixed random seed not working (previously not being passed to parameter initialization)
+- Fixed `minibatch` issue throwing error below when `shuffle=False` and more than one batch
+```
+Traceback (most recent call last):
+  File "C:\[...]\jenn\model.py", line 141, in fit
+    self.history = train_model(
+  File "C:\[...]\jenn\core\training.py", line 121, in train_model
+    batches = data.mini_batches(batch_size, shuffle, random_state)
+  File "C:\[...]\jenn\core\data.py", line 229, in mini_batches
+    batches = mini_batches(X, batch_size, shuffle, random_state)
+  File "C:\[...]\jenn\core\data.py", line 51, in mini_batches
+    if mini_batch:
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+```
 
 ### Refactor
 
@@ -37,7 +50,7 @@ build: Changes to the build process or tools.
 ### Documentation 
 
 - Added airfoil notebook as example of large dataset
-- Added surrogate-based optimization notebook to demonstrate benefit of JENN for SBO 
+- Added surrogate-based optimization notebook to demonstrate benefit of JENN
 
 ### Refactor 
 

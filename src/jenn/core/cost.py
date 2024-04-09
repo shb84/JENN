@@ -25,10 +25,12 @@ class SquaredLoss:
     :param Y_weights: weights by which to prioritize data points (optional)
     """
 
-    def __init__(self, Y_true: np.ndarray, Y_weights: Union[np.ndarray, float] = 1.0):  # noqa: D107
+    def __init__(
+        self, Y_true: np.ndarray, Y_weights: Union[np.ndarray, float] = 1.0
+    ) -> None:
         self.Y_true = Y_true
         self.Y_error = np.zeros(Y_true.shape)  # preallocate to save resources
-        self.Y_weights = np.ones(Y_true.shape) * Y_weights 
+        self.Y_weights = np.ones(Y_true.shape) * Y_weights
         self.n_y, self.m = Y_true.shape
 
     def evaluate(self, Y_pred: np.ndarray) -> np.float64:
@@ -38,7 +40,7 @@ class SquaredLoss:
             \mathbb{R}^{n_y \times m}`
         """
         self.Y_error[:, :] = Y_pred - self.Y_true
-        self.Y_error *= np.sqrt(self.Y_weights) 
+        self.Y_error *= np.sqrt(self.Y_weights)
         cost = 0
         for j in range(0, self.n_y):
             cost += np.dot(self.Y_error[j], self.Y_error[j].T)
@@ -53,10 +55,12 @@ class GradientEnhancement:
         :param J_weights: weights by which to prioritize partials (optional)
     """
 
-    def __init__(self, J_true: np.ndarray, J_weights: Union[np.ndarray, float] = 1.0):  # noqa: D107
+    def __init__(
+        self, J_true: np.ndarray, J_weights: Union[np.ndarray, float] = 1.0
+    ) -> None:
         self.J_true = J_true
         self.J_error = np.zeros(J_true.shape)
-        self.J_weights = np.ones(J_true.shape) * J_weights 
+        self.J_weights = np.ones(J_true.shape) * J_weights
         self.n_y, self.n_x, self.m = J_true.shape
 
     def evaluate(self, J_pred: np.ndarray) -> np.float64:
@@ -66,7 +70,7 @@ class GradientEnhancement:
             \mathbb{R}^{n_y \times n_x \times m}`
         """
         self.J_error[:, :, :] = self.J_weights * (J_pred - self.J_true)
-        self.J_error *= np.sqrt(self.J_weights) 
+        self.J_error *= np.sqrt(self.J_weights)
         cost = 0.0
         for k in range(0, self.n_y):
             for j in range(0, self.n_x):
@@ -78,17 +82,19 @@ class GradientEnhancement:
 class Regularization:
     """Compute regularization penalty."""
 
-    def __init__(self, weights: list[np.ndarray], lambd: float = 0.0) -> np.float64:
+    def __init__(self, weights: list[np.ndarray], lambd: float = 0.0) -> None:
         r"""Compute L2 norm penalty.
 
         :param weights: neural parameters :math:`W^{[l]} \in
         \mathbb{R}^{n^{[l]} \times n^{[l-1]}}` associated with each
         layer
         """
-        self.weights = weights 
+        self.weights = weights
         self.lambd = lambd
 
-    def evaluate(self, ) -> np.float64:
+    def evaluate(
+        self,
+    ) -> float:
         r"""Compute L2 norm penalty.
 
         :param weights: neural parameters :math:`W^{[l]} \in
@@ -97,11 +103,11 @@ class Regularization:
         :param lambd: regularization coefficient :math:`\lambda \in
             \mathbb{R}` (hyperparameter to be tuned)
         """
-        penalty = 0 
-        if self.lambd > 0:
-            for W in self.weights: 
-                penalty += np.sum(np.square(W))
-            return self.lambd * penalty.squeeze()
+        penalty = 0.0
+        if self.lambd > 0.0:
+            for W in self.weights:
+                penalty += np.sum(np.square(W)).squeeze()
+            return self.lambd * penalty
         return 0.0
 
 
@@ -112,15 +118,15 @@ class Cost:
         metadata)
     :param parameters: object containing neural net parameters (and
         associated metadata) for each layer
-    :param lambd: regularization coefficient to avoid overfitting 
+    :param lambd: regularization coefficient to avoid overfitting
     """
 
     def __init__(
         self,
         data: Dataset,
         parameters: Parameters,
-        lambd: float = 0.0, 
-    ):  # noqa: D107
+        lambd: float = 0.0,
+    ) -> None:
         self.data = data
         self.parameters = parameters
         self.squared_loss = SquaredLoss(data.Y, data.Y_weights)
@@ -140,7 +146,7 @@ class Cost:
         """
         cost = self.squared_loss.evaluate(Y_pred)
         if J_pred is not None and hasattr(self, "gradient_enhancement"):
-            cost += self.gradient_enhancement.evaluate(J_pred) 
+            cost += self.gradient_enhancement.evaluate(J_pred)
         cost += self.regularization.evaluate()
         cost *= 0.5 / self.data.m
         return cost
