@@ -252,8 +252,6 @@ def model_backward(
         computed during forward prop for each layer, so they can be
         accessed during backprop to avoid re-computing them
     :param data: object containing training and associated metadata
-    :param beta: LSE coefficients [defaulted to one] (optional)
-    :param gamma: jacobian-enhancement regularization coefficient [defaulted to zero] (optional)
     :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional)
     """
     last_layer_backward(cache, data)

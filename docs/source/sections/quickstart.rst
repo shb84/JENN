@@ -198,14 +198,14 @@ a simple 1D sinusoid using only three data points::
     genn = jenn.model.NeuralNet(
         layer_sizes=[x_train.shape[0], 3, 3, y_train.shape[0]],  # note: user defines hidden layer architecture
         ).fit(
-            x_train, y_train, dydx_train  # see docstr for full list of hyperparameters
+            x_train, y_train, dydx_train, random_state=123  # see docstr for full list of hyperparameters
         )
 
     # Fit regular neural net (for comparison)
     nn = jenn.model.NeuralNet(
         layer_sizes=[x_train.shape[0], 3, 3, y_train.shape[0]]  # note: user defines hidden layer architecture
         ).fit(
-            x_train, y_train  # see docstr for full list of hyperparameters
+            x_train, y_train, random_state=123  # see docstr for full list of hyperparameters
         )
 
     # Predict response only 

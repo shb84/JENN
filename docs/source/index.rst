@@ -41,7 +41,7 @@ part of them and requires significant effort to be implemented in those tools. T
 intended for those engineers in a rush with a need to predict partials accurately and who are 
 seeking a minimal-effort API with a low-barrier to entry. Note that `genn` from the
 `smt <https://smt.readthedocs.io/en/latest/_src_docs/surrogate_models/genn.html>`_
-project is an older version of `jenn` to be updated. 
+project uses `jenn` under-the-hood. 
 
 Use Case
 --------
