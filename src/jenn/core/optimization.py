@@ -265,8 +265,8 @@ class Optimizer:
         verbose: bool = False,
         epoch: Union[int, None] = None,
         batch: Union[int, None] = None,
-        epsilon_absolute: float = 1e-12,
-        epsilon_relative: float = 1e-12,
+        epsilon_absolute: float = 1e-12,  
+        epsilon_relative: float = 1e-12,  
     ) -> np.ndarray:
         r"""Minimize single objective function.
 
@@ -282,9 +282,7 @@ class Optimizer:
         :param batch: the batch in which this optimization is being run
             (for printing)
         :param epsilon_absolute: absolute error stopping criterion
-            (for printing)
         :param epsilon_relative: relative error stopping criterion
-            (for printing)
         """
         # Stopping criteria (Vanderplaats, "Multidiscipline Design Optimization," ch. 3, p. 121)
         converged = False
