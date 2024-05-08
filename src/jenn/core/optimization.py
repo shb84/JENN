@@ -265,8 +265,8 @@ class Optimizer:
         verbose: bool = False,
         epoch: Union[int, None] = None,
         batch: Union[int, None] = None,
-        epsilon_absolute: float = 1e-12,  
-        epsilon_relative: float = 1e-12,  
+        epsilon_absolute: float = 1e-12,
+        epsilon_relative: float = 1e-12,
     ) -> np.ndarray:
         r"""Minimize single objective function.
 
