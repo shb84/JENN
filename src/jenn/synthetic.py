@@ -71,6 +71,34 @@ class TestFunction:
         :return: partials, array of shape (n_y, n_x, m)
         """
         raise NotImplementedError
+    
+    @classmethod
+    def first_derivative_FD(
+            cls, 
+            x: np.ndarray, 
+            dx: float = 1e-6,
+        ) -> np.ndarray:
+        """Evaluate partial derivative using finite difference.
+        
+        :param x: inputs, array of shape (n_x, m)
+        :return: partials, array of shape (n_y, n_x, m)
+        """
+        f = cls.evaluate
+        y = f(x)
+        n_x, m = x.shape
+        n_y = y.shape[0] 
+        dydx = np.zeros((n_y, n_x, m))
+        for i in range(n_x): 
+            dx1 = np.zeros((n_x, m))
+            dx2 = np.zeros((n_x, m))
+            dx1[i] += dx
+            dx2[i] += dx
+            x1 = x - dx1
+            x2 = x + dx2
+            y1 = f(x1)
+            y2 = f(x2)
+            dydx[:, i] = (y2 - y1) / (2 * dx)
+        return dydx
 
     @classmethod
     def sample(
@@ -79,6 +107,7 @@ class TestFunction:
         m_levels: int,
         lb: Union[np.ndarray, float],
         ub: Union[np.ndarray, float],
+        dx: float | None = 1e-6, 
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Generate synthetic data by sampling the test function.
@@ -87,6 +116,7 @@ class TestFunction:
         :param m_levels: number of levels per factor for full factorial
         :param lb: lower bound on the factors
         :param ub: upper bound on the factors
+        :param dx: finite difference step size (if None, analytical partials are used)
         :param random_state: random seed (for repeatability)
         """
         rng = np.random.default_rng(seed=random_state)
@@ -99,7 +129,10 @@ class TestFunction:
         m = doe.shape[1]
         x = lb + (ub - lb) * doe
         y = cls.evaluate(x).reshape((-1, m))  # type: ignore[call-arg]
-        dydx = cls.first_derivative(x).reshape((-1, n_x, m))  # type: ignore[call-arg]
+        if dx is None: 
+            dydx = cls.first_derivative(x).reshape((-1, n_x, m))  # type: ignore[call-arg]
+        else: 
+            dydx = cls.first_derivative_FD(x, dx).reshape((-1, n_x, m))  # type: ignore[call-arg]
         return x, y, dydx
 
 
@@ -145,9 +178,10 @@ class Linear(TestFunction):
         m_levels: int = 0,
         lb: Union[np.ndarray, float] = -1.0,
         ub: Union[np.ndarray, float] = 1.0,
+        dx: float | None = 1e-6, 
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
-        return super().sample(m_lhs, m_levels, lb, ub, random_state)
+        return super().sample(m_lhs, m_levels, lb, ub, dx, random_state)
 
 
 class Parabola(TestFunction):
@@ -184,9 +218,10 @@ class Parabola(TestFunction):
         m_levels: int = 0,
         lb: Union[np.ndarray, float] = -1.0,
         ub: Union[np.ndarray, float] = 1.0,
+        dx: float | None = 1e-6, 
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
-        return super().sample(m_lhs, m_levels, lb, ub, random_state)
+        return super().sample(m_lhs, m_levels, lb, ub, dx, random_state)
 
 
 class Sinusoid(TestFunction):
@@ -219,9 +254,10 @@ class Sinusoid(TestFunction):
         m_levels: int = 0,
         lb: Union[np.ndarray, float] = -np.pi,
         ub: Union[np.ndarray, float] = np.pi,
+        dx: float | None = 1e-6, 
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
-        return super().sample(m_lhs, m_levels, lb, ub, random_state)
+        return super().sample(m_lhs, m_levels, lb, ub, dx, random_state)
 
 
 class Rastrigin(TestFunction):
@@ -262,9 +298,10 @@ class Rastrigin(TestFunction):
         * np.ones(
             2,
         ),
+        dx: float | None = 1e-6, 
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
-        return super().sample(m_lhs, m_levels, lb, ub, random_state)
+        return super().sample(m_lhs, m_levels, lb, ub, dx, random_state)
 
 
 class Rosenbrock(TestFunction):
@@ -304,6 +341,7 @@ class Rosenbrock(TestFunction):
         * np.ones(
             2,
         ),
+        dx: float | None = 1e-6, 
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
-        return super().sample(m_lhs, m_levels, lb, ub, random_state)
+        return super().sample(m_lhs, m_levels, lb, ub, dx, random_state)
