@@ -40,21 +40,20 @@ ValueError: The truth value of an array with more than one element is ambiguous.
 ### Refactor
 
 - Added jsonschema to validate reloaded parameters and check array shapes
+- Added levels as input to `plot.contours`
 
 ### Features 
 
 - Added optional ability to prioritize individual training points (useful to ensure more accuracy in known regions of interest)
 - Added optional ability to warmstart; i.e. continue training from current parameters (without initialization)
 - Exposed more hyperparameters pertaining to optimizer (e.g. tolerance stopping criteria) 
+- Added option to use finite difference for generating synthetic data partials (used to study effect noisy partials)
 
 ### Documentation 
 
 - Added airfoil notebook as example of large dataset
 - Added surrogate-based optimization notebook to demonstrate benefit of JENN
-
-### Refactor 
-
-- Added levels as input to `plot.contours`
+- Updated theory.pdf
 
 ## v1.0.3 (2024-02-28)
 
