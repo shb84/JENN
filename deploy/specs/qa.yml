@@ -1,6 +1,0 @@
-dependencies:
-  # lint
-  - black 
-  - docformatter 
-  - mypy 
-  - ruff 

@@ -18,10 +18,44 @@ build: Changes to the build process or tools.
 
 # Changelog
 
+## v1.0.3.dev0 (YYYY-MM-DD)
 
-## [Unreleased] - yyyy-mm-dd
+### Fix 
 
-## v1.0.3 - 2024-02-28
+- Fixed random seed not working (previously not being passed to parameter initialization)
+- Fixed `minibatch` issue throwing error below when `shuffle=False` and more than one batch
+```
+Traceback (most recent call last):
+  File "C:\[...]\jenn\model.py", line 141, in fit
+    self.history = train_model(
+  File "C:\[...]\jenn\core\training.py", line 121, in train_model
+    batches = data.mini_batches(batch_size, shuffle, random_state)
+  File "C:\[...]\jenn\core\data.py", line 229, in mini_batches
+    batches = mini_batches(X, batch_size, shuffle, random_state)
+  File "C:\[...]\jenn\core\data.py", line 51, in mini_batches
+    if mini_batch:
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+```
+
+### Refactor
+
+- Added jsonschema to validate reloaded parameters and check array shapes
+- Added levels as input to `plot.contours`
+
+### Features 
+
+- Added optional ability to prioritize individual training points (useful to ensure more accuracy in known regions of interest)
+- Added optional ability to warmstart; i.e. continue training from current parameters (without initialization)
+- Exposed more hyperparameters pertaining to optimizer (e.g. tolerance stopping criteria) 
+- Added option to use finite difference for generating synthetic data partials (used to study effect noisy partials)
+
+### Documentation 
+
+- Added airfoil notebook as example of large dataset
+- Added surrogate-based optimization notebook to demonstrate benefit of JENN
+- Updated theory.pdf
+
+## v1.0.3 (2024-02-28)
 
 ### Fix 
 
@@ -32,13 +66,13 @@ build: Changes to the build process or tools.
 
 - Update demo examples to use `from jenn.utils import plot` instead of `jenn.utils.plot` (which failed a test on Python 3.11.7)
 
-## v1.0.2 - 2024-02-25
+## v1.0.2 (2024-02-25)
 
 ### Feature 
 
 - Added support for `python >= 3.8` 
 
-## v1.0.1 - 2024-02-24
+## v1.0.1 (2024-02-24)
 
 ### Documentation
 
@@ -54,7 +88,7 @@ build: Changes to the build process or tools.
 
 - Added support for `python >= 3.9` 
 
-## v1.0.0 - 2024-02-19
+## v1.0.0 (2024-02-19)
 
 _This release introduces breaking changes but makes the algorithm about 5x faster._ 
 

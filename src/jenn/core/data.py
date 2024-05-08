@@ -38,10 +38,7 @@ def mini_batches(
     batch_size = min(batch_size, m)
 
     # Step 1: Shuffle the indices
-    if shuffle:
-        indices = list(rng.permutation(m))
-    else:
-        indices = np.arange(m)
+    indices: list[int] = list(rng.permutation(m)) if shuffle else np.arange(m).tolist()
 
     # Step 2: Partition (shuffled_X, shuffled_Y). Minus the end case.
     num_complete_minibatches = int(math.floor(m / batch_size))
@@ -79,7 +76,9 @@ def std(array: np.ndarray) -> np.ndarray:
     return np.std(array, axis=1).reshape((-1, 1))
 
 
-def _safe_divide(value: np.ndarray, eps: float = np.finfo(float).eps) -> np.ndarray:
+def _safe_divide(
+    value: np.ndarray, eps: float = float(np.finfo(float).eps)
+) -> np.ndarray:
     """Add small number to avoid dividing by zero."""
     mask = value == 0.0  # noqa: PLR2004
     value[mask] += eps
@@ -109,8 +108,8 @@ def denormalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarr
 
 
 def normalize_partials(
-    partials: np.ndarray, sigma_x: np.ndarray, sigma_y: np.ndarray
-) -> np.ndarray:
+    partials: Union[np.ndarray, None], sigma_x: np.ndarray, sigma_y: np.ndarray
+) -> Union[np.ndarray, None]:
     r"""Normalize partials.
 
     :param partials: training data partials to be normalized
@@ -161,6 +160,9 @@ class Dataset:
     Y: np.ndarray
     J: Union[np.ndarray, None] = None
 
+    Y_weights: Union[np.ndarray, float] = 1.0
+    J_weights: Union[np.ndarray, float] = 1.0
+
     def __post_init__(self) -> None:  # noqa: D105
         if self.X.shape[1] != self.Y.shape[1]:
             msg = "X and Y must have the same number of examples"
@@ -168,10 +170,28 @@ class Dataset:
 
         n_y, n_x, m = self.n_y, self.n_x, self.m
 
+        self.Y_weights = self.Y_weights * np.ones((n_y, m))
+        self.J_weights = self.J_weights * np.ones((n_y, n_x, m))
+
         if self.J is not None:
             if self.J.shape != (n_y, n_x, m):
                 msg = f"J must be of shape ({n_y}, {n_x}, {m})"
                 raise ValueError(msg)
+
+    def set_weights(
+        self,
+        beta: Union[np.ndarray, float] = 1.0,
+        gamma: Union[np.ndarray, float] = 1.0,
+    ) -> None:
+        """Prioritize certain points more than others.
+
+        Rational: this can be used to reward the optimizer more in certain regions.
+
+        :param beta: multiplier(s) on Y
+        :param beta: multiplier(s) on J
+        """
+        self.Y_weights = beta * np.ones((self.n_y, self.m))
+        self.J_weights = gamma * np.ones((self.n_y, self.n_x, self.m))
 
     @property
     def m(self) -> int:
@@ -226,10 +246,17 @@ class Dataset:
         X = self.X
         Y = self.Y
         J = self.J
+        Y_weights = np.ones(Y.shape) * self.Y_weights
         batches = mini_batches(X, batch_size, shuffle, random_state)
-        if self.J is None:
-            return [Dataset(X[:, b], Y[:, b]) for b in batches]
-        return [Dataset(X[:, b], Y[:, b], J[:, :, b]) for b in batches]  # type: ignore[index]
+        if J is None:
+            return [
+                Dataset(X[:, b], Y[:, b], Y_weights=Y_weights[:, b]) for b in batches
+            ]
+        J_weights = np.ones(J.shape) * self.J_weights
+        return [
+            Dataset(X[:, b], Y[:, b], J[:, :, b], Y_weights[:, b], J_weights[:, :, b])
+            for b in batches
+        ]
 
     def normalize(self) -> "Dataset":
         """Return normalized Dataset."""

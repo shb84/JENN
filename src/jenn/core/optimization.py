@@ -90,10 +90,10 @@ class ADAM(Update):
         self.beta_1 = beta_1
         self.beta_2 = beta_2
 
-        self._v = None
-        self._s = None
+        self._v: Union[np.ndarray, None] = None
+        self._s: Union[np.ndarray, None] = None
         self._t = 0
-        self._grads = None
+        self._grads: Union[np.ndarray, None] = None
 
     def _update(
         self,
@@ -265,6 +265,8 @@ class Optimizer:
         verbose: bool = False,
         epoch: Union[int, None] = None,
         batch: Union[int, None] = None,
+        epsilon_absolute: float = 1e-12,
+        epsilon_relative: float = 1e-12,
     ) -> np.ndarray:
         r"""Minimize single objective function.
 
@@ -279,6 +281,8 @@ class Optimizer:
             (for printing)
         :param batch: the batch in which this optimization is being run
             (for printing)
+        :param epsilon_absolute: absolute error stopping criterion
+        :param epsilon_relative: relative error stopping criterion
         """
         # Stopping criteria (Vanderplaats, "Multidiscipline Design Optimization," ch. 3, p. 121)
         converged = False
@@ -286,9 +290,6 @@ class Optimizer:
         N1_max = 100
         N2 = 0
         N2_max = 100
-
-        epsilon_absolute = 1e-6  # absolute error criterion
-        epsilon_relative = 1e-6  # relative error criterion
 
         cost_history: list[np.ndarray] = []
         vars_history: list[np.ndarray] = []
@@ -332,7 +333,7 @@ class Optimizer:
 
                 # Relative convergence criterion
                 numerator = abs(cost_history[-1] - cost_history[-2])
-                denominator = max(abs(cost_history[-1]), 1e-6)
+                denominator = max(abs(float(cost_history[-1])), 1e-6)
                 dF2 = numerator / denominator
 
                 if dF2 < epsilon_relative:
@@ -405,7 +406,7 @@ class ADAMOptimizer(Optimizer):
         beta_1: float = 0.9,
         beta_2: float = 0.99,
         tau: float = 0.5,
-        tol: float = 1e-6,
+        tol: float = 1e-12,
         max_count: int = 1_000,
     ):  # noqa D107
         line_search = Backtracking(

@@ -25,8 +25,8 @@ jobs:
         with:
           auto-update-conda: false
           activate-environment: explicit-env
-          environment-file: deploy/specs/base.yml
-      - name: Create all environments 
+          environment-file: .github/base.yml
+      - name: Create base environment 
         shell: bash -el {0}
         run: | 
           doit env
@@ -58,20 +58,24 @@ jobs:
         with:
           auto-update-conda: false
           activate-environment: explicit-env
-          environment-file: deploy/specs/base.yml 
+          environment-file: .github/base.yml
       - name: ⬇️ Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
           path: ./build
+      - name: Create base environment 
+        shell: bash -el {0}
+        run: | 
+          doit env
       - name: 💾 Distribution
         shell: bash -el {0}
         run: | 
-          doit build
+          doit build:dist
       - name: 📚 Documentation  
         shell: bash -el {0}
         run: | 
-          doit docs
+          doit build:docs
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:

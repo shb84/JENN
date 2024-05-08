@@ -46,7 +46,6 @@ docs/_build/
 .python-version
 
 # Environments
-.env
 .venv
 env/
 venv/

@@ -1,5 +1,0 @@
-dependencies:
-  # runtime
-  - numpy 
-  - orjson 
-  - matplotlib-base

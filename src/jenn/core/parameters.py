@@ -3,12 +3,21 @@
 
 This module defines a utility class to store and manage neural net parameters and metadata."""
 
+import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Union
 
+import jsonpointer
+import jsonschema
 import numpy as np
 import orjson
+
+from .activation import ACTIVATIONS
+
+_here = Path(os.path.dirname(os.path.abspath(__file__)))
+SCHEMA = json.loads((_here / "schema.json").read_text())
 
 
 @dataclass
@@ -93,11 +102,9 @@ class Parameters:
         """Return number of layers."""
         return len(self.layer_sizes)
 
-    def __post_init__(self) -> None:  # noqa D105
-        self.initialize()
-
     def initialize(self, random_state: Union[int, None] = None) -> None:
-        """Use `He initialization <https://arxiv.org/pdf/1502.01852.pdf>`_ to initialize parameters.
+        """Use `He initialization <https://arxiv.org/pdf/1502.01852.pdf>`_ to
+        initialize parameters.
 
         :param random_state: optional random seed (for repeatability)
         """
@@ -138,16 +145,10 @@ class Parameters:
             self.a.append(a)
             previous_layer_size = layer_size
 
-    def stack(self, per_layer: bool = False) -> Union[np.ndarray, List[np.ndarray]]:
-        """Stack W, b into a single array for each layer.
-
-        :param per_layer: whether to return answer as list of stacks (one per layer)
-        :return: parameter as either single stacked array or list of stacks (if specified)
+    def stack(self) -> np.ndarray:
+        """Stack W, b into a single array.
 
         .. code-block::
-
-            parameters.stack(per_layer=True)
-            >> [np.array([[W1], [b1]]), [W2], [b2]]), np.array([[W3], [b3]])]
 
             parameters.stack()
             >> np.array([[W1], [b1], [W2], [b2], [W3], [b3]])
@@ -157,15 +158,58 @@ class Parameters:
             used by the neural net into a single array of stacked parameters
             for optimization.
         """
+        stacks = self.stack_per_layer()
+        return np.concatenate(stacks).reshape((-1, 1))
+
+    def stack_per_layer(self) -> List[np.ndarray]:
+        """Stack W, b into a single array for each layer.
+
+        .. code-block::
+
+            parameters.stack_per_layer()
+            >> [np.array([[W1], [b1]]), [W2], [b2]]), np.array([[W3], [b3]])]
+        """
         stacks = []
         for i in range(self.L):
             stack = np.concatenate([self.W[i].ravel(), self.b[i].ravel()]).reshape(
                 (-1, 1)
             )
             stacks.append(stack)
-        if per_layer:
-            return stacks
+        return stacks
+
+    def stack_partials(self) -> np.ndarray:
+        """Stack backprop partials dW, db.
+
+        .. code-block::
+
+            parameters.stack_partials()
+            >> np.array([[dW1], [db1], [dW2], [db2], [dW3], [db3]])
+
+        .. note::
+            This method is used to convert the list format used by the neural
+            net into a single array of stacked parameters for optimization.
+        """
+        stacks = self.stack_partials_per_layer()
         return np.concatenate(stacks).reshape((-1, 1))
+
+    def stack_partials_per_layer(self) -> List[np.ndarray]:
+        """Stack backprop partials dW, db per layer.
+
+        .. code-block::
+
+            parameters.stack_partials_per_layer()
+            >> [np.array([[dW1], [db1]]), np.array([[dW2], [db2]]), np.array([[dW3], [db3]]),]
+        """
+        stacks = []
+        for i in range(self.L):
+            stack = np.concatenate(
+                [
+                    self.dW[i].ravel(),
+                    self.db[i].ravel(),
+                ]
+            ).reshape((-1, 1))
+            stacks.append(stack)
+        return stacks
 
     def _column_to_stacks(self, params: np.ndarray) -> List[np.ndarray]:
         """Convert parameters from single stack to list of stacks.
@@ -228,42 +272,6 @@ class Parameters:
             self.W[i][:] = array[: n * p].reshape(n, p)
             self.b[i][:] = array[n * p :].reshape(n, 1)
 
-    def stack_partials(
-        self, per_layer: bool = False
-    ) -> Union[np.ndarray, List[np.ndarray]]:
-        """Stack backprop partials dW, db.
-
-        dW, db are either stacked into a single stack (for all layers)
-        or a list of stacks (one per layer).
-
-        :param per_layer: whether to return answer as list of stacks (one per layer)
-        :return: partials as either single stacked array or list of stacks (if specified)
-
-        .. code-block::
-
-            parameters.stack_partials(per_layer=True)
-            >> [np.array([[dW1], [db1]]), np.array([[dW2], [db2]]), np.array([[dW3], [db3]]),]
-
-            parameters.stack_partials()
-            >> np.array([[dW1], [db1], [dW2], [db2], [dW3], [db3]])
-
-        .. note::
-            This method is used to convert the list format used by the neural
-            net into a single array of stacked parameters for optimization.
-        """
-        stacks = []
-        for i in range(self.L):
-            stack = np.concatenate(
-                [
-                    self.dW[i].ravel(),
-                    self.db[i].ravel(),
-                ]
-            ).reshape((-1, 1))
-            stacks.append(stack)
-        if per_layer:
-            return stacks
-        return np.concatenate(stacks).reshape((-1, 1))
-
     def unstack_partials(self, partials: Union[np.ndarray, List[np.ndarray]]) -> None:
         """Unstack backprop partials dW, db back into list of arrays.
 
@@ -295,18 +303,19 @@ class Parameters:
             self.dW[i][:] = array[: n * p].reshape(n, p)
             self.db[i][:] = array[n * p :].reshape(n, 1)
 
-    def serialize(self) -> bytes:
+    def _serialize(self) -> bytes:
         """Serialize parameters into byte stream for json."""
-        return orjson.dumps(self, option=orjson.OPT_SERIALIZE_NUMPY)
+        keys = jsonpointer.JsonPointer("/properties").get(SCHEMA)
+        data = {key: getattr(self, key) for key in keys}
+        return orjson.dumps(data, option=orjson.OPT_SERIALIZE_NUMPY)
 
-    def deserialize(self, saved_parameters: bytes) -> None:
+    def _deserialize(self, saved_parameters: bytes) -> None:
         """Deserialize and apply saved parameters."""
         params = orjson.loads(saved_parameters)
+        jsonschema.validate(params, SCHEMA)
         self.W = [np.array(value) for value in params["W"]]
         self.b = [np.array(value) for value in params["b"]]
         self.a = params["a"]
-        self.dW = [np.array(value) for value in params["dW"]]
-        self.db = [np.array(value) for value in params["db"]]
         self.mu_x = np.array(params["mu_x"])
         self.mu_y = np.array(params["mu_y"])
         self.sigma_x = np.array(params["sigma_x"])
@@ -314,14 +323,48 @@ class Parameters:
         self.layer_sizes = [W.shape[0] for W in self.W]
         self.output_activation = self.a[-1]
         self.hidden_activation = self.a[-2]
+        self.dW = [np.zeros(array.shape) for array in self.W]
+        self.db = [np.zeros(array.shape) for array in self.b]
+        assert (
+            self.mu_x.size == self.layer_sizes[0]
+        ), "mu_x size is different input layer size"
+        assert (
+            self.mu_y.size == self.layer_sizes[-1]
+        ), "mu_y size is different output layer size"
+        assert (
+            self.sigma_x.size == self.layer_sizes[0]
+        ), "sigma_x size is different input layer size"
+        assert (
+            self.sigma_y.size == self.layer_sizes[-1]
+        ), "sigma_x size is different output layer size"
+        assert (
+            self.mu_x.shape == self.sigma_x.shape
+        ), "mu_x and sigma_x have different shapes"
+        assert (
+            self.mu_y.shape == self.sigma_y.shape
+        ), "mu_y and sigma_y have different shapes"
+        m = self.layer_sizes[0]
+        for i, n in enumerate(self.layer_sizes):
+            assert (
+                self.a[i] in ACTIVATIONS
+            ), f"a[{i}] must be one of {list(ACTIVATIONS.keys())}"
+            assert self.b[i].shape == (
+                n,
+                1,
+            ), f"b[{i}] has the wrong shape (expected {(n, 1)})"
+            assert self.W[i].shape == (
+                n,
+                m,
+            ), f"W[{i}] has the wrong shape (expected {(n, m)})"
+            m = n
 
     def save(self, binary_file: Union[str, Path] = "parameters.json") -> None:
         """Save parameters to specified json file."""
         with open(binary_file, "wb") as file:
-            file.write(self.serialize())
+            file.write(self._serialize())
 
     def load(self, binary_file: Union[str, Path] = "parameters.json") -> None:
         """Load parameters from specified json file."""
         with open(binary_file, "rb") as file:
             byte_stream = file.read()
-        self.deserialize(byte_stream)
+        self._deserialize(byte_stream)

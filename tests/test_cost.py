@@ -8,6 +8,8 @@ def test_least_squares():
     x, y, dydx = jenn.synthetic.Sinusoid.sample(100)
 
     parameters = jenn.core.parameters.Parameters(layer_sizes=[2, 2, 1])
+    parameters.initialize()
+    
     data = jenn.core.data.Dataset(x, y, dydx)
     cost = jenn.core.cost.Cost(data, parameters, lambd=0.0)
 

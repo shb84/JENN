@@ -3,20 +3,14 @@
 
 This module contains the critical functionality to propagate information forward and backward through the neural net."""
 
-from typing import List, Tuple, Union
+from typing import Tuple, Union
 
 import numpy as np
 
-from .activation import Linear, Relu, Tanh
+from .activation import ACTIVATIONS
 from .cache import Cache
 from .data import Dataset
 from .parameters import Parameters
-
-ACTIVATIONS = dict(
-    relu=Relu,
-    tanh=Tanh,
-    linear=Linear,
-)
 
 
 def eye(n: int, m: int) -> np.ndarray:
@@ -52,9 +46,7 @@ def first_layer_partials(X: np.ndarray, cache: Union[Cache, None]) -> None:
         cache.A_prime[0][:] = eye(n_x, m)
 
 
-def next_layer_partials(
-    layer: int, parameters: Parameters, cache: Cache
-) -> List[np.ndarray]:
+def next_layer_partials(layer: int, parameters: Parameters, cache: Cache) -> np.ndarray:
     """Compute j^th partial in place for one layer (in place).
 
     :param layer: index of current layer.
@@ -156,11 +148,9 @@ def last_layer_backward(cache: Cache, data: Dataset) -> None:
         accessed during backprop to avoid re-computing them
     :param data: object containing training and associated metadata
     """
-    cache.dA[-1][:] = cache.A[-1] - data.Y
+    cache.dA[-1][:] = data.Y_weights * (cache.A[-1] - data.Y)
     if data.J is not None:
-        cache.dA_prime[-1][:] = cache.A_prime[-1] - data.J
-    else:
-        cache.dA_prime[-1][:] = np.zeros((data.n_y, data.n_x, data.m))
+        cache.dA_prime[-1][:] = data.J_weights * (cache.A_prime[-1] - data.J)
 
 
 def next_layer_backward(
@@ -191,7 +181,10 @@ def next_layer_backward(
 
 
 def gradient_enhancement(
-    layer: int, parameters: Parameters, cache: Cache, data: Dataset, gamma: float
+    layer: int,
+    parameters: Parameters,
+    cache: Cache,
+    data: Dataset,
 ) -> None:
     """Add gradient enhancement to backprop (in place).
 
@@ -202,10 +195,10 @@ def gradient_enhancement(
         computed during forward prop for each layer, so they can be
         accessed during backprop to avoid re-computing them
     :param data: object containing training and associated metadata
-    :param gamma: coefficient that multiplies jacobian-enhancement term
-        in cost function
     """
-    if np.allclose(gamma, 0.0):
+    if data.J is None:
+        return
+    if np.all(data.J_weights == 0.0):
         return
     r = layer
     s = layer - 1
@@ -213,41 +206,34 @@ def gradient_enhancement(
     cache.G_prime_prime[r][:] = g.second_derivative(
         cache.Z[r], cache.A[r], cache.G_prime[r]
     )
+    coefficient = 1 / data.m
     for j in range(parameters.n_x):
-        parameters.dW[r] += (
-            gamma
-            / data.m
-            * (
-                np.dot(
-                    cache.dA_prime[r][:, j, :]
-                    * cache.G_prime_prime[r]
-                    * cache.Z_prime[r][:, j, :],
-                    cache.A[s].T,
-                )
-                + np.dot(
-                    cache.dA_prime[r][:, j, :] * cache.G_prime[r],
-                    cache.A_prime[s][:, j, :].T,
-                )
-            )
-        )
-        parameters.db[r] += (
-            gamma
-            / data.m
-            * np.sum(
+        parameters.dW[r] += coefficient * (
+            np.dot(
                 cache.dA_prime[r][:, j, :]
                 * cache.G_prime_prime[r]
                 * cache.Z_prime[r][:, j, :],
-                axis=1,
-                keepdims=True,
+                cache.A[s].T,
+            )
+            + np.dot(
+                cache.dA_prime[r][:, j, :] * cache.G_prime[r],
+                cache.A_prime[s][:, j, :].T,
             )
         )
-        cache.dA[s] += gamma * np.dot(
+        parameters.db[r] += coefficient * np.sum(
+            cache.dA_prime[r][:, j, :]
+            * cache.G_prime_prime[r]
+            * cache.Z_prime[r][:, j, :],
+            axis=1,
+            keepdims=True,
+        )
+        cache.dA[s] += np.dot(
             parameters.W[r].T,
             cache.dA_prime[r][:, j, :]
             * cache.G_prime_prime[r]
             * cache.Z_prime[r][:, j, :],
         )
-        cache.dA_prime[s][:, j, :] = gamma * np.dot(
+        cache.dA_prime[s][:, j, :] = np.dot(
             parameters.W[r].T, cache.dA_prime[r][:, j, :] * cache.G_prime[r]
         )
 
@@ -257,7 +243,6 @@ def model_backward(
     parameters: Parameters,
     cache: Cache,
     lambd: float = 0.0,
-    gamma: float = 0.0,
 ) -> None:
     """Propagate backward through all layers (in place).
 
@@ -267,13 +252,10 @@ def model_backward(
         computed during forward prop for each layer, so they can be
         accessed during backprop to avoid re-computing them
     :param data: object containing training and associated metadata
-    :param lambd: coefficient that multiplies regularization term in
-        cost function
-    :param gamma: coefficient that multiplies jacobian-enhancement term
-        in cost function
+    :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional)
     """
     last_layer_backward(cache, data)
     for layer in reversed(parameters.layers):  # type: ignore[call-overload]
         if layer > 0:
             next_layer_backward(layer, parameters, cache, data, lambd)
-            gradient_enhancement(layer, parameters, cache, data, gamma)
+            gradient_enhancement(layer, parameters, cache, data)

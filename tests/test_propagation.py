@@ -100,6 +100,7 @@ class TestXOR:
     def params(self) -> jenn.core.parameters.Parameters:
         """Return XOR parameters."""
         parameters = jenn.core.parameters.Parameters(layer_sizes=[2, 2, 1], output_activation='relu')
+        parameters.initialize()
         parameters.b[1][:] = np.array([[0], [-1]])        # layer 1
         parameters.W[1][:] = np.array([[1, 1], [1, 1]])   # layer 1
         parameters.b[2][:] = np.array([[0]])              # layer 2
@@ -137,8 +138,7 @@ class TestXOR:
         jenn.core.propagation.model_backward(
             data, params, cache)  # partials computed in place
 
-        dydx = params.stack_partials(per_layer=False)
-
+        dydx = params.stack_partials()
         assert np.allclose(dydx, 0.0)  # partials should be 0 at optimum params
 
         ###################
@@ -162,8 +162,8 @@ class TestXOR:
             Y_pred = jenn.core.propagation.model_forward(data.X, parameters, deepcopy(cache))
             return cost.evaluate(Y_pred)
 
-        dydx = params.stack_partials(per_layer=True)
-        dydx_FD = _finite_difference(cost_FD, params.stack(per_layer=True))
+        dydx = params.stack_partials_per_layer()
+        dydx_FD = _finite_difference(cost_FD, params.stack_per_layer())
 
         assert _grad_check(dydx, dydx_FD)
 
