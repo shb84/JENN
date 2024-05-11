@@ -18,7 +18,7 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-## v1.0.4.dev0 (YYYY-MM-DD)
+## v1.0.5 (2024-05-11)
 
 ### Fix 
 
