@@ -190,7 +190,6 @@ def task_fix():
     ) 
  
 
-
 def task_lint():
     """Check source code for style compliance."""    
     yield dict(
@@ -346,7 +345,7 @@ class P:
     DEPLOY_SPECS = DEPLOY / "specs"
     DOCS_SOURCE = DOCS / "source"
     DOCS_BUILD = BUILD / "docs"
-    PREFIX = ROOT / ".venv"
+    PREFIX = ROOT / "venv"
     LOCKS = ROOT / f"conda-lock.yml"
     SPECS = ROOT / "environment.yml"
     PPT = ROOT / "pyproject.toml"

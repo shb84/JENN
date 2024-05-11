@@ -28,5 +28,6 @@ dependencies:
   - sphinx-multiversion
   # runtime
   - numpy 
-  - orjson 
+  - orjson
+  - jsonpointer
   - matplotlib-base
