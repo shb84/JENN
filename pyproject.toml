@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jenn"
-version = "1.0.4"
+version = "1.0.4.dev0"
 authors = [
   { name="Steven H. Berguin", email="stevenberguin@gmail.com" },
 ]
@@ -17,12 +17,14 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+  "jsonpointer>=2.4",
+  "jsonschema>=4.22",
   "orjson>=3.9",
   "numpy>=1.22",
 ]
 
 [project.optional-dependencies]
-viz = ["matplotlib>=3.7"]
+plt = ["matplotlib>=3.7"]
 
 [tool.setuptools.package-data]
 jenn = ["*.json"]

@@ -3,7 +3,7 @@ run-name: ${{ github.actor }}-jenn-ci
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages/Release
 permissions:
-  contents: write  
+  contents: write  # IMPORTANT: mandatory for making GitHub Releases
   pages: write  
   id-token: write
   
@@ -124,7 +124,7 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
       - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v1.2.3
+        uses: sigstore/gh-action-sigstore-python@v2.1.1
         with:
           inputs: >-
             ./dist/*.tar.gz

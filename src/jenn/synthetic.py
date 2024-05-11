@@ -107,7 +107,7 @@ class TestFunction:
         m_levels: int,
         lb: Union[np.ndarray, float],
         ub: Union[np.ndarray, float],
-        dx: float | None = 1e-6,
+        dx: Union[float, None] = 1e-6,
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Generate synthetic data by sampling the test function.
@@ -178,7 +178,7 @@ class Linear(TestFunction):
         m_levels: int = 0,
         lb: Union[np.ndarray, float] = -1.0,
         ub: Union[np.ndarray, float] = 1.0,
-        dx: float | None = 1e-6,
+        dx: Union[float, None] = 1e-6,
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, dx, random_state)
@@ -218,7 +218,7 @@ class Parabola(TestFunction):
         m_levels: int = 0,
         lb: Union[np.ndarray, float] = -1.0,
         ub: Union[np.ndarray, float] = 1.0,
-        dx: float | None = 1e-6,
+        dx: Union[float, None] = 1e-6,
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, dx, random_state)
@@ -254,7 +254,7 @@ class Sinusoid(TestFunction):
         m_levels: int = 0,
         lb: Union[np.ndarray, float] = -np.pi,
         ub: Union[np.ndarray, float] = np.pi,
-        dx: float | None = 1e-6,
+        dx: Union[float, None] = 1e-6,
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, dx, random_state)
@@ -298,7 +298,7 @@ class Rastrigin(TestFunction):
         * np.ones(
             2,
         ),
-        dx: float | None = 1e-6,
+        dx: Union[float, None] = 1e-6,
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, dx, random_state)
@@ -341,7 +341,7 @@ class Rosenbrock(TestFunction):
         * np.ones(
             2,
         ),
-        dx: float | None = 1e-6,
+        dx: Union[float, None] = 1e-6,
         random_state: Union[int, None] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:  # noqa: D102
         return super().sample(m_lhs, m_levels, lb, ub, dx, random_state)

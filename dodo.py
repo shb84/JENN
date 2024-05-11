@@ -171,7 +171,7 @@ def task_fix():
         name="ruff",
         doc="normalize python",
         **U.run(
-            actions=[["ruff", "--fix-only", *P.ALL_PY]],
+            actions=[["ruff", "check", "--fix-only", *P.ALL_PY]],
             file_dep=[*P.ALL_PY, P.PPT],
             ok=OK.RUFFENED,
         ),
@@ -189,7 +189,6 @@ def task_fix():
         ),
     ) 
  
-
 
 def task_lint():
     """Check source code for style compliance."""    
@@ -346,7 +345,7 @@ class P:
     DEPLOY_SPECS = DEPLOY / "specs"
     DOCS_SOURCE = DOCS / "source"
     DOCS_BUILD = BUILD / "docs"
-    PREFIX = ROOT / ".venv"
+    PREFIX = ROOT / "venv"
     LOCKS = ROOT / f"conda-lock.yml"
     SPECS = ROOT / "environment.yml"
     PPT = ROOT / "pyproject.toml"

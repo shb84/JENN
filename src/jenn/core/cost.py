@@ -9,7 +9,7 @@ term which accounts for Jacobian prediction error. See
 `paper`_ for details and notation. 
 """  # noqa W291
 
-from typing import Union
+from typing import List, Union
 
 import numpy as np
 
@@ -82,7 +82,7 @@ class GradientEnhancement:
 class Regularization:
     """Compute regularization penalty."""
 
-    def __init__(self, weights: list[np.ndarray], lambd: float = 0.0) -> None:
+    def __init__(self, weights: List[np.ndarray], lambd: float = 0.0) -> None:
         r"""Compute L2 norm penalty.
 
         :param weights: neural parameters :math:`W^{[l]} \in
