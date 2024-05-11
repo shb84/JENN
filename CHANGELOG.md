@@ -20,6 +20,12 @@ build: Changes to the build process or tools.
 
 ## v1.0.4.dev0 (YYYY-MM-DD)
 
+### Fix 
+
+- missing dependencies (`jsonschema`, `jsonpointer`) 
+- missing data (*.json was not being included in build, so added MANIFEST.in)
+- typing oversight for python 3.8 (in `cost.py` and `sythetic.py`) 
+
 ## v1.0.4 (2024-05-08)
 
 ### Fix 
