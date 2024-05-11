@@ -171,7 +171,7 @@ def task_fix():
         name="ruff",
         doc="normalize python",
         **U.run(
-            actions=[["ruff", "--fix-only", *P.ALL_PY]],
+            actions=[["ruff", "check", "--fix-only", *P.ALL_PY]],
             file_dep=[*P.ALL_PY, P.PPT],
             ok=OK.RUFFENED,
         ),

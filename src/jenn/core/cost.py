@@ -9,7 +9,7 @@ term which accounts for Jacobian prediction error. See
 `paper`_ for details and notation. 
 """  # noqa W291
 
-from typing import Union, List
+from typing import List, Union
 
 import numpy as np
 
