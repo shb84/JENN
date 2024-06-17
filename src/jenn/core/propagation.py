@@ -56,17 +56,17 @@ def next_layer_partials(layer: int, parameters: Parameters, cache: Cache) -> np.
         computed during forward prop for each layer, so they can be
         accessed during backprop to avoid re-computing them
     """
-    r = layer
-    s = layer - 1
+    s = layer
+    r = layer - 1
     W = parameters.W[layer]
     g = ACTIVATIONS[parameters.a[layer]]
-    cache.G_prime[r][:] = g.first_derivative(cache.Z[r], cache.A[r])
+    cache.G_prime[s][:] = g.first_derivative(cache.Z[s], cache.A[s])
     for j in range(parameters.n_x):
-        cache.Z_prime[r][:, j, :] = np.dot(W, cache.A_prime[s][:, j, :])
-        cache.A_prime[r][:, j, :] = cache.G_prime[r] * np.dot(
-            W, cache.A_prime[s][:, j, :]
+        cache.Z_prime[s][:, j, :] = np.dot(W, cache.A_prime[r][:, j, :])
+        cache.A_prime[s][:, j, :] = cache.G_prime[s] * np.dot(
+            W, cache.A_prime[r][:, j, :]
         )
-    return cache.A_prime[r]
+    return cache.A_prime[s]
 
 
 def next_layer_forward(layer: int, parameters: Parameters, cache: Cache) -> None:
@@ -79,14 +79,14 @@ def next_layer_forward(layer: int, parameters: Parameters, cache: Cache) -> None
         computed during forward prop for each layer, so they can be
         accessed during backprop to avoid re-computing them
     """
-    r = layer
-    s = layer - 1
-    W = parameters.W[r]
-    b = parameters.b[r]
-    g = ACTIVATIONS[parameters.a[r]]
-    Z = cache.Z[r]
-    A = cache.A[r]
-    np.dot(W, cache.A[s], out=Z)
+    s = layer
+    r = layer - 1
+    W = parameters.W[s]
+    b = parameters.b[s]
+    g = ACTIVATIONS[parameters.a[s]]
+    Z = cache.Z[s]
+    A = cache.A[s]
+    np.dot(W, cache.A[r], out=Z)
     Z += b
     g.evaluate(Z, A)
 
@@ -94,7 +94,7 @@ def next_layer_forward(layer: int, parameters: Parameters, cache: Cache) -> None
 def model_partials_forward(
     X: np.ndarray, parameters: Parameters, cache: Cache
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Propagate forward in order to predict reponse(s) and partial(s).
+    """Propagate forward in order to predict reponse(r) and partial(r).
 
     :param X: training data inputs, array of shape (n_x, m)
     :param parameters: object that stores neural net parameters for each
@@ -112,7 +112,7 @@ def model_partials_forward(
 
 
 def model_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.ndarray:
-    """Propagate forward in order to predict reponse(s).
+    """Propagate forward in order to predict reponse(r).
 
     :param X: training data inputs, array of shape (n_x, m)
     :param parameters: object that stores neural net parameters for each
@@ -128,7 +128,7 @@ def model_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.nda
 
 
 def partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.ndarray:
-    """Propagate forward in order to predict partial(s).
+    """Propagate forward in order to predict partial(r).
 
     :param X: training data inputs, array of shape (n_x, m)
     :param parameters: object that stores neural net parameters for each
@@ -168,16 +168,16 @@ def next_layer_backward(
     :param lambd: coefficient that multiplies regularization term in
         cost function
     """
-    r = layer
-    s = layer - 1
-    g = ACTIVATIONS[parameters.a[r]]
-    g.first_derivative(cache.Z[r], cache.A[r], cache.G_prime[r])
-    np.dot(cache.G_prime[r] * cache.dA[r], cache.A[s].T, out=parameters.dW[r])
-    parameters.dW[r] /= data.m
-    parameters.dW[r] += lambd / data.m * parameters.W[r]
-    np.sum(cache.G_prime[r] * cache.dA[r], axis=1, keepdims=True, out=parameters.db[r])
-    parameters.db[r] /= data.m
-    np.dot(parameters.W[r].T, cache.G_prime[r] * cache.dA[r], out=cache.dA[s])
+    s = layer
+    r = layer - 1
+    g = ACTIVATIONS[parameters.a[s]]
+    g.first_derivative(cache.Z[s], cache.A[s], cache.G_prime[s])
+    np.dot(cache.G_prime[s] * cache.dA[s], cache.A[r].T, out=parameters.dW[s])
+    parameters.dW[s] /= data.m
+    parameters.dW[s] += lambd / data.m * parameters.W[s]
+    np.sum(cache.G_prime[s] * cache.dA[s], axis=1, keepdims=True, out=parameters.db[s])
+    parameters.db[s] /= data.m
+    np.dot(parameters.W[s].T, cache.G_prime[s] * cache.dA[s], out=cache.dA[r])
 
 
 def gradient_enhancement(
@@ -200,41 +200,41 @@ def gradient_enhancement(
         return
     if np.all(data.J_weights == 0.0):
         return
-    r = layer
-    s = layer - 1
-    g = ACTIVATIONS[parameters.a[r]]
-    cache.G_prime_prime[r][:] = g.second_derivative(
-        cache.Z[r], cache.A[r], cache.G_prime[r]
+    s = layer
+    r = layer - 1
+    g = ACTIVATIONS[parameters.a[s]]
+    cache.G_prime_prime[s][:] = g.second_derivative(
+        cache.Z[s], cache.A[s], cache.G_prime[s]
     )
     coefficient = 1 / data.m
     for j in range(parameters.n_x):
-        parameters.dW[r] += coefficient * (
+        parameters.dW[s] += coefficient * (
             np.dot(
-                cache.dA_prime[r][:, j, :]
-                * cache.G_prime_prime[r]
-                * cache.Z_prime[r][:, j, :],
-                cache.A[s].T,
+                cache.dA_prime[s][:, j, :]
+                * cache.G_prime_prime[s]
+                * cache.Z_prime[s][:, j, :],
+                cache.A[r].T,
             )
             + np.dot(
-                cache.dA_prime[r][:, j, :] * cache.G_prime[r],
-                cache.A_prime[s][:, j, :].T,
+                cache.dA_prime[s][:, j, :] * cache.G_prime[s],
+                cache.A_prime[r][:, j, :].T,
             )
         )
-        parameters.db[r] += coefficient * np.sum(
-            cache.dA_prime[r][:, j, :]
-            * cache.G_prime_prime[r]
-            * cache.Z_prime[r][:, j, :],
+        parameters.db[s] += coefficient * np.sum(
+            cache.dA_prime[s][:, j, :]
+            * cache.G_prime_prime[s]
+            * cache.Z_prime[s][:, j, :],
             axis=1,
             keepdims=True,
         )
-        cache.dA[s] += np.dot(
-            parameters.W[r].T,
-            cache.dA_prime[r][:, j, :]
-            * cache.G_prime_prime[r]
-            * cache.Z_prime[r][:, j, :],
+        cache.dA[r] += np.dot(
+            parameters.W[s].T,
+            cache.dA_prime[s][:, j, :]
+            * cache.G_prime_prime[s]
+            * cache.Z_prime[s][:, j, :],
         )
-        cache.dA_prime[s][:, j, :] = np.dot(
-            parameters.W[r].T, cache.dA_prime[r][:, j, :] * cache.G_prime[r]
+        cache.dA_prime[r][:, j, :] = np.dot(
+            parameters.W[s].T, cache.dA_prime[s][:, j, :] * cache.G_prime[s]
         )
 
 

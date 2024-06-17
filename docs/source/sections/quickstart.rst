@@ -101,27 +101,27 @@ Similarly, the vectorized version of the Jacobian becomes:
    
    \boldsymbol{J} 
    =
-   \left(
+   \left[
    \begin{matrix}
-   {\left(
+   {\left[
    \begin{matrix}
-   \frac{\partial y_1}{\partial x_1} & \dots & \frac{\partial y_1}{\partial x_{n_x}}  \\
+   \dfrac{\partial y_1}{\partial x_1}^{(1)} & \dots & \dfrac{\partial y_1}{\partial x_{1}}^{(m)}  \\
    \vdots & \ddots & \vdots \\
-   \frac{\partial y_{n_y}}{\partial x_1} & \dots & \frac{\partial y_{n_y}}{\partial x_{n_x}}  \\
+   \dfrac{\partial y_{1}}{\partial x_{n_x}}^{(1)} & \dots & \dfrac{\partial y_{1}}{\partial x_{n_x}}^{(m)}  \\
    \end{matrix}
-   \right)}^{(1)}
-   & 
-   \dots 
-   & 
-   {\left(
+   \right]}
+   \\ 
+   \vdots 
+   \\ 
+   {\left[
    \begin{matrix}
-   \frac{\partial y_1}{\partial x_1} & \dots & \frac{\partial y_1}{\partial x_{n_x}}  \\
+   \dfrac{\partial y_{n_y}}{\partial x_1}^{(1)} & \dots & \dfrac{\partial y_{n_y}}{\partial x_{1}}^{(m)}  \\
    \vdots & \ddots & \vdots \\
-   \frac{\partial y_{n_y}}{\partial x_1} & \dots & \frac{\partial y_{n_y}}{\partial x_{n_x}}  \\
+   \dfrac{\partial y_{n_y}}{\partial x_{n_x}}^{(1)} & \dots & \dfrac{\partial y_{n_y}}{\partial x_{n_x}}^{(m)}  \\
    \end{matrix}
-   \right)}^{(m)}
+   \right]}
    \end{matrix}
-   \right)
+   \right]
    \in
    \mathbb{R}^{n_y \times n_x \times m}
 

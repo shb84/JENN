@@ -18,6 +18,18 @@ build: Changes to the build process or tools.
 
 # Changelog
 
+## v1.0.6 (2024-MM-DD)
+
+## Docs 
+
+- Added link to technical paper on ArXiv (preprint) in README and `docs\index.rst`
+- Fixed notation inconsistency in Jacobian matrix (data structures section)
+- Updated `demo_4_rosenbrock.ipynb` with plot annotations (and fixed random seed)
+
+## Refactor
+
+- Switched order of indices `r` and `s` in `propagation.py` to match paper
+
 ## v1.0.5 (2024-05-11)
 
 ### Fix 
