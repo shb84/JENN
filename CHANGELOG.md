@@ -18,6 +18,12 @@ build: Changes to the build process or tools.
 
 # Changelog
 
+## v1.0.6 (2024-MM-DD)
+
+## Docs
+
+- Deleted `theory.pdf` (no longer needed now that paper is on ArXiv)
+
 ## v1.0.6 (2024-06-18)
 
 ## Docs 
