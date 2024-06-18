@@ -5,7 +5,7 @@
 
 from . import core, model, synthetic, utils
 
-__version__ = "1.0.6"
+__version__ = "1.0.7.dev0"
 
 __all__ = [
     "__version__",
