@@ -24,7 +24,37 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-plt = ["matplotlib>=3.7"]
+plot = [
+  "matplotlib",
+]
+ipynb = [
+  "seaborn",  # brings in matplotlib
+  "pandas",
+  "jupyterlab",
+]
+lint = [
+    "black",
+    "docformatter",
+    "lxml",
+    "mypy",
+    "ruff",
+    "pylint",
+]
+test = [
+    "nbmake",
+    "pytest",
+    "pytest-cov",
+    "pytest-html",
+]
+build = [
+    "build",
+    "sphinx",  # to build docs 
+    "sphinx_rtd_theme",
+    "pip", 
+]
+release = [
+    "twine",  # if pkg to be released on pypi
+]
 
 [tool.setuptools.package-data]
 jenn = ["*.json"]
@@ -120,5 +150,88 @@ module = [
 ]
 ignore_missing_imports = true
 
+########
+# pixi #
+########
 
- 
+# pixi docs: https://pixi.sh/latest/
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+
+# [tool.pixi.system-requirements]
+# linux="4.18"  # optional (use if needed: https://prefix.dev/docs/pixi/configuration#the-system-requirements-table)
+
+[tool.pixi.pypi-dependencies]
+jenn = { path = ".", editable = true }
+
+[tool.pixi.environments]
+default = { features = [], solve-group = "default" }
+lint = { features = ["lint"], solve-group = "default" }
+test = { features = ["test", "plot"], solve-group = "default" }
+build = { features = ["build", "plot"], solve-group = "default" }
+release = { features = ["release"], solve-group = "default" }
+ipynb = { features = ["ipynb", "plot"], solve-group = "default" }
+
+[tool.pixi.dependencies]
+numpy = "*"
+jsonpointer = "*"
+jsonschema = "*"
+orjson = "*"
+
+[tool.pixi.feature.ipynb.dependencies]
+seaborn = "*"
+pandas = "*"
+jupyterlab = "*"
+
+[tool.pixi.feature.lint.dependencies]
+black = "*"
+docformatter = "*"
+lxml = "*"
+mypy = "*"
+ruff = "*"
+pylint = "*"
+
+[tool.pixi.feature.test.dependencies]
+nbmake = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-html = "*"
+
+[tool.pixi.feature.ipynb.tasks]
+lab = "jupyter lab --no-browser"
+
+[tool.pixi.feature.lint.tasks]
+black = { cmd = "black --quiet src/", inputs = ["src/**/*.py"] }
+docformatter = { cmd = "docformatter --in-place src/**/*.py", inputs = ["src/**/*.py"] }
+ruff = { cmd = "ruff check src/ --fix", inputs = ["src/**/*.py"] }
+mypy = { cmd = "mypy --html-report=build/reports/mypy src/", inputs = ["src/**/*.py"] }
+lint = { depends-on = ["docformatter", "black", "ruff", "mypy"] }
+
+[tool.pixi.feature.test.tasks]
+test-py = { cmd = """
+pytest 
+-vv 
+--failed-first 
+--html=build/reports/pytest/report.html  
+--self-contained-html 
+--cov=jenn 
+--cov-context=test 
+--cov-report=html:build/reports/pytest
+--cov-report=xml:build/reports/pytest/coverage.xml  
+--cov-report=term-missing:skip-covered 
+-o=junit_family=xunit2 
+--junitxml=build/reports/pytest/junit.xml 
+""", inputs = ["src/**/*.py", "tests/"] }
+test-nb = { cmd = "pytest --nbmake docs/examples/*.ipynb", inputs = ["docs/examples/*.ipynb"]}
+test = { depends-on = ["test-py", "test-nb"] }
+
+[tool.pixi.feature.build.tasks]
+build-dist = { cmd = "python -m build --outdir build/dist", inputs = ["src/**/*.py"] }
+build-docs = { cmd = "sphinx-build -b html docs/source build/docs/html", inputs = ["src/**/*.py", "docs/**/*.py"] }
+build = { depends-on = ["build-docs", "build-dist", "build-release"] }
+
+[tool.pixi.feature.release.tasks]
+release-test = { cmd = "python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi", inputs = ["src/**/*.py"] }
+# actual release is done via GitHub actions
+release = { depends-on = ["release-test"] }

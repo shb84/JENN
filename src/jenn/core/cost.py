@@ -22,7 +22,8 @@ class SquaredLoss:
 
     :param Y_true: training data outputs :math:`Y \in \mathbb{R}^{n_y
         \times m}`
-    :param Y_weights: weights by which to prioritize data points (optional)
+    :param Y_weights: weights by which to prioritize data points
+        (optional)
     """
 
     def __init__(
@@ -52,7 +53,7 @@ class GradientEnhancement:
 
     :param J_true: training data jacobian :math:`Y^{\prime} \in
         \mathbb{R}^{n_y \times m}`
-        :param J_weights: weights by which to prioritize partials (optional)
+    :param J_weights: weights by which to prioritize partials (optional)
     """
 
     def __init__(
@@ -86,8 +87,8 @@ class Regularization:
         r"""Compute L2 norm penalty.
 
         :param weights: neural parameters :math:`W^{[l]} \in
-        \mathbb{R}^{n^{[l]} \times n^{[l-1]}}` associated with each
-        layer
+            \mathbb{R}^{n^{[l]} \times n^{[l-1]}}` associated with each
+            layer
         """
         self.weights = weights
         self.lambd = lambd
@@ -98,8 +99,8 @@ class Regularization:
         r"""Compute L2 norm penalty.
 
         :param weights: neural parameters :math:`W^{[l]} \in
-        \mathbb{R}^{n^{[l]} \times n^{[l-1]}}` associated with each
-        layer
+            \mathbb{R}^{n^{[l]} \times n^{[l-1]}}` associated with each
+            layer
         :param lambd: regularization coefficient :math:`\lambda \in
             \mathbb{R}` (hyperparameter to be tuned)
         """

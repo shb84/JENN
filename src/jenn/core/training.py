@@ -98,8 +98,10 @@ def train_model(
         layer
     :param alpha: learning rate :math:`\alpha`
     :param beta: LSE coefficients [defaulted to one] (optional)
-    :param gamma: jacobian-enhancement regularization coefficient [defaulted to zero] (optional)
-    :param lambd: regularization coefficient to avoid overfitting [defaulted to zero] (optional)
+    :param gamma: jacobian-enhancement regularization coefficient
+        [defaulted to zero] (optional)
+    :param lambd: regularization coefficient to avoid overfitting
+        [defaulted to zero] (optional)
     :param beta_1: exponential decay rate of 1st moment vector
         :math:`\beta_1\in[0, 1)`
     :param beta_2: exponential decay rate of 2nd moment vector

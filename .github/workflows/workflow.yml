@@ -20,28 +20,22 @@ jobs:
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Create base environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: .github/base.yml
-      - name: Create base environment 
+      - name: Install pixi
         shell: bash -el {0}
         run: | 
-          doit env
+          curl -fsSL https://pixi.sh/install.sh | bash
       - name: Linting
         shell: bash -el {0}
         run: | 
-          doit lint 
-      - name: Installation 
+          pixi run lint 
+      - name: Run unit tests
         shell: bash -el {0}
         run: | 
-          doit install
-      - name: Unit Testing
+          pixi run test-py 
+      - name: Run notebooks
         shell: bash -el {0}
         run: | 
-          doit test
+          pixi run test-nb 
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -53,29 +47,23 @@ jobs:
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Create base environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: .github/base.yml
+      - name: Install pixi
+        shell: bash -el {0}
+        run: | 
+          curl -fsSL https://pixi.sh/install.sh | bash
       - name: ⬇️ Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
           path: ./build
-      - name: Create base environment 
-        shell: bash -el {0}
-        run: | 
-          doit env
       - name: 💾 Distribution
         shell: bash -el {0}
         run: | 
-          doit build:dist
+          pixi run build-dist
       - name: 📚 Documentation  
         shell: bash -el {0}
         run: | 
-          doit build:docs
+          pixi run build-docs
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:

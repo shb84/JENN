@@ -18,11 +18,21 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-## v1.0.6 (2024-MM-DD)
+## v1.0.7 (2024-MM-DD)
 
 ## Docs
 
 - Deleted `theory.pdf` (no longer needed now that paper is on ArXiv)
+- Changed CONTRIBUTING
+
+## Build
+
+- Switched from `doit` to `pixi` (no need for a base environment anymore, more simple overall)
+- Update GitHub Actions workflow to use `pixi` 
+
+## Test 
+
+- Added `nbmake` to test example notebooks during `qa` 
 
 ## v1.0.6 (2024-06-18)
 
