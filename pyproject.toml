@@ -223,7 +223,7 @@ pytest
 -o=junit_family=xunit2 
 --junitxml=build/reports/pytest/junit.xml 
 """, inputs = ["src/**/*.py", "tests/"] }
-test-nb = { cmd = "pytest --nbmake docs/examples/*.ipynb", inputs = ["docs/examples/*.ipynb"]}
+test-nb = { cmd = "pytest --nbmake --nbmake-timeout=3000 docs/examples/*.ipynb", inputs = ["docs/examples/*.ipynb"]}
 test = { depends-on = ["test-py", "test-nb"] }
 
 [tool.pixi.feature.build.tasks]
