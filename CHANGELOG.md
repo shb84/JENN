@@ -20,29 +20,38 @@ build: Changes to the build process or tools.
 
 ## v1.0.7 (2024-MM-DD)
 
-## Docs
+### Feat
+
+- Add support for converting JMP formulas into JENN (use case: port trained JMP model into Python)
+
+### Fix 
+
+- Change default activation in `Parameters` class from `relu` to `tanh`
+- Fix initialization of `sigma_x` and `sigma_y` to use `np.ones` (erroneously, it previously used `np.eye`)
+
+### Docs
 
 - Deleted `theory.pdf` (no longer needed now that paper is on ArXiv)
 - Changed CONTRIBUTING
 
-## Build
+### Build
 
 - Switched from `doit` to `pixi` (no need for a base environment anymore, more simple overall)
 - Update GitHub Actions workflow to use `pixi` 
 
-## Test 
+### Test 
 
 - Added `nbmake` to test example notebooks during `qa` 
 
 ## v1.0.6 (2024-06-18)
 
-## Docs 
+### Docs 
 
 - Added link to technical paper on ArXiv (preprint) in README and `docs\index.rst`
 - Fixed notation inconsistency in Jacobian matrix (data structures section)
 - Updated `demo_4_rosenbrock.ipynb` with plot annotations (and fixed random seed)
 
-## Refactor
+### Refactor
 
 - Switched order of indices `r` and `s` in `propagation.py` to match paper
 
