@@ -6,8 +6,13 @@
 from importlib.util import find_spec
 
 from . import metrics
+from . import plot
+from .rbf import rbf
+from .jmp import from_jmp
 
-__all__ = ["metrics"]
-
-if find_spec("matplotlib"):
-    __all__.append("plot")
+__all__ = [
+    "metrics",
+    "plot",
+    "rbf",
+    "from_jmp",
+]
