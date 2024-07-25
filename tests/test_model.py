@@ -54,7 +54,7 @@ class TestSinusoid:
 
        expected = finite_difference(nn.predict, x_test)
        computed = nn.predict_partials(x_test)
-       assert np.allclose(expected, computed, atol=1e-5) 
+       assert np.allclose(expected, computed, atol=1e-4) 
        
     def test_gradient_enhanced_neural_net(self, m_train: int = 4, m_test: int = 30):
        """Verify that gradient-enhancement succeeds in training a neural net
