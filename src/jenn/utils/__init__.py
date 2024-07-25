@@ -3,12 +3,9 @@
 # Copyright (c) 2018 Steven H. Berguin
 # Distributed under the terms of the MIT License.
 
-from importlib.util import find_spec
-
-from . import metrics
-from . import plot
-from .rbf import rbf
+from . import metrics, plot
 from .jmp import from_jmp
+from .rbf import rbf
 
 __all__ = [
     "metrics",
