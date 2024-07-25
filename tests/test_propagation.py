@@ -99,7 +99,11 @@ class TestXOR:
     @pytest.fixture
     def params(self) -> jenn.core.parameters.Parameters:
         """Return XOR parameters."""
-        parameters = jenn.core.parameters.Parameters(layer_sizes=[2, 2, 1], output_activation='relu')
+        parameters = jenn.core.parameters.Parameters(
+            layer_sizes=[2, 2, 1], 
+            hidden_activation='relu',
+            output_activation='relu',
+        )
         parameters.initialize()
         parameters.b[1][:] = np.array([[0], [-1]])        # layer 1
         parameters.W[1][:] = np.array([[1, 1], [1, 1]])   # layer 1

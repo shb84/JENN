@@ -22,7 +22,7 @@ build: Changes to the build process or tools.
 
 ### Feat
 
-- Add support for converting JMP formulas into JENN (use case: port trained JMP model into Python)
+- Add support for loading JMP models into Python using JENN 
 
 ### Fix 
 
@@ -32,7 +32,8 @@ build: Changes to the build process or tools.
 ### Docs
 
 - Deleted `theory.pdf` (no longer needed now that paper is on ArXiv)
-- Changed CONTRIBUTING
+- Updated CONTRIBUTING to reflect `pixi` process (more simple)
+- Added section about loading JMP models into JENN (with examples)
 
 ### Build
 
@@ -42,6 +43,7 @@ build: Changes to the build process or tools.
 ### Test 
 
 - Added `nbmake` to test example notebooks during `qa` 
+- Added unit tests for new JMP feature
 
 ## v1.0.6 (2024-06-18)
 

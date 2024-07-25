@@ -70,7 +70,8 @@ def _expand(tokens: List[str]):
 
 
 def _remove_unnecessary_brackets(tokens: list[str]): 
-    """Remove situations such as ["(", "-1.33806951259538", ")"] where brackets aren't needed."""
+    """Remove situations such as ["(", "-1.33806951259538", ")"] where brackets
+    aren't needed."""
     updated = []
     skip = 0
     N = len(tokens)
@@ -146,19 +147,19 @@ def _load_from_file(filename: Union[str, Path]) -> str:
 def from_jmp(equation: Union[str, Path]) -> NeuralNet: 
     """Load trained JMP model given formula.
 
-    .. Note:: 
+    .. Note::
         Expected equation assumed to be obtained from JMP
         using the "Save Profile Formulas" method and copy/paste.
 
-    .. Note:: 
-        JMP yields a separate equation for each output. It does 
-        not provided a single equation that predicts all outputs 
-        at once. This function therefore yields NeuralNet objects 
+    .. Note::
+        JMP yields a separate equation for each output. It does
+        not provided a single equation that predicts all outputs
+        at once. This function therefore yields NeuralNet objects
         that predict only a single output (consistent with JMP).
 
-    .. Warning:: 
-        Order of inputs matches order used in JMP. Burden is 
-        on user to keep track of variable ordering.    
+    .. Warning::
+        Order of inputs matches order used in JMP. Burden is
+        on user to keep track of variable ordering.
 
     :param equation: either the equation itself or a filename containing it
     :return: jenn.model.NeuralNet object preloaded with the JMP parameters
