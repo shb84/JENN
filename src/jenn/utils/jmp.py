@@ -2,7 +2,8 @@
 
 import numpy as np 
 
-from typing import List, Tuple
+from pathlib import Path
+from typing import List, Tuple, Union
 from ..core.parameters import Parameters
 from ..model import NeuralNet
 
@@ -42,26 +43,27 @@ def _expand(tokens: List[str]):
     number_open_brackets = 0
     factor = 1.0
     skip = 0
+    N = len(tokens)
     for i, token in enumerate(tokens): 
         if skip > 0: 
             skip -= 1
             continue
         number_open_brackets += _count_repetitions("(", token) - _count_repetitions(")", token)
         if number_open_brackets == 0:
-            if _is_float(token) and i < len(tokens) - 2: 
-                if tokens[i+1] == "*": 
-                    if tokens[i+2] == "(":
-                        factor = float(token)
-                        skip = 1
-                        continue
+            if _is_float(token):
+                if i < N - 2: 
+                    if tokens[i+1] == "*": 
+                        if tokens[i+2] == "(":
+                            factor = float(token)
+                            number_open_brackets += 1
+                            skip = 2
+                            continue
             if token == ")": 
                 continue 
         if number_open_brackets == 1: 
-            if token == "(": 
-                continue 
             if tokens[i+1] == ")": 
                 factor = 1.0
-        if _is_float(token) and number_open_brackets > 0:
+        if _is_float(token) and number_open_brackets == 1:
             token = str(float(token) * factor)
         updated.append(token)
     return updated
@@ -76,13 +78,11 @@ def _remove_unnecessary_brackets(tokens: list[str]):
         if skip > 0: 
             skip -= 1
             continue
-        if _is_float(token): 
-            if 0 < i < N: 
-                if tokens[i-1] == "(" and tokens[i+1] == ")": 
-                    updated = updated[:i-1]
-                    skip = 1
-                    updated.append(token)
-                    continue 
+        if i < N - 2: 
+            if token == "(" and _is_float(tokens[i+1]) and tokens[i+2] == ")": 
+                updated.append(tokens[i+1])
+                skip = 2
+                continue 
         updated.append(token)
     return updated
 
@@ -101,7 +101,8 @@ def _get_node_parameters(tokens: List[str]) -> Tuple[List[float], List[float], L
             activation.append(token)
         if number_open_brackets == 0: 
             if activation: 
-                activations.append(_expand(activation[1:]))  # remove "(" b/c only want inputs of Tanh(...) 
+                expanded = _expand(activation[1:])  # remove "(" b/c only want inputs of Tanh(...)
+                activations.append(expanded)   
             activation = []
             if _is_float(token):
                 if tokens[i+1] == "+": 
@@ -126,16 +127,49 @@ def _get_layer_parameters(nodes: list[list[str]]):
         layer_weights.append(node_weights)
     return layer_biases, layer_weights, layer_activation_inputs
 
-
-def from_jmp(equation: str) -> NeuralNet: 
-    """Load trained JMP model given formula."""
-
+def _get_tokens(equation: str) -> List[str]: 
+    """Parse equation into list of str."""
     equation = equation.replace("(", " ( ")
     equation = equation.replace(")", " ) ")
     equation = equation.replace("+", " + ")
     equation = equation.replace("*", " * ")
+    return _remove_unnecessary_brackets(equation.split()) 
 
-    tokens = _remove_unnecessary_brackets(equation.split())
+
+def _load_from_file(filename: Union[str, Path]) -> str: 
+    """Load JMP equation from local file."""
+    with open(filename, "r") as file: 
+        equation = "".join(file.readlines())
+    return equation
+
+
+def from_jmp(equation: Union[str, Path]) -> NeuralNet: 
+    """Load trained JMP model given formula.
+
+    .. Note:: 
+        Expected equation assumed to be obtained from JMP
+        using the "Save Profile Formulas" method and copy/paste.
+
+    .. Note:: 
+        JMP yields a separate equation for each output. It does 
+        not provided a single equation that predicts all outputs 
+        at once. This function therefore yields NeuralNet objects 
+        that predict only a single output (consistent with JMP).
+
+    .. Warning:: 
+        Order of inputs matches order used in JMP. Burden is 
+        on user to keep track of variable ordering.    
+
+    :param equation: either the equation itself or a filename containing it
+    :return: jenn.model.NeuralNet object preloaded with the JMP parameters
+    """
+
+    if isinstance(equation, Path) \
+        or "+" not in equation \
+            or "TanH" not in equation: 
+        equation = _load_from_file(equation) 
+
+    tokens = _get_tokens(equation)
 
     # Last layer 
     (
