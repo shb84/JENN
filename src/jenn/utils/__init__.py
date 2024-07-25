@@ -3,11 +3,13 @@
 # Copyright (c) 2018 Steven H. Berguin
 # Distributed under the terms of the MIT License.
 
-from importlib.util import find_spec
+from . import metrics, plot
+from .jmp import from_jmp
+from .rbf import rbf
 
-from . import metrics
-
-__all__ = ["metrics"]
-
-if find_spec("matplotlib"):
-    __all__.append("plot")
+__all__ = [
+    "metrics",
+    "plot",
+    "rbf",
+    "from_jmp",
+]

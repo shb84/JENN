@@ -116,7 +116,8 @@ class TestFunction:
         :param m_levels: number of levels per factor for full factorial
         :param lb: lower bound on the factors
         :param ub: upper bound on the factors
-        :param dx: finite difference step size (if None, analytical partials are used)
+        :param dx: finite difference step size (if None, analytical
+            partials are used)
         :param random_state: random seed (for repeatability)
         """
         rng = np.random.default_rng(seed=random_state)

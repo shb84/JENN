@@ -5,50 +5,54 @@ Contibutions are welcome. Thank you for helping make the project better!
 --- 
 ## Installation
 
-### `dev` environment
+This project relies on [`pixi`](https://pixi.sh/latest/), which needs to be installed: 
 
-_The `dev` environment serves as the local environment in which to try things._ 
-
-Assuming [conda](https://conda.org/) is installed:
-
-```bash
-conda env update --file environment.yml
-conda activate jenn
-pip install -e .
-pytest
 ```
+curl -fsSL https://pixi.sh/install.sh | bash
+``` 
 
-All tests should pass. 
+That's it! You are now ready to go. 
 
-### `ci` environment
+---
+## Running 
 
-_The `ci` environment serves as the remote environment used by Github Actions. It is generated from frozen specs with `conda-lock`. Commands are run with [`doit`](https://pydoit.org/) (defined in the `dodo.py` file)._ 
-
-To see all `doit` commands:
-
-```bash
-doit list --all --status
+Just use `pixi` to run tasks (defined in `pyproject.toml`) command, e.g.: 
+```
+pixi run test
+```
+OR
+```
+pixi run lab
 ```
 
 ---
 ## Making Changes
 
-Do all local work in the `dev` environment. Upon satisfaction, before making a commit or merge request, manually follow the steps below to improve chances of passing `ci` (which are the same steps run in `ci`). 
+### Step 1: Update dependencies 
 
-### Step 1: Update Environment Specs (optional)
+If needed, update any project dependencies in the `pyproject.toml` (they will automatically be picked up by `pixi`):
 
-_**IF** the `environment.yml` file was updated, then the `ci` environment must also be updated. To do so, modify `deploy/specs/*.yml` accordingly and re-generate the lock files_: 
- 
-```bash
-doit lock
+```
+[project]
+dependencies = [
+  "jsonpointer>=2.4",
+  "jsonschema>=4.22",
+  "orjson>=3.9",
+  "numpy>=1.22",
+]
+
+[project.optional-dependencies]
+plot = [
+  "matplotlib",
+]
 ```
 
 ### Step 2: Run Unit Tests
 
-Make sure the unit tests are passing in the `ci` environment: 
+Make sure the unit tests are passing: 
 
 ```bash
-doit test
+pixi run test
 ```
 
 ### Step 3: Fix Lint Issues 
@@ -56,23 +60,29 @@ doit test
 Make sure the code is well formatted (fix manually if needed): 
 
 ```bash
-doit fix lint
+pixi run lint
 ```
 
-### Step 4: Run Notebooks (optional) 
+### Step 4: Test Build
 
-If applicable, mannually check notebooks in `ci` environment: 
+Test docs are building locally: 
 
 ```bash
-doit lab
+pixi run build-docs
 ```
 
-### Step 5: Test Release (optional)
+Test distribution is building locally: 
+
+```bash
+pixi run build-dist
+```
+
+### Step 5: Test Release
 
 Test release on `testpypi`: 
 
 ```bash
-doit build release
+pixi run release
 ```
 
 This will require creating an API token on `testpypi`: 
@@ -92,7 +102,7 @@ username: __token__
 password: pypi-...
 ```
 
-### Step 6: Commit / Pull Request
+### Step 5: Commit / Pull Request
 
 Commit changes. CI is triggered on push: 
 
@@ -113,8 +123,6 @@ The release process has been automated via Github Actions. In summary, a new rel
 
 > NOTE: 
 > either [pypi](https://pypi.org/) and [testpypi](https://test.pypi.org/) need to be setup for [trusted publishing](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/) or Github must be provided an [API token](https://pypi.org/help/#apitoken) to enable communication between GitHub, TestPyPI, and PyPI. Currently, the latter is used.
-
-### Steps 
 
 Assuming `master` is locally up-to-date, manually update the pyproject.toml version number:
 

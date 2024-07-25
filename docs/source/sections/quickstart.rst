@@ -1,5 +1,6 @@
 .. _demo notebooks: https://github.com/shb84/JENN/tree/refactor/docs/examples
 .. _project repo: https://github.com/shb84/JENN.git
+.. _JMP: https://www.jmp.com/en_us/home.html
 
 Installation 
 ------------
@@ -234,6 +235,17 @@ Reloading the parameters a previously trained model::
     assert np.allclose(y_reloaded, y_pred)
     assert np.allclose(dydx_reloaded, dydx_pred)
 
+More Examples 
+-------------
+
+Elaborated `demo notebooks`_ can be found on the `project repo`_. 
+
+Other features
+--------------
+
+Plotting
+........
+
 Optional plotting tools are available for convenience, provided `matplotlib` is installed:: 
 
     from jenn.utils import plot 
@@ -267,8 +279,42 @@ Optional plotting tools are available for convenience, provided `matplotlib` is 
 .. image:: ../../pics/example_sensitivity_profile.png
   :width: 250
 
-Examples 
---------
+Load `JMP`_ models into Python
+..............................
 
-Elaborated `demo notebooks`_ can be found on the `project repo`_. 
+Not all engineers are Python enthusiasts. Sometimes, using JMP allows progress to be made fast 
+without writing code. In fact, JMP  sometimes markets their software as machine learning without code. 
+However, once a model is trained, it often needs to be loaded into Python
+where it can be used in conjunction with other analyses. Here's how to do it with JENN, where 
+the equation is obtained using "Save Profile Formulas" in JMP:
 
+:: 
+
+    jmp_model = jenn.utils.from_jmp(equation="""
+        6.63968579427224 + 2419.53609389846 * TanH(
+            0.5 * (1.17629679110012 + -0.350827466968853 * :x1 + -0.441135986242386 * :x2)
+        ) + 926.302874298947 * TanH(
+            0.5 * (0.0532227576798577 + 0.112094306256208 * :x1 + -0.589518737153198 * :x2)
+        ) + -4868.09413385432 * TanH(
+            0.5 * (0.669012936934124 + -0.354310015265324 * :x1 + -0.442508530947179 * :x2)
+        ) + 364.826302675917 * TanH(
+            0.5 * (0.181903867225405 + -0.400769569147237 * :x1 + -1.82765795570436 * :x2)
+        ) + 69.1044173973596 * TanH(
+            0.5 * ((-1.33806951259538) + 5.05831585102242 * :x1 + 0.0768855196783658 * :x2)
+        ) + 1003.55161311844 * TanH(
+            0.5 * (0.333506711905318 + -1.21092868596007 * :x1 + -0.094803759612578 * :x2)
+        ) + -105.644746963426 * TanH(
+            0.5 * (0.0582830223989066 + -0.758691194673338 * :x1 + 0.193686573458068 * :x2)
+        ) + 28.9924537808578 * TanH(
+            0.5 * (1.68489056740589 + 0.203695375799704 * :x1 + 1.55265433664034 * :x2)
+        ) + -16.1485832676648 * TanH(
+            0.5 * (0.20830843078032 + 0.293819116867659 * :x1 + -3.34453047341792 * :x2)
+        ) + -40.871646830766 * TanH(
+            0.5 * (1.94906272051484 + -0.446838471653994 * :x1 + -7.96896877293616 * :x2)
+        ) + 2.01890616631764 * TanH(
+            0.5 * (0.501220953175385 + 1.35505831134419 * :x1 + -0.618548650974262 * :x2)
+        ) + 150.412884466318 * TanH(
+            0.5 * (2.21033919158451 + -0.696779972041321 * :x1 + -1.69376087699982 * :x2)
+        )
+    """)
+    y, dy_dx = jmp_model.evaluate(x=np.array([[0.5], [0.25]]))

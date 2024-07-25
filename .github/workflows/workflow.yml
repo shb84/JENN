@@ -17,65 +17,48 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest 
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Create base environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: .github/base.yml
-      - name: Create base environment 
-        shell: bash -el {0}
-        run: | 
-          doit env
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
       - name: Linting
         shell: bash -el {0}
         run: | 
-          doit lint 
-      - name: Installation 
+          pixi run lint 
+      - name: Run unit tests
         shell: bash -el {0}
         run: | 
-          doit install
-      - name: Unit Testing
+          pixi run test-py 
+      - name: Run example notebooks
         shell: bash -el {0}
         run: | 
-          doit test
+          pixi run test-nb 
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
+          name: test-artifacts-py${{ matrix.python-version }}
           path: ./build
+          overwrite: true
   build:  
     needs: test
     runs-on: ubuntu-latest 
     steps: 
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Create base environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: false
-          activate-environment: explicit-env
-          environment-file: .github/base.yml
-      - name: ⬇️ Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: ./build
-      - name: Create base environment 
-        shell: bash -el {0}
-        run: | 
-          doit env
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
       - name: 💾 Distribution
         shell: bash -el {0}
         run: | 
-          doit build:dist
+          pixi run build-dist
       - name: 📚 Documentation  
         shell: bash -el {0}
         run: | 
-          doit build:docs
+          pixi run build-docs
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
