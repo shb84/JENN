@@ -18,7 +18,17 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-## v1.0.7 (2024-MM-DD)
+## v1.0.8 (YYYY-MM-DD)
+
+### Build
+
+- Made `matplotlib` required dependency (made dev easier to manage)
+
+### Fix 
+
+- Modified exposed utils
+
+## v1.0.7 (2024-07-25)
 
 ### Feat
 
