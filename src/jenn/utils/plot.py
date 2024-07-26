@@ -40,14 +40,12 @@ assess goodness of fit and visualize trends.
 """  # noqa: W291
 
 from collections.abc import Callable
-from functools import wraps
-import matplotlib.pyplot as plt
-from typing import Any, Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 from .metrics import r_square
-
 
 LINE_STYLES = {
     "solid": "solid",  # Same as (0, ()) or '-'
