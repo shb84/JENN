@@ -41,18 +41,12 @@ assess goodness of fit and visualize trends.
 
 from collections.abc import Callable
 from functools import wraps
-from importlib.util import find_spec
+import matplotlib.pyplot as plt
 from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 
 from .metrics import r_square
-
-if find_spec("matplotlib"):
-    MATPLOTLIB_INSTALLED = True
-    import matplotlib.pyplot as plt
-else:
-    MATPLOTLIB_INSTALLED = False
 
 
 LINE_STYLES = {
@@ -76,19 +70,6 @@ LINE_STYLES = {
 }
 
 
-def requires_matplotlib(func: Callable) -> Callable:
-    """Return error if matplotlib not installed."""
-
-    @wraps(func)
-    def wrapper(*args: list, **kwargs: dict) -> Any:  # noqa: ANN401
-        if MATPLOTLIB_INSTALLED:
-            return func(*args, **kwargs)
-        raise ValueError("Matplotlib is not installed.")
-
-    return wrapper
-
-
-@requires_matplotlib
 def actual_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
@@ -207,7 +188,6 @@ def contours(
     return fig
 
 
-@requires_matplotlib
 def convergence(
     histories: List[Dict[str, Dict[str, List[float]]]],
     figsize: Tuple[float, float] = (3.25, 3),
@@ -290,7 +270,6 @@ def convergence(
     return fig
 
 
-@requires_matplotlib
 def residuals_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
@@ -358,7 +337,6 @@ def residuals_by_predicted(
     return fig
 
 
-@requires_matplotlib
 def goodness_of_fit(
     y_true: np.ndarray,
     y_pred: np.ndarray,
@@ -406,7 +384,6 @@ def goodness_of_fit(
     return fig
 
 
-@requires_matplotlib
 def sensitivity_profile(
     ax: plt.Axes,  # noqa: ANN401
     x0: np.ndarray,
@@ -474,7 +451,6 @@ def sensitivity_profile(
     return fig
 
 
-@requires_matplotlib
 def sensitivity_profiles(
     f: Union[Callable, List[Callable]],
     x_min: np.ndarray,

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jenn"
-version = "1.0.7"
+version = "1.0.8.dev0"
 authors = [
   { name="Steven H. Berguin", email="stevenberguin@gmail.com" },
 ]
@@ -21,14 +21,12 @@ dependencies = [
   "jsonschema>=4.22",
   "orjson>=3.9",
   "numpy>=1.22",
+  "matplotlib",  # plot results (plotting will eventally be moved out of JENN, but keep here for now)
 ]
 
 [project.optional-dependencies]
-plot = [
-  "matplotlib",
-]
 ipynb = [
-  "seaborn",  # brings in matplotlib
+  "seaborn",  # to visualize raw data
   "pandas",
   "jupyterlab",
 ]
@@ -168,10 +166,10 @@ jenn = { path = ".", editable = true }
 [tool.pixi.environments]
 default = { features = [], solve-group = "default" }
 lint = { features = ["lint"], solve-group = "default" }
-test = { features = ["test", "plot"], solve-group = "default" }
-build = { features = ["build", "plot"], solve-group = "default" }
+test = { features = ["test"], solve-group = "default" }
+build = { features = ["build"], solve-group = "default" }
 release = { features = ["release"], solve-group = "default" }
-ipynb = { features = ["ipynb", "plot"], solve-group = "default" }
+ipynb = { features = ["ipynb"], solve-group = "default" }
 
 [tool.pixi.dependencies]
 numpy = "*"

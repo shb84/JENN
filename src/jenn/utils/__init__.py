@@ -4,8 +4,8 @@
 # Distributed under the terms of the MIT License.
 
 from . import metrics, plot
-from .jmp import from_jmp
-from .rbf import rbf
+from ._jmp import from_jmp
+from ._rbf import rbf
 
 __all__ = [
     "metrics",
