@@ -123,7 +123,7 @@ def _get_node_parameters(
 
 
 def _get_layer_parameters(
-    nodes: list[list[str]],
+    nodes: List[List[str]],
 ) -> Tuple[List[List[float]], List[List[float]], List[List[str]]]:
     """Return bias, weight, activations associated with current layer."""
     layer_biases = []

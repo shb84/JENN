@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jenn"
-version = "1.0.7.dev0"
+version = "1.0.7"
 authors = [
   { name="Steven H. Berguin", email="stevenberguin@gmail.com" },
 ]
@@ -229,7 +229,7 @@ test = { depends-on = ["test-py", "test-nb"] }
 [tool.pixi.feature.build.tasks]
 build-dist = { cmd = "python -m build --outdir build/dist", inputs = ["src/**/*.py"] }
 build-docs = { cmd = "sphinx-build -b html docs/source build/docs/html", inputs = ["src/**/*.py", "docs/**/*.py"] }
-build = { depends-on = ["build-docs", "build-dist", "build-release"] }
+build = { depends-on = ["build-docs", "build-dist"] }
 
 [tool.pixi.feature.release.tasks]
 release-test = { cmd = "python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi", inputs = ["src/**/*.py"] }

@@ -119,7 +119,7 @@ _Create a PR on GitHub when ready_
 
 **Only project owners and administrators can make new releases.** 
 
-The release process has been automated via Github Actions. In summary, a new release is created by pushing a new tag to the remote (e.g. `v1.0.0`), which triggers a _test-build-deploy_ workflow that publishes to `pypi.org`, `GitHub Pages` and `Github Release`. Tag pattern must be `v*`.
+The release process has been automated via Github Actions. In summary, a new release is created by pushing a new tag to the remote (e.g. `v1.0.7`), which triggers a _test-build-deploy_ workflow that publishes to `pypi.org`, `GitHub Pages` and `Github Release`. Tag pattern must be `v*`.
 
 > NOTE: 
 > either [pypi](https://pypi.org/) and [testpypi](https://test.pypi.org/) need to be setup for [trusted publishing](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/) or Github must be provided an [API token](https://pypi.org/help/#apitoken) to enable communication between GitHub, TestPyPI, and PyPI. Currently, the latter is used.
@@ -127,36 +127,36 @@ The release process has been automated via Github Actions. In summary, a new rel
 Assuming `master` is locally up-to-date, manually update the pyproject.toml version number:
 
 ```bash
-version = "1.0.0"
+version = "1.0.7"
 ```
 
 For now, this must also be done manually in `src/jenn/__init__.py`: 
 
 ```bash
-__version__ = "1.0.0"
+__version__ = "1.0.7"
 ```
 
 Push the version change to the remote: 
 
 ```bash
 git add -u 
-git commit -m "changed version to v1.0.0"
+git commit -m "changed version to v1.0.7"
 git push 
 ```
 
 Tag commit for release and push to trigger release pipeline: 
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.7
+git push origin v1.0.7
 ```
 
 Once the pipeline has succeeded, check that there is now a new release on `pypi.org`, `GitHub Pages` and `Github Release`. If so, the last step is to lock the branch associated with the release, so it can be easily accessed but not changed. 
 
 ```bash
-git checkout -b jenn-v1.0.0 
-git push --set-upstream origin jenn-v1.0.0 
+git checkout -b jenn-v1.0.7 
+git push --set-upstream origin jenn-v1.0.7 
 ```
 
-On GitHub, go to Project `Settings > Branches` and add a "Lock branch" rule for `jenn-v1.0.0`.
+On GitHub, go to Project `Settings > Branches` and add a "Lock branch" rule for `jenn-v1.0.7`.
 
