@@ -4556,9 +4556,9 @@ packages:
   requires_python: '>=3.7'
 - kind: pypi
   name: jenn
-  version: 1.0.7.dev1
+  version: 1.0.7
   path: .
-  sha256: 79d06c1814df7c746b0597ab3e4136195d3c0aecaec0a43813a44676fc93a9af
+  sha256: 1195e55a84d8c44c75fce9c8de249bcd30f805e54a730999279209b3d6885783
   requires_dist:
   - jsonpointer>=2.4
   - jsonschema>=4.22
@@ -7916,13 +7916,13 @@ packages:
 - kind: pypi
   name: nh3
   version: 0.2.17
-  url: https://files.pythonhosted.org/packages/da/19/d52d9a0247007835df949f17abd904615248dc1b94d67cb8c99100330f08/nh3-0.2.17-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-  sha256: c21bac1a7245cbd88c0b0e4a420221b7bfa838a2814ee5bb924e9c2f10a1120b
+  url: https://files.pythonhosted.org/packages/0f/4e/180c017c9fba59094478068d3743d764ead3132bc910d4619b7e58bccc3c/nh3-0.2.17-cp37-abi3-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl
+  sha256: 551672fd71d06cd828e282abdb810d1be24e1abb7ae2543a8fa36a71c1006fe9
 - kind: pypi
   name: nh3
   version: 0.2.17
-  url: https://files.pythonhosted.org/packages/0f/4e/180c017c9fba59094478068d3743d764ead3132bc910d4619b7e58bccc3c/nh3-0.2.17-cp37-abi3-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl
-  sha256: 551672fd71d06cd828e282abdb810d1be24e1abb7ae2543a8fa36a71c1006fe9
+  url: https://files.pythonhosted.org/packages/da/19/d52d9a0247007835df949f17abd904615248dc1b94d67cb8c99100330f08/nh3-0.2.17-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  sha256: c21bac1a7245cbd88c0b0e4a420221b7bfa838a2814ee5bb924e9c2f10a1120b
 - kind: pypi
   name: nh3
   version: 0.2.17
