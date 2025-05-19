@@ -46,12 +46,12 @@ functions doing computations under-the-hood.
 """  # noqa: W291
 
 from pathlib import Path
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Tuple, Union, Optional
 
 import numpy as np
 
 from .core.cache import Cache
-from .core.data import Dataset, denormalize, denormalize_partials, normalize
+from .core.data import Dataset, denormalize, denormalize_partials, normalize, avg, std
 from .core.parameters import Parameters
 from .core.propagation import model_forward, model_partials_forward, partials_forward
 from .core.training import train_model
@@ -106,6 +106,7 @@ class NeuralNet:
         is_backtracking: bool = False,
         is_warmstart: bool = False,
         is_verbose: bool = False,
+        custom_loss: Optional[type] = None
     ) -> "NeuralNet":  # noqa: PLR0913
         r"""Train neural network.
 
@@ -152,11 +153,17 @@ class NeuralNet:
         params.sigma_x[:] = 1.0
         params.sigma_y[:] = 1.0
         if is_normalize:
-            params.mu_x[:] = data.avg_x
-            params.mu_y[:] = data.avg_y
-            params.sigma_x[:] = data.std_x
-            params.sigma_y[:] = data.std_y
-            data = data.normalize()
+            params.mu_x[:] = x_ref = avg(data.X)
+            params.mu_y[:] = y_ref = avg(data.Y)
+            params.sigma_x[:] = x_scale = std(data.X)
+            params.sigma_y[:] = y_scale = std(data.Y)
+            data = Dataset(
+                x, y, dydx, 
+                x_ref=x_ref, 
+                y_ref=y_ref, 
+                x_scale=x_scale, 
+                y_scale=y_scale
+            ).normalize()
         self.history = train_model(
             data,
             params,
@@ -180,6 +187,7 @@ class NeuralNet:
             random_state=random_state,
             is_backtracking=is_backtracking,
             is_verbose=is_verbose,
+            custom_loss=custom_loss
         )
         return self
 

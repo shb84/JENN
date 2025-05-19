@@ -10,6 +10,7 @@ import numpy as np
 from .activation import ACTIVATIONS
 from .cache import Cache
 from .data import Dataset
+from .cost import Cost 
 from .parameters import Parameters
 
 
@@ -140,7 +141,7 @@ def partials_forward(X: np.ndarray, parameters: Parameters, cache: Cache) -> np.
     return model_partials_forward(X, parameters, cache)[-1]
 
 
-def last_layer_backward(cache: Cache, data: Dataset) -> None:
+def last_layer_backward(cache: Cache, data: Dataset, cost: Cost, ) -> None:
     """Propagate backward through last layer (in place).
 
     :param cache: neural net cache that stores neural net quantities
@@ -148,7 +149,7 @@ def last_layer_backward(cache: Cache, data: Dataset) -> None:
         accessed during backprop to avoid re-computing them
     :param data: object containing training and associated metadata
     """
-    cache.dA[-1][:] = data.Y_weights * (cache.A[-1] - data.Y)
+    cache.dA[-1][:] = cost.loss.evaluate_partials(Y_pred=cache.A[-1]) 
     if data.J is not None:
         cache.dA_prime[-1][:] = data.J_weights * (cache.A_prime[-1] - data.J)
 
@@ -240,6 +241,7 @@ def gradient_enhancement(
 
 def model_backward(
     data: Dataset,
+    cost: Cost,
     parameters: Parameters,
     cache: Cache,
     lambd: float = 0.0,
@@ -255,7 +257,7 @@ def model_backward(
     :param lambd: regularization coefficient to avoid overfitting
         [defaulted to zero] (optional)
     """
-    last_layer_backward(cache, data)
+    last_layer_backward(cache, data, cost)
     for layer in reversed(parameters.layers):  # type: ignore[call-overload]
         if layer > 0:
             next_layer_backward(layer, parameters, cache, data, lambd)

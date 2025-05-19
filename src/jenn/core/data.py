@@ -8,7 +8,7 @@ manage and handle training data.
 import math
 from dataclasses import dataclass
 from functools import cached_property
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 import numpy as np
 
@@ -141,6 +141,8 @@ def denormalize_partials(
         array of shape (-1, 1)
     :return: denormalized partials, array of shape (n_y, n_x, m)
     """
+    if partials is None:
+        return partials
     n_y, n_x, _ = partials.shape
     sigma_x = sigma_x.T.reshape((1, n_x, 1))
     sigma_y = sigma_y.reshape((n_y, 1, 1))
@@ -162,6 +164,12 @@ class Dataset:
 
     Y_weights: Union[np.ndarray, float] = 1.0
     J_weights: Union[np.ndarray, float] = 1.0
+
+    x_ref: Optional[Union[np.ndarray, float]] = 0
+    y_ref: Optional[Union[np.ndarray, float]] = 0
+
+    x_scale: Optional[Union[np.ndarray, float]] = 1
+    y_scale: Optional[Union[np.ndarray, float]] = 1
 
     def __post_init__(self) -> None:  # noqa: D105
         if self.X.shape[1] != self.Y.shape[1]:
@@ -208,26 +216,6 @@ class Dataset:
         """Return number of outputs."""
         return int(self.Y.shape[0])
 
-    @cached_property
-    def avg_x(self) -> np.ndarray:
-        """Return mean of input data as array of shape (n_x, 1)."""
-        return avg(self.X)
-
-    @cached_property
-    def avg_y(self) -> np.ndarray:
-        """Return mean of output data as array of shape (n_y, 1)."""
-        return avg(self.Y)
-
-    @cached_property
-    def std_x(self) -> np.ndarray:
-        """Return standard dev of input data, array of shape (n_x, 1)."""
-        return std(self.X)
-
-    @cached_property
-    def std_y(self) -> np.ndarray:
-        """Return standard dev of output data, array of shape (n_y, 1)."""
-        return std(self.Y)
-
     def mini_batches(
         self,
         batch_size: Union[int, None],
@@ -250,17 +238,54 @@ class Dataset:
         batches = mini_batches(X, batch_size, shuffle, random_state)
         if J is None:
             return [
-                Dataset(X[:, b], Y[:, b], Y_weights=Y_weights[:, b]) for b in batches
+                Dataset(
+                    X=X[:, b], 
+                    Y=Y[:, b], 
+                    Y_weights=Y_weights[:, b], 
+                    x_ref=self.x_ref, 
+                    y_ref=self.y_ref, 
+                    x_scale=self.x_scale, 
+                    y_scale=self.y_scale, 
+                ) for b in batches
             ]
         J_weights = np.ones(J.shape) * self.J_weights
         return [
-            Dataset(X[:, b], Y[:, b], J[:, :, b], Y_weights[:, b], J_weights[:, :, b])
+            Dataset(
+                X=X[:, b], 
+                Y=Y[:, b], 
+                J=J[:, :, b], 
+                Y_weights=Y_weights[:, b], 
+                J_weights=J_weights[:, :, b],
+                x_ref=self.x_ref, 
+                y_ref=self.y_ref, 
+                x_scale=self.x_scale, 
+                y_scale=self.y_scale, 
+            )
             for b in batches
         ]
 
     def normalize(self) -> "Dataset":
         """Return normalized Dataset."""
-        X_norm = normalize(self.X, self.avg_x, self.std_x)
-        Y_norm = normalize(self.Y, self.avg_y, self.std_y)
-        J_norm = normalize_partials(self.J, self.std_x, self.std_y)
-        return Dataset(X_norm, Y_norm, J_norm)
+        X_norm = normalize(self.X, self.x_ref, self.x_scale)
+        Y_norm = normalize(self.Y, self.y_ref, self.y_scale)
+        J_norm = normalize_partials(self.J, self.x_scale, self.y_scale)
+        return Dataset(
+            X_norm, Y_norm, J_norm, 
+            x_ref=self.x_ref,
+            y_ref=self.y_ref,
+            x_scale=self.x_scale, 
+            y_scale=self.y_scale,
+        )
+    
+    def denormalize(self) -> "Dataset":
+        """Return normalized Dataset."""
+        X = denormalize(self.X, self.x_ref, self.x_scale)
+        Y = denormalize(self.Y, self.y_ref, self.y_scale)
+        J = denormalize_partials(self.J, self.x_scale, self.y_scale)
+        return Dataset(
+            X, Y, J, 
+            x_ref=self.x_ref,
+            y_ref=self.y_ref,
+            x_scale=self.x_scale, 
+            y_scale=self.y_scale,
+        )

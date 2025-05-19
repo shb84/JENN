@@ -5,7 +5,7 @@ This class implements the core algorithm responsible for training the neural net
 
 import functools
 from collections import defaultdict
-from typing import Union
+from typing import Union, Optional
 
 import numpy as np
 
@@ -43,6 +43,7 @@ def objective_function(
 
 def objective_gradient(
     data: Dataset,
+    cost: Cost, 
     parameters: Parameters,
     cache: Cache,
     lambd: float,
@@ -65,7 +66,7 @@ def objective_gradient(
         all layers.
     """
     parameters.unstack(stacked_params)
-    model_backward(data, parameters, cache, lambd)
+    model_backward(data, cost, parameters, cache, lambd)
     return parameters.stack_partials()
 
 
@@ -90,6 +91,7 @@ def train_model(
     random_state: Union[int, None] = None,
     is_backtracking: bool = False,
     is_verbose: bool = False,
+    custom_loss: Optional[type] = None
 ) -> dict:  # noqa: PLR0913
     r"""Train neural net.
 
@@ -140,7 +142,7 @@ def train_model(
         batches = data.mini_batches(batch_size, shuffle, random_state)
         for b, batch in enumerate(batches):
             cache = Cache(parameters.layer_sizes, batch.m)
-            cost = Cost(batch, parameters, lambd)
+            cost = Cost(batch, parameters, lambd, loss_class=custom_loss)
             func = functools.partial(
                 objective_function,
                 batch.X,
@@ -151,6 +153,7 @@ def train_model(
             grad = functools.partial(
                 objective_gradient,
                 batch,
+                cost, 
                 parameters,
                 cache,
                 lambd,

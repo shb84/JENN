@@ -100,7 +100,7 @@ lint.ignore = [
 ]
 cache-dir = "build/.cache/ruff"
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.per-file-ignores]
 "src/jenn/utils/plot.py" = [
   "PLR0913",  # Too many arguments in function definition
   "PLR2004",  # Magic value used in comparison

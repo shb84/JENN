@@ -9,15 +9,36 @@ term which accounts for Jacobian prediction error. See
 `paper`_ for details and notation. 
 """  # noqa W291
 
-from typing import List, Union
+from typing import Optional, Union
 
 import numpy as np
+import abc 
 
 from .data import Dataset
 from .parameters import Parameters
 
 
-class SquaredLoss:
+class Loss: 
+    """Base class for loss function."""
+
+    def __init__(self, data: Dataset) -> None:
+        self.data = data 
+        self.X = data.X
+        self.Y_true = data.Y
+        self.Y_error = np.zeros(data.Y.shape)  # preallocate to save resources
+        self.Y_weights = np.ones(data.Y.shape) *  data.Y_weights
+        self.n_y, self.m =  data.Y.shape
+
+    @abc.abstractmethod
+    def evaluate(self, Y_pred: np.ndarray) -> np.float64:
+        raise NotImplementedError("To be implemented in subclass.")
+
+    @abc.abstractmethod
+    def evaluate_partials(self, Y_pred: np.ndarray) -> np.ndarray:
+        raise NotImplementedError("To be implemented in subclass.")
+
+
+class SquaredLoss(Loss):
     r"""Least Squares Estimator.
 
     :param Y_true: training data outputs :math:`Y \in \mathbb{R}^{n_y
@@ -26,26 +47,22 @@ class SquaredLoss:
         (optional)
     """
 
-    def __init__(
-        self, Y_true: np.ndarray, Y_weights: Union[np.ndarray, float] = 1.0
-    ) -> None:
-        self.Y_true = Y_true
-        self.Y_error = np.zeros(Y_true.shape)  # preallocate to save resources
-        self.Y_weights = np.ones(Y_true.shape) * Y_weights
-        self.n_y, self.m = Y_true.shape
-
-    def evaluate(self, Y_pred: np.ndarray) -> np.float64:
+    def evaluate(self, Y_pred: np.ndarray) -> np.ndarray:
         r"""Compute least squares estimator of the states in place.
 
         :param Y_pred: predicted outputs :math:`A^{[L]} \in
             \mathbb{R}^{n_y \times m}`
         """
-        self.Y_error[:, :] = Y_pred - self.Y_true
-        self.Y_error *= np.sqrt(self.Y_weights)
-        cost = 0
-        for j in range(0, self.n_y):
-            cost += np.dot(self.Y_error[j], self.Y_error[j].T)
-        return np.float64(cost)
+        self.Y_error[:, :] = 0.5 * self.Y_weights * (Y_pred - self.Y_true) ** 2
+        return self.Y_error
+    
+    def evaluate_partials(self, Y_pred: np.ndarray) -> np.ndarray:
+        r"""Compute partials of least squares estimator.
+
+        :param Y_pred: predicted outputs :math:`A^{[L]} \in
+            \mathbb{R}^{n_y \times m}`
+        """
+        return self.Y_weights * (Y_pred - self.Y_true)
 
 
 class GradientEnhancement:
@@ -56,13 +73,11 @@ class GradientEnhancement:
     :param J_weights: weights by which to prioritize partials (optional)
     """
 
-    def __init__(
-        self, J_true: np.ndarray, J_weights: Union[np.ndarray, float] = 1.0
-    ) -> None:
-        self.J_true = J_true
-        self.J_error = np.zeros(J_true.shape)
-        self.J_weights = np.ones(J_true.shape) * J_weights
-        self.n_y, self.n_x, self.m = J_true.shape
+    def __init__(self, data: Dataset) -> None:
+        self.J_true = data.J
+        self.J_error = np.zeros(data.J.shape)
+        self.J_weights = np.ones(data.J.shape) * data.J_weights
+        self.n_y, self.n_x, self.m = data.J.shape
 
     def evaluate(self, J_pred: np.ndarray) -> np.float64:
         r"""Compute least squares estimator for the partials.
@@ -83,14 +98,14 @@ class GradientEnhancement:
 class Regularization:
     """Compute regularization penalty."""
 
-    def __init__(self, weights: List[np.ndarray], lambd: float = 0.0) -> None:
+    def __init__(self, parameters: Parameters, lambd: float = 0.0) -> None:
         r"""Compute L2 norm penalty.
 
         :param weights: neural parameters :math:`W^{[l]} \in
             \mathbb{R}^{n^{[l]} \times n^{[l-1]}}` associated with each
             layer
         """
-        self.weights = weights
+        self.weights = parameters.W
         self.lambd = lambd
 
     def evaluate(
@@ -127,13 +142,14 @@ class Cost:
         data: Dataset,
         parameters: Parameters,
         lambd: float = 0.0,
+        loss_class: Optional[Loss] = None
     ) -> None:
         self.data = data
         self.parameters = parameters
-        self.squared_loss = SquaredLoss(data.Y, data.Y_weights)
-        self.regularization = Regularization(parameters.W, lambd)
+        self.loss = SquaredLoss(data) if loss_class is None else loss_class(data)
+        self.regularization = Regularization(parameters, lambd)
         if data.J is not None:  # noqa: PLR2004
-            self.gradient_enhancement = GradientEnhancement(data.J, data.J_weights)
+            self.gradient_enhancement = GradientEnhancement(data)
 
     def evaluate(
         self, Y_pred: np.ndarray, J_pred: Union[np.ndarray, None] = None
@@ -145,9 +161,10 @@ class Cost:
         :param J_pred: predicted Jacobian :math:`A^{\prime[L]} \in
             \mathbb{R}^{n_y \times n_x \times m}`
         """
-        cost = self.squared_loss.evaluate(Y_pred)
+        loss = self.loss.evaluate(Y_pred)
+        cost = np.sum(loss)
         if J_pred is not None and hasattr(self, "gradient_enhancement"):
             cost += self.gradient_enhancement.evaluate(J_pred)
         cost += self.regularization.evaluate()
-        cost *= 0.5 / self.data.m
+        cost /= self.data.m
         return cost
