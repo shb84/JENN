@@ -190,7 +190,7 @@ class Backtracking(LineSearch):
         update: Update,
         tau: float = 0.5,
         tol: float = 1e-6,
-        max_count: int = 1_000,
+        max_count: int = 4,
     ):  # noqa D107
         super().__init__(update)
         self.tau = tau
@@ -375,7 +375,7 @@ class GDOptimizer(Optimizer):
         self,
         tau: float = 0.5,
         tol: float = 1e-6,
-        max_count: int = 1_000,
+        max_count: int = 4,
     ):  # noqa D107
         line_search = Backtracking(
             update=GD(),
@@ -407,7 +407,7 @@ class ADAMOptimizer(Optimizer):
         beta_2: float = 0.99,
         tau: float = 0.5,
         tol: float = 1e-12,
-        max_count: int = 1_000,
+        max_count: int = 4,
     ):  # noqa D107
         line_search = Backtracking(
             update=ADAM(beta_1, beta_2),

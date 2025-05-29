@@ -150,8 +150,8 @@ def last_layer_backward(cache: Cache, data: Dataset, cost: Cost, ) -> None:
     :param data: object containing training and associated metadata
     """
     cache.dA[-1][:] = cost.loss.evaluate_partials(Y_pred=cache.A[-1]) 
-    if data.J is not None:
-        cache.dA_prime[-1][:] = data.J_weights * (cache.A_prime[-1] - data.J)
+    if (data.J is not None) and (cost.gradient_enhancement is not None):
+        cache.dA_prime[-1][:] = cost.gradient_enhancement.evaluate_partials(J_pred=cache.A_prime[-1])
 
 
 def next_layer_backward(

@@ -23,11 +23,18 @@ class Loss:
 
     def __init__(self, data: Dataset) -> None:
         self.data = data 
+
         self.X = data.X
         self.Y_true = data.Y
         self.Y_error = np.zeros(data.Y.shape)  # preallocate to save resources
         self.Y_weights = np.ones(data.Y.shape) *  data.Y_weights
         self.n_y, self.m =  data.Y.shape
+
+        if data.J is not None:  # noqa: PLR2004
+            self.J_true = data.J
+            self.J_error = np.zeros(data.J.shape)
+            self.J_weights = np.ones(data.J.shape) * data.J_weights
+            self.n_y, self.n_x, self.m = data.J.shape
 
     @abc.abstractmethod
     def evaluate(self, Y_pred: np.ndarray) -> np.float64:
@@ -65,19 +72,13 @@ class SquaredLoss(Loss):
         return self.Y_weights * (Y_pred - self.Y_true)
 
 
-class GradientEnhancement:
+class GradientEnhancement(Loss):
     r"""Least Squares Estimator for partials.
 
     :param J_true: training data jacobian :math:`Y^{\prime} \in
         \mathbb{R}^{n_y \times m}`
     :param J_weights: weights by which to prioritize partials (optional)
     """
-
-    def __init__(self, data: Dataset) -> None:
-        self.J_true = data.J
-        self.J_error = np.zeros(data.J.shape)
-        self.J_weights = np.ones(data.J.shape) * data.J_weights
-        self.n_y, self.n_x, self.m = data.J.shape
 
     def evaluate(self, J_pred: np.ndarray) -> np.float64:
         r"""Compute least squares estimator for the partials.
@@ -93,6 +94,14 @@ class GradientEnhancement:
                 dot_product = np.dot(self.J_error[k, j], self.J_error[k, j].T)
                 cost += np.squeeze(dot_product)
         return np.float64(cost)
+    
+    def evaluate_partials(self, J_pred: np.ndarray) -> np.ndarray:
+        r"""Compute partials of least squares estimator.
+
+        :param Y_pred: predicted outputs :math:`A^{[L]} \in
+            \mathbb{R}^{n_y \times m}`
+        """
+        return self.J_weights * (J_pred - self.J_true)
 
 
 class Regularization:
@@ -148,8 +157,7 @@ class Cost:
         self.parameters = parameters
         self.loss = SquaredLoss(data) if loss_class is None else loss_class(data)
         self.regularization = Regularization(parameters, lambd)
-        if data.J is not None:  # noqa: PLR2004
-            self.gradient_enhancement = GradientEnhancement(data)
+        self.gradient_enhancement = GradientEnhancement(data) if data.J else None
 
     def evaluate(
         self, Y_pred: np.ndarray, J_pred: Union[np.ndarray, None] = None
@@ -163,7 +171,7 @@ class Cost:
         """
         loss = self.loss.evaluate(Y_pred)
         cost = np.sum(loss)
-        if J_pred is not None and hasattr(self, "gradient_enhancement"):
+        if (J_pred is not None) and (self.gradient_enhancement is not None):
             cost += self.gradient_enhancement.evaluate(J_pred)
         cost += self.regularization.evaluate()
         cost /= self.data.m
