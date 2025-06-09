@@ -190,7 +190,7 @@ class Backtracking(LineSearch):
         update: Update,
         tau: float = 0.5,
         tol: float = 1e-6,
-        max_count: int = 4,
+        max_count: int = 5,
     ):  # noqa D107
         super().__init__(update)
         self.tau = tau
@@ -267,6 +267,8 @@ class Optimizer:
         batch: Union[int, None] = None,
         epsilon_absolute: float = 1e-12,
         epsilon_relative: float = 1e-12,
+        N1_max: int = 100,
+        N2_max: int = 100,
     ) -> np.ndarray:
         r"""Minimize single objective function.
 
@@ -283,6 +285,8 @@ class Optimizer:
             (for printing)
         :param epsilon_absolute: absolute error stopping criterion
         :param epsilon_relative: relative error stopping criterion
+        :param N1_max: number of iterations for which absolute criterion must hold true before stop
+        :param N2_max: number of iterations for which relative criterion must hold true before stop
         """
         # Stopping criteria (Vanderplaats, "Multidiscipline Design Optimization," ch. 3, p. 121)
         converged = False
@@ -375,7 +379,7 @@ class GDOptimizer(Optimizer):
         self,
         tau: float = 0.5,
         tol: float = 1e-6,
-        max_count: int = 4,
+        max_count: int = 5,
     ):  # noqa D107
         line_search = Backtracking(
             update=GD(),
@@ -407,7 +411,7 @@ class ADAMOptimizer(Optimizer):
         beta_2: float = 0.99,
         tau: float = 0.5,
         tol: float = 1e-12,
-        max_count: int = 4,
+        max_count: int = 5,
     ):  # noqa D107
         line_search = Backtracking(
             update=ADAM(beta_1, beta_2),

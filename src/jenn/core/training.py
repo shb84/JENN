@@ -81,7 +81,7 @@ def train_model(
     beta2: float = 0.99,
     tau: float = 0.5,
     tol: float = 1e-12,
-    max_count: int = 4,
+    max_count: int = 5,
     epsilon_absolute: float = 1e-12,
     epsilon_relative: float = 1e-12,
     epochs: int = 1,
@@ -91,7 +91,9 @@ def train_model(
     random_state: Union[int, None] = None,
     is_backtracking: bool = False,
     is_verbose: bool = False,
-    custom_loss: Optional[type] = None
+    custom_loss: Optional[type] = None,
+    N1_max: int = 100,
+    N2_max: int = 100,
 ) -> dict:  # noqa: PLR0913
     r"""Train neural net.
 
@@ -126,6 +128,8 @@ def train_model(
         line search
     :param is_verbose: print out progress for each iteration, each
         batch, each epoch
+    :param N1_max: number of iterations for which absolute criterion must hold true before stop
+    :param N2_max: number of iterations for which relative criterion must hold true before stop
     :return: cost function training history accessed as `cost =
         history[epoch][batch][iter]`
     """
@@ -169,6 +173,8 @@ def train_model(
                 verbose=is_verbose,
                 epoch=e,
                 batch=b,
+                N1_max=N1_max,
+                N2_max=N2_max
             )
             history[f"epoch_{e}"][f"batch_{b}"] = optimizer.cost_history
     return history

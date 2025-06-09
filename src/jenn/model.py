@@ -95,7 +95,7 @@ class NeuralNet:
         beta2: float = 0.99,
         tau: float = 0.5,
         tol: float = 1e-12,
-        max_count: int = 4,
+        max_count: int = 5,
         epsilon_absolute: float = 1e-12,
         epsilon_relative: float = 1e-12,
         epochs: int = 1,
@@ -106,7 +106,9 @@ class NeuralNet:
         is_backtracking: bool = False,
         is_warmstart: bool = False,
         is_verbose: bool = False,
-        custom_loss: Optional[type] = None
+        custom_loss: Optional[type] = None,
+        N1_max: int = 100,
+        N2_max: int = 100,
     ) -> "NeuralNet":  # noqa: PLR0913
         r"""Train neural network.
 
@@ -136,6 +138,8 @@ class NeuralNet:
         :param is_backtracking: use backtracking line search or not
         :param is_warmstart: do not initialize parameters
         :param is_verbose: print out progress for each (iteration, batch, epoch)
+        :param N1_max: number of iterations for which absolute criterion must hold true before stop
+        :param N2_max: number of iterations for which relative criterion must hold true before stop
         :return: NeuralNet instance (self)
 
         .. warning::
@@ -187,7 +191,9 @@ class NeuralNet:
             random_state=random_state,
             is_backtracking=is_backtracking,
             is_verbose=is_verbose,
-            custom_loss=custom_loss
+            custom_loss=custom_loss,
+            N1_max=N1_max,
+            N2_max=N2_max,
         )
         return self
 
