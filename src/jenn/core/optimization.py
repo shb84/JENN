@@ -291,9 +291,7 @@ class Optimizer:
         # Stopping criteria (Vanderplaats, "Multidiscipline Design Optimization," ch. 3, p. 121)
         converged = False
         N1 = 0
-        N1_max = 100
         N2 = 0
-        N2_max = 100
 
         cost_history: list[np.ndarray] = []
         vars_history: list[np.ndarray] = []
