@@ -139,7 +139,7 @@ def train_model(
         beta_2=beta2,
         tau=tau,
         tol=tol,
-        max_count=is_backtracking * max_count,
+        max_count=max_count if is_backtracking else 0,
     )
     data.set_weights(beta, gamma)
     for e in range(epochs):
