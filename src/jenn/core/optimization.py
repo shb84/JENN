@@ -8,7 +8,7 @@ This module implements gradient-based optimization using `ADAM`_.
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np
 
@@ -205,7 +205,7 @@ class Backtracking(LineSearch):
         grads: np.ndarray,
         cost: Callable,
         learning_rate: float = 0.05,
-    ) -> np.ndarray:
+    ) -> Tuple[np.ndarray, np.ndarray]:
         r"""Take multiple "update" steps along search direction.
 
         :param params: parameters :math:`x` to be updated, array of
@@ -237,14 +237,14 @@ class Backtracking(LineSearch):
             if y < y0:
                 self.x = x
                 self.y = y
-                return x
+                return x, y
             elif alpha < tol:
-                return x
+                return x, y
             else:
                 alpha = learning_rate * tau
                 x = self.update(params, grads, alpha)
                 tau *= tau
-        return x
+        return x, y
 
 
 class Optimizer:
@@ -309,12 +309,11 @@ class Optimizer:
 
         # Iterative update
         for i in range(0, max_iter):
-            y = f(x)
+
+            x, y = self.line_search(params=x, cost=f, grads=dfdx(x), learning_rate=alpha)
 
             cost_history.append(y)
             vars_history.append(x)
-
-            x = self.line_search(params=x, cost=f, grads=dfdx(x), learning_rate=alpha)
 
             if verbose:
                 if epoch is not None and batch is not None:
