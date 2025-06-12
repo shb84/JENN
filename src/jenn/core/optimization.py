@@ -196,6 +196,8 @@ class Backtracking(LineSearch):
         self.tau = tau
         self.tol = tol
         self.max_count = max_count
+        self.x: np.ndarray | None = None  # remember last solution
+        self.y: np.ndarray | None = None
 
     def __call__(
         self,
@@ -218,14 +220,23 @@ class Backtracking(LineSearch):
         """
         tau = self.tau
         tol = self.tol
-        x0 = self.update(params, grads, alpha=0)
-        f0 = cost(x0)
+        if self.x is None: 
+            x0 = self.update(params, grads, alpha=0)
+            y0 = cost(x0)
+        elif self.y is None:
+            x0 = self.x  
+            y0 = cost(x0)
+        else:
+            y0 = self.y 
         tau = max(0.0, min(1.0, tau))
         alpha = learning_rate
         x = self.update(params, grads, alpha)
         max_count = max(1, self.max_count)
         for _ in range(max_count):
-            if cost(x) < f0:
+            y = cost(x)
+            if y < y0:
+                self.x = x
+                self.y = y
                 return x
             elif alpha < tol:
                 return x
