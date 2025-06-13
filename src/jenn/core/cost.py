@@ -157,7 +157,7 @@ class Cost:
         self.parameters = parameters
         self.loss = SquaredLoss(data) if loss_class is None else loss_class(data)
         self.regularization = Regularization(parameters, lambd)
-        self.gradient_enhancement = GradientEnhancement(data) if data.J else None
+        self.gradient_enhancement = GradientEnhancement(data) if data.J is not None else None
 
     def evaluate(
         self, Y_pred: np.ndarray, J_pred: Union[np.ndarray, None] = None
