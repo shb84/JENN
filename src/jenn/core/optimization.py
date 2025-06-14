@@ -234,16 +234,16 @@ class Backtracking(LineSearch):
         max_count = max(1, self.max_count)
         for _ in range(max_count):
             y = cost(x)
-            if y < y0:
+            if (y < y0) or (alpha < tol):
                 self.x = x
                 self.y = y
-                return x, y
-            elif alpha < tol:
                 return x, y
             else:
                 alpha = learning_rate * tau
                 x = self.update(params, grads, alpha)
                 tau *= tau
+        self.x = x
+        self.y = y
         return x, y
 
 
