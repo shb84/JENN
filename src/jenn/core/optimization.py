@@ -228,23 +228,28 @@ class Backtracking(LineSearch):
         tau = max(0.0, min(1.0, tau))
         alpha = learning_rate
         max_count = max(1, self.max_count)
+        x0 = self.update(params, grads, alpha=0)
         if self.x is None: 
-            x0 = self.x = self.update(params, grads, alpha=0, record=True)  # Turn on ADAM recording at initial point
             y0 = self.y = cost(x0) 
-        else: 
-            x0 = self.x 
+        elif np.allclose(self.x, x0): 
             y0 = self.y 
+        else: 
+            y0 = self.y = cost(x0) 
         for _ in range(max_count):
-            x = self.update(x0, grads, alpha, record=False)  # Turn off ADAM recording during search
+            x = self.update(x0, grads, alpha, record=False)  # Turn off ADAM recording during search (to not update momentum until correct step found)
             y = cost(x)
-            if (y < y0) or (alpha < tol):
-                self.x = x = self.update(x0, grads, alpha, record=True)  # Turn on ADAM recording at final point
+            if y <= y0:
+                self.x = x 
+                self.y = y 
+                return x, y
+            elif alpha < tol:
+                self.x = x
                 self.y = y 
                 return x, y
             else:
                 alpha = learning_rate * tau
                 tau *= tau
-        self.x = self.update(x0, grads, alpha=0, record=True)  # Turn on ADAM recording at final point
+        self.x = x0  
         self.y = y0
         return x0, y0
 
