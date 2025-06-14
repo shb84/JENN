@@ -30,6 +30,7 @@ class Update(ABC):
         params: np.ndarray,
         grads: np.ndarray,
         alpha: float,
+        **kwargs, 
     ) -> np.ndarray:
         raise NotImplementedError("To be implemented in subclass.")
 
@@ -38,6 +39,7 @@ class Update(ABC):
         params: np.ndarray,
         grads: np.ndarray,
         alpha: float,
+        **kwargs, 
     ) -> np.ndarray:
         r"""Take a single step along search direction.
 
@@ -47,7 +49,7 @@ class Update(ABC):
             :math:`x`
         :param alpha: learning rate :math:`\alpha`
         """
-        return self._update(params, grads, alpha)
+        return self._update(params, grads, alpha, **kwargs)
 
 
 class GD(Update):
@@ -63,6 +65,7 @@ class GD(Update):
         params: np.ndarray,
         grads: np.ndarray,
         alpha: float,
+        **kwargs
     ) -> np.ndarray:
         return (params - alpha * grads).reshape(params.shape)
 
@@ -100,6 +103,7 @@ class ADAM(Update):
         params: np.ndarray,
         grads: np.ndarray,
         alpha: float,
+        record: bool = True
     ) -> np.ndarray:
         beta_1 = self.beta_1
         beta_2 = self.beta_2
@@ -130,9 +134,10 @@ class ADAM(Update):
 
         x = params - alpha * v_corrected / np.sqrt(s_corrected)
 
-        self._v = v
-        self._s = s
-        self._t = t
+        if record: 
+            self._v = v
+            self._s = s
+            self._t = t
 
         return x.reshape(params.shape)
 
@@ -196,8 +201,8 @@ class Backtracking(LineSearch):
         self.tau = tau
         self.tol = tol
         self.max_count = max_count
-        self.x: np.ndarray | None = None  # remember last solution
-        self.y: np.ndarray | None = None
+        self.x: None | np.ndarray = None
+        self.y: None | np.ndarray = None
 
     def __call__(
         self,
@@ -220,32 +225,28 @@ class Backtracking(LineSearch):
         """
         tau = self.tau
         tol = self.tol
-        if self.x is None: 
-            x0 = self.update(params, grads, alpha=0)
-            y0 = cost(x0)
-        elif self.y is None:
-            x0 = self.x  
-            y0 = cost(x0)
-        else:
-            y0 = self.y 
         tau = max(0.0, min(1.0, tau))
         alpha = learning_rate
-        x = self.update(params, grads, alpha)
         max_count = max(1, self.max_count)
+        if self.x is None: 
+            x0 = self.x = self.update(params, grads, alpha=0, record=True)  # Turn on ADAM recording at initial point
+            y0 = self.y = cost(x0) 
+        else: 
+            x0 = self.x 
+            y0 = self.y 
         for _ in range(max_count):
+            x = self.update(x0, grads, alpha, record=False)  # Turn off ADAM recording during search
             y = cost(x)
             if (y < y0) or (alpha < tol):
-                self.x = x
-                self.y = y
+                self.x = x = self.update(x0, grads, alpha, record=True)  # Turn on ADAM recording at final point
+                self.y = y 
                 return x, y
             else:
                 alpha = learning_rate * tau
-                x = self.update(params, grads, alpha)
                 tau *= tau
-        self.x = x
-        self.y = y
-        return x, y
-
+        self.x = self.update(x0, grads, alpha=0, record=True)  # Turn on ADAM recording at final point
+        self.y = y0
+        return x0, y0
 
 class Optimizer:
     r"""Find optimum using gradient-based optimization.
