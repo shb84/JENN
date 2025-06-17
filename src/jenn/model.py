@@ -167,8 +167,10 @@ class NeuralNet:
             if is_normalize:
                 params.mu_x[:] = x_ref = avg(data.X)
                 params.mu_y[:] = y_ref = avg(data.Y)
-                params.sigma_x[:] = x_scale = std(data.X)
-                params.sigma_y[:] = y_scale = std(data.Y)
+                x_scale = std(data.X)
+                y_scale = std(data.Y)
+                params.sigma_x[:] = x_scale + 1 if np.allclose(0, x_scale) else x_scale  # do NOT scale if it's results in division by small number
+                params.sigma_y[:] = y_scale + 1 if np.allclose(0, y_scale) else y_scale
                 data = Dataset(
                     x, y, dydx, 
                     x_ref=x_ref, 

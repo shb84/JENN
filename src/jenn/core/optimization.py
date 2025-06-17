@@ -302,7 +302,7 @@ class Optimizer:
         cost_history: list[np.ndarray] = []
         vars_history: list[np.ndarray] = []
 
-        y = f(x)
+        y = f(x) # 1st prediction using initial parameters (initializes last layer activations: A[L] = Y_pred)
 
         # Iterative update
         for i in range(0, max_iter):
