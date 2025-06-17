@@ -169,8 +169,8 @@ class NeuralNet:
                 params.mu_y[:] = y_ref = avg(data.Y)
                 x_scale = std(data.X)
                 y_scale = std(data.Y)
-                params.sigma_x[:] = x_scale + 1 if np.allclose(0, x_scale) else x_scale  # do NOT scale if it's results in division by small number
-                params.sigma_y[:] = y_scale + 1 if np.allclose(0, y_scale) else y_scale
+                params.sigma_x[:] = x_scale = np.ones(x_scale.shape) if np.allclose(0, x_scale, atol=1e-6) else x_scale  # do NOT scale if it's results in division by small number
+                params.sigma_y[:] = y_scale = np.ones(y_scale.shape) if np.allclose(0, y_scale, atol=1e-6) else y_scale
                 data = Dataset(
                     x, y, dydx, 
                     x_ref=x_ref, 
