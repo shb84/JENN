@@ -148,26 +148,34 @@ class NeuralNet:
                 normalizing by the variance has the undesirable effect
                 of dividing by a very small number and should not be used.
         """
-        data = Dataset(x, y, dydx)
         params = self.parameters
-        if not is_warmstart:
-            params.initialize(random_state)
-        params.mu_x[:] = 0.0
-        params.mu_y[:] = 0.0
-        params.sigma_x[:] = 1.0
-        params.sigma_y[:] = 1.0
-        if is_normalize:
-            params.mu_x[:] = x_ref = avg(data.X)
-            params.mu_y[:] = y_ref = avg(data.Y)
-            params.sigma_x[:] = x_scale = std(data.X)
-            params.sigma_y[:] = y_scale = std(data.Y)
+        if is_warmstart:
             data = Dataset(
-                x, y, dydx, 
-                x_ref=x_ref, 
-                y_ref=y_ref, 
-                x_scale=x_scale, 
-                y_scale=y_scale
-            ).normalize()
+                    x, y, dydx, 
+                    x_ref=params.mu_x, 
+                    y_ref=params.mu_y, 
+                    x_scale=params.sigma_x, 
+                    y_scale=params.sigma_y
+                ).normalize()
+        else:
+            params.initialize(random_state)
+            params.mu_x[:] = 0.0
+            params.mu_y[:] = 0.0
+            params.sigma_x[:] = 1.0
+            params.sigma_y[:] = 1.0
+            data = Dataset(x, y, dydx)
+            if is_normalize:
+                params.mu_x[:] = x_ref = avg(data.X)
+                params.mu_y[:] = y_ref = avg(data.Y)
+                params.sigma_x[:] = x_scale = std(data.X)
+                params.sigma_y[:] = y_scale = std(data.Y)
+                data = Dataset(
+                    x, y, dydx, 
+                    x_ref=x_ref, 
+                    y_ref=y_ref, 
+                    x_scale=x_scale, 
+                    y_scale=y_scale
+                ).normalize()
         self.history = train_model(
             data,
             params,
