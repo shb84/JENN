@@ -201,24 +201,25 @@ class Backtracking(LineSearch):
         self.tau = tau
         self.tol = tol
         self.max_count = max_count
-        self.x: None | np.ndarray = None
-        self.y: None | np.ndarray = None
 
     def __call__(
         self,
-        params: np.ndarray,
-        grads: np.ndarray,
+        x0: np.ndarray,
+        y0: np.ndarray,
         cost: Callable,
+        grad: np.ndarray,
         learning_rate: float = 0.05,
     ) -> np.ndarray:
         r"""Take multiple "update" steps along search direction.
 
-        :param params: parameters :math:`x` to be updated, array of
+        :param x0: parameters :math:`x_0` to be updated, array of
             shape (n,)
-        :param grads: gradient :math:`\nabla_x f` of
+        :param y0: objective :math:`y_0` objective evaluated at :math:`x_0`, array of
+            shape (1,)
+        :param cost: objective function :math:`f`
+        :param grad: gradient :math:`\nabla_x f` of
             objective function :math:`f` w.r.t. each
             parameter, array of shape (n,)
-        :param cost: objective function :math:`f`
         :param learning_rate: maximum allowed step size :math:`\alpha
             \le \alpha_{max}`
         :return: updated parameters :math:`x`, array of shape (n,)
@@ -228,29 +229,17 @@ class Backtracking(LineSearch):
         tau = max(0.0, min(1.0, tau))
         alpha = learning_rate
         max_count = max(1, self.max_count)
-        x0 = self.update(params, grads, alpha=0)
-        if self.x is None: 
-            y0 = self.y = cost(x0) 
-        elif np.allclose(self.x, x0): 
-            y0 = self.y 
-        else: 
-            y0 = self.y = cost(x0) 
+        x0 = self.update(x0, grad, alpha=0, record=True)
         for _ in range(max_count):
-            x = self.update(x0, grads, alpha, record=False)  # Turn off ADAM recording during search (to not update momentum until correct step found)
+            x = self.update(x0, grad, alpha, record=False)  # Turn off ADAM recording during search (to not update momentum until correct step found)
             y = cost(x)
             if y <= y0:
-                self.x = x 
-                self.y = y 
                 return x, y
             elif alpha < tol:
-                self.x = x
-                self.y = y 
                 return x, y
             else:
                 alpha = learning_rate * tau
                 tau *= tau
-        self.x = x0  
-        self.y = y0
         return x0, y0
 
 class Optimizer:
@@ -313,10 +302,12 @@ class Optimizer:
         cost_history: list[np.ndarray] = []
         vars_history: list[np.ndarray] = []
 
+        y = f(x)
+
         # Iterative update
         for i in range(0, max_iter):
 
-            x, y = self.line_search(params=x, cost=f, grads=dfdx(x), learning_rate=alpha)
+            x, y = self.line_search(x, y, cost=f, grad=dfdx(x), learning_rate=alpha)
 
             cost_history.append(y)
             vars_history.append(x)
