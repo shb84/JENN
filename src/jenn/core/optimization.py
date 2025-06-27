@@ -195,7 +195,7 @@ class Backtracking(LineSearch):
         update: Update,
         tau: float = 0.5,
         tol: float = 1e-6,
-        max_count: int = 5,
+        max_count: int = 10,
     ):  # noqa D107
         super().__init__(update)
         self.tau = tau
@@ -207,7 +207,7 @@ class Backtracking(LineSearch):
         x0: np.ndarray,
         y0: np.ndarray,
         cost: Callable,
-        grad: np.ndarray,
+        grads: np.ndarray,
         learning_rate: float = 0.05,
     ) -> np.ndarray:
         r"""Take multiple "update" steps along search direction.
@@ -217,7 +217,7 @@ class Backtracking(LineSearch):
         :param y0: objective :math:`y_0` objective evaluated at :math:`x_0`, array of
             shape (1,)
         :param cost: objective function :math:`f`
-        :param grad: gradient :math:`\nabla_x f` of
+        :param grads: gradient :math:`\nabla_x f` of
             objective function :math:`f` w.r.t. each
             parameter, array of shape (n,)
         :param learning_rate: maximum allowed step size :math:`\alpha
@@ -229,11 +229,11 @@ class Backtracking(LineSearch):
         tau = max(0.0, min(1.0, tau))
         alpha = learning_rate
         max_count = max(1, self.max_count)
-        x0 = self.update(x0, grad, alpha=0, record=True)
+        x0 = self.update(x0, grads, alpha=0, record=True)
         for _ in range(max_count):
-            x = self.update(x0, grad, alpha, record=False)  # Turn off ADAM recording during search (to not update momentum until correct step found)
+            x = self.update(x0, grads, alpha, record=False) # Turn off ADAM recording during search (to not update momentum until correct step found)
             y = cost(x)
-            if y <= y0:
+            if y < y0:
                 return x, y
             elif alpha < tol:
                 return x, y
@@ -307,7 +307,7 @@ class Optimizer:
         # Iterative update
         for i in range(0, max_iter):
 
-            x, y = self.line_search(x, y, cost=f, grad=dfdx(x), learning_rate=alpha)
+            x, y = self.line_search(x, y, cost=f, grads=dfdx(x), learning_rate=alpha)
 
             cost_history.append(y)
             vars_history.append(x)
@@ -384,7 +384,7 @@ class GDOptimizer(Optimizer):
         self,
         tau: float = 0.5,
         tol: float = 1e-6,
-        max_count: int = 5,
+        max_count: int = 10,
     ):  # noqa D107
         line_search = Backtracking(
             update=GD(),
@@ -416,7 +416,7 @@ class ADAMOptimizer(Optimizer):
         beta_2: float = 0.99,
         tau: float = 0.5,
         tol: float = 1e-12,
-        max_count: int = 5,
+        max_count: int = 10,
     ):  # noqa D107
         line_search = Backtracking(
             update=ADAM(beta_1, beta_2),

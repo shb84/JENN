@@ -29,9 +29,13 @@ class TestLineSearch:
         f = lambda x: jenn.synthetic.Parabola.evaluate(x, x0=center)
         dfdx = lambda x: jenn.synthetic.Parabola.first_derivative(x, x0=center)
         x0 = np.array([center - 1]).reshape((1, 1))  # approach from left 
-        assert line_search(x0, dfdx(x0), f, learning_rate=2.0) == center
+        y0 = f(x0)
+        xbest, ybest = line_search(x0, y0, cost=f, grads=dfdx(x0), learning_rate=2.0)
+        assert xbest == center
         x0 = np.array([center + 1]).reshape((1, 1))  # approach from right 
-        assert line_search(x0, dfdx(x0), f, learning_rate=2.0) == center
+        y0 = f(x0)
+        xbest, ybest = line_search(x0, y0, cost=f, grads=dfdx(x0), learning_rate=2.0)
+        assert xbest == center
 
     def test_finds_minbound(self, line_search: jenn.core.optimization.Backtracking):
         """Test that line search finds the minimum bound when learning rate step size
@@ -39,9 +43,13 @@ class TestLineSearch:
         f = lambda x: jenn.synthetic.Parabola.evaluate(x, x0=0.0)
         dfdx = lambda x: jenn.synthetic.Parabola.first_derivative(x, x0=0.0)
         x0 = np.array([1]).reshape((1, 1))  # approach from right 
-        assert line_search(x0, dfdx(x0), f, learning_rate=0.1) == 0.8
+        y0 = f(x0)
+        xbest, ybest = line_search(x0, y0, cost=f, grads=dfdx(x0), learning_rate=0.1)
+        assert xbest == 0.8
         x0 = np.array([-1]).reshape((1, 1))  # approach from left 
-        assert line_search(x0, dfdx(x0), f, learning_rate=0.1) == -0.8
+        y0 = f(x0)
+        xbest, ybest = line_search(x0, y0, cost=f, grads=dfdx(x0), learning_rate=0.1)
+        assert xbest == -0.8
 
 
 class TestUpdate: 

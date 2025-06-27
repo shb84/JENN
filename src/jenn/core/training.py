@@ -81,7 +81,7 @@ def train_model(
     beta2: float = 0.99,
     tau: float = 0.5,
     tol: float = 1e-12,
-    max_count: int = 5,
+    max_count: int = 10,
     epsilon_absolute: float = 1e-12,
     epsilon_relative: float = 1e-12,
     epochs: int = 1,

@@ -132,6 +132,8 @@ class TestXOR:
         ) -> None:
         """Test backward propagation against finite difference."""
 
+        cost = jenn.core.cost.Cost(data, params)
+
         ###########################
         # Perfectly trained model #
         ###########################
@@ -140,7 +142,7 @@ class TestXOR:
             data.X, params, cache)  # predict to populate cache
 
         jenn.core.propagation.model_backward(
-            data, params, cache)  # partials computed in place
+            data, cost, params, cache)  # partials computed in place
 
         dydx = params.stack_partials()
         assert np.allclose(dydx, 0.0)  # partials should be 0 at optimum params
@@ -157,7 +159,7 @@ class TestXOR:
             data.X, params, cache)  # predict to populate cache
 
         jenn.core.propagation.model_backward(
-            data, params, cache)  # partials computed in place
+            data, cost, params, cache)  # partials computed in place
 
         def cost_FD(x):
             parameters = deepcopy(params)  # make copy b/c arrays updated in place
