@@ -102,8 +102,7 @@ class ADAM(Update):
         self,
         params: np.ndarray,
         grads: np.ndarray,
-        alpha: float,
-        record: bool = True
+        alpha: float
     ) -> np.ndarray:
         beta_1 = self.beta_1
         beta_2 = self.beta_2
@@ -134,10 +133,9 @@ class ADAM(Update):
 
         x = params - alpha * v_corrected / np.sqrt(s_corrected)
 
-        if record: 
-            self._v = v
-            self._s = s
-            self._t = t
+        self._v = v
+        self._s = s
+        self._t = t
 
         return x.reshape(params.shape)
 
@@ -229,9 +227,8 @@ class Backtracking(LineSearch):
         tau = max(0.0, min(1.0, tau))
         alpha = learning_rate
         max_count = max(1, self.max_count)
-        x0 = self.update(x0, grads, alpha=0, record=True)
         for _ in range(max_count):
-            x = self.update(x0, grads, alpha, record=False) # Turn off ADAM recording during search (to not update momentum until correct step found)
+            x = self.update(x0, grads, alpha) 
             y = cost(x)
             if y < y0:
                 return x, y
