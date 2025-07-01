@@ -237,7 +237,7 @@ class Backtracking(LineSearch):
             else:
                 alpha = learning_rate * tau
                 tau *= tau
-        return x0, y0
+        return x, y
 
 class Optimizer:
     r"""Find optimum using gradient-based optimization.
