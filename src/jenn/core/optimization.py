@@ -314,16 +314,16 @@ class Optimizer:
                     e = epoch
                     b = batch
                     print(
-                        f"epoch = {e:d}, batch = {b:d}, iter = {i:d}, cost = {y:6.3f}"
+                        f"epoch = {e:d}, batch = {b:d}, iter = {i:d}, cost = {y:.6f}"
                     )
                 elif epoch is not None:
                     e = epoch
-                    print(f"epoch = {e:d}, iter = {i:d}, cost = {y:6.3f}")
+                    print(f"epoch = {e:d}, iter = {i:d}, cost = {y:.6f}")
                 elif batch is not None:
                     b = batch
-                    print(f"batch = {b:d}, iter = {i:d}, cost = {y:6.3f}")
+                    print(f"batch = {b:d}, iter = {i:d}, cost = {y::.6f}")
                 else:
-                    print(f"iter = {i:d}, cost = {y:6.3f}")
+                    print(f"iter = {i:d}, cost = {y::.6f}")
 
             # Absolute convergence criterion
             if i > 1:
