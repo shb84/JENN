@@ -11,6 +11,7 @@ from collections.abc import Callable
 from typing import Union
 
 import numpy as np
+import os 
 
 
 class Update(ABC):
@@ -355,6 +356,9 @@ class Optimizer:
                         print("Relative stopping criterion satisfied")
 
                 if converged:
+                    break
+
+                if os.path.exists("STOP"): 
                     break
 
             # Maximum iteration convergence criterion
