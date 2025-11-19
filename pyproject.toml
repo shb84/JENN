@@ -1,137 +1,44 @@
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "jenn"
-version = "1.0.8"
+dynamic = ["version"]
 authors = [
-  { name="Steven H. Berguin", email="stevenberguin@gmail.com" },
+  {name = "Steven H. Berguin", email = "stevenberguin@gmail.com"},
 ]
 description = "Jacobian-Enhanced Neural Nets (JENN)"
-readme = "README.md"
+readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
 ]
 dependencies = [
   "jsonpointer>=2.4",
   "jsonschema>=4.22",
   "orjson>=3.9",
   "numpy>=1.22",
-  "matplotlib",  # plot results (plotting will eventally be moved out of JENN, but keep here for now)
+  "matplotlib",
 ]
-
-[project.optional-dependencies]
-ipynb = [
-  "seaborn",  # to visualize raw data
-  "pandas",
-  "jupyterlab",
-]
-lint = [
-    "black",
-    "docformatter",
-    "lxml",
-    "mypy",
-    "ruff",
-    "pylint",
-]
-test = [
-    "nbmake",
-    "pytest",
-    "pytest-cov",
-    "pytest-html",
-]
-build = [
-    "build",
-    "sphinx",  # to build docs 
-    "sphinx_rtd_theme",
-    "pip", 
-]
-release = [
-    "twine",  # if pkg to be released on pypi
-]
-
-[tool.setuptools.package-data]
-jenn = ["*.json"]
 
 [project.urls]
 Documentation = "https://shb84.github.io/JENN/"
 Homepage = "https://github.com/shb84/JENN"
 Issues = "https://github.com/shb84/JENN/issues"
 
-[tool.setuptools.packages.find]
-where = ["src"]  # list of folders that contain the packages (["."] by default)
-include = ["jenn*"]  # package names should match these glob patterns (["*"] by default)
-exclude = ["jenn.tests*"]  # exclude packages matching these glob patterns (empty by default)
-namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
-[tool.ruff]
-lint.select = [
-  "ANN",  # flake8-annotations
-  "D",  # pydocstyle
-  "E",  # pycodestyle errors
-  "F",  # pyflakes
-  "I",  # isort
-  "PL", # pylint
-  "UP", # pyupgra
-  "W",  # pycodestyle warnings
-  "NPY", # NumPy-specific rules
-]
-lint.ignore = [
-  "ANN101", # Missing type annotation for `self` in method
-  "ANN102", # Missing type annotation for `cls` in classmethod
-  "ANN002",  # Missing type annotation for `*args`
-  "ANN003",  # Missing type annotation for `**kwargs`
-  "ANN204",  # Missing return type annotation for special method `__init__`
-  "PLR0913",  # Too many arguments in function definition
-  "E501", # if it doesn't bother black
-  "D105",
-  "D107",
-  "D205",
-  "D209",
-  "D400",
-  "D203",
-  "D213", # pydocstyle opinion
-  "D417", # FIXME Missing argument description
-  "D413", # Missing blank line after last section ("Parameters")
-]
-cache-dir = "build/.cache/ruff"
+# setuptools ###################################################################
+[tool.setuptools.dynamic]
+version = {attr = "jenn.__version__"}
 
-[tool.ruff.lint.per-file-ignores]
-"src/jenn/utils/plot.py" = [
-  "PLR0913",  # Too many arguments in function definition
-  "PLR2004",  # Magic value used in comparison
-]
-"src/jenn/synthetic.py" = [
-  "D102",  # Missing docstring in public method
-]
-"src/jenn/core/activation.py" = [
-  "D102",  # Missing docstring in public method
-]
-"src/jenn/core/model.py" = [
-  "PLR0913",  # Too many arguments in function definition
-]
-"src/jenn/core/optimization.py" = [
-  "PLR0913",  # Too many arguments in function definition
-  "PLR0912",  # Too many branches 
-  "PLR0915",  # Too many statement
-]
-"src/jenn/core/training.py" = [
-  "PLR0913",  # Too many arguments in function definition
-]
-"src/jenn/model.py" = [
-  "PLR0913",  # Too many arguments in function definition
-]
-
-
+# mypy #########################################################################
 [tool.mypy]
 cache_dir = "build/.cache/mypy"
 sqlite_cache = true
-python_version = "3.11"
-# settings
 allow_redefinition = true
 check_untyped_defs = true
 disallow_untyped_defs = true
@@ -141,95 +48,288 @@ show_error_codes = true
 show_error_context = true
 warn_return_any = false
 warn_unused_ignores = true
+disable_error_code = ["arg-type"]
 
-[[tool.mypy.overrides]]
-module = [
-  "matplotlib",
+# ruff #########################################################################
+[tool.ruff]
+target-version = "py311"
+cache-dir = "build/.cache/ruff"
+include = [
+  "docs/**/*.py",
+  # "docs/**/*.ipynb",
+  "notebooks/**/*.ipynb",
+  "src/**/*.py",
+  "tests/**/*.py",
 ]
-ignore_missing_imports = true
+line-length = 88
+preview = true
 
-########
-# pixi #
-########
+[tool.ruff.format]
+line-ending = "lf"
 
-# pixi docs: https://pixi.sh/latest/
-[tool.pixi.project]
-channels = ["conda-forge"]
-platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "ANN001",
+  "ANN002",
+  "ANN003",
+  "ANN201",
+  "ANN202",
+  "ANN204",
+  "ARG002",
+  "B007",
+  "C408",
+  "COM812",
+  "D104",
+  "D107",
+  "D203",
+  "D205",
+  "D211",
+  "D213",
+  "D401",
+  "D404",
+  "DOC201",
+  "DOC501",
+  "E501",
+  "EM101",
+  "EM102",
+  "ERA001",
+  "FBT001",
+  "FBT002",
+  "FBT003",
+  "FIX002",
+  "ISC001",
+  "N803",
+  "N806",
+  "NPY002",
+  "PD011",
+  "PERF102",
+  "PLR0913",
+  "PLR0917",
+  "PLR2004",
+  "PLR6201",
+  "PLR6301",
+  "PLR0914",
+  "PT028",
+  "RET504",
+  "RUF059",
+  "T201",
+  "TD002",
+  "TD003",
+  "TRY003",
+]
+flake8-copyright.notice-rgx = '''
+\# Copyright \(C\) 2018 Steven H. Berguin
+\# This work is licensed under the MIT License.
+'''
 
-# [tool.pixi.system-requirements]
-# linux="4.18"  # optional (use if needed: https://prefix.dev/docs/pixi/configuration#the-system-requirements-table)
+[tool.ruff.lint.per-file-ignores]
+"**/*.ipynb" = ["CPY001"]
+"docs/**/*.py" = ["INP001", "A001"]
+"tests/*.py" = ["S101"]
 
-[tool.pixi.pypi-dependencies]
-jenn = { path = ".", editable = true }
 
-[tool.pixi.environments]
-default = { features = [], solve-group = "default" }
-lint = { features = ["lint"], solve-group = "default" }
-test = { features = ["test"], solve-group = "default" }
-build = { features = ["build"], solve-group = "default" }
-release = { features = ["release"], solve-group = "default" }
-ipynb = { features = ["ipynb"], solve-group = "default" }
+# [project.optional-dependencies]
+# ipynb = [
+#   "seaborn",  # to visualize raw data
+#   "pandas",
+#   "jupyterlab",
+# ]
+# lint = [
+#     "black",
+#     "docformatter",
+#     "lxml",
+#     "mypy",
+#     "ruff",
+#     "pylint",
+# ]
+# test = [
+#     "nbmake",
+#     "pytest",
+#     "pytest-cov",
+#     "pytest-html",
+# ]
+# build = [
+#     "build",
+#     "sphinx",  # to build docs 
+#     "sphinx_rtd_theme",
+#     "pip", 
+# ]
+# release = [
+#     "twine",  # if pkg to be released on pypi
+# ]
 
-[tool.pixi.dependencies]
-numpy = "*"
-jsonpointer = "*"
-jsonschema = "*"
-orjson = "*"
+# [tool.setuptools.package-data]
+# jenn = ["*.json"]
 
-[tool.pixi.feature.ipynb.dependencies]
-seaborn = "*"
-pandas = "*"
-jupyterlab = "*"
+# [tool.setuptools.packages.find]
+# where = ["src"]  # list of folders that contain the packages (["."] by default)
+# include = ["jenn*"]  # package names should match these glob patterns (["*"] by default)
+# exclude = ["jenn.tests*"]  # exclude packages matching these glob patterns (empty by default)
+# namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 
-[tool.pixi.feature.lint.dependencies]
-black = "*"
-docformatter = "*"
-lxml = "*"
-mypy = "*"
-ruff = "*"
-pylint = "*"
+# [tool.ruff]
+# lint.select = [
+#   "ANN",  # flake8-annotations
+#   "D",  # pydocstyle
+#   "E",  # pycodestyle errors
+#   "F",  # pyflakes
+#   "I",  # isort
+#   "PL", # pylint
+#   "UP", # pyupgra
+#   "W",  # pycodestyle warnings
+#   "NPY", # NumPy-specific rules
+# ]
+# lint.ignore = [
+#   "ANN101", # Missing type annotation for `self` in method
+#   "ANN102", # Missing type annotation for `cls` in classmethod
+#   "ANN002",  # Missing type annotation for `*args`
+#   "ANN003",  # Missing type annotation for `**kwargs`
+#   "ANN204",  # Missing return type annotation for special method `__init__`
+#   "PLR0913",  # Too many arguments in function definition
+#   "E501", # if it doesn't bother black
+#   "D105",
+#   "D107",
+#   "D205",
+#   "D209",
+#   "D400",
+#   "D203",
+#   "D213", # pydocstyle opinion
+#   "D417", # FIXME Missing argument description
+#   "D413", # Missing blank line after last section ("Parameters")
+# ]
+# cache-dir = "build/.cache/ruff"
 
-[tool.pixi.feature.test.dependencies]
-nbmake = "*"
-pytest = "*"
-pytest-cov = "*"
-pytest-html = "*"
+# [tool.ruff.lint.per-file-ignores]
+# "src/jenn/utils/plot.py" = [
+#   "PLR0913",  # Too many arguments in function definition
+#   "PLR2004",  # Magic value used in comparison
+# ]
+# "src/jenn/synthetic.py" = [
+#   "D102",  # Missing docstring in public method
+# ]
+# "src/jenn/core/activation.py" = [
+#   "D102",  # Missing docstring in public method
+# ]
+# "src/jenn/core/model.py" = [
+#   "PLR0913",  # Too many arguments in function definition
+# ]
+# "src/jenn/core/optimization.py" = [
+#   "PLR0913",  # Too many arguments in function definition
+#   "PLR0912",  # Too many branches 
+#   "PLR0915",  # Too many statement
+# ]
+# "src/jenn/core/training.py" = [
+#   "PLR0913",  # Too many arguments in function definition
+# ]
+# "src/jenn/model.py" = [
+#   "PLR0913",  # Too many arguments in function definition
+# ]
 
-[tool.pixi.feature.ipynb.tasks]
-lab = "jupyter lab --no-browser"
 
-[tool.pixi.feature.lint.tasks]
-black = { cmd = "black --quiet src/", inputs = ["src/**/*.py"] }
-docformatter = { cmd = "docformatter --in-place src/**/*.py", inputs = ["src/**/*.py"] }
-ruff = { cmd = "ruff check src/ --fix", inputs = ["src/**/*.py"] }
-mypy = { cmd = "mypy --html-report=build/reports/mypy src/", inputs = ["src/**/*.py"] }
-lint = { depends-on = ["docformatter", "black", "ruff", "mypy"] }
+# [tool.mypy]
+# cache_dir = "build/.cache/mypy"
+# sqlite_cache = true
+# python_version = "3.11"
+# # settings
+# allow_redefinition = true
+# check_untyped_defs = true
+# disallow_untyped_defs = true
+# ignore_missing_imports = true
+# no_implicit_optional = true
+# show_error_codes = true
+# show_error_context = true
+# warn_return_any = false
+# warn_unused_ignores = true
 
-[tool.pixi.feature.test.tasks]
-test-py = { cmd = """
-pytest 
--vv 
---failed-first 
---html=build/reports/pytest/report.html  
---self-contained-html 
---cov=jenn 
---cov-context=test 
---cov-report=html:build/reports/pytest
---cov-report=xml:build/reports/pytest/coverage.xml  
---cov-report=term-missing:skip-covered 
--o=junit_family=xunit2 
---junitxml=build/reports/pytest/junit.xml 
-""", inputs = ["src/**/*.py", "tests/"] }
-test-nb = { cmd = "pytest --nbmake --nbmake-timeout=3000 docs/examples/*.ipynb", inputs = ["docs/examples/*.ipynb"]}
-test = { depends-on = ["test-py", "test-nb"] }
+# [[tool.mypy.overrides]]
+# module = [
+#   "matplotlib",
+# ]
+# ignore_missing_imports = true
 
-[tool.pixi.feature.build.tasks]
-build-dist = { cmd = "python -m build --outdir build/dist", inputs = ["src/**/*.py"] }
-build-docs = { cmd = "sphinx-build -b html docs/source build/docs/html", inputs = ["src/**/*.py", "docs/**/*.py"] }
-build = { depends-on = ["build-docs", "build-dist"] }
+# ########
+# # pixi #
+# ########
 
-[tool.pixi.feature.release.tasks]
-release-test = { cmd = "python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi", inputs = ["src/**/*.py"] }
-# actual release is done via GitHub actions
-release = { depends-on = ["release-test"] }
+# # pixi docs: https://pixi.sh/latest/
+# [tool.pixi.project]
+# channels = ["conda-forge"]
+# platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+
+# # [tool.pixi.system-requirements]
+# # linux="4.18"  # optional (use if needed: https://prefix.dev/docs/pixi/configuration#the-system-requirements-table)
+
+# [tool.pixi.pypi-dependencies]
+# jenn = { path = ".", editable = true }
+
+# [tool.pixi.environments]
+# default = { features = [], solve-group = "default" }
+# lint = { features = ["lint"], solve-group = "default" }
+# test = { features = ["test"], solve-group = "default" }
+# build = { features = ["build"], solve-group = "default" }
+# release = { features = ["release"], solve-group = "default" }
+# ipynb = { features = ["ipynb"], solve-group = "default" }
+
+# [tool.pixi.dependencies]
+# numpy = "*"
+# jsonpointer = "*"
+# jsonschema = "*"
+# orjson = "*"
+
+# [tool.pixi.feature.ipynb.dependencies]
+# seaborn = "*"
+# pandas = "*"
+# jupyterlab = "*"
+
+# [tool.pixi.feature.lint.dependencies]
+# black = "*"
+# docformatter = "*"
+# lxml = "*"
+# mypy = "*"
+# ruff = "*"
+# pylint = "*"
+
+# [tool.pixi.feature.test.dependencies]
+# nbmake = "*"
+# pytest = "*"
+# pytest-cov = "*"
+# pytest-html = "*"
+
+# [tool.pixi.feature.ipynb.tasks]
+# lab = "jupyter lab --no-browser"
+
+# [tool.pixi.feature.lint.tasks]
+# black = { cmd = "black --quiet src/", inputs = ["src/**/*.py"] }
+# docformatter = { cmd = "docformatter --in-place src/**/*.py", inputs = ["src/**/*.py"] }
+# ruff = { cmd = "ruff check src/ --fix", inputs = ["src/**/*.py"] }
+# mypy = { cmd = "mypy --html-report=build/reports/mypy src/", inputs = ["src/**/*.py"] }
+# lint = { depends-on = ["docformatter", "black", "ruff", "mypy"] }
+
+# [tool.pixi.feature.test.tasks]
+# test-py = { cmd = """
+# pytest 
+# -vv 
+# --failed-first 
+# --html=build/reports/pytest/report.html  
+# --self-contained-html 
+# --cov=jenn 
+# --cov-context=test 
+# --cov-report=html:build/reports/pytest
+# --cov-report=xml:build/reports/pytest/coverage.xml  
+# --cov-report=term-missing:skip-covered 
+# -o=junit_family=xunit2 
+# --junitxml=build/reports/pytest/junit.xml 
+# """, inputs = ["src/**/*.py", "tests/"] }
+# test-nb = { cmd = "pytest --nbmake --nbmake-timeout=3000 docs/examples/*.ipynb", inputs = ["docs/examples/*.ipynb"]}
+# test = { depends-on = ["test-py", "test-nb"] }
+
+# [tool.pixi.feature.build.tasks]
+# build-dist = { cmd = "python -m build --outdir build/dist", inputs = ["src/**/*.py"] }
+# build-docs = { cmd = "sphinx-build -b html docs/source build/docs/html", inputs = ["src/**/*.py", "docs/**/*.py"] }
+# build = { depends-on = ["build-docs", "build-dist"] }
+
+# [tool.pixi.feature.release.tasks]
+# release-test = { cmd = "python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi", inputs = ["src/**/*.py"] }
+# # actual release is done via GitHub actions
+# release = { depends-on = ["release-test"] }

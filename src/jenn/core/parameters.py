@@ -1,13 +1,15 @@
 """Parameters.
 ==============
 
-This module defines a utility class to store and manage neural net parameters and metadata."""
+This module defines a utility class to store and manage neural net parameters and metadata.
+"""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 import json
-import os
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List, Union
 
 import jsonpointer
 import jsonschema
@@ -16,7 +18,7 @@ import orjson
 
 from .activation import ACTIVATIONS
 
-_here = Path(os.path.dirname(os.path.abspath(__file__)))
+_here = Path(__file__).resolve().parent
 SCHEMA = json.loads((_here / "schema.json").read_text())
 
 
@@ -73,7 +75,7 @@ class Parameters:
     :vartype sigma_y: List[np.ndarray]
     """
 
-    layer_sizes: List[int]
+    layer_sizes: list[int]
     hidden_activation: str = "tanh"
     output_activation: str = "linear"
 
@@ -98,11 +100,11 @@ class Parameters:
         return self.layer_sizes[-1]
 
     @property
-    def L(self) -> int:
+    def L(self) -> int:  # noqa: N802
         """Return number of layers."""
         return len(self.layer_sizes)
 
-    def initialize(self, random_state: Union[int, None] = None) -> None:
+    def initialize(self, random_state: int | None = None) -> None:
         """Use `He initialization <https://arxiv.org/pdf/1502.01852.pdf>`_ to
         initialize parameters.
 
@@ -126,13 +128,13 @@ class Parameters:
                 a = "linear"
             elif i == self.L - 1:  # output layer
                 W = rng.normal(size=(layer_size, previous_layer_size)) * np.sqrt(
-                    1.0 / previous_layer_size
+                    1.0 / previous_layer_size,
                 )
                 b = np.zeros((layer_size, 1))
                 a = self.output_activation
             else:  # hidden layer
                 W = rng.normal(size=(layer_size, previous_layer_size)) * np.sqrt(
-                    1.0 / previous_layer_size
+                    1.0 / previous_layer_size,
                 )
                 b = np.zeros((layer_size, 1))
                 a = self.hidden_activation
@@ -161,7 +163,7 @@ class Parameters:
         stacks = self.stack_per_layer()
         return np.concatenate(stacks).reshape((-1, 1))
 
-    def stack_per_layer(self) -> List[np.ndarray]:
+    def stack_per_layer(self) -> list[np.ndarray]:
         """Stack W, b into a single array for each layer.
 
         .. code-block::
@@ -171,9 +173,10 @@ class Parameters:
         """
         stacks = []
         for i in range(self.L):
-            stack = np.concatenate([self.W[i].ravel(), self.b[i].ravel()]).reshape(
-                (-1, 1)
-            )
+            stack = np.concatenate([self.W[i].ravel(), self.b[i].ravel()]).reshape((
+                -1,
+                1,
+            ))
             stacks.append(stack)
         return stacks
 
@@ -192,7 +195,7 @@ class Parameters:
         stacks = self.stack_partials_per_layer()
         return np.concatenate(stacks).reshape((-1, 1))
 
-    def stack_partials_per_layer(self) -> List[np.ndarray]:
+    def stack_partials_per_layer(self) -> list[np.ndarray]:
         """Stack backprop partials dW, db per layer.
 
         .. code-block::
@@ -202,16 +205,14 @@ class Parameters:
         """
         stacks = []
         for i in range(self.L):
-            stack = np.concatenate(
-                [
-                    self.dW[i].ravel(),
-                    self.db[i].ravel(),
-                ]
-            ).reshape((-1, 1))
+            stack = np.concatenate([
+                self.dW[i].ravel(),
+                self.db[i].ravel(),
+            ]).reshape((-1, 1))
             stacks.append(stack)
         return stacks
 
-    def _column_to_stacks(self, params: np.ndarray) -> List[np.ndarray]:
+    def _column_to_stacks(self, params: np.ndarray) -> list[np.ndarray]:
         """Convert parameters from single stack to list of stacks.
 
         Neural net parameters are converted from single stack
@@ -229,6 +230,7 @@ class Parameters:
         params: List[np.ndarray]
             List of stacks (one per layer)
             e.g. [np.array([[W1], [b1]]), [W2], [b2]]), np.array([[W3], [b3]])]
+
         """
         stacks = []
         k = 0
@@ -241,7 +243,7 @@ class Parameters:
             k += n
         return stacks
 
-    def unstack(self, parameters: Union[np.ndarray, List[np.ndarray]]) -> None:
+    def unstack(self, parameters: np.ndarray | list[np.ndarray]) -> None:
         """Unstack parameters W, b back into list of arrays.
 
         :param parameters: neural network parameters as either a single
@@ -272,7 +274,7 @@ class Parameters:
             self.W[i][:] = array[: n * p].reshape(n, p)
             self.b[i][:] = array[n * p :].reshape(n, 1)
 
-    def unstack_partials(self, partials: Union[np.ndarray, List[np.ndarray]]) -> None:
+    def unstack_partials(self, partials: np.ndarray | list[np.ndarray]) -> None:
         """Unstack backprop partials dW, db back into list of arrays.
 
         :param partials: neural network partials as either a single
@@ -299,7 +301,7 @@ class Parameters:
         if isinstance(partials, np.ndarray):  # single column
             partials = self._column_to_stacks(partials)
         for i, array in enumerate(partials):
-            n, p = self.dW[i].shape
+            n, p = self.dW[i].shape # type: ignore
             self.dW[i][:] = array[: n * p].reshape(n, p)
             self.db[i][:] = array[n * p :].reshape(n, 1)
 
@@ -308,6 +310,36 @@ class Parameters:
         keys = jsonpointer.JsonPointer("/properties").get(SCHEMA)
         data = {key: getattr(self, key) for key in keys}
         return orjson.dumps(data, option=orjson.OPT_SERIALIZE_NUMPY)
+
+    def validate_parameters(self) -> None:  # noqa: C901
+        """Validate parameters."""
+        if self.mu_x.size != self.layer_sizes[0]:
+            raise ValueError("mu_x size is different than input layer size")
+        if self.mu_y.size != self.layer_sizes[-1]:
+            raise ValueError("mu_y size is different than output layer size")
+        if self.sigma_x.size != self.layer_sizes[0]:
+            raise ValueError("sigma_x size is different than input layer size")
+        if self.sigma_y.size != self.layer_sizes[-1]:
+            raise ValueError("sigma_x size is different than output layer size")
+        if self.mu_x.shape != self.sigma_x.shape:
+            raise ValueError("mu_x and sigma_x have different shapes")
+        if self.mu_y.shape != self.sigma_y.shape:
+            raise ValueError("mu_y and sigma_y have different shapes")
+        m = self.layer_sizes[0]
+        for i, n in enumerate(self.layer_sizes):
+            if self.a[i] not in ACTIVATIONS:
+                raise ValueError(f"a[{i}] must be one of {list(ACTIVATIONS.keys())}")
+            if self.b[i].shape != (
+                n,
+                1,
+            ):
+                raise ValueError(f"b[{i}] has the wrong shape (expected {(n, 1)})")
+            if self.W[i].shape != (
+                n,
+                m,
+            ):
+                raise ValueError(f"W[{i}] has the wrong shape (expected {(n, m)})")
+            m = n
 
     def _deserialize(self, saved_parameters: bytes) -> None:
         """Deserialize and apply saved parameters."""
@@ -325,46 +357,15 @@ class Parameters:
         self.hidden_activation = self.a[-2]
         self.dW = [np.zeros(array.shape) for array in self.W]
         self.db = [np.zeros(array.shape) for array in self.b]
-        assert (
-            self.mu_x.size == self.layer_sizes[0]
-        ), "mu_x size is different input layer size"
-        assert (
-            self.mu_y.size == self.layer_sizes[-1]
-        ), "mu_y size is different output layer size"
-        assert (
-            self.sigma_x.size == self.layer_sizes[0]
-        ), "sigma_x size is different input layer size"
-        assert (
-            self.sigma_y.size == self.layer_sizes[-1]
-        ), "sigma_x size is different output layer size"
-        assert (
-            self.mu_x.shape == self.sigma_x.shape
-        ), "mu_x and sigma_x have different shapes"
-        assert (
-            self.mu_y.shape == self.sigma_y.shape
-        ), "mu_y and sigma_y have different shapes"
-        m = self.layer_sizes[0]
-        for i, n in enumerate(self.layer_sizes):
-            assert (
-                self.a[i] in ACTIVATIONS
-            ), f"a[{i}] must be one of {list(ACTIVATIONS.keys())}"
-            assert self.b[i].shape == (
-                n,
-                1,
-            ), f"b[{i}] has the wrong shape (expected {(n, 1)})"
-            assert self.W[i].shape == (
-                n,
-                m,
-            ), f"W[{i}] has the wrong shape (expected {(n, m)})"
-            m = n
+        self.validate_parameters()
 
-    def save(self, binary_file: Union[str, Path] = "parameters.json") -> None:
+    def save(self, binary_file: str | Path = "parameters.json") -> None:
         """Save parameters to specified json file."""
-        with open(binary_file, "wb") as file:
+        with Path(binary_file).open("wb") as file:
             file.write(self._serialize())
 
-    def load(self, binary_file: Union[str, Path] = "parameters.json") -> None:
+    def load(self, binary_file: str | Path = "parameters.json") -> None:
         """Load parameters from specified json file."""
-        with open(binary_file, "rb") as file:
+        with Path(binary_file).open("rb") as file:
             byte_stream = file.read()
         self._deserialize(byte_stream)

@@ -3,12 +3,13 @@
 
 .. ADAM: https://doi.org/10.48550/arXiv.1412.6980
 
-This module implements gradient-based optimization using `ADAM`_. 
-"""  # noqa W291
+This module implements gradient-based optimization using `ADAM`_.
+"""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Union
 
 import numpy as np
 
@@ -22,7 +23,7 @@ class Update(ABC):
     \boldsymbol{s}`
 
     .. automethod:: __call__
-    """  # noqa W291
+    """
 
     @abstractmethod
     def _update(
@@ -86,14 +87,14 @@ class ADAM(Update):
         self,
         beta_1: float = 0.9,
         beta_2: float = 0.99,
-    ):  # noqa D107
+    ):
         self.beta_1 = beta_1
         self.beta_2 = beta_2
 
-        self._v: Union[np.ndarray, None] = None
-        self._s: Union[np.ndarray, None] = None
+        self._v: np.ndarray | None = None
+        self._s: np.ndarray | None = None
         self._t = 0
-        self._grads: Union[np.ndarray, None] = None
+        self._grads: np.ndarray | None = None
 
     def _update(
         self,
@@ -151,7 +152,7 @@ class LineSearch(ABC):
     def __init__(
         self,
         update: Update,
-    ):  # noqa D107
+    ):
         self.update = update
 
     @abstractmethod
@@ -191,7 +192,7 @@ class Backtracking(LineSearch):
         tau: float = 0.5,
         tol: float = 1e-6,
         max_count: int = 1_000,
-    ):  # noqa D107
+    ):
         super().__init__(update)
         self.tau = tau
         self.tol = tol
@@ -225,15 +226,83 @@ class Backtracking(LineSearch):
         x = self.update(params, grads, alpha)
         max_count = max(1, self.max_count)
         for _ in range(max_count):
-            if cost(x) < f0:
+            if cost(x) < f0 or alpha < tol:
                 return x
-            elif alpha < tol:
-                return x
-            else:
-                alpha = learning_rate * tau
-                x = self.update(params, grads, alpha)
-                tau *= tau
+            alpha = learning_rate * tau
+            x = self.update(params, grads, alpha)
+            tau *= tau
         return x
+
+
+def _print_progress(epoch: int, batch: int, iteration: int, cost: float) -> None:
+    e = epoch
+    b = batch
+    i = iteration
+    y = cost
+    if epoch is not None and batch is not None:
+        print(
+            f"epoch = {e:d}, batch = {b:d}, iter = {i:d}, cost = {y:6.3f}",
+        )
+    elif epoch is not None:
+        e = epoch
+        print(f"epoch = {e:d}, iter = {i:d}, cost = {y:6.3f}")
+    elif batch is not None:
+        b = batch
+        print(f"batch = {b:d}, iter = {i:d}, cost = {y:6.3f}")
+    else:
+        print(f"iter = {i:d}, cost = {y:6.3f}")
+
+
+def _check_convergence(
+    iteration: int,
+    cost_history: list[np.ndarray],
+    epsilon_absolute: float,
+    epsilon_relative: float,
+    max_iter: int,
+    verbose: bool,
+    N1_max: int = 100,
+    N2_max: int = 100,
+) -> bool:
+    """Check stopping criteria.
+
+    Reference: Vanderplaats, "Multidiscipline Design Optimization," ch. 3, p. 121
+    """
+    N1 = 0
+    N2 = 0
+    if iteration > 0:
+        # Absolute convergence criterion
+        dF1 = abs(cost_history[-1] - cost_history[-2])
+        if dF1 < epsilon_absolute * cost_history[0]:
+            N1 += 1
+        else:
+            N1 = 0
+        if N1_max < N1:
+            if verbose:
+                print("Absolute stopping criterion satisfied")
+            return True
+
+        # Relative convergence criterion
+        current_value = cost_history[-1].squeeze()
+        previous_value = cost_history[-2].squeeze()
+        numerator = abs(current_value - previous_value)
+        denominator = max(abs(float(current_value)), 1e-6)
+        dF2 = numerator / denominator
+
+        if dF2 < epsilon_relative:
+            N2 += 1
+        else:
+            N2 = 0
+        if N2_max < N2:
+            if verbose:
+                print("Relative stopping criterion satisfied")
+            return True
+
+    # Maximum iterations criterion
+    if iteration == max_iter and verbose:
+        print("Maximum optimizer iterations reached")
+        return True
+
+    return False
 
 
 class Optimizer:
@@ -250,10 +319,10 @@ class Optimizer:
     def __init__(
         self,
         line_search: LineSearch,
-    ):  # noqa D107
+    ):
         self.line_search = line_search
-        self.vars_history: Union[list[np.ndarray], None] = None
-        self.cost_history: Union[list[np.ndarray], None] = None
+        self.vars_history: list[np.ndarray] | None = None
+        self.cost_history: list[np.ndarray] | None = None
 
     def minimize(
         self,
@@ -263,8 +332,8 @@ class Optimizer:
         alpha: float = 0.01,
         max_iter: int = 100,
         verbose: bool = False,
-        epoch: Union[int, None] = None,
-        batch: Union[int, None] = None,
+        epoch: int | None = None,
+        batch: int | None = None,
         epsilon_absolute: float = 1e-12,
         epsilon_relative: float = 1e-12,
     ) -> np.ndarray:
@@ -284,78 +353,21 @@ class Optimizer:
         :param epsilon_absolute: absolute error stopping criterion
         :param epsilon_relative: relative error stopping criterion
         """
-        # Stopping criteria (Vanderplaats, "Multidiscipline Design Optimization," ch. 3, p. 121)
-        converged = False
-        N1 = 0
-        N1_max = 100
-        N2 = 0
-        N2_max = 100
-
         cost_history: list[np.ndarray] = []
         vars_history: list[np.ndarray] = []
-
-        # Iterative update
-        for i in range(0, max_iter):
+        for i in range(max_iter):
             y = f(x)
-
             cost_history.append(y)
             vars_history.append(x)
-
             x = self.line_search(params=x, cost=f, grads=dfdx(x), learning_rate=alpha)
-
             if verbose:
-                if epoch is not None and batch is not None:
-                    e = epoch
-                    b = batch
-                    print(
-                        f"epoch = {e:d}, batch = {b:d}, iter = {i:d}, cost = {y:6.3f}"
-                    )
-                elif epoch is not None:
-                    e = epoch
-                    print(f"epoch = {e:d}, iter = {i:d}, cost = {y:6.3f}")
-                elif batch is not None:
-                    b = batch
-                    print(f"batch = {b:d}, iter = {i:d}, cost = {y:6.3f}")
-                else:
-                    print(f"iter = {i:d}, cost = {y:6.3f}")
-
-            # Absolute convergence criterion
-            if i > 1:
-                dF1 = abs(cost_history[-1] - cost_history[-2])
-                if dF1 < epsilon_absolute * cost_history[0]:
-                    N1 += 1
-                else:
-                    N1 = 0
-                if N1 > N1_max:
-                    converged = True
-                    if verbose:
-                        print("Absolute stopping criterion satisfied")
-
-                # Relative convergence criterion
-                numerator = abs(cost_history[-1] - cost_history[-2])
-                denominator = max(abs(float(cost_history[-1])), 1e-6)
-                dF2 = numerator / denominator
-
-                if dF2 < epsilon_relative:
-                    N2 += 1
-                else:
-                    N2 = 0
-                if N2 > N2_max:
-                    converged = True
-                    if verbose:
-                        print("Relative stopping criterion satisfied")
-
-                if converged:
-                    break
-
-            # Maximum iteration convergence criterion
-            if i == max_iter:
-                if verbose:
-                    print("Maximum optimizer iterations reached")
-
+                _print_progress(epoch, batch, iteration=i, cost=y)
+            if _check_convergence(
+                i, cost_history, epsilon_absolute, epsilon_relative, max_iter, verbose
+            ):
+                break
         self.cost_history = cost_history
         self.vars_history = vars_history
-
         return x
 
 
@@ -376,7 +388,7 @@ class GDOptimizer(Optimizer):
         tau: float = 0.5,
         tol: float = 1e-6,
         max_count: int = 1_000,
-    ):  # noqa D107
+    ):
         line_search = Backtracking(
             update=GD(),
             tau=tau,
@@ -408,7 +420,7 @@ class ADAMOptimizer(Optimizer):
         tau: float = 0.5,
         tol: float = 1e-12,
         max_count: int = 1_000,
-    ):  # noqa D107
+    ):
         line_search = Backtracking(
             update=ADAM(beta_1, beta_2),
             tau=tau,

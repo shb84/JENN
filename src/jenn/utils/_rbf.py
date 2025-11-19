@@ -1,6 +1,6 @@
 """Radial Basis Function."""
-
-from typing import Union
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 import numpy as np
 
@@ -8,7 +8,7 @@ import numpy as np
 def rbf(
     r: np.ndarray,
     epsilon: float = 0.0,
-    out: Union[np.ndarray, None] = None,
+    out: np.ndarray | None = None,
 ) -> np.ndarray:
     """Compute Gaussian Radial Basis Function (RBF).
 

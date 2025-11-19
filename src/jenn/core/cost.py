@@ -1,15 +1,15 @@
 """Cost Function.
 =================
 
-This module contains class and methods to efficiently 
-compute the neural net cost function used for training. 
-It is a modified version of the Least Squared Estimator (LSE), 
-augmented with a penalty function for regularization and another 
+This module contains class and methods to efficiently
+compute the neural net cost function used for training.
+It is a modified version of the Least Squared Estimator (LSE),
+augmented with a penalty function for regularization and another
 term which accounts for Jacobian prediction error. See
-`paper`_ for details and notation. 
-"""  # noqa W291
-
-from typing import List, Union
+`paper`_ for details and notation.
+"""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 import numpy as np
 
@@ -26,9 +26,7 @@ class SquaredLoss:
         (optional)
     """
 
-    def __init__(
-        self, Y_true: np.ndarray, Y_weights: Union[np.ndarray, float] = 1.0
-    ) -> None:
+    def __init__(self, Y_true: np.ndarray, Y_weights: np.ndarray | float = 1.0) -> None:
         self.Y_true = Y_true
         self.Y_error = np.zeros(Y_true.shape)  # preallocate to save resources
         self.Y_weights = np.ones(Y_true.shape) * Y_weights
@@ -43,7 +41,7 @@ class SquaredLoss:
         self.Y_error[:, :] = Y_pred - self.Y_true
         self.Y_error *= np.sqrt(self.Y_weights)
         cost = 0
-        for j in range(0, self.n_y):
+        for j in range(self.n_y):
             cost += np.dot(self.Y_error[j], self.Y_error[j].T)
         return np.float64(cost)
 
@@ -56,9 +54,7 @@ class GradientEnhancement:
     :param J_weights: weights by which to prioritize partials (optional)
     """
 
-    def __init__(
-        self, J_true: np.ndarray, J_weights: Union[np.ndarray, float] = 1.0
-    ) -> None:
+    def __init__(self, J_true: np.ndarray, J_weights: np.ndarray | float = 1.0) -> None:
         self.J_true = J_true
         self.J_error = np.zeros(J_true.shape)
         self.J_weights = np.ones(J_true.shape) * J_weights
@@ -73,8 +69,8 @@ class GradientEnhancement:
         self.J_error[:, :, :] = self.J_weights * (J_pred - self.J_true)
         self.J_error *= np.sqrt(self.J_weights)
         cost = 0.0
-        for k in range(0, self.n_y):
-            for j in range(0, self.n_x):
+        for k in range(self.n_y):
+            for j in range(self.n_x):
                 dot_product = np.dot(self.J_error[k, j], self.J_error[k, j].T)
                 cost += np.squeeze(dot_product)
         return np.float64(cost)
@@ -83,7 +79,7 @@ class GradientEnhancement:
 class Regularization:
     """Compute regularization penalty."""
 
-    def __init__(self, weights: List[np.ndarray], lambd: float = 0.0) -> None:
+    def __init__(self, weights: list[np.ndarray], lambd: float = 0.0) -> None:
         r"""Compute L2 norm penalty.
 
         :param weights: neural parameters :math:`W^{[l]} \in
@@ -132,11 +128,13 @@ class Cost:
         self.parameters = parameters
         self.squared_loss = SquaredLoss(data.Y, data.Y_weights)
         self.regularization = Regularization(parameters.W, lambd)
-        if data.J is not None:  # noqa: PLR2004
+        if data.J is not None:
             self.gradient_enhancement = GradientEnhancement(data.J, data.J_weights)
 
     def evaluate(
-        self, Y_pred: np.ndarray, J_pred: Union[np.ndarray, None] = None
+        self,
+        Y_pred: np.ndarray,
+        J_pred: np.ndarray | None = None,
     ) -> np.float64:
         r"""Evaluate cost function.
 

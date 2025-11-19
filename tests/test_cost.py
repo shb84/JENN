@@ -1,6 +1,10 @@
 """Test that cost function is working."""
-import jenn
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
+
 import numpy as np
+
+import jenn
 
 
 def test_least_squares():
@@ -9,7 +13,7 @@ def test_least_squares():
 
     parameters = jenn.core.parameters.Parameters(layer_sizes=[2, 2, 1])
     parameters.initialize()
-    
+
     data = jenn.core.data.Dataset(x, y, dydx)
     cost = jenn.core.cost.Cost(data, parameters, lambd=0.0)
 
@@ -24,5 +28,5 @@ def test_least_squares():
 
 
 def test_regularization():
-    pass  # TODO 
-
+    """Check that regularization prevents overfitting."""
+    return NotImplemented  # TODO: check overfitting
