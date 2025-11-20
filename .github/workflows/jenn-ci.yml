@@ -43,6 +43,6 @@ jobs:
           environments: dev # Specify the environment to install and activate
 
       - name: Build docs using sphinx
-        run: pixi run -e dev --frozen sphinx 
+        run: pixi run -e dev --frozen docs 
 
     

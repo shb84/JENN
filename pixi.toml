@@ -170,7 +170,7 @@ ruff = "*"
 taplo = "*"
 
 [feature.docs.dependencies]
-sphinx = "<7.0"                # to build docs (pinned b/c "An error happened in rendering the page index. Reason: UndefinedError("'style' is undefined")" )
+sphinx = "*" 
 sphinx_rtd_theme = "*"
 sphinx-autodoc-typehints = "*"
 
