@@ -1,3 +1,13 @@
+name: jenn-ci
+run-name: ${{ github.actor }}-jenn-ci
+
+on: 
+  push:
+    branches: 
+      - '*'
+    tags:        
+      - '*'
+
 jobs:
   build:
     runs-on: ubuntu-latest
