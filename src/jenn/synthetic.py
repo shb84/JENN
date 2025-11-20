@@ -55,8 +55,8 @@ def _fullfact(n_x: int, m_levels: int) -> np.ndarray:
 class TestFunction:
     """Test function base class."""
 
-    @abc.abstractmethod
     @classmethod
+    @abc.abstractmethod
     def evaluate(cls, x: np.ndarray) -> np.ndarray:
         """Evaluate function.
 
@@ -65,8 +65,8 @@ class TestFunction:
         """
         raise NotImplementedError
 
-    @abc.abstractmethod
     @classmethod
+    @abc.abstractmethod
     def first_derivative(cls, x: np.ndarray) -> np.ndarray:
         """Evaluate partial derivative.
 
@@ -102,7 +102,7 @@ class TestFunction:
             y2 = f(x2)
             dydx[:, i] = (y2 - y1) / (2 * dx)
         return dydx
-    
+
 
 def _sample(
     func: TestFunction,
@@ -115,7 +115,7 @@ def _sample(
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Generate synthetic data by sampling the test function.
 
-    :param func: function to be sampled 
+    :param func: function to be sampled
     :param m_random: number of random samples
     :param m_levels: number of levels per factor for full factorial
     :param lb: lower bound on the factors
@@ -133,9 +133,9 @@ def _sample(
     doe = np.concatenate([lh, ff], axis=1)
     m = doe.shape[1]
     x = lb + (ub - lb) * doe
-    y = func.evaluate(x).reshape((-1, m))  
+    y = func.evaluate(x).reshape((-1, m))
     if dx is None:
-        dydx = func.first_derivative(x).reshape((-1, n_x, m))  
+        dydx = func.first_derivative(x).reshape((-1, n_x, m))
     else:
         dydx = func.first_derivative_FD(x, dx).reshape((-1, n_x, m))
     return x, y, dydx
@@ -346,7 +346,7 @@ class Rastrigin(TestFunction):
         for i in range(n_x):
             dydx[0, i, :] = 2 * x[i] + 20 * np.pi * np.sin(2 * np.pi * x[i])
         return dydx
-    
+
     @classmethod
     def sample(
         cls,

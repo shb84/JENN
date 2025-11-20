@@ -1,0 +1,13 @@
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.9.1 # Pin to a specific version
+        with:
+          environments: |
+            dev 
+          # Optional: Add authentication details if needed
+          # auth-token: ${{ secrets.PIXI_AUTH_TOKEN }}
+      - name: Run tests
+        run: pixi run test

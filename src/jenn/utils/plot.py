@@ -42,10 +42,10 @@ assess goodness of fit and visualize trends.
 # This work is licensed under the MIT License.
 
 from collections.abc import Callable
-from matplotlib.figure import Figure, SubFigure
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.figure import Figure, SubFigure
 
 from .metrics import r_square
 

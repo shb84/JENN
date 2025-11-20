@@ -301,7 +301,7 @@ class Parameters:
         if isinstance(partials, np.ndarray):  # single column
             partials = self._column_to_stacks(partials)
         for i, array in enumerate(partials):
-            n, p = self.dW[i].shape # type: ignore
+            n, p = self.dW[i].shape  # type: ignore [misc]
             self.dW[i][:] = array[: n * p].reshape(n, p)
             self.db[i][:] = array[n * p :].reshape(n, 1)
 
