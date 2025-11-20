@@ -25,12 +25,6 @@ jobs:
       - name: Check linting 
         run: pixi run -e dev --frozen lint 
 
-      - name: Make docs 
-        run: pixi run -e dev --frozen docs 
-
-      - name: Build distribution files
-        run: pixi run -e dev --frozen build 
-
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
