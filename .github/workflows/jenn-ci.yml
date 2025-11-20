@@ -20,6 +20,6 @@ jobs:
           environments: dev # Specify the environment to install and activate
 
       - name: Run tests in 'dev' environment
-        run: pixi run test 
+        run: pixi run -e dev --frozen test 
 
     
