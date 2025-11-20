@@ -22,4 +22,14 @@ jobs:
       - name: Run tests in 'dev' environment
         run: pixi run -e dev --frozen test 
 
+      - name: Run lining in 'dev' environment
+        run: pixi run -e dev --frozen lint 
+
+      - name: ⬆️ Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts-py${{ matrix.python-version }}
+          path: ./build
+          overwrite: true
+
     
