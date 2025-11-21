@@ -53,16 +53,16 @@ exclude_patterns = []
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {
     "logo_only": False,
-    # "version_selector": True,
     "prev_next_buttons_location": "bottom",
-    # 'style_external_links': False,
-    # 'vcs_pageview_mode': '',
-    # 'style_nav_header_background': 'white',
-    # Toc options
     "collapse_navigation": True,
     "sticky_navigation": True,
     "navigation_depth": 2,
     "includehidden": True,
+    # "version_selector": True,
+    # 'style_external_links': False,
+    # 'vcs_pageview_mode': '',
+    # 'style_nav_header_background': 'white',
+    # Toc options
     # 'titles_only': True,  # this prevents collapsible sections
 }
 html_context = {
