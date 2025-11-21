@@ -363,7 +363,12 @@ class Optimizer:
             if verbose:
                 _print_progress(epoch, batch, iteration=i, cost=y)
             if _check_convergence(
-                i, cost_history, epsilon_absolute, epsilon_relative, max_iter, verbose
+                i,
+                cost_history,
+                epsilon_absolute,
+                epsilon_relative,
+                max_iter,
+                verbose,
             ):
                 break
         self.cost_history = cost_history

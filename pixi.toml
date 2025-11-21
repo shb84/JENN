@@ -170,7 +170,7 @@ ruff = "*"
 taplo = "*"
 
 [feature.docs.dependencies]
-sphinx = "*" 
+sphinx = "*"
 sphinx_rtd_theme = "*"
 sphinx-autodoc-typehints = "*"
 

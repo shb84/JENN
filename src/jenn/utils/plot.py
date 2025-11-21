@@ -288,7 +288,6 @@ def residuals_by_predicted(
     :param title: title of figure
     :param fontsize: text size
     :param alpha: transparency of dots (between 0 and 1)
-    :return: matplotlib figure instance
     """
     if y_pred.ndim > 1:
         if y_pred.ndim == 2 and 1 in y_pred.shape:
@@ -478,7 +477,7 @@ def sensitivity_profiles(
     :param title: title of figure
     :param xlabels: x-axis labels
     :param ylabels: y-axis labels
-    resolution: line resolution
+    :param resolution: line resolution
     :param legend: legend labels for each model
     :param show_cursor: show x0 as a red dot (or not)
     """
