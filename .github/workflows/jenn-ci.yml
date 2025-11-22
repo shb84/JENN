@@ -1,6 +1,12 @@
 name: jenn-ci
 run-name: ${{ github.actor }}-jenn-ci
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages/Release
+permissions:
+  contents: write  # IMPORTANT: mandatory for making GitHub Releases
+  pages: write  
+  id-token: write
+
 on: 
   push:
     branches: 
@@ -61,4 +67,74 @@ jobs:
           path: ./build
           overwrite: true
 
-    
+  deploy: 
+    needs: build 
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') # only release on tag pushes 
+    steps: 
+      - name: ⬇️ Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./build
+
+      - name: Stage distribution for test release 
+        shell: bash -el {0}
+        run: | # GitHub Actions needs dist/ to be at root level
+          mv ./build/dist .  
+
+      - name: 📦 Ship package to TestPyPI
+        id: testpypi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
+          skip-existing: true
+          repository-url: https://test.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.TESTPYPI_TOKEN }}
+
+      - name: ⬆️ Upload documentation to GitHub Pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          # Upload entire repository
+          path: './build/docs/html'
+
+      - name: 📰 Publish Docs to GitHub Pages
+        id: pypi
+        uses: actions/deploy-pages@v4
+
+      - name: 📦 Ship package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
+          skip-existing: true
+          repository-url: https://upload.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+
+      - name: Sign the dists with Sigstore
+        uses: sigstore/gh-action-sigstore-python@v3
+        with:
+          inputs: >-
+            ./dist/*.tar.gz
+            ./dist/*.whl
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create
+          '${{ github.ref_name }}'
+          --repo '${{ github.repository }}'
+          --notes ""
+
+      - name: Upload artifact signatures to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        # Upload to GitHub Release using the `gh` CLI.
+        # `dist/` contains the built packages, and the
+        # sigstore-produced signatures and certificates.
+        run: >-
+          gh release upload
+          '${{ github.ref_name }}' dist/**
+          --repo '${{ github.repository }}'
