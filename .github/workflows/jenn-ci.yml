@@ -42,7 +42,18 @@ jobs:
         with:
           environments: dev # Specify the environment to install and activate
 
+      - name: ⬇️ Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./build
+
       - name: Build docs using sphinx
         run: pixi run -e dev --frozen docs 
+
+      - name: 💾 Build distribution files
+        shell: bash -el {0}
+        run: | 
+          pixi run -e dev --frozen build
 
     
