@@ -2,21 +2,27 @@
 
 Contibutions are welcome. Thank you for helping make the project better! 
 
---- 
 ## Installation
 
-This project relies on [`pixi`](https://pixi.sh/latest/), which needs to be installed: 
+This project uses [`pixi`](https://pixi.sh/latest/), which must be installed. 
 
+__Linux & macOS__ 
 ```
 curl -fsSL https://pixi.sh/install.sh | bash
 ``` 
 
-That's it! You are now ready to go. 
+__Windows__
+```
+powershell -ExecutionPolicy ByPass -c "irm -useb https://pixi.sh/install.ps1 | iex"
+```
 
----
+_That's it. You are now ready to go!_
+
 ## Running 
 
-Just use `pixi` to run tasks (defined in `pyproject.toml`) command, e.g.: 
+To display a list of available tasks, type `pixi run`. 
+
+__Example usage__
 ```
 pixi run test
 ```
@@ -25,71 +31,64 @@ OR
 pixi run lab
 ```
 
----
 ## Making Changes
 
-### Step 1: Update dependencies 
+- [ ] Fork the repo 
+- [ ] Make code changes 
+- [ ] Update package dependencies in `pyproject.toml` as necessary 
+- [ ] Update project dependencies in `pixi.toml` as necessary
+- [ ] Ensure QA passes locally: `pixi run all`
+- [ ] Commit and push changes to GitHub (this automatically triggers CI)
+- [ ] Create pull request when ready
 
-If needed, update any project dependencies in the `pyproject.toml` (they will automatically be picked up by `pixi`):
+## Release 
 
-```
-[project]
-dependencies = [
-  "jsonpointer>=2.4",
-  "jsonschema>=4.22",
-  "orjson>=3.9",
-  "numpy>=1.22",
-]
+*Only project owners and administrators can make new releases.* 
 
-[project.optional-dependencies]
-plot = [
-  "matplotlib",
-]
-```
+A new release is created by pushing a new tag to the remote (e.g. `v1.0.9`). This triggers a __test-build-deploy__ workflow that publishes to `pypi.org`, `GitHub Pages` and `Github Release`. Tag pattern must be `v*`.
 
-### Step 2: Run Unit Tests
+### Prerequisites
 
-Make sure the unit tests are passing: 
+Either [pypi](https://pypi.org/) and [testpypi](https://test.pypi.org/) need to be setup for [trusted publishing](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/) or Github must be provided an [API token](https://pypi.org/help/#apitoken) to enable communication between these servers. Currently, the latter is used.
 
-```bash
-pixi run test
-```
+### Mock Release
 
-### Step 3: Fix Lint Issues 
-
-Make sure the code is well formatted (fix manually if needed): 
+It's a good idea to do a mock release using `testpypi` from local install: 
 
 ```bash
-pixi run lint
+pixi run testpypi
 ```
 
-### Step 4: Test Build
+_Check that the package appears on `testpypi` and try manually installing it in a fresh virtual environment to ensure it runs as expected, as an extra layer of precaution. If not, please help update the CI procedure to catch the newly found issues._
 
-Test docs are building locally: 
+### Procedure 
+Assuming `master` is locally up-to-date, update version number in `src/jenn/__init__.py`: 
 
 ```bash
-pixi run build-docs
+__version__ = "1.0.9"
 ```
 
-Test distribution is building locally: 
+Push the version change to the remote: 
 
 ```bash
-pixi run build-dist
+git add -u 
+git commit -m "changed version to v1.0.9"
+git push 
 ```
 
-### Step 5: Test Release
-
-Test release on `testpypi`: 
+Tag commit for release and push to trigger release pipeline: 
 
 ```bash
-pixi run release
+git tag v1.0.9
+git push origin v1.0.9
 ```
 
-This will require creating an API token on `testpypi`: 
+Once the pipeline has succeeded, check that there is now a new release on `pypi.org`, `GitHub Pages` and `Github Release`. 
 
-* In your account settings, go to the API tokens section and select "Add API token" 
+### TestPyPi
 
-Then use that token to configure your local [`.pyprc`](https://packaging.python.org/en/latest/specifications/pypirc/) file: 
+- [ ] In account settings on [testpypi.org](https://test.pypi.org/), go to the API tokens section and select "Add API token" 
+- [ ] Then use that token to configure your local [`.pyprc`](https://packaging.python.org/en/latest/specifications/pypirc/) file: 
 
 ```bash
 [distutils]
@@ -101,62 +100,4 @@ repository: https://test.pypi.org/legacy/
 username: __token__
 password: pypi-...
 ```
-
-### Step 5: Commit / Pull Request
-
-Commit changes. CI is triggered on push: 
-
-```bash
-git add -u 
-git status 
-git commit -m "description"
-git push
-```
-
-_Create a PR on GitHub when ready_ 
-
-## Release 
-
-**Only project owners and administrators can make new releases.** 
-
-The release process has been automated via Github Actions. In summary, a new release is created by pushing a new tag to the remote (e.g. `v1.0.8`), which triggers a _test-build-deploy_ workflow that publishes to `pypi.org`, `GitHub Pages` and `Github Release`. Tag pattern must be `v*`.
-
-> NOTE: 
-> either [pypi](https://pypi.org/) and [testpypi](https://test.pypi.org/) need to be setup for [trusted publishing](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/) or Github must be provided an [API token](https://pypi.org/help/#apitoken) to enable communication between GitHub, TestPyPI, and PyPI. Currently, the latter is used.
-
-Assuming `master` is locally up-to-date, manually update the pyproject.toml version number:
-
-```bash
-version = "1.0.8"
-```
-
-For now, this must also be done manually in `src/jenn/__init__.py`: 
-
-```bash
-__version__ = "1.0.8"
-```
-
-Push the version change to the remote: 
-
-```bash
-git add -u 
-git commit -m "changed version to v1.0.8"
-git push 
-```
-
-Tag commit for release and push to trigger release pipeline: 
-
-```bash
-git tag v1.0.8
-git push origin v1.0.8
-```
-
-Once the pipeline has succeeded, check that there is now a new release on `pypi.org`, `GitHub Pages` and `Github Release`. If so, the last step is to lock the branch associated with the release, so it can be easily accessed but not changed. 
-
-```bash
-git checkout -b jenn-v1.0.8 
-git push --set-upstream origin jenn-v1.0.8 
-```
-
-On GitHub, go to Project `Settings > Branches` and add a "Lock branch" rule for `jenn-v1.0.8`.
 

@@ -1,24 +1,25 @@
 """Data.
 ========
 
-This module contains convenience utilities to 
-manage and handle training data. 
-"""  # noqa: W291
+This module contains convenience utilities to
+manage and handle training data.
+"""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 import math
 from dataclasses import dataclass
 from functools import cached_property
-from typing import List, Tuple, Union
 
 import numpy as np
 
 
 def mini_batches(
     X: np.ndarray,
-    batch_size: Union[int, None],
+    batch_size: int | None,
     shuffle: bool = True,
-    random_state: Union[int, None] = None,
-) -> List[Tuple[int, ...]]:
+    random_state: int | None = None,
+) -> list[tuple[int, ...]]:
     r"""Create randomized mini-batches.
 
     :param X: training data input :math:`X\in\mathbb{R}^{n_x\times m}`
@@ -41,7 +42,7 @@ def mini_batches(
     indices: list[int] = list(rng.permutation(m)) if shuffle else np.arange(m).tolist()
 
     # Step 2: Partition (shuffled_X, shuffled_Y). Minus the end case.
-    num_complete_minibatches = int(math.floor(m / batch_size))
+    num_complete_minibatches = math.floor(m / batch_size)
     k = 0
     for _ in range(num_complete_minibatches):
         mini_batch = indices[k * batch_size : (k + 1) * batch_size]
@@ -77,10 +78,11 @@ def std(array: np.ndarray) -> np.ndarray:
 
 
 def _safe_divide(
-    value: np.ndarray, eps: float = float(np.finfo(float).eps)
+    value: np.ndarray,
+    eps: float = float(np.finfo(float).eps),
 ) -> np.ndarray:
     """Add small number to avoid dividing by zero."""
-    mask = value == 0.0  # noqa: PLR2004
+    mask = value == 0.0
     value[mask] += eps
     return value
 
@@ -108,8 +110,10 @@ def denormalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarr
 
 
 def normalize_partials(
-    partials: Union[np.ndarray, None], sigma_x: np.ndarray, sigma_y: np.ndarray
-) -> Union[np.ndarray, None]:
+    partials: np.ndarray | None,
+    sigma_x: np.ndarray,
+    sigma_y: np.ndarray,
+) -> np.ndarray | None:
     r"""Normalize partials.
 
     :param partials: training data partials to be normalized
@@ -129,7 +133,9 @@ def normalize_partials(
 
 
 def denormalize_partials(
-    partials: np.ndarray, sigma_x: np.ndarray, sigma_y: np.ndarray
+    partials: np.ndarray,
+    sigma_x: np.ndarray,
+    sigma_y: np.ndarray,
 ) -> np.ndarray:
     r"""Undo normalization of partials.
 
@@ -158,10 +164,10 @@ class Dataset:
 
     X: np.ndarray
     Y: np.ndarray
-    J: Union[np.ndarray, None] = None
+    J: np.ndarray | None = None
 
-    Y_weights: Union[np.ndarray, float] = 1.0
-    J_weights: Union[np.ndarray, float] = 1.0
+    Y_weights: np.ndarray | float = 1.0
+    J_weights: np.ndarray | float = 1.0
 
     def __post_init__(self) -> None:  # noqa: D105
         if self.X.shape[1] != self.Y.shape[1]:
@@ -170,18 +176,17 @@ class Dataset:
 
         n_y, n_x, m = self.n_y, self.n_x, self.m
 
-        self.Y_weights = self.Y_weights * np.ones((n_y, m))
-        self.J_weights = self.J_weights * np.ones((n_y, n_x, m))
+        self.Y_weights *= np.ones((n_y, m))
+        self.J_weights *= np.ones((n_y, n_x, m))
 
-        if self.J is not None:
-            if self.J.shape != (n_y, n_x, m):
-                msg = f"J must be of shape ({n_y}, {n_x}, {m})"
-                raise ValueError(msg)
+        if self.J is not None and self.J.shape != (n_y, n_x, m):
+            msg = f"J must be of shape ({n_y}, {n_x}, {m})"
+            raise ValueError(msg)
 
     def set_weights(
         self,
-        beta: Union[np.ndarray, float] = 1.0,
-        gamma: Union[np.ndarray, float] = 1.0,
+        beta: np.ndarray | float = 1.0,
+        gamma: np.ndarray | float = 1.0,
     ) -> None:
         """Prioritize certain points more than others.
 
@@ -230,10 +235,10 @@ class Dataset:
 
     def mini_batches(
         self,
-        batch_size: Union[int, None],
+        batch_size: int | None,
         shuffle: bool = True,
-        random_state: Union[int, None] = None,
-    ) -> List["Dataset"]:
+        random_state: int | None = None,
+    ) -> list["Dataset"]:
         """Breakup data into multiple batches and return list of Datasets.
 
         :param batch_size: mini batch size (if None, single batch with

@@ -1,13 +1,13 @@
 """Cache.
 =========
 
-This module defines a convenience class to  all quantities 
-computed during forward propagation, so they don't have to be 
+This module defines a convenience class to  all quantities
+computed during forward propagation, so they don't have to be
 recomputed again during backward propgation. See
 `paper`_ for details and notation.
-"""  # noqa: W291
-
-from typing import List
+"""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 import numpy as np
 
@@ -77,16 +77,16 @@ class Cache:
         """Return number of outputs."""
         return int(self.layer_sizes[-1])
 
-    def __init__(self, layer_sizes: List[int], m: int = 1):  # noqa: D107
+    def __init__(self, layer_sizes: list[int], m: int = 1):
         self.layer_sizes = layer_sizes
-        self.Z: List[np.ndarray] = []  #  z = w a_prev + b
-        self.Z_prime: List[np.ndarray] = []  #  z' = dz/dx[j] for all j = 1, .., n_x
-        self.A: List[np.ndarray] = []  #  a = g(z)
-        self.A_prime: List[np.ndarray] = []  #  a' = da/dx[j] for all j = 1, .., n_x
-        self.G_prime: List[np.ndarray] = []  #  g' = da/dz
-        self.G_prime_prime: List[np.ndarray] = []  #  g'' = d/dz( da/dz )
-        self.dA: List[np.ndarray] = []
-        self.dA_prime: List[np.ndarray] = []
+        self.Z: list[np.ndarray] = []  # z = w a_prev + b
+        self.Z_prime: list[np.ndarray] = []  # z' = dz/dx[j] for all j = 1, .., n_x
+        self.A: list[np.ndarray] = []  # a = g(z)
+        self.A_prime: list[np.ndarray] = []  # a' = da/dx[j] for all j = 1, .., n_x
+        self.G_prime: list[np.ndarray] = []  # g' = da/dz
+        self.G_prime_prime: list[np.ndarray] = []  # g'' = d/dz( da/dz )
+        self.dA: list[np.ndarray] = []
+        self.dA_prime: list[np.ndarray] = []
         for n in self.layer_sizes:
             self.Z.append(np.zeros((n, m)))
             self.Z_prime.append(np.zeros((n, self.n_x, m)))

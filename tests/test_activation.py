@@ -1,13 +1,19 @@
 """Test that activation functions are correct."""
-import numpy as np
-import jenn
-from time import time
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 from importlib.util import find_spec
+from time import time
+
+import numpy as np
+
+import jenn
+
 from ._utils import finite_difference
 
 if find_spec("matplotlib"):
     import matplotlib.pyplot as plt
+
     MATPLOTLIB_INSTALLED = True
 else:
     MATPLOTLIB_INSTALLED = False
@@ -21,14 +27,17 @@ ACTIVATIONS = dict(
 
 
 def _check_activation_partials(
-        x: np.ndarray, activation: jenn.core.activation.Activation):
-    """Test 1st and 2nd derivative of activation (default = tanh)"""
+    x: np.ndarray,
+    activation: jenn.core.activation.Activation,
+):
+    """Test 1st and 2nd derivative of activation function."""
+
     def dy(z):
-        """finite difference 1st derivative"""
+        """Finite difference 1st derivative."""
         return finite_difference(activation.evaluate, z)
 
     def ddy(z):
-        """Finite difference 2nd derivative"""
+        """Finite difference 2nd derivative."""
         return finite_difference(activation.first_derivative, z, dx=1e-6)
 
     assert np.allclose(activation.first_derivative(x), dy(x), atol=1e-6)
@@ -48,7 +57,6 @@ def test_inplace():
     id_ddy = id(ddy)
 
     for name, activation in ACTIVATIONS.items():
-
         tic = time()
 
         y = activation.evaluate(x, y)
@@ -77,46 +85,50 @@ def test_inplace():
         # The other activations are so simple that it's actually faster to
         # not evaluate them in place. Hence, this check only makes sense for
         # TanH, which is the recommended default for JENN applications anyway.
-        if name == 'tanh':
+        if name == "tanh":
             assert elapsed_time_in_place < elapsed_time_copy
         # Speed about "2 x" for TanH: 0.055s < 0.128s for x.shape = (1, 1e6),
         # which translates into significant savings given that TanH gets called
         # for every hidden node in a neural net.
 
 
-class TestActivation: 
+class TestActivation:
     """Test all activation functions."""
 
     def test_tanh(self):
-        """Test tanh activation"""
+        """Test tanh activation."""
         x = np.linspace(-10, 10, 51).reshape((1, -1))
-        assert np.allclose(ACTIVATIONS['tanh'].evaluate(x), np.tanh(x), atol=1e-6)
+        assert np.allclose(ACTIVATIONS["tanh"].evaluate(x), np.tanh(x), atol=1e-6)
         _check_activation_partials(x, activation=jenn.core.activation.Tanh)
 
-    def test_linear(self):
-        """Test linear activation"""
+    def test_linear(self) -> None:
+        """Test linear activation."""
         x = np.linspace(-10, 10, 51).reshape((1, -1))
-        assert np.allclose(ACTIVATIONS['linear'].evaluate(x), x, atol=1e-6)
+        assert np.allclose(ACTIVATIONS["linear"].evaluate(x), x, atol=1e-6)
         _check_activation_partials(x, activation=jenn.core.activation.Linear)
 
-    def test_relu(self):
-        """Test relu activation"""
+    def test_relu(self) -> None:
+        """Test relu activation."""
         x = np.linspace(-10, 10, 51).reshape((1, -1))
         negative = x <= 0
         positive = x > 0
-        array = ACTIVATIONS['relu'].evaluate(x)
+        array = ACTIVATIONS["relu"].evaluate(x)
         assert np.allclose(array[positive], x[positive], atol=1e-6)
         assert np.allclose(array[negative], 0.0, atol=1e-6)
         _check_activation_partials(
-            x[negative].reshape((1, -1)), activation=jenn.core.activation.Relu)
+            x[negative].reshape((1, -1)),
+            activation=jenn.core.activation.Relu,
+        )
         _check_activation_partials(
-            x[positive].reshape((1, -1)), activation=jenn.core.activation.Relu)
+            x[positive].reshape((1, -1)),
+            activation=jenn.core.activation.Relu,
+        )
 
     @classmethod
-    def plot_activation(cls, name: str):
+    def plot_activation(cls, name: str) -> None:
         """Plot specified activation."""
         if not MATPLOTLIB_INSTALLED:
-            raise ValueError(f'Matplotlib is not installed.')
+            raise ValueError("Matplotlib is not installed.")
 
         x = np.linspace(-10, 10, 1_000)
         g = ACTIVATIONS[name]
@@ -129,15 +141,15 @@ class TestActivation:
         ddy = g.second_derivative(x, y, dy, ddy)
 
         plt.plot(x, y)
-        plt.title(name + f" (0th derivative)")
+        plt.title(name + " (0th derivative)")
         plt.show()
 
         plt.plot(x, dy)
-        plt.title(name + f" (1st derivative)")
+        plt.title(name + " (1st derivative)")
         plt.show()
 
         plt.plot(x, ddy)
-        plt.title(name + f" (2nd derivative)")
+        plt.title(name + " (2nd derivative)")
         plt.show()
 
 

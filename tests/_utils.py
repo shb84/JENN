@@ -1,18 +1,21 @@
 """Test that activation functions are corrected."""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
+
 import numpy as np
-from typing import List
 
 
-def model_backward_FD(cost, params, step=1e-6):
+def model_backward_FD(cost, params, step=1e-6):  # noqa: N802
     """Use finite difference to compute partials of cost function
-    with respect to neural net parameters (backpropagation)."""
+    with respect to neural net parameters (backpropagation).
+    """
     grads = list()
     dx = step
     for x in params:
         n, p = x.shape
         dy = np.zeros((n, p))
-        for i in range(0, n):
-            for j in range(0, p):
+        for i in range(n):
+            for j in range(p):
                 # Forward step
                 x[i, j] += dx
                 y_fwd = cost(params)
@@ -31,21 +34,20 @@ def model_backward_FD(cost, params, step=1e-6):
 
 
 def grad_check(
-        dydx: List[np.ndarray], dydx_FD: List[np.ndarray],
-        tol: float = 1e-6, verbose: bool = True) -> bool:
-    """
-    Compare analytical gradient against finite difference
+    dydx: list[np.ndarray],
+    dydx_FD: list[np.ndarray],
+    tol: float = 1e-6,
+    verbose: bool = True,
+) -> bool:
+    """Compare analytical gradient against finite difference.
 
     Parameters
     ----------
-    x: List[np.ndarray]
-        Point at which to evaluate gradient
+    dydx: list[np.ndarray]
+        predicted partial derivative
 
-    f: callable
-        Function handle to use for finite difference
-
-    dx: float
-        Finite difference step
+    dydx_FD: list[np.ndarray]
+        predicted partial derivative using finite difference
 
     tol: float
         Tolerance below which agreement is considered acceptable
@@ -59,12 +61,14 @@ def grad_check(
     -------
     success: bool
         Returns True iff finite difference and analytical grads agree
+
     """
     success = True
     for i in range(len(dydx)):
         numerator = np.linalg.norm(dydx[i].squeeze() - dydx_FD[i].squeeze())
         denominator = np.linalg.norm(dydx[i].squeeze()) + np.linalg.norm(
-            dydx_FD[i].squeeze())
+            dydx_FD[i].squeeze(),
+        )
         if denominator == 0.0:
             denominator += 1e-12
         difference = numerator / denominator
@@ -86,8 +90,8 @@ def _forward_difference(f: callable, x: np.ndarray, dx: float = 1e-6):
     """Compute partials of y = f(x) using forward difference."""
     n_x, m = x.shape
     dy = np.zeros((n_x, m))
-    for i in range(0, n_x):
-        dy[i] = np.divide(f(x+dx) - f(x), dx)
+    for i in range(n_x):
+        dy[i] = np.divide(f(x + dx) - f(x), dx)
     return dy
 
 
@@ -96,8 +100,8 @@ def _backward_difference(f: callable, x: np.ndarray, dx: float = 1e-6):
     """Compute partials of y = f(x) using backward difference."""
     n_x, m = x.shape
     dy = np.zeros((n_x, m))
-    for i in range(0, n_x):
-        dy[i] = np.divide(f(x) - f(x-dx), dx)
+    for i in range(n_x):
+        dy[i] = np.divide(f(x) - f(x - dx), dx)
     return dy
 
 
@@ -106,8 +110,8 @@ def _central_difference(f: callable, x: np.ndarray, dx: float = 1e-6):
     """Compute partials of y = f(x) using central difference."""
     n_x, m = x.shape
     dy = np.zeros((n_x, m))
-    for i in range(0, n_x):
-        dy[i] = np.divide(f(x+dx) - f(x-dx), 2 * dx)
+    for i in range(n_x):
+        dy[i] = np.divide(f(x + dx) - f(x - dx), 2 * dx)
     return dy
 
 
@@ -117,4 +121,3 @@ def finite_difference(f: callable, x: np.ndarray, dx: float = 1e-6):
     dy[:, :1] = _forward_difference(f, x, dx)[:, :1]
     dy[:, -1:] = _backward_difference(f, x, dx)[:, -1:]
     return dy
-

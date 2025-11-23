@@ -1,11 +1,13 @@
 """Training.
 ============
 
-This class implements the core algorithm responsible for training the neural networks."""
+This class implements the core algorithm responsible for training the neural networks.
+"""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 import functools
 from collections import defaultdict
-from typing import Union
 
 import numpy as np
 
@@ -27,14 +29,15 @@ def objective_function(
     """Evaluate cost function for training.
 
     :param X: training data inputs, array of shape (n_x, m)
-    cost: cost function to be evaluated
+    :param cost: cost function to be evaluated
     :param parameters: object that stores neural net parameters for each
         layer
     :param cache: neural net cache that stores neural net quantities
         computed during forward prop for each layer, so they can be
         accessed during backprop to avoid re-computing them
-    stacked_params: neural network parameters returned by the optimizer,
-        represented as single array of stacked parameters for all layers.
+    :param stacked_params: neural network parameters returned by the
+        optimizer, represented as single array of stacked parameters for
+        all layers.
     """
     parameters.unstack(stacked_params)
     Y_pred, J_pred = model_partials_forward(X, parameters, cache)
@@ -47,7 +50,7 @@ def objective_gradient(
     cache: Cache,
     lambd: float,
     stacked_params: np.ndarray,
-) -> np.ndarray:  # noqa: PLR0913
+) -> np.ndarray:
     """Evaluate cost function gradient for backprop.
 
     :param data: object containing training and associated metadata
@@ -73,8 +76,8 @@ def train_model(
     data: Dataset,
     parameters: Parameters,
     alpha: float = 0.05,
-    beta: Union[np.ndarray, float] = 1.0,
-    gamma: Union[np.ndarray, float] = 1.0,
+    beta: np.ndarray | float = 1.0,
+    gamma: np.ndarray | float = 1.0,
     lambd: float = 0.0,
     beta1: float = 0.9,
     beta2: float = 0.99,
@@ -85,12 +88,12 @@ def train_model(
     epsilon_relative: float = 1e-12,
     epochs: int = 1,
     max_iter: int = 200,
-    batch_size: Union[int, None] = None,
+    batch_size: int | None = None,
     shuffle: bool = True,
-    random_state: Union[int, None] = None,
+    random_state: int | None = None,
     is_backtracking: bool = False,
     is_verbose: bool = False,
-) -> dict:  # noqa: PLR0913
+) -> dict:
     r"""Train neural net.
 
     :param data: object containing training and associated metadata
@@ -127,7 +130,7 @@ def train_model(
     :return: cost function training history accessed as `cost =
         history[epoch][batch][iter]`
     """
-    history: dict[str, dict[str, Union[list[np.ndarray], None]]] = defaultdict(dict)
+    history: dict[str, dict[str, list[np.ndarray] | None]] = defaultdict(dict)
     optimizer = ADAMOptimizer(
         beta_1=beta1,
         beta_2=beta2,

@@ -1,8 +1,8 @@
 """Plotting.
 ============
 
-This module provides optional but helpful utilities to 
-assess goodness of fit and visualize trends. 
+This module provides optional but helpful utilities to
+assess goodness of fit and visualize trends.
 
 .. code-block:: python
 
@@ -10,40 +10,42 @@ assess goodness of fit and visualize trends.
     # Example Usage #
     #################
 
-    import jenn 
+    import jenn
 
-    # Assuming the following are available: 
+    # Assuming the following are available:
     x_train, y_train, dydx_train = _ # user provided
     x_test, y_test, dydx_test = _    # user provided
     nn = _                           # previously trained NeuralNet
 
-    # Show goodness of fit of the partials 
+    # Show goodness of fit of the partials
     i = 0  # index of the response to plot
     jenn.utils.plot.goodness_of_fit(
-        y_true=dydx_test[i], 
-        y_pred=nn.predict_partials(x_test)[i], 
+        y_true=dydx_test[i],
+        y_pred=nn.predict_partials(x_test)[i],
         title="Partial Derivative: dy/dx (NN)"
     )
 
     # Example: visualize local trends
     jenn.utils.plot.sensitivity_profiles(
-        f=[nn.predict], 
-        x_min=x_train.min(), 
-        x_max=x_train.max(), 
-        x_true=x_train, 
-        y_true=y_train, 
-        resolution=100, 
-        legend=['nn'], 
-        xlabels=['x'], 
+        f=[nn.predict],
+        x_min=x_train.min(),
+        x_max=x_train.max(),
+        x_true=x_train,
+        y_true=y_train,
+        resolution=100,
+        legend=['nn'],
+        xlabels=['x'],
         ylabels=['y'],
     )
-"""  # noqa: W291
+"""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 from collections.abc import Callable
-from typing import Dict, List, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.figure import Figure, SubFigure
 
 from .metrics import r_square
 
@@ -71,12 +73,12 @@ LINE_STYLES = {
 def actual_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
-    ax: Union[plt.Axes, None] = None,  # noqa: ANN401
-    figsize: Tuple[float, float] = (3.25, 3),
+    ax: plt.Axes | None = None,
+    figsize: tuple[float, float] = (3.25, 3),
     title: str = "",
     fontsize: int = 9,
     alpha: float = 1.0,
-) -> plt.Figure:  # noqa: ANN401
+) -> Figure:
     """Create actual by predicted plot for a single response.
 
     :param y_pred: predicted values, array of shape (m,)
@@ -94,7 +96,7 @@ def actual_by_predicted(
         else:
             raise ValueError(
                 f"Expected one dimensional array, "
-                f"but y_pred has {y_pred.ndim} dimensions."
+                f"but y_pred has {y_pred.ndim} dimensions.",
             )
     if y_true.ndim > 1 and 1 not in y_true.shape:
         if y_true.ndim == 2 and 1 in y_true.shape:
@@ -102,7 +104,7 @@ def actual_by_predicted(
         else:
             raise ValueError(
                 f"Expected one dimensional array, "
-                f"but y_true has {y_true.ndim} dimensions."
+                f"but y_true has {y_true.ndim} dimensions.",
             )
     fig = plt.figure(figsize=figsize, layout="tight")
     if not ax:
@@ -124,11 +126,11 @@ def actual_by_predicted(
 
 def contours(
     func: Callable,
-    lb: Tuple[float, float],
-    ub: Tuple[float, float],
-    x_train: Union[np.ndarray, None] = None,
-    x_test: Union[np.ndarray, None] = None,
-    figsize: Tuple[float, float] = (3.25, 3),
+    lb: tuple[float, float],
+    ub: tuple[float, float],
+    x_train: np.ndarray | None = None,
+    x_test: np.ndarray | None = None,
+    figsize: tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
     alpha: float = 0.5,
     title: str = "",
@@ -136,8 +138,8 @@ def contours(
     ylabel: str = "",
     levels: int = 20,
     resolution: int = 100,
-    ax: Union[plt.Axes, None] = None,  # noqa: ANN401
-) -> Union[None, plt.Figure]:  # noqa: ANN401
+    ax: plt.Axes | None = None,
+) -> Figure | SubFigure | None:
     """Plot contours of a scalar function of two variables.
 
     :param figsize: figure size
@@ -187,13 +189,13 @@ def contours(
 
 
 def convergence(
-    histories: List[Dict[str, Dict[str, List[float]]]],
-    figsize: Tuple[float, float] = (3.25, 3),
+    histories: list[dict[str, dict[str, list[float]]]],
+    figsize: tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
     alpha: float = 1.0,
     title: str = "",
-    legend: Union[List[str], None] = None,
-) -> Union[plt.Figure, None]:  # noqa: ANN401
+    legend: list[str] | None = None,
+) -> Figure | SubFigure | None:
     """Plot training history.
 
     :param histories: training history for each model
@@ -234,10 +236,8 @@ def convergence(
             plt.xlabel("epoch", fontsize=fontsize)
             plt.ylabel("avg cost", fontsize=fontsize)
         elif len(history["epoch_0"]) > 1:
-            avg_cost = []
             batches = history["epoch_0"].keys()
-            for batch in batches:
-                avg_cost.append(np.mean(history["epoch_0"][batch]))
+            avg_cost = [np.mean(history["epoch_0"][batch]) for batch in batches]
             plt.plot(
                 range(len(batches)),
                 avg_cost,
@@ -272,12 +272,12 @@ def residuals_by_predicted(
     y_pred: np.ndarray,
     y_true: np.ndarray,
     percent_residuals: bool = False,
-    ax: Union[plt.Axes, None] = None,  # noqa: ANN401
-    figsize: Tuple[float, float] = (3.25, 3),
+    ax: plt.Axes | None = None,
+    figsize: tuple[float, float] = (3.25, 3),
     title: str = "",
     fontsize: int = 9,
     alpha: float = 1.0,
-) -> plt.Figure:  # noqa: ANN401
+) -> Figure:
     """Create residual by predicted plot for a single response.
 
     :param y_pred: predicted values, array of shape (m,)
@@ -288,7 +288,6 @@ def residuals_by_predicted(
     :param title: title of figure
     :param fontsize: text size
     :param alpha: transparency of dots (between 0 and 1)
-    :return: matplotlib figure instance
     """
     if y_pred.ndim > 1:
         if y_pred.ndim == 2 and 1 in y_pred.shape:
@@ -296,7 +295,7 @@ def residuals_by_predicted(
         else:
             raise ValueError(
                 f"Expected one dimensional array, "
-                f"but y_pred has {y_pred.ndim} dimensions."
+                f"but y_pred has {y_pred.ndim} dimensions.",
             )
     if y_true.ndim > 1 and 1 not in y_true.shape:
         if y_true.ndim == 2 and 1 in y_true.shape:
@@ -304,7 +303,7 @@ def residuals_by_predicted(
         else:
             raise ValueError(
                 f"Expected one dimensional array, "
-                f"but y_true has {y_true.ndim} dimensions."
+                f"but y_true has {y_true.ndim} dimensions.",
             )
     fig = plt.figure(figsize=figsize, layout="tight")
     if not ax:
@@ -339,11 +338,11 @@ def goodness_of_fit(
     y_true: np.ndarray,
     y_pred: np.ndarray,
     percent_residuals: bool = False,
-    figsize: Tuple[float, float] = (6.5, 3),
+    figsize: tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
     alpha: float = 1.0,
     title: str = "",
-) -> plt.Figure:  # noqa: ANN401
+) -> Figure:
     """Create 'residual by predicted' and 'actual by predicted' plots.
 
     :param y_true: true values, array of shape (m,)
@@ -383,21 +382,21 @@ def goodness_of_fit(
 
 
 def sensitivity_profile(
-    ax: plt.Axes,  # noqa: ANN401
+    ax: plt.Axes,
     x0: np.ndarray,
     y0: np.ndarray,
     x_pred: np.ndarray,
-    y_pred: Union[np.ndarray, List[np.ndarray]],
-    x_true: Union[np.ndarray, None] = None,
-    y_true: Union[np.ndarray, None] = None,
+    y_pred: np.ndarray | list[np.ndarray],
+    x_true: np.ndarray | None = None,
+    y_true: np.ndarray | None = None,
     alpha: float = 1.0,
     xlabel: str = "x",
     ylabel: str = "y",
-    legend: Union[List[str], None] = None,
-    figsize: Tuple[float, float] = (6.5, 3),
+    legend: list[str] | None = None,
+    figsize: tuple[float, float] = (6.5, 3),
     fontsize: int = 9,
     show_cursor: bool = True,
-) -> plt.Figure:  # noqa: ANN401
+) -> Figure:
     """Plot sensitivity profile for a single input, single output.
 
     :param ax: the matplotlib axes on which to plot the data
@@ -450,27 +449,29 @@ def sensitivity_profile(
 
 
 def sensitivity_profiles(
-    f: Union[Callable, List[Callable]],
+    f: Callable | list[Callable],
     x_min: np.ndarray,
     x_max: np.ndarray,
-    x0: Union[np.ndarray, None] = None,
-    x_true: Union[np.ndarray, None] = None,
-    y_true: Union[np.ndarray, None] = None,
-    figsize: Tuple[float, float] = (3.25, 3),
+    x0: np.ndarray | None = None,
+    x_true: np.ndarray | None = None,
+    y_true: np.ndarray | None = None,
+    figsize: tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
     alpha: float = 1.0,
     title: str = "",
-    xlabels: Union[List[str], None] = None,
-    ylabels: Union[List[str], None] = None,
-    legend: Union[List[str], None] = None,
+    xlabels: list[str] | None = None,
+    ylabels: list[str] | None = None,
+    legend: list[str] | None = None,
     resolution: int = 100,
     show_cursor: bool = True,
-) -> plt.Figure:  # noqa: ANN401
+) -> Figure:
     """Plot grid of all outputs vs. all inputs evaluated at x0.
 
     :param f: callable function(s) for evaluating y_pred = f_pred(x)
-    :param x0: point at which to evaluate profiles, array of shape (n_x, 1)
-    :param x_true: inputs at which y_true is evaluated, array of shape (n_x, m)
+    :param x0: point at which to evaluate profiles, array of shape (n_x,
+        1)
+    :param x_true: inputs at which y_true is evaluated, array of shape
+        (n_x, m)
     :param y_true: true values, array of shape (n_y, m)
     :param figsize: figure size
     :param fontsize: text size
@@ -478,7 +479,7 @@ def sensitivity_profiles(
     :param title: title of figure
     :param xlabels: x-axis labels
     :param ylabels: y-axis labels
-    resolution: line resolution
+    :param resolution: line resolution
     :param legend: legend labels for each model
     :param show_cursor: show x0 as a red dot (or not)
     """
@@ -494,8 +495,8 @@ def sensitivity_profiles(
     n_y = y0.shape[0]
     x_indices = range(n_x)
     y_indices = range(n_y)
-    xlabels = xlabels if xlabels else [f"x_{i}" for i in x_indices]
-    ylabels = ylabels if ylabels else [f"y_{i}" for i in y_indices]
+    xlabels = xlabels or [f"x_{i}" for i in x_indices]
+    ylabels = ylabels or [f"y_{i}" for i in y_indices]
     width, height = figsize
     fig = plt.figure(figsize=(n_x * width, height), layout="tight")
     fig.suptitle(title)

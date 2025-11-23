@@ -6,7 +6,7 @@ permissions:
   contents: write  # IMPORTANT: mandatory for making GitHub Releases
   pages: write  
   id-token: write
-  
+
 on: 
   push:
     branches: 
@@ -16,71 +16,73 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-    steps: 
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.1
-      - name: Linting
-        shell: bash -el {0}
-        run: | 
-          pixi run lint 
-      - name: Run unit tests
-        shell: bash -el {0}
-        run: | 
-          pixi run test-py 
-      - name: Run example notebooks
-        shell: bash -el {0}
-        run: | 
-          pixi run test-nb 
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pixi and activate 'dev' environment
+        uses: prefix-dev/setup-pixi@v0.9.1 # pinned version
+        with:
+          environments: dev # Specify the environment to install and activate
+
+      - name: Check linting 
+        run: pixi run -e dev --frozen lint 
+
+      - name: Run tests 
+        run: pixi run -e dev --frozen test 
+
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: test-artifacts-py${{ matrix.python-version }}
           path: ./build
           overwrite: true
-  build:  
+
+  build:
     needs: test
-    runs-on: ubuntu-latest 
-    steps: 
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.1
-      - name: 💾 Distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pixi and activate 'dev' environment
+        uses: prefix-dev/setup-pixi@v0.9.1 # pinned version
+        with:
+          environments: dev # Specify the environment to install and activate
+
+      - name: Build docs using sphinx
+        run: pixi run -e dev --frozen docs 
+
+      - name: 💾 Build distribution files
         shell: bash -el {0}
         run: | 
-          pixi run build-dist
-      - name: 📚 Documentation  
-        shell: bash -el {0}
-        run: | 
-          pixi run build-docs
+          pixi run -e dev --frozen build
+
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: ./build
           overwrite: true
-  deploy:  
+
+  deploy: 
     needs: build 
     runs-on: ubuntu-latest
-    # only release on tag pushes 
-    if: startsWith(github.ref, 'refs/tags/v')  
+    if: startsWith(github.ref, 'refs/tags/v') # only release on tag pushes 
     steps: 
       - name: ⬇️ Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
           path: ./build
+
       - name: Stage distribution for test release 
-        # GitHub Actions needs dist/ to be at root level
         shell: bash -el {0}
-        run: | 
-          mv ./build/dist .
+        run: | # GitHub Actions needs dist/ to be at root level
+          mv ./build/dist .  
+
       - name: 📦 Ship package to TestPyPI
         id: testpypi
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -90,14 +92,17 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
           user: __token__
           password: ${{ secrets.TESTPYPI_TOKEN }}
+
       - name: ⬆️ Upload documentation to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           # Upload entire repository
           path: './build/docs/html'
+
       - name: 📰 Publish Docs to GitHub Pages
         id: pypi
         uses: actions/deploy-pages@v4
+
       - name: 📦 Ship package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -106,12 +111,14 @@ jobs:
           repository-url: https://upload.pypi.org/legacy/
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
+
       - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.1
+        uses: sigstore/gh-action-sigstore-python@v3
         with:
           inputs: >-
             ./dist/*.tar.gz
             ./dist/*.whl
+
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -120,6 +127,7 @@ jobs:
           '${{ github.ref_name }}'
           --repo '${{ github.repository }}'
           --notes ""
+
       - name: Upload artifact signatures to GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -130,4 +138,3 @@ jobs:
           gh release upload
           '${{ github.ref_name }}' dist/**
           --repo '${{ github.repository }}'
-  

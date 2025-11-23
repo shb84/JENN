@@ -1,20 +1,18 @@
 """Load trained JMP model."""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 from pathlib import Path
-from typing import List, Tuple, Union
 
 import numpy as np
 
-from ..model import NeuralNet
+from jenn.model import NeuralNet
 
 
 def _is_float(string: str) -> bool:
     """Check is string can be converted to float."""
-    tokens = string.split(".")
-    for token in tokens:
-        if not token.replace("-", "").isnumeric():
-            return False
-    return True
+    items = string.split(".")
+    return all(item.replace("-", "").isnumeric() for item in items)
 
 
 def _count_repetitions(char: str, string: str) -> int:
@@ -26,105 +24,111 @@ def _count_repetitions(char: str, string: str) -> int:
     return count
 
 
-def _is_empty(items: List[list]) -> bool:
+def _is_empty(items: list[list]) -> bool:
     """Return True is all items are empty lists."""
     if not isinstance(items, list):
         return False
-    if all([item == [] for item in items]):
+    if all(item == [] for item in items):
         return True
-    if all([_is_empty(item) for item in items]):
-        return True
-    return False
+    return all(_is_empty(item) for item in items)
 
 
-def _expand(tokens: List[str]) -> List[str]:
+def _expand(items: list[str]) -> list[str]:
     """Expand w * (a * x + b) into (w * a * x + w * b)."""
     updated = []
     number_open_brackets = 0
     factor = 1.0
     skip = 0
-    N = len(tokens)
-    for i, token in enumerate(tokens):
+    N = len(items)
+    for i, item in enumerate(items):
         if skip > 0:
             skip -= 1
             continue
-        number_open_brackets += _count_repetitions("(", token) - _count_repetitions(
-            ")", token
+        number_open_brackets += _count_repetitions("(", item) - _count_repetitions(
+            ")",
+            item,
         )
         if number_open_brackets == 0:
-            if _is_float(token):
-                if i < N - 2:
-                    if tokens[i + 1] == "*":
-                        if tokens[i + 2] == "(":
-                            factor = float(token)
-                            number_open_brackets += 1
-                            skip = 2
-                            continue
-            if token == ")":
+            if (
+                _is_float(item)
+                and i < N - 2
+                and items[i + 1] == "*"
+                and items[i + 2] == "("
+            ):
+                factor = float(item)
+                number_open_brackets += 1
+                skip = 2
                 continue
-        if number_open_brackets == 1:
-            if tokens[i + 1] == ")":
-                factor = 1.0
-        if _is_float(token) and number_open_brackets == 1:
-            updated.append(str(float(token) * factor))
+            if item == ")":
+                continue
+        if number_open_brackets == 1 and items[i + 1] == ")":
+            factor = 1.0
+        if _is_float(item) and number_open_brackets == 1:
+            updated.append(str(float(item) * factor))
         else:
-            updated.append(token)
+            updated.append(item)
     return updated
 
 
-def _remove_unnecessary_brackets(tokens: List[str]) -> List[str]:
+def _remove_unnecessary_brackets(items: list[str]) -> list[str]:
     """Remove situations such as ["(", "-1.33806951259538", ")"] where brackets
-    aren't needed."""
+    aren't needed.
+    """
     updated = []
     skip = 0
-    N = len(tokens)
-    for i, token in enumerate(tokens):
+    N = len(items)
+    for i, item in enumerate(items):
         if skip > 0:
             skip -= 1
             continue
-        if i < N - 2:
-            if token == "(" and _is_float(tokens[i + 1]) and tokens[i + 2] == ")":
-                updated.append(tokens[i + 1])
-                skip = 2
-                continue
-        updated.append(token)
+        if (
+            (i < N - 2)
+            and item == "("
+            and _is_float(items[i + 1])
+            and items[i + 2] == ")"
+        ):
+            updated.append(items[i + 1])
+            skip = 2
+            continue
+        updated.append(item)
     return updated
 
 
 def _get_node_parameters(
-    tokens: List[str],
-) -> Tuple[List[float], List[float], List[List[str]]]:
+    items: list[str],
+) -> tuple[list[float], list[float], list[list[str]]]:
     """Return bias, weights, and activations associated with node in layer."""
     number_open_brackets = 0
     biases = []
     weights = []
     activations = []
     activation = []
-    for i, token in enumerate(tokens):
-        number_open_brackets += _count_repetitions("(", token) - _count_repetitions(
-            ")", token
+    for i, item in enumerate(items):
+        number_open_brackets += _count_repetitions("(", item) - _count_repetitions(
+            ")",
+            item,
         )
         if number_open_brackets > 0:
-            activation.append(token)
+            activation.append(item)
         if number_open_brackets == 0:
             if activation:
                 expanded = _expand(
-                    activation[1:]
+                    activation[1:],
                 )  # remove "(" b/c only want inputs of Tanh(...)
                 activations.append(expanded)
             activation = []
-            if _is_float(token):
-                if tokens[i + 1] == "+":
-                    biases.append(float(token))  # there is only one per model in JMP
-                elif tokens[i + 1] == "*":
-                    weights.append(float(token))
+            if _is_float(item):
+                if items[i + 1] == "+":
+                    biases.append(float(item))  # there is only one per model in JMP
+                elif items[i + 1] == "*":
+                    weights.append(float(item))
     bias = [sum(biases)]
     return bias, weights, activations
 
 
 def _get_layer_parameters(
-    nodes: List[List[str]],
-) -> Tuple[List[List[float]], List[List[float]], List[List[str]]]:
+    nodes: list[list[str]],
+) -> tuple[list[list[float]], list[list[float]], list[list[str]]]:
     """Return bias, weight, activations associated with current layer."""
     layer_biases = []
     layer_weights = []
@@ -139,7 +143,7 @@ def _get_layer_parameters(
     return layer_biases, layer_weights, layer_activation_inputs
 
 
-def _get_tokens(equation: str) -> List[str]:
+def _get_items(equation: str) -> list[str]:
     """Parse equation into list of str."""
     equation = equation.replace("(", " ( ")
     equation = equation.replace(")", " ) ")
@@ -148,14 +152,14 @@ def _get_tokens(equation: str) -> List[str]:
     return _remove_unnecessary_brackets(equation.split())
 
 
-def _load_from_file(filename: Union[str, Path]) -> str:
+def _load_from_file(filename: str | Path) -> str:
     """Load JMP equation from local file."""
-    with open(filename) as file:
+    with Path(filename).open(encoding="utf-8") as file:
         equation = "".join(file.readlines())
     return equation
 
 
-def from_jmp(equation: Union[str, Path]) -> NeuralNet:
+def from_jmp(equation: str | Path) -> NeuralNet:
     """Load trained JMP model given formula.
 
     .. Note::
@@ -178,14 +182,14 @@ def from_jmp(equation: Union[str, Path]) -> NeuralNet:
     if isinstance(equation, Path) or "+" not in equation or "TanH" not in equation:
         equation = _load_from_file(equation)
 
-    tokens = _get_tokens(equation)
+    items = _get_items(equation)
 
     # Last layer
     (
         layer_bias,
         layer_weights,
         layer_activation_inputs,  # TanH(...) for each node in layer
-    ) = _get_layer_parameters([tokens])
+    ) = _get_layer_parameters([items])
 
     # Initialize list of neural net parameters for each layer
     biases = [layer_bias]

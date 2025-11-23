@@ -1,9 +1,10 @@
 """Propagation.
 ==============
 
-This module contains the critical functionality to propagate information forward and backward through the neural net."""
-
-from typing import Tuple, Union
+This module contains the critical functionality to propagate information forward and backward through the neural net.
+"""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 import numpy as np
 
@@ -19,7 +20,7 @@ def eye(n: int, m: int) -> np.ndarray:
     return np.repeat(eye.reshape((n, n, 1)), m, axis=2)
 
 
-def first_layer_forward(X: np.ndarray, cache: Union[Cache, None] = None) -> None:
+def first_layer_forward(X: np.ndarray, cache: Cache | None = None) -> None:
     """Compute input layer activations (in place).
 
     :param X: training data inputs, array of shape (n_x, m)
@@ -32,7 +33,7 @@ def first_layer_forward(X: np.ndarray, cache: Union[Cache, None] = None) -> None
         cache.A[0][:] = X
 
 
-def first_layer_partials(X: np.ndarray, cache: Union[Cache, None]) -> None:
+def first_layer_partials(X: np.ndarray, cache: Cache | None) -> None:
     """Compute input layer partial (in place).
 
     :param X: training data inputs, array of shape (n_x, m)
@@ -64,7 +65,8 @@ def next_layer_partials(layer: int, parameters: Parameters, cache: Cache) -> np.
     for j in range(parameters.n_x):
         cache.Z_prime[s][:, j, :] = np.dot(W, cache.A_prime[r][:, j, :])
         cache.A_prime[s][:, j, :] = cache.G_prime[s] * np.dot(
-            W, cache.A_prime[r][:, j, :]
+            W,
+            cache.A_prime[r][:, j, :],
         )
     return cache.A_prime[s]
 
@@ -92,8 +94,10 @@ def next_layer_forward(layer: int, parameters: Parameters, cache: Cache) -> None
 
 
 def model_partials_forward(
-    X: np.ndarray, parameters: Parameters, cache: Cache
-) -> Tuple[np.ndarray, np.ndarray]:
+    X: np.ndarray,
+    parameters: Parameters,
+    cache: Cache,
+) -> tuple[np.ndarray, np.ndarray]:
     """Propagate forward in order to predict reponse(r) and partial(r).
 
     :param X: training data inputs, array of shape (n_x, m)
@@ -154,7 +158,11 @@ def last_layer_backward(cache: Cache, data: Dataset) -> None:
 
 
 def next_layer_backward(
-    layer: int, parameters: Parameters, cache: Cache, data: Dataset, lambd: float
+    layer: int,
+    parameters: Parameters,
+    cache: Cache,
+    data: Dataset,
+    lambd: float,
 ) -> None:
     """Propagate backward through next layer (in place).
 
@@ -204,7 +212,9 @@ def gradient_enhancement(
     r = layer - 1
     g = ACTIVATIONS[parameters.a[s]]
     cache.G_prime_prime[s][:] = g.second_derivative(
-        cache.Z[s], cache.A[s], cache.G_prime[s]
+        cache.Z[s],
+        cache.A[s],
+        cache.G_prime[s],
     )
     coefficient = 1 / data.m
     for j in range(parameters.n_x):
@@ -234,7 +244,8 @@ def gradient_enhancement(
             * cache.Z_prime[s][:, j, :],
         )
         cache.dA_prime[r][:, j, :] = np.dot(
-            parameters.W[s].T, cache.dA_prime[s][:, j, :] * cache.G_prime[s]
+            parameters.W[s].T,
+            cache.dA_prime[s][:, j, :] * cache.G_prime[s],
         )
 
 

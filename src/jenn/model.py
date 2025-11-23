@@ -2,8 +2,8 @@
 =========
 
 This module contains the main class to train a neural net and make
-predictions. It acts as an interface between the user and the core 
-functions doing computations under-the-hood. 
+predictions. It acts as an interface between the user and the core
+functions doing computations under-the-hood.
 
 .. code-block:: python
 
@@ -11,42 +11,44 @@ functions doing computations under-the-hood.
     # Example Usage #
     #################
 
-    import jenn 
+    import jenn
 
     # Fit model
     nn = jenn.model.NeuralNet(
         layer_sizes=[
-            x_train.shape[0],  # input layer 
+            x_train.shape[0],  # input layer
             7, 7,              # hidden layer(s) -- user defined
-            y_train.shape[0]   # output layer 
-         ],  
+            y_train.shape[0]   # output layer
+         ],
         ).fit(
             x_train, y_train, dydx_train, **kwargs # note: user must provide this
         )
 
-    # Predict response only 
+    # Predict response only
     y_pred = nn.predict(x_test)
 
-    # Predict partials only 
+    # Predict partials only
     dydx_pred = nn.predict_partials(x_train)
 
     # Predict response and partials in one step (preferred)
-    y_pred, dydx_pred = nn.evaluate(x_test) 
+    y_pred, dydx_pred = nn.evaluate(x_test)
 
 .. Note::
-    The method `evaluate()` is preferred over separately 
-    calling `predict()` followed by `predict_partials()` 
-    whenever both the response and its partials are needed at the same point. 
-    This saves computations since, in the latter approach, forward propagation 
+    The method `evaluate()` is preferred over separately
+    calling `predict()` followed by `predict_partials()`
+    whenever both the response and its partials are needed at the same point.
+    This saves computations since, in the latter approach, forward propagation
     is unecessarily performed twice. Similarly, to avoid unecessary partial
     deerivative calculations, the `predict()` method should be preferred whenever
-    only response values are needed. The method `predict_partials()` is provided 
-    for those situations where it is necessary to separate out Jacobian predictions, 
-    due to how some target optimization software architected for example.  
-"""  # noqa: W291
+    only response values are needed. The method `predict_partials()` is provided
+    for those situations where it is necessary to separate out Jacobian predictions,
+    due to how some target optimization software architected for example.
+"""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 from pathlib import Path
-from typing import Any, List, Tuple, Union
+from typing import Any
 
 import numpy as np
 
@@ -70,11 +72,11 @@ class NeuralNet:
 
     def __init__(
         self,
-        layer_sizes: List[int],
+        layer_sizes: list[int],
         hidden_activation: str = "tanh",
         output_activation: str = "linear",
-    ):  # noqa D107
-        self.history: Union[dict[Any, Any], None] = None
+    ):
+        self.history: dict[Any, Any] | None = None
         self.parameters = Parameters(
             layer_sizes,
             hidden_activation,
@@ -85,11 +87,11 @@ class NeuralNet:
         self,
         x: np.ndarray,
         y: np.ndarray,
-        dydx: Union[np.ndarray, None] = None,
+        dydx: np.ndarray | None = None,
         is_normalize: bool = False,
         alpha: float = 0.05,
-        beta: Union[np.ndarray, float] = 1.0,
-        gamma: Union[np.ndarray, float] = 1.0,
+        beta: np.ndarray | float = 1.0,
+        gamma: np.ndarray | float = 1.0,
         lambd: float = 0.0,
         beta1: float = 0.9,
         beta2: float = 0.99,
@@ -99,14 +101,14 @@ class NeuralNet:
         epsilon_absolute: float = 1e-12,
         epsilon_relative: float = 1e-12,
         epochs: int = 1,
-        batch_size: Union[int, None] = None,
+        batch_size: int | None = None,
         max_iter: int = 1000,
         shuffle: bool = True,
-        random_state: Union[int, None] = None,
+        random_state: int | None = None,
         is_backtracking: bool = False,
         is_warmstart: bool = False,
         is_verbose: bool = False,
-    ) -> "NeuralNet":  # noqa: PLR0913
+    ) -> "NeuralNet":
         r"""Train neural network.
 
         :param x: training data inputs, array of shape (n_x, m)
@@ -209,7 +211,7 @@ class NeuralNet:
         dydx = denormalize_partials(dydx_norm, params.sigma_x, params.sigma_y)
         return dydx
 
-    def evaluate(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def evaluate(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         r"""Predict responses and their partials.
 
         :param x: vectorized inputs, array of shape (n_x, m)
@@ -224,11 +226,11 @@ class NeuralNet:
         dydx = denormalize_partials(dydx_norm, params.sigma_x, params.sigma_y)
         return y, dydx
 
-    def save(self, file: Union[str, Path] = "parameters.json") -> None:
+    def save(self, file: str | Path = "parameters.json") -> None:
         """Serialize parameters and save to JSON file."""
         self.parameters.save(file)
 
-    def load(self, file: Union[str, Path] = "parameters.json") -> "NeuralNet":
+    def load(self, file: str | Path = "parameters.json") -> "NeuralNet":
         """Load previously saved parameters from json file."""
         self.parameters.load(file)
         return self

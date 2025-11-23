@@ -1,0 +1,217 @@
+"$schema" = "https://pixi.sh/v0.54.1/schema/manifest/schema.json"
+
+[workspace]
+name = "jenn"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+requires-pixi = ">=0.54.1"
+
+[tasks]
+all = {depends-on = [
+  "setup",
+  "fix",
+  "lint",
+  "build",
+  "test",
+  "docs",
+]}
+setup = {depends-on = ["pip-e"]}
+fix = {depends-on = [
+  "fix-toml",
+  "fix-nbstripout",
+  "fix-ruff",
+]}
+lint = {depends-on = [
+  "ruff",
+  "mypy",
+  "docformatter",
+]}
+test = {depends-on = ["test", "test-nb"]}
+docs = {depends-on = ["sphinx"]}
+
+#########
+# Tasks #
+#########
+
+[feature.src.tasks.pip-e]
+description = "Prepare for local development"
+cmd = """
+python -m pip uninstall -y jenn
+  && python -m pip install -e . --no-deps --no-build-isolation --disable-pip-version-check
+  && python -m pip check
+"""
+inputs = ["pyproject.toml"]
+
+[feature.notebooks.tasks.lab]
+description = "Open Jupyter Lab in a browser"
+cmd = "jupyter lab --ContentsManager.allow_hidden=True"
+depends-on = ["pip-e"]
+
+[feature.qa.tasks.test]
+description = "Run unit tests"
+cmd = """
+pytest
+  -vv
+  --failed-first
+  --html=build/reports/pytest/report.html
+  --self-contained-html
+  --cov=jenn
+  --cov-branch
+  --cov-context=test
+  --cov-report=html:build/reports/pytest
+  --cov-report=xml:build/reports/pytest/coverage.xml
+  --cov-report=term-missing:skip-covered
+  -o=junit_family=xunit2
+  --junitxml=build/reports/pytest/junit.xml
+"""
+inputs = ["src/**/*.py", "tests/"]
+depends-on = ["pip-e"]
+outputs = ["build/reports/pytest"]
+
+[feature.qa.tasks.test-nb]
+description = "Run test notebooks."
+cmd = "pytest --nbmake --nbmake-timeout=3000 notebooks/*.ipynb"
+inputs = ["src/**/*.py", "notebooks/*.ipynb"]
+depends-on = ["pip-e"]
+
+[feature.qa.tasks.ruff]
+description = "Check Python code for formatting errors. "
+cmd = "ruff format --check && ruff check"
+inputs = [
+  "pyproject.toml",
+  "{docs,scripts,src,tests}/**/*.{py,ipynb}",
+  "!.ipynb_checkpoints/",
+]
+
+[feature.qa.tasks.docformatter]
+description = "Check Python doc strings. "
+cmd = "docformatter --in-place --close-quotes-on-newline src/**/*.py"
+inputs = [
+  "pyproject.toml",
+  "{docs,scripts,src,tests}/**/*.{py,ipynb}",
+  "!.ipynb_checkpoints/",
+]
+
+[feature.qa.tasks.fix-ruff]
+description = "Fix Python code if there are format errors. "
+cmd = "ruff format && ruff check --fix"
+inputs = [
+  "pyproject.toml",
+  "{docs,scripts,src,tests}/**/*.{py,ipynb}",
+  "!.ipynb_checkpoints/",
+]
+
+[feature.qa.tasks.fix-toml]
+description = "format all TOML with taplo"
+cmd = """taplo fmt
+    --option=array_auto_collapse=false
+    --option=array_auto_expand=true
+    --option=compact_inline_tables=true
+    --option=column_width=88
+    --option=indent_string="  "
+    *.toml"""
+inputs = ["*.toml"]
+
+[feature.qa.tasks.fix-nbstripout]
+cmd = "nbstripout --keep-id --drop-empty-cells notebooks/*.ipynb"
+description = "fix notebook JSON"
+inputs = ["!**/.ipynb_checkpoints", "notebooks/**/*.ipynb"]
+
+[feature.qa.tasks.mypy]
+description = "Check code for dynamic and static typing inconsistencies."
+cmd = "mypy --html-report=build/reports/mypy src/"
+inputs = ["src/**/*.py"]
+depends-on = ["pip-e"]
+outputs = ["build/reports/mypy"]
+
+[feature.docs.tasks.sphinx]
+description = "Build documentation using sphinx"
+cmd = """
+  sphinx-build
+    -W
+    --keep-going
+    -b html
+    docs/source
+    build/docs/html
+"""
+inputs = ["{src,docs}/**/*.py", "docs/**/*.rst", "pyproject.toml"]
+outputs = ["build/docs"]
+depends-on = ["pip-e"]
+
+[feature.dist.tasks.build]
+description = "Build distribution files *.whl and *.tar.gz"
+cmd = """
+  rm -rf build/dist
+  && pyproject-build --outdir build/dist --no-isolation
+  && twine check build/dist/*
+  """
+inputs = ["{pyproject.toml,README.md,LICENSE.txt}", "src/jenn/**/*.py"]
+outputs = ["build/dist/*.{whl,tar.gz}"]
+
+[feature.dist.tasks.testpypi]
+description = "Mock release on testpypi"
+cmd = """
+python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi
+"""
+inputs = ["src/**/*.py"]
+depends-on = ["build"]
+
+############
+# Features #
+############
+
+[feature.python.dependencies]
+python = ">=3.8"
+
+[feature.labextensions.dependencies]
+jupyterlab = "*"
+ipywidgets = "*"
+bqplot = "*"
+
+[feature.src.dependencies]
+jsonpointer = ">=2.4"
+jsonschema = ">=4.22"
+orjson = ">=3.9"
+numpy = ">=1.22"
+matplotlib-base = "*"
+
+[feature.notebooks.dependencies]
+matplotlib-base = "*"
+
+[feature.qa.dependencies]
+lxml = "*"
+mypy = "*"
+nbmake = "*"
+nbstripout = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-html = "*"
+ruff = "*"
+taplo = "*"
+docformatter = "*"
+
+[feature.docs.dependencies]
+sphinx = "*"
+sphinx_rtd_theme = "*"
+sphinx-autodoc-typehints = "*"
+
+[feature.dist.dependencies]
+python-build = "*"
+twine = "*"
+setuptools = "*"
+pip = "*"
+
+################
+# Environments #
+################
+
+[environments]
+dev = {solve-group = "jenn", features = [
+  "src",
+  "notebooks",
+  "labextensions",
+  "qa",
+  "docs",
+  "dist",
+  "python",
+]}

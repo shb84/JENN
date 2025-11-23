@@ -18,7 +18,18 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-## v1.0.8 (YYYY-MM-DD)
+## v1.0.9 (YYYY-MM-DD)
+
+### Build
+
+- Added `pixi.toml` (rather than putting everything in `pyproject.toml`)
+- Updated CI worflow 
+
+### Docs
+
+- Simplified CONTRIBUTING 
+
+## v1.0.8 (2024-06-26)
 
 ### Build
 

@@ -1,10 +1,12 @@
 """Activation.
 ==============
 
-This module implements activation functions used by the neural network."""
+This module implements activation functions used by the neural network.
+"""
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
 
 import abc
-from typing import Union
 
 import numpy as np
 
@@ -17,8 +19,8 @@ class Activation:
     def evaluate(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,
+    ) -> np.ndarray:
         """Evaluate activation function.
 
         :param x: input array at which to evaluate the function
@@ -32,9 +34,9 @@ class Activation:
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-        dy: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,
+        dy: np.ndarray | None = None,
+    ) -> np.ndarray:
         """Evaluate 1st derivative of activation function.
 
         :param x: input array at which to evaluate the function
@@ -49,10 +51,10 @@ class Activation:
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-        dy: Union[np.ndarray, None] = None,
-        ddy: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,
+        dy: np.ndarray | None = None,
+        ddy: np.ndarray | None = None,
+    ) -> np.ndarray:
         """Evaluate 2nd derivative of activation function.
 
         :param x: input array at which to evaluate the function
@@ -75,17 +77,30 @@ class Tanh(Activation):
     def evaluate(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Evaluate activation function.
+
+        :param x: input array at which to evaluate the function
+        :param y: output array in which to write the results (optional)
+        :return: activation function evaluated at `x` (as new array if `y` not provided as input)
+        """
         return np.tanh(x, out=y)  # evaluated in place if y is not None
 
     @classmethod
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-        dy: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,
+        dy: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Evaluate 1st derivative of activation function.
+
+        :param x: input array at which to evaluate the function
+        :param y: response already evaluated at x (optional)
+        :param dy: output array in which to write the 1st derivative (optional)
+        :return: 1st derivative (as new array if `dy` not provided as input)
+        """
         if y is None:
             y = cls.evaluate(x)
         if dy is None:
@@ -97,10 +112,18 @@ class Tanh(Activation):
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-        dy: Union[np.ndarray, None] = None,
-        ddy: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,
+        dy: np.ndarray | None = None,
+        ddy: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Evaluate 2nd derivative of activation function.
+
+        :param x: input array at which to evaluate the function
+        :param y: response already evaluated at x (optional)
+        :param y: 1st derivative already evaluated at x (optional)
+        :param ddy: output array in which to write the 2nd derivative (optional)
+        :return: 2nd derivative (as new array if `ddy` not provided as input)
+        """
         if y is None:
             y = cls.evaluate(x)
         if dy is None:
@@ -125,8 +148,14 @@ class Relu(Activation):
     def evaluate(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Evaluate activation function.
+
+        :param x: input array at which to evaluate the function
+        :param y: output array in which to write the results (optional)
+        :return: activation function evaluated at `x` (as new array if `y` not provided as input)
+        """
         if y is None:
             y = (x > 0) * x
         else:
@@ -137,9 +166,16 @@ class Relu(Activation):
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-        dy: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,  # noqa: ARG003
+        dy: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Evaluate 1st derivative of activation function.
+
+        :param x: input array at which to evaluate the function
+        :param y: response already evaluated at x (optional)
+        :param dy: output array in which to write the 1st derivative (optional)
+        :return: 1st derivative (as new array if `dy` not provided as input)
+        """
         if dy is None:
             dy = np.asarray(x > 0, dtype=x.dtype)
         else:
@@ -150,10 +186,18 @@ class Relu(Activation):
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-        dy: Union[np.ndarray, None] = None,
-        ddy: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,  # noqa: ARG003
+        dy: np.ndarray | None = None,  # noqa: ARG003
+        ddy: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Evaluate 2nd derivative of activation function.
+
+        :param x: input array at which to evaluate the function
+        :param y: response already evaluated at x (optional)
+        :param y: 1st derivative already evaluated at x (optional)
+        :param ddy: output array in which to write the 2nd derivative (optional)
+        :return: 2nd derivative (as new array if `ddy` not provided as input)
+        """
         if ddy is None:
             return np.zeros(x.shape)
         ddy[:] = 0.0
@@ -171,8 +215,14 @@ class Linear(Activation):
     def evaluate(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Evaluate activation function.
+
+        :param x: input array at which to evaluate the function
+        :param y: output array in which to write the results (optional)
+        :return: activation function evaluated at `x` (as new array if `y` not provided as input)
+        """
         if y is None:
             y = x.copy()
         else:
@@ -183,9 +233,16 @@ class Linear(Activation):
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-        dy: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,  # noqa: ARG003
+        dy: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Evaluate 1st derivative of activation function.
+
+        :param x: input array at which to evaluate the function
+        :param y: response already evaluated at x (optional)
+        :param dy: output array in which to write the 1st derivative (optional)
+        :return: 1st derivative (as new array if `dy` not provided as input)
+        """
         if dy is None:
             dy = np.ones(x.shape)
         else:
@@ -196,10 +253,18 @@ class Linear(Activation):
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: Union[np.ndarray, None] = None,
-        dy: Union[np.ndarray, None] = None,
-        ddy: Union[np.ndarray, None] = None,
-    ) -> np.ndarray:  # noqa: D102
+        y: np.ndarray | None = None,  # noqa: ARG003
+        dy: np.ndarray | None = None,  # noqa: ARG003
+        ddy: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Evaluate 2nd derivative of activation function.
+
+        :param x: input array at which to evaluate the function
+        :param y: response already evaluated at x (optional)
+        :param y: 1st derivative already evaluated at x (optional)
+        :param ddy: output array in which to write the 2nd derivative (optional)
+        :return: 2nd derivative (as new array if `ddy` not provided as input)
+        """
         if ddy is None:
             return np.zeros(x.shape)
         ddy[:] = 0
