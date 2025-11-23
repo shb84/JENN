@@ -31,8 +31,9 @@ docs = {depends-on = ["sphinx"]}
 #########
 # Tasks #
 #########
+
 [feature.src.tasks.pip-e]
-description = "prepare for local development"
+description = "Prepare for local development"
 cmd = """
 python -m pip uninstall -y jenn
   && python -m pip install -e . --no-deps --no-build-isolation --disable-pip-version-check
@@ -137,9 +138,18 @@ cmd = """
 inputs = ["{pyproject.toml,README.md,LICENSE.txt}", "src/jenn/**/*.py"]
 outputs = ["build/dist/*.{whl,tar.gz}"]
 
+[feature.dist.tasks.testpypi]
+description = "Mock release on testpypi"
+cmd = """
+python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi
+"""
+inputs = ["src/**/*.py"] 
+depends-on = ["build"]
+
 ############
 # Features #
 ############
+
 [feature.python.dependencies]
 python = ">=3.8"
 

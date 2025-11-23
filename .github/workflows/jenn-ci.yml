@@ -28,11 +28,11 @@ jobs:
         with:
           environments: dev # Specify the environment to install and activate
 
-      - name: Run tests 
-        run: pixi run -e dev --frozen test 
-
       - name: Check linting 
         run: pixi run -e dev --frozen lint 
+
+      - name: Run tests 
+        run: pixi run -e dev --frozen test 
 
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
