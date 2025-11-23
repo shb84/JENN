@@ -30,9 +30,14 @@ def objective_function(
 
     :param X: training data inputs, array of shape (n_x, m)
     :param cost: cost function to be evaluated
-    :param parameters: object that stores neural net parameters for each layer
-    :param cache: neural net cache that stores neural net quantities computed during forward prop for each layer, so they can be accessed during backprop to avoid re-computing them
-    :param stacked_params: neural network parameters returned by the optimizer, represented as single array of stacked parameters for all layers.
+    :param parameters: object that stores neural net parameters for each
+        layer
+    :param cache: neural net cache that stores neural net quantities
+        computed during forward prop for each layer, so they can be
+        accessed during backprop to avoid re-computing them
+    :param stacked_params: neural network parameters returned by the
+        optimizer, represented as single array of stacked parameters for
+        all layers.
     """
     parameters.unstack(stacked_params)
     Y_pred, J_pred = model_partials_forward(X, parameters, cache)

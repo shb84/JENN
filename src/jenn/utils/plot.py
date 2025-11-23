@@ -468,8 +468,10 @@ def sensitivity_profiles(
     """Plot grid of all outputs vs. all inputs evaluated at x0.
 
     :param f: callable function(s) for evaluating y_pred = f_pred(x)
-    :param x0: point at which to evaluate profiles, array of shape (n_x, 1)
-    :param x_true: inputs at which y_true is evaluated, array of shape (n_x, m)
+    :param x0: point at which to evaluate profiles, array of shape (n_x,
+        1)
+    :param x_true: inputs at which y_true is evaluated, array of shape
+        (n_x, m)
     :param y_true: true values, array of shape (n_y, m)
     :param figsize: figure size
     :param fontsize: text size

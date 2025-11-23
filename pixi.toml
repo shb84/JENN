@@ -24,6 +24,7 @@ fix = {depends-on = [
 lint = {depends-on = [
   "ruff",
   "mypy",
+  "docformatter",
 ]}
 test = {depends-on = ["test", "test-nb"]}
 docs = {depends-on = ["sphinx"]}
@@ -76,6 +77,15 @@ depends-on = ["pip-e"]
 [feature.qa.tasks.ruff]
 description = "Check Python code for formatting errors. "
 cmd = "ruff format --check && ruff check"
+inputs = [
+  "pyproject.toml",
+  "{docs,scripts,src,tests}/**/*.{py,ipynb}",
+  "!.ipynb_checkpoints/",
+]
+
+[feature.qa.tasks.docformatter]
+description = "Check Python doc strings. "
+cmd = "docformatter --in-place --close-quotes-on-newline src/**/*.py"
 inputs = [
   "pyproject.toml",
   "{docs,scripts,src,tests}/**/*.{py,ipynb}",
@@ -143,7 +153,7 @@ description = "Mock release on testpypi"
 cmd = """
 python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi
 """
-inputs = ["src/**/*.py"] 
+inputs = ["src/**/*.py"]
 depends-on = ["build"]
 
 ############
@@ -178,6 +188,7 @@ pytest-cov = "*"
 pytest-html = "*"
 ruff = "*"
 taplo = "*"
+docformatter = "*"
 
 [feature.docs.dependencies]
 sphinx = "*"

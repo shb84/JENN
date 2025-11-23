@@ -120,8 +120,8 @@ def _sample(
     :param m_levels: number of levels per factor for full factorial
     :param lb: lower bound on the factors
     :param ub: upper bound on the factors
-    :param dx: finite difference step size (if None, analytical
-        partials are used)
+    :param dx: finite difference step size (if None, analytical partials
+        are used)
     :param random_state: random seed (for repeatability)
     """
     rng = np.random.default_rng(seed=random_state)
@@ -201,7 +201,8 @@ class Linear(TestFunction):
 
         :param n_x: number of inputs
         :param m_random: number of random samples
-        :param m_levels: number of levels per factor (for full factorial)
+        :param m_levels: number of levels per factor (for full
+            factorial)
         :param lb: lower bound
         :param ub: upper bound
         :param dx: finite difference step size to compute gradient
@@ -265,7 +266,8 @@ class Parabola(TestFunction):
 
         :param n_x: number of inputs
         :param m_random: number of random samples
-        :param m_levels: number of levels per factor (for full factorial)
+        :param m_levels: number of levels per factor (for full
+            factorial)
         :param lb: lower bound
         :param ub: upper bound
         :param dx: finite difference step size to compute gradient
@@ -313,7 +315,8 @@ class Sinusoid(TestFunction):
         """Sample sinusoid function.
 
         :param m_random: number of random samples
-        :param m_levels: number of levels per factor (for full factorial)
+        :param m_levels: number of levels per factor (for full
+            factorial)
         :param lb: lower bound
         :param ub: upper bound
         :param dx: finite difference step size to compute gradient
@@ -362,7 +365,8 @@ class Rastrigin(TestFunction):
 
         :param n_x: number of inputs
         :param m_random: number of random samples
-        :param m_levels: number of levels per factor (for full factorial)
+        :param m_levels: number of levels per factor (for full
+            factorial)
         :param lb: lower bound
         :param ub: upper bound
         :param dx: finite difference step size to compute gradient
@@ -411,7 +415,8 @@ class Rosenbrock(TestFunction):
         """Sample Rosenbrock function.
 
         :param m_random: number of random samples
-        :param m_levels: number of levels per factor (for full factorial)
+        :param m_levels: number of levels per factor (for full
+            factorial)
         :param lb: lower bound
         :param ub: upper bound
         :param dx: finite difference step size to compute gradient

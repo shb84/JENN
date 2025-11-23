@@ -218,19 +218,11 @@ class Parameters:
         Neural net parameters are converted from single stack
         representation (for all layers) to a list of stacks (per layer).
 
-        Parameters
-        ----------
-        params: np.ndarray
-            Neural network parameters as single array where all layers
-            are stacked on top of each other.
-            e.g. np.array([[W1], [b1], [W2], [b2], [W3], [b3]])
-
-        Returns
-        -------
-        params: List[np.ndarray]
-            List of stacks (one per layer)
-            e.g. [np.array([[W1], [b1]]), [W2], [b2]]), np.array([[W3], [b3]])]
-
+        :param params: Neural network parameters as single array where
+            all layers are stacked on top of each other. e.g.
+            np.array([[W1], [b1], [W2], [b2], [W3], [b3]])
+        :return: List of stacks (one per layer) e.g. [np.array([[W1],
+            [b1]]), [W2], [b2]]), np.array([[W3], [b3]])]
         """
         stacks = []
         k = 0
