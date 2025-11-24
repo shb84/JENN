@@ -33,7 +33,7 @@ functions doing computations under-the-hood.
     # Predict response and partials in one step (preferred)
     y_pred, dydx_pred = nn.evaluate(x_test)
 
-.. Note::
+.. note::
     The method `evaluate()` is preferred over separately
     calling `predict()` followed by `predict_partials()`
     whenever both the response and its partials are needed at the same point.

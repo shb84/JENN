@@ -516,7 +516,7 @@ def sensitivity_profiles(
                 x_pred=x_pred[i],
                 y_pred=[y_pred[j] for y_pred in y_preds],
                 x_true=x_true[i] if x_true is not None else None,
-                y_true=y_true[i] if y_true is not None else None,
+                y_true=y_true[j] if y_true is not None else None,
                 fontsize=fontsize,
                 alpha=alpha,
                 xlabel=xlabels[i],

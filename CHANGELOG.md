@@ -26,7 +26,7 @@ build: Changes to the build process or tools.
 
 ### Test 
 
-- Updated optimization test to reflect line search changes
+- Updated optimization tests to reflect line search changes
 
 ### Build
 
