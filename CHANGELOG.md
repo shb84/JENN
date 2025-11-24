@@ -20,6 +20,14 @@ build: Changes to the build process or tools.
 
 ## v1.0.9 (YYYY-MM-DD)
 
+### Fix 
+
+- Fixed bug with line search (previously stalling or getting worse)
+
+### Test 
+
+- Updated optimization test to reflect line search changes
+
 ### Build
 
 - Added `pixi.toml` (rather than putting everything in `pyproject.toml`)

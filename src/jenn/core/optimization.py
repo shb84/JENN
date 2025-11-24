@@ -8,8 +8,10 @@ This module implements gradient-based optimization using `ADAM`_.
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
 
+import pathlib
 from abc import ABC, abstractmethod
 from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 
@@ -31,6 +33,7 @@ class Update(ABC):
         params: np.ndarray,
         grads: np.ndarray,
         alpha: float,
+        **kwargs: dict[str, Any],
     ) -> np.ndarray:
         raise NotImplementedError("To be implemented in subclass.")
 
@@ -39,6 +42,7 @@ class Update(ABC):
         params: np.ndarray,
         grads: np.ndarray,
         alpha: float,
+        **kwargs: dict[str, Any],
     ) -> np.ndarray:
         r"""Take a single step along search direction.
 
@@ -48,7 +52,7 @@ class Update(ABC):
             :math:`x`
         :param alpha: learning rate :math:`\alpha`
         """
-        return self._update(params, grads, alpha)
+        return self._update(params, grads, alpha, **kwargs)
 
 
 class GD(Update):
@@ -64,6 +68,7 @@ class GD(Update):
         params: np.ndarray,
         grads: np.ndarray,
         alpha: float,
+        **kwargs: dict[str, Any],
     ) -> np.ndarray:
         return (params - alpha * grads).reshape(params.shape)
 
@@ -101,6 +106,7 @@ class ADAM(Update):
         params: np.ndarray,
         grads: np.ndarray,
         alpha: float,
+        **kwargs: dict[str, Any],
     ) -> np.ndarray:
         beta_1 = self.beta_1
         beta_2 = self.beta_2
@@ -158,19 +164,23 @@ class LineSearch(ABC):
     @abstractmethod
     def __call__(
         self,
-        params: np.ndarray,
-        grads: np.ndarray,
-        cost: Callable,
+        x0: np.ndarray,
+        y0: np.ndarray,
+        search_direction: np.ndarray,
+        cost_function: Callable,
         learning_rate: float,
-    ) -> np.ndarray:
+    ) -> tuple[np.ndarray, np.ndarray]:
         r"""Take multiple steps along the search direction.
 
-        :param params: parameters to be updated, array of shape (n,)
+        :param x0: initial value of parameters to be updated, array of
+            shape (n,)
+        :param y0: initial value of cost function evaluated at x0, array
+            of shape (n,)
         :param grads: cost function gradient w.r.t. parameters, array of
             shape (n,)
         :param cost: cost function, array of shape (1,)
         :param learning_rate: initial step size :math:`\alpha`
-        :return: new_params: updated parameters, array of shape (n,)
+        :return: updated parameters and cost, 2 x array of shape (n,)
         """
         raise NotImplementedError
 
@@ -191,7 +201,7 @@ class Backtracking(LineSearch):
         update: Update,
         tau: float = 0.5,
         tol: float = 1e-6,
-        max_count: int = 1_000,
+        max_count: int = 10,
     ):
         super().__init__(update)
         self.tau = tau
@@ -200,109 +210,44 @@ class Backtracking(LineSearch):
 
     def __call__(
         self,
-        params: np.ndarray,
-        grads: np.ndarray,
-        cost: Callable,
+        x0: np.ndarray,
+        y0: np.ndarray,
+        search_direction: np.ndarray,
+        cost_function: Callable,
         learning_rate: float = 0.05,
-    ) -> np.ndarray:
+    ) -> tuple[np.ndarray, np.ndarray]:
         r"""Take multiple "update" steps along search direction.
 
-        :param params: parameters :math:`x` to be updated, array of
-            shape (n,)
+        :param x0: initial value of parameters to be updated, array of shape (n,)
+        :param y0: initial value of cost function evaluated at x0, array of shape (n,)
+        :param cost: objective function :math:`f`
         :param grads: gradient :math:`\nabla_x f` of
             objective function :math:`f` w.r.t. each
             parameter, array of shape (n,)
-        :param cost: objective function :math:`f`
         :param learning_rate: maximum allowed step size :math:`\alpha
             \le \alpha_{max}`
-        :return: updated parameters :math:`x`, array of shape (n,)
+        :return: updated parameters and cost :math:`x, y`, 2 x array of shape (n,)
         """
         tau = self.tau
         tol = self.tol
-        x0 = self.update(params, grads, alpha=0)
-        f0 = cost(x0)
         tau = max(0.0, min(1.0, tau))
         alpha = learning_rate
-        x = self.update(params, grads, alpha)
         max_count = max(1, self.max_count)
-        for _ in range(max_count):
-            if cost(x) < f0 or alpha < tol:
-                return x
+        for i in range(max_count):
+            x = self.update(x0, search_direction, alpha)
+            y = cost_function(x)
+            if i == 0:
+                x_prev = x
+                y_prev = y
+            if (y < y0) or (alpha < tol):
+                return x, y
+            if y_prev < y:
+                return x_prev, y_prev
             alpha = learning_rate * tau
-            x = self.update(params, grads, alpha)
             tau *= tau
-        return x
-
-
-def _print_progress(epoch: int, batch: int, iteration: int, cost: float) -> None:
-    e = epoch
-    b = batch
-    i = iteration
-    y = cost
-    if epoch is not None and batch is not None:
-        print(
-            f"epoch = {e:d}, batch = {b:d}, iter = {i:d}, cost = {y:6.3f}",
-        )
-    elif epoch is not None:
-        e = epoch
-        print(f"epoch = {e:d}, iter = {i:d}, cost = {y:6.3f}")
-    elif batch is not None:
-        b = batch
-        print(f"batch = {b:d}, iter = {i:d}, cost = {y:6.3f}")
-    else:
-        print(f"iter = {i:d}, cost = {y:6.3f}")
-
-
-def _check_convergence(
-    iteration: int,
-    cost_history: list[np.ndarray],
-    epsilon_absolute: float,
-    epsilon_relative: float,
-    max_iter: int,
-    verbose: bool,
-    N1_max: int = 100,
-    N2_max: int = 100,
-) -> bool:
-    """Check stopping criteria.
-
-    Reference: Vanderplaats, "Multidiscipline Design Optimization," ch. 3, p. 121
-    """
-    N1 = 0
-    N2 = 0
-    if iteration > 0:
-        # Absolute convergence criterion
-        dF1 = abs(cost_history[-1] - cost_history[-2])
-        if dF1 < epsilon_absolute * cost_history[0]:
-            N1 += 1
-        else:
-            N1 = 0
-        if N1_max < N1:
-            if verbose:
-                print("Absolute stopping criterion satisfied")
-            return True
-
-        # Relative convergence criterion
-        current_value = cost_history[-1].squeeze()
-        previous_value = cost_history[-2].squeeze()
-        numerator = abs(current_value - previous_value)
-        denominator = max(abs(float(current_value)), 1e-6)
-        dF2 = numerator / denominator
-
-        if dF2 < epsilon_relative:
-            N2 += 1
-        else:
-            N2 = 0
-        if N2_max < N2:
-            if verbose:
-                print("Relative stopping criterion satisfied")
-            return True
-
-    # Maximum iterations criterion
-    if iteration == max_iter and verbose:
-        print("Maximum optimizer iterations reached")
-        return True
-
-    return False
+            x_prev = x
+            y_prev = y
+        return x, y
 
 
 class Optimizer:
@@ -324,7 +269,7 @@ class Optimizer:
         self.vars_history: list[np.ndarray] | None = None
         self.cost_history: list[np.ndarray] | None = None
 
-    def minimize(
+    def minimize(  # noqa: PLR0912, PLR0915, C901
         self,
         x: np.ndarray,
         f: Callable,
@@ -336,6 +281,8 @@ class Optimizer:
         batch: int | None = None,
         epsilon_absolute: float = 1e-12,
         epsilon_relative: float = 1e-12,
+        N1_max: int = 100,
+        N2_max: int = 100,
     ) -> np.ndarray:
         r"""Minimize single objective function.
 
@@ -352,27 +299,85 @@ class Optimizer:
             (for printing)
         :param epsilon_absolute: absolute error stopping criterion
         :param epsilon_relative: relative error stopping criterion
+        :param N1_max: number of iterations for which absolute criterion
+            must hold true before stop
+        :param N2_max: number of iterations for which relative criterion
+            must hold true before stop
         """
+        # Stopping criteria (Vanderplaats, "Multidiscipline Design Optimization," ch. 3, p. 121)
+        converged = False
+        N1 = 0
+        N2 = 0
+
         cost_history: list[np.ndarray] = []
         vars_history: list[np.ndarray] = []
+
+        y = f(
+            x
+        )  # 1st prediction using initial parameters (initializes last layer activations: A[L] = Y_pred)
+
+        # Iterative update
         for i in range(max_iter):
-            y = f(x)
+            x, y = self.line_search(
+                x, y, search_direction=dfdx(x), cost_function=f, learning_rate=alpha
+            )
+
             cost_history.append(y)
             vars_history.append(x)
-            x = self.line_search(params=x, cost=f, grads=dfdx(x), learning_rate=alpha)
+
             if verbose:
-                _print_progress(epoch, batch, iteration=i, cost=y)
-            if _check_convergence(
-                i,
-                cost_history,
-                epsilon_absolute,
-                epsilon_relative,
-                max_iter,
-                verbose,
-            ):
-                break
+                if epoch is not None and batch is not None:
+                    e = epoch
+                    b = batch
+                    print(f"epoch = {e:d}, batch = {b:d}, iter = {i:d}, cost = {y:.6f}")
+                elif epoch is not None:
+                    e = epoch
+                    print(f"epoch = {e:d}, iter = {i:d}, cost = {y:.6f}")
+                elif batch is not None:
+                    b = batch
+                    print(f"batch = {b:d}, iter = {i:d}, cost = {y::.6f}")
+                else:
+                    print(f"iter = {i:d}, cost = {y::.6f}")
+
+            # Absolute convergence criterion
+            if i > 1:
+                dF1 = abs(cost_history[-1] - cost_history[-2])
+                if dF1 < epsilon_absolute * cost_history[0]:
+                    N1 += 1
+                else:
+                    N1 = 0
+                if N1_max < N1:
+                    converged = True
+                    if verbose:
+                        print("Absolute stopping criterion satisfied")
+
+                # Relative convergence criterion
+                numerator = abs(cost_history[-1] - cost_history[-2])
+                denominator = max(abs(float(cost_history[-1])), 1e-6)
+                dF2 = numerator / denominator
+
+                if dF2 < epsilon_relative:
+                    N2 += 1
+                else:
+                    N2 = 0
+                if N2_max < N2:
+                    converged = True
+                    if verbose:
+                        print("Relative stopping criterion satisfied")
+
+                if converged:
+                    break
+
+                if pathlib.Path("STOP").exists():
+                    break
+
+            # Maximum iteration convergence criterion
+            if i == max_iter and verbose:
+                print("Maximum optimizer iterations reached")
+
         self.cost_history = cost_history
         self.vars_history = vars_history
+
         return x
 
 
@@ -392,7 +397,7 @@ class GDOptimizer(Optimizer):
         self,
         tau: float = 0.5,
         tol: float = 1e-6,
-        max_count: int = 1_000,
+        max_count: int = 10,
     ):
         line_search = Backtracking(
             update=GD(),
@@ -424,7 +429,7 @@ class ADAMOptimizer(Optimizer):
         beta_2: float = 0.99,
         tau: float = 0.5,
         tol: float = 1e-12,
-        max_count: int = 1_000,
+        max_count: int = 10,
     ):
         line_search = Backtracking(
             update=ADAM(beta_1, beta_2),

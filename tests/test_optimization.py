@@ -35,36 +35,52 @@ class TestLineSearch:
         """
         center = 1.0  # center parabola at this number
 
-        def f(x) -> np.ndarray:
-            """Evaluate function."""
+        def f(x: np.ndarray) -> np.ndarray:
+            """Evaluate objective function."""
             return jenn.synthetic.Parabola.evaluate(x, x0=center)
 
-        def dfdx(x) -> np.ndarray:
+        def f_prime(x: np.ndarray) -> np.ndarray:
             """Evaluate partials."""
             return jenn.synthetic.Parabola.first_derivative(x, x0=center)
 
         x0 = np.array([center - 1]).reshape((1, 1))  # approach from left
-        assert line_search(x0, dfdx(x0), f, learning_rate=2.0) == center
+        y0 = f(x0)
+        xbest, _ = line_search(
+            x0, y0, search_direction=f_prime(x0), cost_function=f, learning_rate=2.0
+        )
+        assert xbest == center
         x0 = np.array([center + 1]).reshape((1, 1))  # approach from right
-        assert line_search(x0, dfdx(x0), f, learning_rate=2.0) == center
+        y0 = f(x0)
+        xbest, _ = line_search(
+            x0, y0, search_direction=f_prime(x0), cost_function=f, learning_rate=2.0
+        )
+        assert xbest == center
 
     def test_finds_minbound(self, line_search: jenn.core.optimization.Backtracking):
         """Test that line search finds the minimum bound when learning rate step size
         is not large enough to include minimum in search radius.
         """
 
-        def f(x) -> np.ndarray:
-            """Evaluate function."""
+        def f(x: np.ndarray) -> np.ndarray:
+            """Evaluate objective function."""
             return jenn.synthetic.Parabola.evaluate(x, x0=0.0)
 
-        def dfdx(x) -> np.ndarray:
+        def f_prime(x: np.ndarray) -> np.ndarray:
             """Evaluate partials."""
             return jenn.synthetic.Parabola.first_derivative(x, x0=0.0)
 
         x0 = np.array([1]).reshape((1, 1))  # approach from right
-        assert line_search(x0, dfdx(x0), f, learning_rate=0.1) == 0.8
+        y0 = f(x0)
+        xbest, _ = line_search(
+            x0, y0, search_direction=f_prime(x0), cost_function=f, learning_rate=0.1
+        )
+        assert xbest == 0.8
         x0 = np.array([-1]).reshape((1, 1))  # approach from left
-        assert line_search(x0, dfdx(x0), f, learning_rate=0.1) == -0.8
+        y0 = f(x0)
+        xbest, _ = line_search(
+            x0, y0, search_direction=f_prime(x0), cost_function=f, learning_rate=0.1
+        )
+        assert xbest == -0.8
 
 
 class TestUpdate:
@@ -93,21 +109,14 @@ class TestOptimizer:
     """Test optimizer using banana Rosenbrock function."""
 
     @classmethod
-    def run_rosenbrock(
+    def test_rosenbrock(
         cls,
         alpha: float = 0.05,
         max_iter: int = 1000,
         is_adam: bool = True,
         is_plot: bool = False,
-    ) -> np.ndarray:
-        """Run Rosenbrock example.
-
-        :param alpha: learning rate
-        :param max_iter: maximum number of iterations
-        :param is_adam: whether to use ADAM or Gradient Descent (GD)
-        :param is_plot: whether to plot results
-        :return: optimal x
-        """
+    ) -> None:
+        """Check that optimizer yields correct answer for rosenbrock function."""
         # Initial guess
         x0 = np.array([1.25, -1.75]).reshape((2, 1))
 
@@ -137,11 +146,11 @@ class TestOptimizer:
                     [X1[i, j]],
                     [X2[i, j]],
                 ])
-                Y[i, j] = f(X).squeeze()
+                Y[i, j] = f(X)
 
         if not MATPLOTLIB_INSTALLED:
             # raise ImportError("Matplotlib must be installed.")
-            return None
+            return
 
         if is_plot:
             x1_his = np.array([x[0] for x in opt.vars_history]).squeeze()
@@ -163,23 +172,12 @@ class TestOptimizer:
                 plt.title("GD")
             plt.show()
 
-        return xf  # return answer
-
-    @classmethod
-    def test_rosenbrock(cls) -> None:
-        """Check that optimizer yields correct answer for rosenbrock function."""
         # Close to optimum, the slope is nearly zero and the optimizer really
         # struggles to get to the exact optimum. +/- 0.2 is actually very close
         # to optimality. Turn on the contour plots to see.
-        xf = cls.run_rosenbrock()
         assert np.allclose(xf[0], 1.0, atol=0.2)
         assert np.allclose(xf[1], 1.0, atol=0.2)
 
 
 if __name__ == "__main__":
-    _ = TestOptimizer.run_rosenbrock(
-        alpha=0.1,
-        max_iter=1_000,
-        is_adam=True,
-        is_plot=True,
-    )
+    TestOptimizer.test_rosenbrock(alpha=0.1, max_iter=1_000, is_adam=True, is_plot=True)
