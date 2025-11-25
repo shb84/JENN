@@ -3,6 +3,8 @@ import numpy as np
 from typing import List
 from matplotlib.figure import Figure
 
+from ._styling import MARKERS
+
 
 def plot_residual_by_predicted(
     y_pred: np.ndarray | List[np.ndarray],
@@ -14,6 +16,7 @@ def plot_residual_by_predicted(
     legend_fontsize: int = None,
     alpha: float = 0.75,
     percent: bool = False,
+    colorful: bool = True, 
 ) -> Figure:
     """Create residual by predicted plot for a single response.
 
@@ -33,6 +36,7 @@ def plot_residual_by_predicted(
     :param figsize: figure size
     :param fontsize: text size
     :param alpha: transparency of dots (between 0 and 1)
+    :param colorful: distinguish datasets by different color or different marker
     :param percent: show residuals as percentages 
     :return: matplotlib Figure instance
     """
@@ -58,11 +62,15 @@ def plot_residual_by_predicted(
     # Loop over datasets to overlay them in one plot (e.g. train, test)
     fig, ax = plt.subplots(figsize=figsize)
     legend = [] 
+    markers = iter(MARKERS)
     for i, dataset in enumerate(datasets): 
         pred = y_pred[i].ravel()
         true = y_true[i].ravel()
         diff = (pred - true) / true * 100 if percent else pred - true
-        ax.scatter(pred, diff, alpha=alpha)
+        if colorful: 
+            ax.scatter(pred, diff, alpha=alpha)
+        else: 
+            ax.scatter(pred, diff, alpha=alpha, color="k", marker=next(markers))
         legend.append(dataset)
 
     # Add statistics 

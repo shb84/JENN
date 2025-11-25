@@ -3,6 +3,7 @@ import numpy as np
 from typing import List
 from matplotlib.figure import Figure
 
+from ._styling import MARKERS
 from jenn.post_processing.metrics import r_square
         
 
@@ -15,6 +16,7 @@ def plot_actual_by_predicted(
     fontsize: int = 9,
     legend_fontsize: int = None,
     alpha: float = 0.75,
+    colorful: bool = True, 
 ) -> Figure:
     """Create actual by predicted plot for a single response.
 
@@ -34,6 +36,7 @@ def plot_actual_by_predicted(
     :param figsize: figure size
     :param fontsize: text size
     :param alpha: transparency of dots (between 0 and 1)
+    :param colorful: distinguish datasets by different color or different marker
     :return: matplotlib Figure instance
     """
     if not legend_fontsize: 
@@ -62,10 +65,14 @@ def plot_actual_by_predicted(
 
     # Loop over datasets to overlay them in one plot (e.g. train, test)
     fig, ax = plt.subplots(figsize=figsize)
+    markers = iter(MARKERS)
     for i, dataset in enumerate(datasets): 
         pred = y_pred[i].ravel()
         true = y_true[i].ravel()
-        ax.scatter(true, pred, alpha=alpha)
+        if colorful: 
+            ax.scatter(true, pred, alpha=alpha)
+        else: 
+            ax.scatter(true, pred, alpha=alpha, color="k", marker=next(markers))
         r2 = r_square(pred, true).squeeze() 
         legend.append(f"{dataset} (" + r'$R^2$' + f"={r2:.2f})")
         lower.append(true.min())

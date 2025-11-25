@@ -20,3 +20,35 @@ LINE_STYLES = {
     "loosely dashdotdotted": (0, (3, 10, 1, 10, 1, 10)),
     "densely dashdotdotted": (0, (3, 1, 1, 1, 1, 1)),
 }
+
+
+MARKERS = {
+    'o': 'Circle',
+    'x': 'X',
+    '.': 'Point',
+    '+': 'Plus',
+    ',': 'Pixel',
+    'o': 'Circle',
+    'v': 'Triangle Down',
+    '^': 'Triangle Up',
+    '<': 'Triangle Left',
+    '>': 'Triangle Right',
+    '1': 'Tri Down',
+    '2': 'Tri Up',
+    '3': 'Tri Left',
+    '4': 'Tri Right',
+    '8': 'Octagon',
+    's': 'Square',
+    'p': 'Pentagon',
+    'P': 'Plus (filled)',
+    '*': 'Star',
+    'h': 'Hexagon 1',
+    'H': 'Hexagon 2',
+    '+': 'Plus',
+    'X': 'X (filled)',
+    'D': 'Diamond',
+    'd': 'Thin Diamond',
+    '|': 'Vline',
+    '_': 'Hline',
+    None: 'No marker', # Using None or ' ' or '' or 'none' for no marker
+}
