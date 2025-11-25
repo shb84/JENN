@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from typing import List
 from matplotlib.figure import Figure
-        
+
 
 def plot_residual_by_predicted(
     y_pred: np.ndarray | List[np.ndarray],

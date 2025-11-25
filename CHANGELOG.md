@@ -43,6 +43,7 @@ build: Changes to the build process or tools.
 
 - Re-wrote actual-by-predicted algorithm to overlay datasets (e.g. train, test) and use ravel() to combine data when many responses
 - Re-wrote residuals-by-predicted algorithm to overlay datasets (e.g. train, test) and use ravel() to combine data when many responses
+- Modified convergence history plotting to control log-scale of each axis 
  
 ## v1.0.8 (2024-06-26)
 
