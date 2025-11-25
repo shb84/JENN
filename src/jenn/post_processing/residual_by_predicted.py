@@ -1,3 +1,6 @@
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
+
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import List
@@ -68,10 +71,9 @@ def plot_residual_by_predicted(
         true = y_true[i].ravel()
         diff = (pred - true) / true * 100 if percent else pred - true
         if colorful: 
-            ax.scatter(pred, diff, alpha=alpha)
+            ax.scatter(pred, diff, alpha=alpha, label=dataset)
         else: 
-            ax.scatter(pred, diff, alpha=alpha, color="k", marker=next(markers))
-        legend.append(dataset)
+            ax.scatter(pred, diff, alpha=alpha, color="k", marker=next(markers), label=dataset)
 
     # Add statistics 
     true = np.concatenate([y.ravel() for y in y_true]).ravel()
@@ -79,16 +81,15 @@ def plot_residual_by_predicted(
     diff = (pred - true) / true * 100 if percent else pred - true
     avg = diff.mean()
     std = diff.std() 
-    ax.axhline(y=avg, color="k", linestyle="-", linewidth=2)
-    ax.axhline(y=avg + std, color="k", linestyle=":", linewidth=2)
+    ax.axhline(y=avg, color="k", linestyle="-", linewidth=2, label=f"avg = {avg:.3f}")
+    ax.axhline(y=avg + std, color="k", linestyle=":", linewidth=2, label=f"std = {std:.3f}")
     ax.axhline(y=avg - std, color="k", linestyle=":", linewidth=2)
-    legend.extend([f"avg = {avg:.3f}", f"std = {std:.3f}"])
 
     # Finish annotating axes 
     ax.set_xlabel(f"Predicted {response}", fontsize=fontsize)
     ax.set_ylabel("Residuals (%)" if percent else "Residuals", fontsize=fontsize)
     ax.grid(True)
-    ax.legend(legend, fontsize=legend_fontsize)
+    ax.legend(fontsize=legend_fontsize)
 
     plt.close(fig)
     return fig 

@@ -1,16 +1,13 @@
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
-
+ 
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import List
 from matplotlib.figure import Figure
 
-from ._styling import MARKERS
-from jenn.post_processing.metrics import r_square
-        
 
-def plot_actual_by_predicted(
+def plot_histogram(
     y_pred: np.ndarray | List[np.ndarray],
     y_true: np.ndarray | List[np.ndarray],
     response: str = "Response(s)",
@@ -19,9 +16,9 @@ def plot_actual_by_predicted(
     fontsize: int = 9,
     legend_fontsize: int = None,
     alpha: float = 0.75,
-    colorful: bool = True, 
+    percent: bool = False,
 ) -> Figure:
-    """Create actual by predicted plot for a single response.
+    """Create residual by predicted plot for a single response.
 
     .. note::
         If shape of input NumPy arrays is two dimensional or more, it will 
@@ -30,7 +27,7 @@ def plot_actual_by_predicted(
         Individual responses will not be treated separately. This is helpful 
         to get an aggregate understand of the goodness of fit across the board. 
         If goodness of fit is desired for each response, then this method must 
-        be called separately for each one, e.g. plot_actual_by_predicted(y_pred[i], y_true[i])
+        be called separately for each one, e.g. plot_residual_by_predicted(y_pred[i], y_true[i])
 
     :param y_pred: predicted values for each dataset, list of arrays of shape (m,)
     :param y_true: true values for each dataset, list of arrays of shape (m,)
@@ -39,7 +36,7 @@ def plot_actual_by_predicted(
     :param figsize: figure size
     :param fontsize: text size
     :param alpha: transparency of dots (between 0 and 1)
-    :param colorful: distinguish datasets by different color or different marker
+    :param percent: show residuals as percentages 
     :return: matplotlib Figure instance
     """
     if not legend_fontsize: 
@@ -60,37 +57,30 @@ def plot_actual_by_predicted(
         datasets = ["data"] * len(y_true)
     if len(y_true) != len(datasets): 
         raise ValueError("y_true and y_pred must have same length as datasets")
-    
-    # Instantiate lists 
-    legend = [] 
-    lower = []
-    upper = []
 
     # Loop over datasets to overlay them in one plot (e.g. train, test)
     fig, ax = plt.subplots(figsize=figsize)
-    markers = iter(MARKERS)
+    legend = [] 
     for i, dataset in enumerate(datasets): 
         pred = y_pred[i].ravel()
         true = y_true[i].ravel()
-        r2 = r_square(pred, true).squeeze() 
-        label = f"{dataset} (" + r'$R^2$' + f"={r2:.2f})"
-        if colorful: 
-            ax.scatter(true, pred, alpha=alpha, label=label)
-        else: 
-            ax.scatter(true, pred, alpha=alpha, color="k", marker=next(markers), label=label)
-        lower.append(true.min())
-        upper.append(true.max())
-    
-    # Add a perfect fit line to show deviations 
-    line = [min(lower), max(upper)]
-    ax.plot(line, line, color="k", linestyle=":", label="perfect fit line")
+        diff = (pred - true) / true * 100 if percent else pred - true
+        ax.hist(diff, alpha=alpha, label=dataset)
+
+    # Add statistics 
+    true = np.concatenate([y.ravel() for y in y_true]).ravel()
+    pred = np.concatenate([y.ravel() for y in y_pred]).ravel()
+    diff = (pred - true) / true * 100 if percent else pred - true
+    avg = diff.mean()
+    std = diff.std() 
+    ax.axvline(x=avg, color="k", linestyle="-", linewidth=2, label=f"avg = {avg:.3f}")
+    ax.axvline(x=avg + std, color="k", linestyle=":", linewidth=2, label=f"std = {std:.3f}")
+    ax.axvline(x=avg - std, color="k", linestyle=":", linewidth=2)
 
     # Finish annotating axes 
-    ax.set_xlabel(f"Actual {response}", fontsize=fontsize)
-    ax.set_ylabel(f"Predicted {response}", fontsize=fontsize)
+    ax.set_xlabel(f"Residuals of {response} (%)" if percent else f"Residuals of {response}", fontsize=fontsize)
     ax.grid(True)
     ax.legend(fontsize=legend_fontsize)
 
-    plt.axis("equal")
     plt.close(fig)
     return fig 
