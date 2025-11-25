@@ -41,9 +41,11 @@ build: Changes to the build process or tools.
 
 # Refactor
 
+- Moved all plotting functions into their own modules under `post_processsing`
 - Re-wrote actual-by-predicted algorithm to overlay datasets (e.g. train, test) and use ravel() to combine data when many responses
 - Re-wrote residuals-by-predicted algorithm to overlay datasets (e.g. train, test) and use ravel() to combine data when many responses
 - Modified convergence history plotting to control log-scale of each axis 
+- Modified contour plotting to select indices of which inputs and output to plot 
  
 ## v1.0.8 (2024-06-26)
 
