@@ -23,6 +23,8 @@ build: Changes to the build process or tools.
 ### Fix 
 
 - Fixed bug with line search (previously stalling or getting worse)
+- Fixed bug with residuals-by-predicted (x-axis was not showing predicted)
+- Fixed bug with sensitivity profiler (index error causing it to fail for multiple responses)
 
 ### Test 
 
@@ -37,6 +39,11 @@ build: Changes to the build process or tools.
 
 - Simplified CONTRIBUTING 
 
+# Refactor
+
+- Re-wrote actual-by-predicted algorithm to overlay datasets (e.g. train, test) and use ravel() to combine data when many responses
+- Re-wrote residuals-by-predicted algorithm to overlay datasets (e.g. train, test) and use ravel() to combine data when many responses
+ 
 ## v1.0.8 (2024-06-26)
 
 ### Build

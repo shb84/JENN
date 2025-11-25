@@ -2,11 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from typing import List
 from matplotlib.figure import Figure
-
-from jenn.post_processing.metrics import r_square
         
 
-def plot_actual_by_predicted(
+def plot_residual_by_predicted(
     y_pred: np.ndarray | List[np.ndarray],
     y_true: np.ndarray | List[np.ndarray],
     response: str = "Response(s)",
@@ -15,8 +13,9 @@ def plot_actual_by_predicted(
     fontsize: int = 9,
     legend_fontsize: int = None,
     alpha: float = 0.75,
+    percent: bool = False,
 ) -> Figure:
-    """Create actual by predicted plot for a single response.
+    """Create residual by predicted plot for a single response.
 
     .. note::
         If shape of input NumPy arrays is two dimensional or more, it will 
@@ -25,7 +24,7 @@ def plot_actual_by_predicted(
         Individual responses will not be treated separately. This is helpful 
         to get an aggregate understand of the goodness of fit across the board. 
         If goodness of fit is desired for each response, then this method must 
-        be called separately for each one, e.g. plot_actual_by_predicted(y_pred[i], y_true[i])
+        be called separately for each one, e.g. plot_residual_by_predicted(y_pred[i], y_true[i])
 
     :param y_pred: predicted values for each dataset, list of arrays of shape (m,)
     :param y_true: true values for each dataset, list of arrays of shape (m,)
@@ -34,6 +33,7 @@ def plot_actual_by_predicted(
     :param figsize: figure size
     :param fontsize: text size
     :param alpha: transparency of dots (between 0 and 1)
+    :param percent: show residuals as percentages 
     :return: matplotlib Figure instance
     """
     if not legend_fontsize: 
@@ -54,34 +54,33 @@ def plot_actual_by_predicted(
         datasets = ["data"] * len(y_true)
     if len(y_true) != len(datasets): 
         raise ValueError("y_true and y_pred must have same length as datasets")
-    
-    # Instantiate lists 
-    legend = [] 
-    lower = []
-    upper = []
 
     # Loop over datasets to overlay them in one plot (e.g. train, test)
     fig, ax = plt.subplots(figsize=figsize)
+    legend = [] 
     for i, dataset in enumerate(datasets): 
         pred = y_pred[i].ravel()
         true = y_true[i].ravel()
-        ax.scatter(true, pred, alpha=alpha)
-        r2 = r_square(pred, true).squeeze() 
-        legend.append(f"{dataset} (" + r'$R^2$' + f"={r2:.2f})")
-        lower.append(true.min())
-        upper.append(true.max())
-    
-    # Add a perfect fit line to show deviations 
-    legend.append("perfect fit line")
-    line = [min(lower), max(upper)]
-    ax.plot(line, line, color="k", linestyle=":")
+        diff = (pred - true) / true * 100 if percent else pred - true
+        ax.scatter(pred, diff, alpha=alpha)
+        legend.append(dataset)
+
+    # Add statistics 
+    true = np.concatenate([y.ravel() for y in y_true]).ravel()
+    pred = np.concatenate([y.ravel() for y in y_pred]).ravel()
+    diff = (pred - true) / true * 100 if percent else pred - true
+    avg = diff.mean()
+    std = diff.std() 
+    ax.axhline(y=avg, color="k", linestyle="-", linewidth=2)
+    ax.axhline(y=avg + std, color="k", linestyle=":", linewidth=2)
+    ax.axhline(y=avg - std, color="k", linestyle=":", linewidth=2)
+    legend.extend([f"avg = {avg:.3f}", f"std = {std:.3f}"])
 
     # Finish annotating axes 
-    ax.set_xlabel(f"Actual {response}", fontsize=fontsize)
-    ax.set_ylabel(f"Predicted {response}", fontsize=fontsize)
+    ax.set_xlabel(f"Predicted {response}", fontsize=fontsize)
+    ax.set_ylabel("Residuals (%)" if percent else "Residuals", fontsize=fontsize)
     ax.grid(True)
     ax.legend(legend, fontsize=legend_fontsize)
 
-    plt.axis("equal")
     plt.close(fig)
     return fig 
