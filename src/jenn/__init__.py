@@ -5,6 +5,7 @@
 from . import core, synthetic, utils  # TODO: remove
 from .core.model import NeuralNet
 from .post_processing import (
+    metrics,
     plot_actual_by_predicted,
     plot_contours,
     plot_convergence,
@@ -20,6 +21,7 @@ __all__ = [
     "NeuralNet",
     "__version__",
     "core",
+    "metrics",
     "plot_actual_by_predicted",
     "plot_contours",
     "plot_convergence",

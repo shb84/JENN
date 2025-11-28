@@ -35,17 +35,17 @@ class TestSinusoid:
 
         expected = y_train
         computed = nn.predict(x_train)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score > 0.95), f"r-square = {score} < 0.95"
 
         expected = dydx_train
         computed = nn.predict_partials(x_train)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score > 0.95), f"r-square = {score} < 0.95"
 
         expected = finite_difference(nn.predict, x_train)
         computed = nn.predict_partials(x_train)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score > 0.95), f"r-square = {score} < 0.95"
 
         ############################
@@ -56,13 +56,13 @@ class TestSinusoid:
 
         expected = y_test
         computed = nn.predict(x_test)
-        assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.95), (
+        assert np.all(jenn.metrics.rsquare(expected, computed) > 0.95), (
             f"r-square = {score} < 0.95"
         )
 
         expected = dydx_test
         computed = nn.predict_partials(x_test)
-        assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.90), (
+        assert np.all(jenn.metrics.rsquare(expected, computed) > 0.90), (
             f"r-square = {score} < 0.90"
         )
 
@@ -98,7 +98,7 @@ class TestSinusoid:
 
         expected = y_test
         computed = nn.predict(x_test)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score < 0.5), f"r-square = {score} > 0.5"
 
         #########
@@ -123,12 +123,12 @@ class TestSinusoid:
 
         expected = y_train
         computed = genn.predict(x_train)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score > 0.95), f"r-square = {score} < 0.95"
 
         expected = dydx_train
         computed = genn.predict_partials(x_train)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score > 0.95), f"r-square = {score} < 0.95"
 
         ############################
@@ -137,13 +137,13 @@ class TestSinusoid:
 
         expected = y_test
         computed = genn.predict(x_test)
-        assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.9), (
+        assert np.all(jenn.metrics.rsquare(expected, computed) > 0.9), (
             f"r-square = {score} < 0.9"
         )
 
         expected = dydx_test
         computed = genn.predict_partials(x_test)
-        assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.9), (
+        assert np.all(jenn.metrics.rsquare(expected, computed) > 0.9), (
             f"r-square = {score} < 0.9"
         )
 

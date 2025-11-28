@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.figure import Figure, SubFigure
 
-from jenn.post_processing._metrics import rsquare
+from jenn.post_processing.metrics import rsquare
 
 
 def plot_actual_by_predicted(

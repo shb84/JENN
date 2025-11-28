@@ -7,12 +7,6 @@ This section describes the main API users are expected to interact with.
 .. automodule:: jenn
    :members:
 
-.. automodule:: jenn.utils.plot
-   :members:
-   
-.. automodule:: jenn.utils.metrics
-   :members:
-
 .. automodule:: jenn.synthetic
    :members:
 
