@@ -72,3 +72,4 @@ todo.txt
 
 # Specific files 
 docs/examples/parameters.json 
+notebooks/*.pdf
