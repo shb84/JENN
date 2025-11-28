@@ -1,6 +1,6 @@
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
- 
+
 LINE_STYLES = {
     "solid": "solid",  # Same as (0, ()) or '-'
     "dotted": "dotted",  # Same as (0, (1, 1)) or ':'
@@ -23,32 +23,30 @@ LINE_STYLES = {
 
 
 MARKERS = {
-    'o': 'Circle',
-    'x': 'X',
-    '.': 'Point',
-    '+': 'Plus',
-    ',': 'Pixel',
-    'o': 'Circle',
-    'v': 'Triangle Down',
-    '^': 'Triangle Up',
-    '<': 'Triangle Left',
-    '>': 'Triangle Right',
-    '1': 'Tri Down',
-    '2': 'Tri Up',
-    '3': 'Tri Left',
-    '4': 'Tri Right',
-    '8': 'Octagon',
-    's': 'Square',
-    'p': 'Pentagon',
-    'P': 'Plus (filled)',
-    '*': 'Star',
-    'h': 'Hexagon 1',
-    'H': 'Hexagon 2',
-    '+': 'Plus',
-    'X': 'X (filled)',
-    'D': 'Diamond',
-    'd': 'Thin Diamond',
-    '|': 'Vline',
-    '_': 'Hline',
-    None: 'No marker', # Using None or ' ' or '' or 'none' for no marker
+    "o": "Circle",
+    "x": "X",
+    ".": "Point",
+    "+": "Plus",
+    ",": "Pixel",
+    "v": "Triangle Down",
+    "^": "Triangle Up",
+    "<": "Triangle Left",
+    ">": "Triangle Right",
+    "1": "Tri Down",
+    "2": "Tri Up",
+    "3": "Tri Left",
+    "4": "Tri Right",
+    "8": "Octagon",
+    "s": "Square",
+    "p": "Pentagon",
+    "P": "Plus (filled)",
+    "*": "Star",
+    "h": "Hexagon 1",
+    "H": "Hexagon 2",
+    "X": "X (filled)",
+    "D": "Diamond",
+    "d": "Thin Diamond",
+    "|": "Vline",
+    "_": "Hline",
+    None: "No marker",  # Using None or ' ' or '' or 'none' for no marker
 }

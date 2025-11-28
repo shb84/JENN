@@ -167,6 +167,7 @@ python = ">=3.8"
 jupyterlab = "*"
 ipywidgets = "*"
 bqplot = "*"
+ipympl = "*"
 
 [feature.src.dependencies]
 jsonpointer = ">=2.4"

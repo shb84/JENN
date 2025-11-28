@@ -19,7 +19,7 @@ class TestSinusoid:
         #########
 
         x_train, y_train, dydx_train = jenn.synthetic.Sinusoid.sample(0, m_train)
-        nn = jenn.model.NeuralNet([1, 12, 1], "tanh")
+        nn = jenn.NeuralNet([1, 12, 1], "tanh")
         nn.fit(
             x_train,
             y_train,
@@ -82,7 +82,7 @@ class TestSinusoid:
         # Train # (regular neural net)
         #########
 
-        nn = jenn.model.NeuralNet([1, 12, 1], "tanh")
+        nn = jenn.NeuralNet([1, 12, 1], "tanh")
         nn.fit(
             x_train,
             y_train,
@@ -105,7 +105,7 @@ class TestSinusoid:
         # Train # (gradient-enhanced neural net)
         #########
 
-        genn = jenn.model.NeuralNet([1, 12, 1], "tanh")
+        genn = jenn.NeuralNet([1, 12, 1], "tanh")
         genn.fit(
             x_train,
             y_train,
@@ -154,9 +154,9 @@ class TestRastrigin:
     @classmethod
     def test_neural_net(cls) -> None:
         """Test regular neural network against Rastrigin function."""
-        return NotImplemented
+        assert True  # TODO: implement this test
 
     @classmethod
     def test_gradient_enhanced_neural_net(cls) -> None:
         """Test jacobian-enhanced neural network against Rastrigin function."""
-        return NotImplemented
+        assert True  # TODO: implement this test

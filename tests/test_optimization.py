@@ -146,7 +146,7 @@ class TestOptimizer:
                     [X1[i, j]],
                     [X2[i, j]],
                 ])
-                Y[i, j] = f(X)
+                Y[i, j] = f(X).squeeze()
 
         if not MATPLOTLIB_INSTALLED:
             # raise ImportError("Matplotlib must be installed.")

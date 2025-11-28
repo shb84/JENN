@@ -1,21 +1,26 @@
-import matplotlib.pyplot as plt 
+# Copyright (C) 2018 Steven H. Berguin
+# This work is licensed under the MIT License.
+
+
+import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.figure import Figure, SubFigure
-from typing import List, Dict, Tuple
 
 from ._styling import LINE_STYLES
 
-History = Dict[str, Dict[str, List[float]]]
+History = dict[str, dict[str, list[float]]]
 
 
-def plot_convergence(
-    histories: History | List[History],
-    figsize: Tuple[float, float] = (3.25, 3),
+def plot_convergence(  # noqa: PLR0912, C901
+    histories: History | list[History],
+    figsize: tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
     alpha: float = 1.0,
     title: str = "",
-    legend: List[str] | None = None,
-    is_xlog: bool = True, 
-    is_ylog: bool = True, 
+    legend: list[str] | None = None,
+    is_xlog: bool = False,
+    is_ylog: bool = True,
+    ax: plt.Axes | None = None,
 ) -> Figure | SubFigure | None:
     """Plot training history.
 
@@ -25,17 +30,21 @@ def plot_convergence(
     :param alpha: transparency of dots (between 0 and 1)
     :param title: title of figure
     :param legend: label for each model
-    :param is_xlog: use log scale for x-axis 
-    :param is_ylog: use log scale for y-axis 
+    :param is_xlog: use log scale for x-axis
+    :param is_ylog: use log scale for y-axis
+    :param ax: the matplotlib axes on which to plot the data
     :return: matplotlib figure instance
     """
-    if not isinstance(histories, list): 
+    if not isinstance(histories, list):
         histories = [histories]
     if not histories:
         return None
 
-    fig = plt.figure(figsize=figsize, layout="tight")
-    fig.suptitle(title)
+    if ax:
+        fig = ax.get_figure()
+    else:
+        fig, ax = plt.subplots(figsize=figsize, layout="tight")
+    fig.suptitle(title)  # type: ignore [union-attr]
 
     linestyles = iter(LINE_STYLES.values())
     for history in histories:
@@ -88,7 +97,7 @@ def plot_convergence(
     ax = plt.gca()
     if legend:
         ax.legend(legend)
-    if is_xlog: 
+    if is_xlog:
         ax.set_xscale("log")
     if is_ylog:
         ax.set_yscale("log")

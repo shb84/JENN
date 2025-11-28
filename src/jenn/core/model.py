@@ -52,11 +52,11 @@ from typing import Any
 
 import numpy as np
 
-from .core.cache import Cache
-from .core.data import Dataset, denormalize, denormalize_partials, normalize
-from .core.parameters import Parameters
-from .core.propagation import model_forward, model_partials_forward, partials_forward
-from .core.training import train_model
+from .cache import Cache
+from .data import Dataset, denormalize, denormalize_partials, normalize
+from .parameters import Parameters
+from .propagation import model_forward, model_partials_forward, partials_forward
+from .training import train_model
 
 __all__ = ["NeuralNet"]
 

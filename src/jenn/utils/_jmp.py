@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from jenn.model import NeuralNet
+from jenn.core.model import NeuralNet
 
 
 def _is_float(string: str) -> bool:
