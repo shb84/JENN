@@ -70,3 +70,6 @@ todo.txt
 .env 
 .venv 
 
+# Specific files 
+docs/examples/parameters.json 
+notebooks/*.pdf

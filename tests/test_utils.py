@@ -1121,7 +1121,7 @@ class TestJMP:
         """Test that loading a trained JMP model into JENN yields same accuracy as in JMP."""
         jmp_model = jenn.utils.from_jmp(equation=one_layer_model)
         assert (
-            jenn.utils.metrics.r_square(
+            jenn.metrics.rsquare(
                 y_pred=jmp_model.predict(data.X),
                 y_true=data.Y,
             )
@@ -1132,7 +1132,7 @@ class TestJMP:
         """Test that loading a trained JMP model into JENN yields same accuracy as in JMP."""
         jmp_model = jenn.utils.from_jmp(equation=two_layer_model)
         assert (
-            jenn.utils.metrics.r_square(
+            jenn.metrics.rsquare(
                 y_pred=jmp_model.predict(data.X),
                 y_true=data.Y,
             )

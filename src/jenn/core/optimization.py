@@ -352,8 +352,8 @@ class Optimizer:
                         print("Absolute stopping criterion satisfied")
 
                 # Relative convergence criterion
-                numerator = abs(cost_history[-1] - cost_history[-2])
-                denominator = max(abs(float(cost_history[-1])), 1e-6)
+                numerator = abs(cost_history[-1].squeeze() - cost_history[-2].squeeze())
+                denominator = max(abs(cost_history[-1].squeeze()), 1e-6)
                 dF2 = numerator / denominator
 
                 if dF2 < epsilon_relative:

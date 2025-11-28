@@ -19,7 +19,7 @@ class TestSinusoid:
         #########
 
         x_train, y_train, dydx_train = jenn.synthetic.Sinusoid.sample(0, m_train)
-        nn = jenn.model.NeuralNet([1, 12, 1], "tanh")
+        nn = jenn.NeuralNet([1, 12, 1], "tanh")
         nn.fit(
             x_train,
             y_train,
@@ -35,17 +35,17 @@ class TestSinusoid:
 
         expected = y_train
         computed = nn.predict(x_train)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score > 0.95), f"r-square = {score} < 0.95"
 
         expected = dydx_train
         computed = nn.predict_partials(x_train)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score > 0.95), f"r-square = {score} < 0.95"
 
         expected = finite_difference(nn.predict, x_train)
         computed = nn.predict_partials(x_train)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score > 0.95), f"r-square = {score} < 0.95"
 
         ############################
@@ -56,13 +56,13 @@ class TestSinusoid:
 
         expected = y_test
         computed = nn.predict(x_test)
-        assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.95), (
+        assert np.all(jenn.metrics.rsquare(expected, computed) > 0.95), (
             f"r-square = {score} < 0.95"
         )
 
         expected = dydx_test
         computed = nn.predict_partials(x_test)
-        assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.90), (
+        assert np.all(jenn.metrics.rsquare(expected, computed) > 0.90), (
             f"r-square = {score} < 0.90"
         )
 
@@ -82,7 +82,7 @@ class TestSinusoid:
         # Train # (regular neural net)
         #########
 
-        nn = jenn.model.NeuralNet([1, 12, 1], "tanh")
+        nn = jenn.NeuralNet([1, 12, 1], "tanh")
         nn.fit(
             x_train,
             y_train,
@@ -98,14 +98,14 @@ class TestSinusoid:
 
         expected = y_test
         computed = nn.predict(x_test)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score < 0.5), f"r-square = {score} > 0.5"
 
         #########
         # Train # (gradient-enhanced neural net)
         #########
 
-        genn = jenn.model.NeuralNet([1, 12, 1], "tanh")
+        genn = jenn.NeuralNet([1, 12, 1], "tanh")
         genn.fit(
             x_train,
             y_train,
@@ -123,12 +123,12 @@ class TestSinusoid:
 
         expected = y_train
         computed = genn.predict(x_train)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score > 0.95), f"r-square = {score} < 0.95"
 
         expected = dydx_train
         computed = genn.predict_partials(x_train)
-        score = jenn.utils.metrics.r_square(expected, computed)
+        score = jenn.metrics.rsquare(expected, computed)
         assert np.all(score > 0.95), f"r-square = {score} < 0.95"
 
         ############################
@@ -137,13 +137,13 @@ class TestSinusoid:
 
         expected = y_test
         computed = genn.predict(x_test)
-        assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.9), (
+        assert np.all(jenn.metrics.rsquare(expected, computed) > 0.9), (
             f"r-square = {score} < 0.9"
         )
 
         expected = dydx_test
         computed = genn.predict_partials(x_test)
-        assert np.all(jenn.utils.metrics.r_square(expected, computed) > 0.9), (
+        assert np.all(jenn.metrics.rsquare(expected, computed) > 0.9), (
             f"r-square = {score} < 0.9"
         )
 
@@ -154,9 +154,9 @@ class TestRastrigin:
     @classmethod
     def test_neural_net(cls) -> None:
         """Test regular neural network against Rastrigin function."""
-        return NotImplemented
+        assert True  # TODO: implement this test
 
     @classmethod
     def test_gradient_enhanced_neural_net(cls) -> None:
         """Test jacobian-enhanced neural network against Rastrigin function."""
-        return NotImplemented
+        assert True  # TODO: implement this test

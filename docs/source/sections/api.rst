@@ -4,13 +4,7 @@ User API
 
 This section describes the main API users are expected to interact with.  
 
-.. automodule:: jenn.model
-   :members:
-
-.. automodule:: jenn.utils.plot
-   :members:
-   
-.. automodule:: jenn.utils.metrics
+.. automodule:: jenn
    :members:
 
 .. automodule:: jenn.synthetic

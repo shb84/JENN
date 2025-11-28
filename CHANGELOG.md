@@ -23,10 +23,12 @@ build: Changes to the build process or tools.
 ### Fix 
 
 - Fixed bug with line search (previously stalling or getting worse)
+- Fixed bug with residuals-by-predicted (x-axis was not showing predicted correctly)
+- Fixed bug with sensitivity profiler (index error causing it to fail for multiple responses)
 
 ### Test 
 
-- Updated optimization test to reflect line search changes
+- Updated optimization tests to reflect line search changes
 
 ### Build
 
@@ -36,7 +38,19 @@ build: Changes to the build process or tools.
 ### Docs
 
 - Simplified CONTRIBUTING 
+- Updated docs to include API changes
 
+# Refactor
+
+- Changed model API by moving module `model.py` into `core` 
+- Changed plotting API (instead of `jenn.utils.plot.something()` it is now `jenn.plot_something()`)
+- Moved all plotting functions into their own modules inside `post_processsing`
+- Renamed all plotting algorithms and tweaked signatures 
+- Modified convergence history plotting to control log-scale of each axis 
+- Modified contour plotting to allow index selection of which inputs and outputs to plot 
+- Added function to plot histogram of prediction error 
+- Updated goodness of fit summary plot to also include prediction error distribution 
+ 
 ## v1.0.8 (2024-06-26)
 
 ### Build
