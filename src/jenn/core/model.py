@@ -48,7 +48,7 @@ functions doing computations under-the-hood.
 # This work is licensed under the MIT License.
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 import numpy as np
 
@@ -230,7 +230,14 @@ class NeuralNet:
         """Serialize parameters and save to JSON file."""
         self.parameters.save(file)
 
-    def load(self, file: str | Path = "parameters.json") -> "NeuralNet":
-        """Load previously saved parameters from json file."""
-        self.parameters.load(file)
-        return self
+    @classmethod
+    def load(cls, file: str | Path = "parameters.json") -> Self:
+        """Load serialized parameters into a new NeuralNet instance."""
+        parameters = Parameters.load(file)
+        neural_net = cls(
+            layer_sizes=parameters.layer_sizes,
+            hidden_activation=parameters.hidden_activation,
+            output_activation=parameters.output_activation,
+        )
+        neural_net.parameters = parameters
+        return neural_net

@@ -10,6 +10,7 @@ import json
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Self
 
 import jsonpointer
 import jsonschema
@@ -333,31 +334,50 @@ class Parameters:
                 raise ValueError(f"W[{i}] has the wrong shape (expected {(n, m)})")
             m = n
 
-    def _deserialize(self, saved_parameters: bytes) -> None:
+    @classmethod
+    def _deserialize(cls, saved_parameters: bytes) -> dict:
         """Deserialize and apply saved parameters."""
         params = orjson.loads(saved_parameters)
         jsonschema.validate(params, SCHEMA)
-        self.W = [np.array(value) for value in params["W"]]
-        self.b = [np.array(value) for value in params["b"]]
-        self.a = params["a"]
-        self.mu_x = np.array(params["mu_x"])
-        self.mu_y = np.array(params["mu_y"])
-        self.sigma_x = np.array(params["sigma_x"])
-        self.sigma_y = np.array(params["sigma_y"])
-        self.layer_sizes = [W.shape[0] for W in self.W]
-        self.output_activation = self.a[-1]
-        self.hidden_activation = self.a[-2]
-        self.dW = [np.zeros(array.shape) for array in self.W]
-        self.db = [np.zeros(array.shape) for array in self.b]
-        self.validate_parameters()
+        return dict(
+            W=[np.array(value) for value in params["W"]],
+            b=[np.array(value) for value in params["b"]],
+            a=params["a"],
+            mu_x=np.array(params["mu_x"]),
+            mu_y=np.array(params["mu_y"]),
+            sigma_x=np.array(params["sigma_x"]),
+            sigma_y=np.array(params["sigma_y"]),
+            layer_sizes=[np.array(value).shape[0] for value in params["W"]],
+            output_activation=params["a"][-1],
+            hidden_activation=params["a"][-2],
+            dW=[np.zeros(np.array(value).shape) for value in params["W"]],
+            db=[np.zeros(np.array(value).shape) for value in params["b"]],
+        )
 
     def save(self, binary_file: str | Path = "parameters.json") -> None:
         """Save parameters to specified json file."""
         with Path(binary_file).open("wb") as file:
             file.write(self._serialize())
 
-    def load(self, binary_file: str | Path = "parameters.json") -> None:
-        """Load parameters from specified json file."""
+    @classmethod
+    def load(cls, binary_file: str | Path = "parameters.json") -> Self:
+        """Load serialized parameters into a new Parameters instance.
+
+        :param binary_file: JSON file containing saved parameters
+        :type binary_file: str | Path
+        :return: a new instance of Parameters
+        :rtype: Parameters
+        """
         with Path(binary_file).open("rb") as file:
             byte_stream = file.read()
-        self._deserialize(byte_stream)
+        attrs = cls._deserialize(byte_stream)
+        obj = cls(
+            layer_sizes=attrs["layer_sizes"],
+            hidden_activation=attrs["hidden_activation"],
+            output_activation=attrs["output_activation"],
+        )
+        obj.initialize()
+        for key, val in attrs.items():
+            setattr(obj, key, val)
+        obj.validate_parameters()
+        return obj

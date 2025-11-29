@@ -15,7 +15,7 @@ class TestSerialization:
     """Check that parameters can be saved and reloaded."""
 
     @pytest.fixture
-    def params(self) -> jenn.core.parameters.Parameters:
+    def parameters(self) -> jenn.core.parameters.Parameters:
         """Return XOR parameters."""
         parameters = jenn.core.parameters.Parameters(
             layer_sizes=[2, 2, 1],
@@ -28,12 +28,13 @@ class TestSerialization:
         parameters.W[2][:] = np.array([[1, -2]])  # layer 2
         return parameters
 
-    def test_serialization(self, params: jenn.core.parameters.Parameters) -> None:
+    def test_serialization(self, parameters: jenn.core.parameters.Parameters) -> None:
         """Test that saved parameters can be reloaded into a new object."""
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmpfile = pathlib.Path(tmpdirname) / "params.json"
-            params.save(tmpfile)
-            parameters = jenn.core.parameters.Parameters(params.layer_sizes)
-            assert params != parameters
-            parameters.load(tmpfile)
-            assert params == parameters
+            parameters.save(tmpfile)
+            new_instance = jenn.core.parameters.Parameters(parameters.layer_sizes)
+            new_instance.initialize()
+            assert parameters != new_instance
+            reloaded = jenn.core.parameters.Parameters.load(tmpfile)
+            assert parameters == reloaded
