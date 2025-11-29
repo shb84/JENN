@@ -18,7 +18,14 @@ class TestSinusoid:
         # Train #
         #########
 
-        x_train, y_train, dydx_train = jenn.synthetic.Sinusoid.sample(0, m_train)
+        x_train, y_train, dydx_train = jenn.utilities.sample(
+            f=jenn.synthetic_data.sinusoid.compute,
+            f_prime=jenn.synthetic_data.sinusoid.compute_partials,
+            m_random=0,
+            m_levels=m_train,
+            lb=-np.pi,
+            ub=np.pi,
+        )
         nn = jenn.NeuralNet([1, 12, 1], "tanh")
         nn.fit(
             x_train,
@@ -52,7 +59,14 @@ class TestSinusoid:
         # Goodness of Fit: Testing #
         ############################
 
-        x_test, y_test, dydx_test = jenn.synthetic.Sinusoid.sample(m_test)
+        x_test, y_test, dydx_test = jenn.utilities.sample(
+            f=jenn.synthetic_data.sinusoid.compute,
+            f_prime=jenn.synthetic_data.sinusoid.compute_partials,
+            m_random=m_test,
+            m_levels=0,
+            lb=-np.pi,
+            ub=np.pi,
+        )
 
         expected = y_test
         computed = nn.predict(x_test)
@@ -75,8 +89,22 @@ class TestSinusoid:
         against 1D sinuidal data when insufficient number of points is provided
         for a regular neural net to succeed.
         """
-        x_train, y_train, dydx_train = jenn.synthetic.Sinusoid.sample(0, m_train)
-        x_test, y_test, dydx_test = jenn.synthetic.Sinusoid.sample(m_test)
+        x_train, y_train, dydx_train = jenn.utilities.sample(
+            f=jenn.synthetic_data.sinusoid.compute,
+            f_prime=jenn.synthetic_data.sinusoid.compute_partials,
+            m_random=0,
+            m_levels=m_train,
+            lb=-np.pi,
+            ub=np.pi,
+        )
+        x_test, y_test, dydx_test = jenn.utilities.sample(
+            f=jenn.synthetic_data.sinusoid.compute,
+            f_prime=jenn.synthetic_data.sinusoid.compute_partials,
+            m_random=m_test,
+            m_levels=0,
+            lb=-np.pi,
+            ub=np.pi,
+        )
 
         #########
         # Train # (regular neural net)

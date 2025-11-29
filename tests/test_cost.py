@@ -9,7 +9,14 @@ import jenn
 
 def test_least_squares():
     """Test that least squares cost function evaluates to known answers."""
-    x, y, dydx = jenn.synthetic.Sinusoid.sample(100)
+    x, y, dydx = jenn.utilities.sample(
+        f=jenn.synthetic_data.sinusoid.compute,
+        f_prime=jenn.synthetic_data.sinusoid.compute_partials,
+        m_random=100,
+        m_levels=0,
+        lb=-np.pi,
+        ub=np.pi,
+    )
 
     parameters = jenn.core.parameters.Parameters(layer_sizes=[2, 2, 1])
     parameters.initialize()
