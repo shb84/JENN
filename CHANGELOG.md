@@ -29,7 +29,7 @@ build: Changes to the build process or tools.
 ### Test 
 
 - Updated optimization tests to reflect line search changes
-- Updated unit tests to reflect changes to synthetic data function  
+- Updated unit tests to reflect changes to synthetic data functions  
 
 ### Build
 
@@ -44,10 +44,12 @@ build: Changes to the build process or tools.
 ### Refactor
 
 - Changed API by moving module `model.py` into `core` 
-- Changed API by moving module `synthetic.py` into `synthetic_data` (synthetic test functions are now modules not classes)
-- Changed API by moving module `plot` into `post_processing` (instead of `jenn.utils.plot.something()` it is now `jenn.plot_something()`)
-- Modified signature and tweaked almost all plotting functions (adjusted notebooks accordingly)
-- Added plotting function to display histogram of prediction error (and added it to goodness of fit summary plots)
+- Changed API by moving module `synthetic.py` into `synthetic_data` (synthetic functions are now modules not classes)
+- Changed API by moving module `plot` into `post_processing` 
+  - _Instead of `jenn.utils.plot.something()` it is now `jenn.plot_something()`_
+  - _Modified signature and tweaked almost all plotting functions (adjusted notebooks accordingly)_
+  - _Added plotting function to display histogram of prediction error (and added it to goodness of fit summary plots)_
+- Changed name of `utils` to `utilities` and added `_sample.py` and `_finite_difference.py` modules
  
 ## v1.0.8 (2024-06-26)
 
