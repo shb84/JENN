@@ -37,11 +37,11 @@ class TestLineSearch:
 
         def f(x: np.ndarray) -> np.ndarray:
             """Evaluate objective function."""
-            return jenn.synthetic.Parabola.evaluate(x, x0=center)
+            return jenn.synthetic_data.parabola.compute(x, x0=center)
 
         def f_prime(x: np.ndarray) -> np.ndarray:
             """Evaluate partials."""
-            return jenn.synthetic.Parabola.first_derivative(x, x0=center)
+            return jenn.synthetic_data.parabola.compute_partials(x, x0=center)
 
         x0 = np.array([center - 1]).reshape((1, 1))  # approach from left
         y0 = f(x0)
@@ -63,11 +63,11 @@ class TestLineSearch:
 
         def f(x: np.ndarray) -> np.ndarray:
             """Evaluate objective function."""
-            return jenn.synthetic.Parabola.evaluate(x, x0=0.0)
+            return jenn.synthetic_data.parabola.compute(x, x0=0.0)
 
         def f_prime(x: np.ndarray) -> np.ndarray:
             """Evaluate partials."""
-            return jenn.synthetic.Parabola.first_derivative(x, x0=0.0)
+            return jenn.synthetic_data.parabola.compute_partials(x, x0=0.0)
 
         x0 = np.array([1]).reshape((1, 1))  # approach from right
         y0 = f(x0)
@@ -91,7 +91,7 @@ class TestUpdate:
     def test_gradient_descent(self):
         """Test gradient descent using simple linear function."""
         x0 = np.array([5, 10]).reshape((1, -1))
-        dydx = jenn.synthetic.Linear.first_derivative(x0)
+        dydx = jenn.synthetic_data.linear.compute_partials(x0)
         update = jenn.core.optimization.GD()
         x = update(x0, dydx, alpha=1).squeeze()
         assert np.allclose(x, np.array([4, 9]))
@@ -99,7 +99,7 @@ class TestUpdate:
     def test_adam(self):
         """Test ADAM using simple linear function."""
         x0 = np.array([5, 10]).reshape((1, -1))
-        dydx = jenn.synthetic.Linear.first_derivative(x0)
+        dydx = jenn.synthetic_data.linear.compute_partials(x0)
         update = jenn.core.optimization.ADAM()
         x = update(x0, dydx, alpha=1).squeeze()
         assert np.allclose(x, np.array([4, 9]))
@@ -121,8 +121,8 @@ class TestOptimizer:
         x0 = np.array([1.25, -1.75]).reshape((2, 1))
 
         # Test function
-        f = jenn.synthetic.Rosenbrock.evaluate
-        dfdx = jenn.synthetic.Rosenbrock.first_derivative
+        f = jenn.synthetic_data.rosenbrock.compute
+        dfdx = jenn.synthetic_data.rosenbrock.compute_partials
 
         # Optimization
         if is_adam:
@@ -147,10 +147,6 @@ class TestOptimizer:
                     [X2[i, j]],
                 ])
                 Y[i, j] = f(X).squeeze()
-
-        if not MATPLOTLIB_INSTALLED:
-            # raise ImportError("Matplotlib must be installed.")
-            return
 
         if is_plot:
             x1_his = np.array([x[0] for x in opt.vars_history]).squeeze()

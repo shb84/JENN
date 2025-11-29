@@ -7,7 +7,10 @@ This section describes the main API users are expected to interact with.
 .. automodule:: jenn
    :members:
 
-.. automodule:: jenn.synthetic
+.. automodule:: jenn.synthetic_data
+   :members:
+
+.. automodule:: jenn.utilities
    :members:
 
 Core API

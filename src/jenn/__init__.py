@@ -2,7 +2,7 @@
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
 
-from . import core, synthetic, utils  # TODO: remove
+from . import core, synthetic_data, utilities
 from .core.model import NeuralNet
 from .post_processing import (
     metrics,
@@ -29,6 +29,6 @@ __all__ = [
     "plot_histogram",
     "plot_residual_by_predicted",
     "plot_sensitivity_profiles",
-    "synthetic",
-    "utils",
+    "synthetic_data",
+    "utilities",
 ]
