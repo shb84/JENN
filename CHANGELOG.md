@@ -30,7 +30,7 @@ build: Changes to the build process or tools.
 
 - Updated optimization tests to reflect line search changes
 - Updated unit tests to reflect changes to synthetic data functions  
-- Updated unit tests to reflect changes to parameter `load` method   
+- Updated unit tests to reflect changes to `Parameters.load()` method  
 
 ### Build
 
@@ -52,9 +52,9 @@ build: Changes to the build process or tools.
   - _Added plotting function to display histogram of prediction error (and added it to goodness of fit summary plots)_
 - Changed name of `utils` to `utilities` and added `_sample.py` and `_finite_difference.py` modules
 - Converted `NeuralNet.load(...)` to a classmethod such that `reloaded = NeuralNet.load("save_params.json")`
-  - _Previously, one had to initialize object with dummy sizes `reloaded = NeuralNet(layer_sizes=[1, 2, 3]).load("save_params.json")`_
+  - _Previous pattern: `reloaded = NeuralNet(layer_sizes=[1, 2, 3]).load("save_params.json")`_
 - Converted `Parameters.load(...)` to a classmethod such that `reloaded = Parameters.load("save_params.json")`
-  - _Previously, one had to initialize object with dummy sizes `reloaded = Parameters(layer_sizes=[1, 2, 3]).load("save_params.json")`_
+  - _Previous pattern: `reloaded = Parameters(layer_sizes=[1, 2, 3]).load("save_params.json")`_
  
 ## v1.0.8 (2024-06-26)
 
