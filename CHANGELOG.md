@@ -29,6 +29,7 @@ build: Changes to the build process or tools.
 ### Test 
 
 - Updated optimization tests to reflect line search changes
+- Updated unit tests to reflect changes to synthetic data function  
 
 ### Build
 
@@ -40,16 +41,13 @@ build: Changes to the build process or tools.
 - Simplified CONTRIBUTING 
 - Updated docs to include API changes
 
-# Refactor
+### Refactor
 
-- Changed model API by moving module `model.py` into `core` 
-- Changed plotting API (instead of `jenn.utils.plot.something()` it is now `jenn.plot_something()`)
-- Moved all plotting functions into their own modules inside `post_processsing`
-- Renamed all plotting algorithms and tweaked signatures 
-- Modified convergence history plotting to control log-scale of each axis 
-- Modified contour plotting to allow index selection of which inputs and outputs to plot 
-- Added function to plot histogram of prediction error 
-- Updated goodness of fit summary plot to also include prediction error distribution 
+- Changed API by moving module `model.py` into `core` 
+- Changed API by moving module `synthetic.py` into `synthetic_data` (synthetic test functions are now modules not classes)
+- Changed API by moving module `plot` into `post_processing` (instead of `jenn.utils.plot.something()` it is now `jenn.plot_something()`)
+- Modified signature and tweaked almost all plotting functions (adjusted notebooks accordingly)
+- Added plotting function to display histogram of prediction error (and added it to goodness of fit summary plots)
  
 ## v1.0.8 (2024-06-26)
 
