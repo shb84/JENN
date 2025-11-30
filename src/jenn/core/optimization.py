@@ -5,13 +5,19 @@
 
 This module implements gradient-based optimization using `ADAM`_.
 """
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
 
 import pathlib
 from abc import ABC, abstractmethod
-from collections.abc import Callable
-from typing import Any
 
 import numpy as np
 

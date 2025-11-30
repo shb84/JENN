@@ -47,7 +47,7 @@ description = "Open Jupyter Lab in a browser"
 cmd = "jupyter lab --ContentsManager.allow_hidden=True"
 depends-on = ["pip-e"]
 
-[feature.qa.tasks.test]
+[feature.test.tasks.test]
 description = "Run unit tests"
 cmd = """
 pytest
@@ -68,13 +68,13 @@ inputs = ["src/**/*.py", "tests/"]
 depends-on = ["pip-e"]
 outputs = ["build/reports/pytest"]
 
-[feature.qa.tasks.test-nb]
+[feature.test.tasks.test-nb]
 description = "Run test notebooks."
 cmd = "pytest --nbmake --nbmake-timeout=3000 notebooks/*.ipynb"
 inputs = ["src/**/*.py", "notebooks/*.ipynb"]
 depends-on = ["pip-e"]
 
-[feature.qa.tasks.ruff]
+[feature.lint.tasks.ruff]
 description = "Check Python code for formatting errors. "
 cmd = "ruff format --check && ruff check"
 inputs = [
@@ -83,7 +83,7 @@ inputs = [
   "!.ipynb_checkpoints/",
 ]
 
-[feature.qa.tasks.docformatter]
+[feature.lint.tasks.docformatter]
 description = "Check Python doc strings. "
 cmd = "docformatter --in-place --close-quotes-on-newline src/**/*.py"
 inputs = [
@@ -92,7 +92,7 @@ inputs = [
   "!.ipynb_checkpoints/",
 ]
 
-[feature.qa.tasks.fix-ruff]
+[feature.lint.tasks.fix-ruff]
 description = "Fix Python code if there are format errors. "
 cmd = "ruff format && ruff check --fix"
 inputs = [
@@ -101,7 +101,7 @@ inputs = [
   "!.ipynb_checkpoints/",
 ]
 
-[feature.qa.tasks.fix-toml]
+[feature.lint.tasks.fix-toml]
 description = "format all TOML with taplo"
 cmd = """taplo fmt
     --option=array_auto_collapse=false
@@ -112,12 +112,12 @@ cmd = """taplo fmt
     *.toml"""
 inputs = ["*.toml"]
 
-[feature.qa.tasks.fix-nbstripout]
+[feature.lint.tasks.fix-nbstripout]
 cmd = "nbstripout --keep-id --drop-empty-cells notebooks/*.ipynb"
 description = "fix notebook JSON"
 inputs = ["!**/.ipynb_checkpoints", "notebooks/**/*.ipynb"]
 
-[feature.qa.tasks.mypy]
+[feature.lint.tasks.mypy]
 description = "Check code for dynamic and static typing inconsistencies."
 cmd = "mypy --html-report=build/reports/mypy src/"
 inputs = ["src/**/*.py"]
@@ -161,7 +161,25 @@ depends-on = ["build"]
 ############
 
 [feature.python.dependencies]
-python = ">=3.8"
+python = ">=3.9"
+
+[feature.python39.dependencies]
+python = "3.9.*"
+
+[feature.python310.dependencies]
+python = "3.10.*"
+
+[feature.python311.dependencies]
+python = "3.11.*"
+
+[feature.python312.dependencies]
+python = "3.12.*"
+
+[feature.python313.dependencies]
+python = "3.13.*"
+
+[feature.python314.dependencies]
+python = "3.14.*"
 
 [feature.labextensions.dependencies]
 jupyterlab = "*"
@@ -170,26 +188,28 @@ bqplot = "*"
 ipympl = "*"
 
 [feature.src.dependencies]
-jsonpointer = ">=2.4"
-jsonschema = ">=4.22"
-orjson = ">=3.9"
-numpy = ">=1.22"
+jsonpointer = "*"
+jsonschema = "*"
+orjson = "*"
+numpy = "*"
 matplotlib-base = "*"
 
 [feature.notebooks.dependencies]
 matplotlib-base = "*"
 
-[feature.qa.dependencies]
+[feature.lint.dependencies]
 lxml = "*"
 mypy = "*"
 nbmake = "*"
 nbstripout = "*"
-pytest = "*"
-pytest-cov = "*"
-pytest-html = "*"
 ruff = "*"
 taplo = "*"
 docformatter = "*"
+
+[feature.test.dependencies]
+pytest = "*"
+pytest-cov = "*"
+pytest-html = "*"
 
 [feature.docs.dependencies]
 sphinx = "*"
@@ -211,8 +231,51 @@ dev = {solve-group = "jenn", features = [
   "src",
   "notebooks",
   "labextensions",
-  "qa",
+  "lint",
+  "test",
   "docs",
   "dist",
   "python",
+]}
+
+py39 = {solve-group = "jenn-py39", features = [
+  "src",
+  "test",
+  "dist",
+  "python39",
+]}
+
+py310 = {solve-group = "jenn-py310", features = [
+  "src",
+  "test",
+  "dist",
+  "python310",
+]}
+
+py311 = {solve-group = "jenn-py311", features = [
+  "src",
+  "test",
+  "dist",
+  "python311",
+]}
+
+py312 = {solve-group = "jenn-py312", features = [
+  "src",
+  "test",
+  "dist",
+  "python312",
+]}
+
+py313 = {solve-group = "jenn-py313", features = [
+  "src",
+  "test",
+  "dist",
+  "python313",
+]}
+
+py314 = {solve-group = "jenn-py314", features = [
+  "src",
+  "test",
+  "dist",
+  "python314",
 ]}

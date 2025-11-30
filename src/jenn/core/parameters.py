@@ -3,14 +3,19 @@
 
 This module defines a utility class to store and manage neural net parameters and metadata.
 """
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 import json
-from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Self
 
 import jsonpointer
 import jsonschema
@@ -360,7 +365,7 @@ class Parameters:
             file.write(self._serialize())
 
     @classmethod
-    def load(cls, binary_file: str | Path = "parameters.json") -> Self:
+    def load(cls, binary_file: str | Path = "parameters.json") -> Parameters:
         """Load serialized parameters into a new Parameters instance.
 
         :param binary_file: JSON file containing saved parameters

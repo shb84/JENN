@@ -1,17 +1,21 @@
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure, SubFigure
+    from numpy.typing import NDArray
 
 import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.figure import Figure, SubFigure
 
 from jenn.post_processing.metrics import rsquare
 
 
 def plot_actual_by_predicted(
-    y_pred: np.ndarray,
-    y_true: np.ndarray,
+    y_pred: NDArray,
+    y_true: NDArray,
     figsize: tuple[float, float] = (3.25, 3),
     fontsize: int = 9,
     legend_fontsize: int = 7,

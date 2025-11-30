@@ -1,4 +1,4 @@
-"""Jenn module entry point."""
+"""JENN entry point."""
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
 
@@ -15,7 +15,7 @@ from .post_processing import (
     plot_sensitivity_profiles,
 )
 
-__version__ = "1.0.9.dev0"
+__version__ = "2.0.0.dev0"
 
 __all__ = [
     "NeuralNet",

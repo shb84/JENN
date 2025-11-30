@@ -44,13 +44,18 @@ functions doing computations under-the-hood.
     for those situations where it is necessary to separate out Jacobian predictions,
     due to how some target optimization software architected for example.
 """
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
 
-from pathlib import Path
-from typing import Any, Self
+from typing import TYPE_CHECKING
 
-import numpy as np
+if TYPE_CHECKING:
+    from pathlib import Path
+    from typing import Any
+
+    import numpy as np
 
 from .cache import Cache
 from .data import Dataset, denormalize, denormalize_partials, normalize
@@ -108,7 +113,7 @@ class NeuralNet:
         is_backtracking: bool = False,
         is_warmstart: bool = False,
         is_verbose: bool = False,
-    ) -> "NeuralNet":
+    ) -> NeuralNet:
         r"""Train neural network.
 
         :param x: training data inputs, array of shape (n_x, m)
@@ -231,7 +236,7 @@ class NeuralNet:
         self.parameters.save(file)
 
     @classmethod
-    def load(cls, file: str | Path = "parameters.json") -> Self:
+    def load(cls, file: str | Path = "parameters.json") -> NeuralNet:
         """Load serialized parameters into a new NeuralNet instance."""
         parameters = Parameters.load(file)
         neural_net = cls(
