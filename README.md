@@ -10,15 +10,16 @@ fewer training points compared to standard fully connected neural nets, as illus
 <div align="center">
 
 |                  Example #1                    |      Example #2                 |
-|:--:|::|
+|:----------------------------------------------:|:-------------------------------:|
 | ![](https://github.com/shb84/JENN/raw/master/docs/pics/example_sensitivity_profile.png) | ![](https://github.com/shb84/JENN/raw/master/docs/pics/JENN_vs_NN_1D.png)|
 
 |             Example #3           |
-|::|
+|:--------------------------------:|
 | ![](https://github.com/shb84/JENN/raw/master/docs/pics/JENN_vs_NN_2D.png) |
 
 </div>
-
+ 
+---
 # Citation
 
 If you use JENN in a scientific publication, please consider citing it: 
@@ -153,11 +154,9 @@ but they are only beneficial if the cost of obtaining partials
 is not excessive in the first place (e.g. adjoint methods), or if the need for accuracy outweighs the cost of 
 computing the partials. Users should therefore carefully weigh the benefit of 
 gradient-enhanced methods relative to the needs of their application. 
- 
+
 # License
 Distributed under the terms of the MIT License.
-
-
 
 # Acknowledgement
 
