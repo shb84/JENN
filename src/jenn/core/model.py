@@ -216,7 +216,7 @@ class NeuralNet:
         dydx = denormalize_partials(dydx_norm, params.sigma_x, params.sigma_y)
         return dydx
 
-    def evaluate(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def __call__(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         r"""Predict responses and their partials.
 
         :param x: vectorized inputs, array of shape (n_x, m)

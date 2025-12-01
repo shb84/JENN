@@ -60,23 +60,26 @@ Import library:
 
 Generate example training and test data:  
 
-    x_train, y_train, dydx_train = jenn.synthetic.Sinusoid.sample(
-        m_lhs=0, 
+    x_train, y_train, dydx_train = jenn.utilities.sample(
+        f=jenn.synthetic_data.sinusoid.compute, 
+        f_prime=jenn.synthetic_data.sinusoid.compute_partials, 
+        m_random=0, 
         m_levels=4, 
         lb=-3.14, 
         ub=3.14,
     )
-    x_test, y_test, dydx_test = jenn.synthetic.Sinusoid.sample(
-        m_lhs=30, 
+    x_test, y_test, dydx_test = jenn.utilities.sample(
+        f=jenn.synthetic_data.sinusoid.compute, 
+        f_prime=jenn.synthetic_data.sinusoid.compute_partials, 
+        m_random=30, 
         m_levels=0, 
         lb=-3.14, 
         ub=3.14,
     )
 
-
 Train a model: 
 
-    nn = jenn.model.NeuralNet(
+    nn = jenn.NeuralNet(
         layer_sizes=[1, 12, 1],
     ).fit(
         x=x_train,  
@@ -88,7 +91,7 @@ Train a model:
     
  Make predictions: 
 
-    y, dydx = nn.evaluate(x)
+    y, dydx = nn(x) 
 
     # OR 
 
@@ -102,30 +105,34 @@ Save model (parameters) for later use:
 
 Reload saved parameters into new model: 
 
-    reloaded = jenn.model.NeuralNet(layer_sizes=[1, 12, 1]).load('parameters.json')
+    reloaded = jenn.NeuralNet.load('parameters.json')
 
-Optionally, if `matplotlib` is installed, import plotting utilities:  
+Check goodness of fit: 
 
-    from jenn.utils import plot
-
-Optionally, if `matplotlib` is installed, check goodness of fit: 
-
-    plot.goodness_of_fit(
-        y_true=dydx_test[0], 
-        y_pred=nn.predict_partials(x_test)[0], 
-        title="Partial Derivative: dy/dx (JENN)"
+    jenn.plot_goodness_of_fit(
+        y_true=y_test, 
+        y_pred=nn.predict(x_test), 
+        title="y (JENN)"
     )
 
-Optionally, if `matplotlib` is installed, show sensitivity profiles:
+Check goodness of fit of partials: 
 
-    plot.sensitivity_profiles(
-        f=[jenn.synthetic.Sinusoid.evaluate, nn.predict], 
+    jenn.plot_goodness_of_fit(
+        y_true=dydx_test, 
+        y_pred=nn.predict_partials(x_test), 
+        title="dy/dx (JENN)"
+    )
+
+Show sensitivity profiles:
+
+    jenn.plot_sensitivity_profiles(
+        func=[jenn.synthetic_data.sinusoid.compute, nn.predict], 
         x_min=x_train.min(), 
         x_max=x_train.max(), 
         x_true=x_train, 
         y_true=y_train, 
         resolution=100, 
-        legend=['true', 'pred'], 
+        legend_label=['true', 'pred'], 
         xlabels=['x'], 
         ylabels=['y'],
     )
