@@ -10,7 +10,7 @@ fewer training points compared to standard fully connected neural nets, as illus
 <div align="center">
 
 |                  Example #1                    |      Example #2                 |
-|:--:|:---:|
+|:--:|::|
 | ![](https://github.com/shb84/JENN/raw/master/docs/pics/example_sensitivity_profile.png) | ![](https://github.com/shb84/JENN/raw/master/docs/pics/JENN_vs_NN_1D.png)|
 
 |             Example #3           |
@@ -18,8 +18,7 @@ fewer training points compared to standard fully connected neural nets, as illus
 | ![](https://github.com/shb84/JENN/raw/master/docs/pics/JENN_vs_NN_2D.png) |
 
 </div>
- 
----
+
 # Citation
 
 If you use JENN in a scientific publication, please consider citing it: 
@@ -35,20 +34,15 @@ If you use JENN in a scientific publication, please consider citing it:
 }
 ```
 
-
 # Main Features
 
 * Multi-Task Learning : predict more than one output with same model Y = f(X) where Y = [y1, y2, ...]
 * Jacobian prediction : analytically compute the Jacobian (_i.e._ forward propagation of dY/dX)
 * Gradient-Enhancement: minimize prediction error of partials (_i.e._ back-prop accounts for dY/dX)
 
-
-
 # Installation
 
     pip install jenn 
-
-
 
 # Example Usage
 
@@ -137,8 +131,6 @@ Show sensitivity profiles:
         ylabels=['y'],
     )
 
-
-
 # Use Case
 
 JENN is intended for the field of computer aided design, where there is often 
@@ -154,8 +146,6 @@ However, in the special case of gradient-enhanced methods, there is the addition
 are accurate which is a critical property for one important use-case: **surrogate-based optimization**. The field of 
 aerospace engineering is rich in [applications](https://doi.org/10.1002/9780470686652.eae496) of such a use-case. 
 
-
-
 # Limitations
 
 Gradient-enhanced methods require responses to be continuous and smooth, 
@@ -163,8 +153,7 @@ but they are only beneficial if the cost of obtaining partials
 is not excessive in the first place (e.g. adjoint methods), or if the need for accuracy outweighs the cost of 
 computing the partials. Users should therefore carefully weigh the benefit of 
 gradient-enhanced methods relative to the needs of their application. 
-
---- 
+ 
 # License
 Distributed under the terms of the MIT License.
 
