@@ -10,11 +10,11 @@ fewer training points compared to standard fully connected neural nets, as illus
 <div align="center">
 
 |                  Example #1                    |      Example #2                 |
-|:----------------------------------------------:|:-------------------------------:|
+|:--:|:---:|
 | ![](https://github.com/shb84/JENN/raw/master/docs/pics/example_sensitivity_profile.png) | ![](https://github.com/shb84/JENN/raw/master/docs/pics/JENN_vs_NN_1D.png)|
 
 |             Example #3           |
-|:--------------------------------:|
+|::|
 | ![](https://github.com/shb84/JENN/raw/master/docs/pics/JENN_vs_NN_2D.png) |
 
 </div>
@@ -35,20 +35,20 @@ If you use JENN in a scientific publication, please consider citing it:
 }
 ```
 
-----
+
 # Main Features
 
 * Multi-Task Learning : predict more than one output with same model Y = f(X) where Y = [y1, y2, ...]
 * Jacobian prediction : analytically compute the Jacobian (_i.e._ forward propagation of dY/dX)
 * Gradient-Enhancement: minimize prediction error of partials (_i.e._ back-prop accounts for dY/dX)
 
-----
+
 
 # Installation
 
     pip install jenn 
 
-----
+
 
 # Example Usage
 
@@ -137,7 +137,7 @@ Show sensitivity profiles:
         ylabels=['y'],
     )
 
-----
+
 
 # Use Case
 
@@ -154,7 +154,7 @@ However, in the special case of gradient-enhanced methods, there is the addition
 are accurate which is a critical property for one important use-case: **surrogate-based optimization**. The field of 
 aerospace engineering is rich in [applications](https://doi.org/10.1002/9780470686652.eae496) of such a use-case. 
 
-----
+
 
 # Limitations
 
@@ -168,7 +168,7 @@ gradient-enhanced methods relative to the needs of their application.
 # License
 Distributed under the terms of the MIT License.
 
-----
+
 
 # Acknowledgement
 
