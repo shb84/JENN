@@ -20,6 +20,9 @@ Core API
 
 The core API implements all theory described in the `paper`_. This section is intended for developers.  
 
+.. automodule:: jenn.core.model
+   :members:
+
 .. automodule:: jenn.core.activation
    :members:
 

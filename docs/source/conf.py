@@ -38,6 +38,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx_rtd_theme",
+    "sphinx_copybutton",
 ]
 templates_path = ["_templates"]
 html_static_path = ["_static"]

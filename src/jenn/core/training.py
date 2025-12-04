@@ -102,6 +102,11 @@ def train_model(
 ) -> dict:
     r"""Train neural net.
 
+    .. note::
+        If training is taking too long, it can be stopped gracefully
+        by creating a local file called STOP in the running directory. Just be
+        sure to delete it before the next run.
+
     :param data: object containing training and associated metadata
     :param parameters: object that stores neural net parameters for each
         layer

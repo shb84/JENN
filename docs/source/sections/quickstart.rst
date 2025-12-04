@@ -5,14 +5,9 @@
 Installation 
 ------------
 
-The core algorithm is written in Python 3 and requires only `numpy` and `orjson` (for serialization):: 
+The core algorithm is written in Python 3. It requires `numpy` for computations, `orjson`, `jsonpointer` and `jsonschema` for serialization, and `matplotlib` for visualization:: 
 
     pip install jenn 
-
-The `matplotlib` library is used to offer basic plotting utilities, such as checking goodness of fit 
-or viewing sensitivity profiles, but it is entirely optional. To install:: 
-
-    pip install jenn[viz]
 
 Data Structures
 ---------------
@@ -178,59 +173,98 @@ Usage
 This section provides a quick example to get started. Consider the task of fitting 
 a simple 1D sinusoid using only three data points:: 
 
-    import numpy as np 
-    import jenn 
+    import numpy as np
+    import jenn
 
-    # Example function to be learned 
-    f = lambda x: np.sin(x)  
-    f_prime = lambda x: np.cos(x).reshape((1, 1, -1))  # note: jacobian adds a dimension
 
-    # Generate training data 
+    #########################
+    # Example Test Function # 
+    #########################
+
+    def f(x): 
+        """Compute response."""
+        return np.sin(x)
+        
+        
+    def f_prime(x): 
+        """Compute partials."""
+        return np.cos(x).reshape((1, 1, -1))  # note: jacobian adds a dimension
+
+
+    ##########################
+    # Generate Training Data #
+    ##########################
+
     x_train = np.linspace(-np.pi , np.pi, 3).reshape((1, -1))
     y_train = f(x_train)
     dydx_train = f_prime(x_train)
 
-    # Generate test data 
+
+    ######################
+    # Generate Test Data #
+    ######################
+
     x_test = np.linspace(-np.pi , np.pi, 30).reshape((1, -1))
     y_test = f(x_test)
     dydx_test = f_prime(x_test)
 
-    # Fit jacobian-enhanced neural net
-    genn = jenn.model.NeuralNet(
-        layer_sizes=[x_train.shape[0], 3, 3, y_train.shape[0]],  # note: user defines hidden layer architecture
-        ).fit(
-            x_train, y_train, dydx_train, random_state=123  # see docstr for full list of hyperparameters
-        )
 
-    # Fit regular neural net (for comparison)
-    nn = jenn.model.NeuralNet(
+    ##################
+    # Fit Regular NN # 
+    ##################
+
+    regular_model = jenn.NeuralNet(
         layer_sizes=[x_train.shape[0], 3, 3, y_train.shape[0]]  # note: user defines hidden layer architecture
         ).fit(
             x_train, y_train, random_state=123  # see docstr for full list of hyperparameters
         )
 
-    # Predict response only 
-    y_pred = genn.predict(x_test)
 
-    # Predict partials only 
-    dydx_pred = genn.predict_partials(x_train)
+    ############
+    # Fit JENN # 
+    ############
 
-    # Predict response and partials in one step 
-    y_pred, dydx_pred = genn.evaluate(x_test) 
+    enhanced_model = jenn.NeuralNet(
+        layer_sizes=[x_train.shape[0], 3, 3, y_train.shape[0]],  # note: user defines hidden layer architecture
+        ).fit(
+            x_train, y_train, dydx_train, random_state=123  # see docstr for full list of hyperparameters
+        )
 
-    # Check how well model generalizes 
-    assert jenn.utils.metrics.r_square(y_pred, y_test) > 0.99
-    assert jenn.utils.metrics.r_square(dydx_pred, dydx_test) > 0.99
+
+    ####################
+    # Predict Response # 
+    ####################
+
+    y_pred = enhanced_model.predict(x_test)
+
+
+    ####################
+    # Predict Partials # 
+    ####################
+
+    dydx_pred = enhanced_model.predict_partials(x_train)
+
+    
+    ###########################################
+    # Predict Response & Partials In One Step # 
+    ###########################################
+
+    y_pred, dydx_pred = enhanced_model(x_test)
+
+
+    # Check how well model generalizes
+    assert jenn.metrics.rsquare(y_pred, y_test) > 0.99
+    assert jenn.metrics.rsquare(dydx_pred, dydx_test) > 0.99
 
 Saving a model for later re-use::
 
-    genn.save("parameters.json")
+    enhanced_model.save("parameters.json")
 
 Reloading the parameters a previously trained model::
 
-    new_model = jenn.model.NeuralNet(layer_sizes=[1, 12, 1]).load('parameters.json')
+    reloaded_model = jenn.NeuralNet.load('parameters.json')
 
-    y_reloaded, dydx_reloaded = new_model.evaluate(x_test) 
+    y_reloaded, dydx_reloaded = reloaded_model(x_test) 
 
     assert np.allclose(y_reloaded, y_pred)
     assert np.allclose(dydx_reloaded, dydx_pred)
@@ -246,31 +280,29 @@ Other features
 Plotting
 ........
 
-Optional plotting tools are available for convenience, provided `matplotlib` is installed:: 
-
-    from jenn.utils import plot 
+For convenience, plotting tools are available using `matplotlib`. Continuing the previous example:: 
 
     # Example: show goodness of fit of the partials 
-    plot.goodness_of_fit(
-        y_true=dydx_test[0], 
-        y_pred=genn.predict_partials(x_test)[0], 
-        title="Partial Derivative: dy/dx (NN)"
+    jenn.plot_goodness_of_fit(
+        y_true=dydx_test, 
+        y_pred=enhanced_model.predict_partials(x_test), 
+        title="Partial Derivative: dy/dx (jenn)"
     )
 
 .. image:: ../../pics/example_goodness_of_fit.png
-  :width: 500
+  :width: 750
 
 ::
 
     # Example: visualize local trends
-    plot.sensitivity_profiles(
-        f=[f, genn.predict, nn.predict], 
+    jenn.plot_sensitivity_profiles(
+        func=[f, enhanced_model.predict, regular_model.predict], 
         x_min=x_train.min(), 
         x_max=x_train.max(), 
         x_true=x_train, 
         y_true=y_train, 
         resolution=100, 
-        legend=['sin(x)', 'jenn', 'nn'], 
+        legend_label=['sin(x)', 'jenn', 'nn'], 
         xlabels=['x'], 
         ylabels=['y'],
         show_cursor=False
@@ -284,13 +316,13 @@ Load `JMP`_ models into Python
 
 Not all engineers are Python enthusiasts. Sometimes, using JMP allows progress to be made fast 
 without writing code. In fact, JMP  sometimes markets their software as machine learning without code. 
-However, once a model is trained, it often needs to be loaded into Python
+Once a model is trained though, it often needs to be loaded into Python
 where it can be used in conjunction with other analyses. Here's how to do it with JENN, where 
 the equation is obtained using "Save Profile Formulas" in JMP:
 
 :: 
 
-    jmp_model = jenn.utils.from_jmp(equation="""
+    jmp_model = jenn.utilities.from_jmp(equation="""
         6.63968579427224 + 2419.53609389846 * TanH(
             0.5 * (1.17629679110012 + -0.350827466968853 * :x1 + -0.441135986242386 * :x2)
         ) + 926.302874298947 * TanH(
@@ -317,4 +349,4 @@ the equation is obtained using "Save Profile Formulas" in JMP:
             0.5 * (2.21033919158451 + -0.696779972041321 * :x1 + -1.69376087699982 * :x2)
         )
     """)
-    y, dy_dx = jmp_model.evaluate(x=np.array([[0.5], [0.25]]))
+    y, dy_dx = jmp_model(x=np.array([[0.5], [0.25]]))

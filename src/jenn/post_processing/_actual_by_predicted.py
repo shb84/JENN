@@ -23,10 +23,12 @@ def plot_actual_by_predicted(
     alpha: float = 0.5,
     ax: plt.Axes | None = None,
 ) -> Figure | SubFigure | None:
-    """Plot predicted vs. actual value.
+    r"""Plot predicted vs. actual value.
 
     .. note::
-        This method uses ravel(). A NumPy array with shape (n_y, m) becomes (n_y * m,).
+        This method uses ravel(). A NumPy array with shape :math:`(n_y, m)` will become :math:`(n_y m,)`.
+        This is useful to merge all responses in one plot. Use indexing to handle responses separately,
+        e.g. :code:`jenn.plot_actual_by_predicted(y_pred=model.predict(x=x_test[2]), y_true=y_test[2])`.
 
     :param y_pred: predicted values for each dataset, list of arrays of shape (m,)
     :param y_true: true values for each dataset, list of arrays of shape (m,)
