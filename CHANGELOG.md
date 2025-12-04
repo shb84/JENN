@@ -44,7 +44,11 @@ build: Changes to the build process or tools.
 
 - Simplified CONTRIBUTING 
 - Updated README to reflect refactoring changes 
-- Updated docs to include refactoring changes
+- Updated docs to reflect refactoring changes
+
+### Style 
+
+- Updated linting and annotations 
 
 ### Refactor
 
