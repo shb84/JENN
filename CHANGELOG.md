@@ -18,7 +18,11 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-## v1.0.9 (YYYY-MM-DD)
+## v2.0.0 (YYYY-MM-DD)
+
+### Feat 
+
+- Added prediction error histogram
 
 ### Fix 
 
@@ -28,22 +32,27 @@ build: Changes to the build process or tools.
 
 ### Test 
 
-- Updated optimization tests to reflect line search changes
-- Updated unit tests to reflect changes to synthetic data functions  
-- Updated unit tests to reflect changes to `Parameters.load()` method  
+- Updated unit tests to reflect refactoring changes 
+- Added testing for all supported Python versions (leveraging pixi)
 
 ### Build
 
 - Added `pixi.toml` (rather than putting everything in `pyproject.toml`)
-- Updated CI worflow 
+- Cleanup CI and updated worflow to test all supported python versions using pixi 
 
 ### Docs
 
 - Simplified CONTRIBUTING 
-- Updated docs to include API changes
+- Updated README to reflect refactoring changes 
+- Updated docs to reflect refactoring changes
+
+### Style 
+
+- Updated linting and annotations 
 
 ### Refactor
 
+- Dropped support for Python 3.8 (because SMT no longer supports it and it doesn't handle annotations as well)
 - Changed API by moving module `model.py` into `core` 
 - Changed API by moving module `synthetic.py` into `synthetic_data` (synthetic functions are now modules not classes)
 - Changed API by moving module `plot` into `post_processing` 
@@ -55,6 +64,7 @@ build: Changes to the build process or tools.
   - _Previous pattern: `reloaded = NeuralNet(layer_sizes=[1, 2, 3]).load("save_params.json")`_
 - Converted `Parameters.load(...)` to a classmethod such that `reloaded = Parameters.load("save_params.json")`
   - _Previous pattern: `reloaded = Parameters(layer_sizes=[1, 2, 3]).load("save_params.json")`_
+- Replaced `NeuralNet.evaluate(x)` by `NeuralNet.__call__(x)`
  
 ## v1.0.8 (2024-06-26)
 

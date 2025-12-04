@@ -3,15 +3,21 @@
 
 This module contains the critical functionality to propagate information forward and backward through the neural net.
 """
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .cache import Cache
+    from .data import Dataset
+    from .parameters import Parameters
 
 import numpy as np
 
 from .activation import ACTIVATIONS
-from .cache import Cache
-from .data import Dataset
-from .parameters import Parameters
 
 
 def eye(n: int, m: int) -> np.ndarray:

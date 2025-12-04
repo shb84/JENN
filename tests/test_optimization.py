@@ -1,8 +1,10 @@
 """Check that optimizer by testing it against
 standard cannonical test functions.
 """
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
 
 from importlib.util import find_spec
 

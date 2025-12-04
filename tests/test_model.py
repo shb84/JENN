@@ -1,6 +1,8 @@
 """Test training and prediction (including partials)."""
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
 
 import numpy as np
 

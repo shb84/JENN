@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.x"]
     steps:
       - uses: actions/checkout@v4
 
@@ -29,10 +29,29 @@ jobs:
           environments: dev # Specify the environment to install and activate
 
       - name: Check linting 
-        run: pixi run -e dev --frozen lint 
+        run: pixi run -e dev lint 
 
-      - name: Run tests 
-        run: pixi run -e dev --frozen test 
+
+      - name: Run tests (Python 3.9)
+        run: pixi run -e py39 test 
+
+      - name: Run tests (Python 3.10)
+        run: pixi run -e py310 test 
+
+      - name: Run tests (Python 3.11)
+        run: pixi run -e py311 test 
+
+      - name: Run tests (Python 3.12)
+        run: pixi run -e py312 test 
+
+      - name: Run tests (Python 3.13)
+        run: pixi run -e py313 test 
+
+      - name: Run tests (Python 3.14)
+        run: pixi run -e py314 test 
+        
+      - name: Run tests (latest Python version)
+        run: pixi run -e dev test 
 
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -53,12 +72,12 @@ jobs:
           environments: dev # Specify the environment to install and activate
 
       - name: Build docs using sphinx
-        run: pixi run -e dev --frozen docs 
+        run: pixi run -e dev docs 
 
       - name: 💾 Build distribution files
         shell: bash -el {0}
         run: | 
-          pixi run -e dev --frozen build
+          pixi run -e dev build
 
       - name: ⬆️ Upload build artifacts
         uses: actions/upload-artifact@v4

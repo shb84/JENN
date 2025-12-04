@@ -6,8 +6,10 @@ computed during forward propagation, so they don't have to be
 recomputed again during backward propgation. See
 `paper`_ for details and notation.
 """
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
 
 import numpy as np
 

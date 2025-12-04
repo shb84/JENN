@@ -2,7 +2,7 @@
 
 Jacobian-Enhanced Neural Networks (JENN) are fully connected multi-layer
 perceptrons, whose training process is modified to predict partial 
-derivatives accurately. This is accomplished by minimizing a modified version 
+derivatives more accurately. This is accomplished by minimizing a modified version 
 of the Least Squares Estimator (LSE) that accounts for Jacobian prediction error (see [paper](https://doi.org/10.48550/arXiv.2406.09132)). 
 The main benefit of jacobian-enhancement is better accuracy with
 fewer training points compared to standard fully connected neural nets, as illustrated below. 
@@ -35,20 +35,15 @@ If you use JENN in a scientific publication, please consider citing it:
 }
 ```
 
-----
 # Main Features
 
 * Multi-Task Learning : predict more than one output with same model Y = f(X) where Y = [y1, y2, ...]
 * Jacobian prediction : analytically compute the Jacobian (_i.e._ forward propagation of dY/dX)
 * Gradient-Enhancement: minimize prediction error of partials (_i.e._ back-prop accounts for dY/dX)
 
-----
-
 # Installation
 
     pip install jenn 
-
-----
 
 # Example Usage
 
@@ -60,23 +55,26 @@ Import library:
 
 Generate example training and test data:  
 
-    x_train, y_train, dydx_train = jenn.synthetic.Sinusoid.sample(
-        m_lhs=0, 
+    x_train, y_train, dydx_train = jenn.utilities.sample(
+        f=jenn.synthetic_data.sinusoid.compute, 
+        f_prime=jenn.synthetic_data.sinusoid.compute_partials, 
+        m_random=0, 
         m_levels=4, 
         lb=-3.14, 
         ub=3.14,
     )
-    x_test, y_test, dydx_test = jenn.synthetic.Sinusoid.sample(
-        m_lhs=30, 
+    x_test, y_test, dydx_test = jenn.utilities.sample(
+        f=jenn.synthetic_data.sinusoid.compute, 
+        f_prime=jenn.synthetic_data.sinusoid.compute_partials, 
+        m_random=30, 
         m_levels=0, 
         lb=-3.14, 
         ub=3.14,
     )
 
-
 Train a model: 
 
-    nn = jenn.model.NeuralNet(
+    nn = jenn.NeuralNet(
         layer_sizes=[1, 12, 1],
     ).fit(
         x=x_train,  
@@ -88,7 +86,7 @@ Train a model:
     
  Make predictions: 
 
-    y, dydx = nn.evaluate(x)
+    y, dydx = nn(x) 
 
     # OR 
 
@@ -102,35 +100,37 @@ Save model (parameters) for later use:
 
 Reload saved parameters into new model: 
 
-    reloaded = jenn.model.NeuralNet(layer_sizes=[1, 12, 1]).load('parameters.json')
+    reloaded = jenn.NeuralNet.load('parameters.json')
 
-Optionally, if `matplotlib` is installed, import plotting utilities:  
+Check goodness of fit: 
 
-    from jenn.utils import plot
-
-Optionally, if `matplotlib` is installed, check goodness of fit: 
-
-    plot.goodness_of_fit(
-        y_true=dydx_test[0], 
-        y_pred=nn.predict_partials(x_test)[0], 
-        title="Partial Derivative: dy/dx (JENN)"
+    jenn.plot_goodness_of_fit(
+        y_true=y_test, 
+        y_pred=nn.predict(x_test), 
+        title="y (JENN)"
     )
 
-Optionally, if `matplotlib` is installed, show sensitivity profiles:
+Check goodness of fit of partials: 
 
-    plot.sensitivity_profiles(
-        f=[jenn.synthetic.Sinusoid.evaluate, nn.predict], 
+    jenn.plot_goodness_of_fit(
+        y_true=dydx_test, 
+        y_pred=nn.predict_partials(x_test), 
+        title="dy/dx (JENN)"
+    )
+
+Show sensitivity profiles:
+
+    jenn.plot_sensitivity_profiles(
+        func=[jenn.synthetic_data.sinusoid.compute, nn.predict], 
         x_min=x_train.min(), 
         x_max=x_train.max(), 
         x_true=x_train, 
         y_true=y_train, 
         resolution=100, 
-        legend=['true', 'pred'], 
+        legend_label=['true', 'pred'], 
         xlabels=['x'], 
         ylabels=['y'],
     )
-
-----
 
 # Use Case
 
@@ -147,8 +147,6 @@ However, in the special case of gradient-enhanced methods, there is the addition
 are accurate which is a critical property for one important use-case: **surrogate-based optimization**. The field of 
 aerospace engineering is rich in [applications](https://doi.org/10.1002/9780470686652.eae496) of such a use-case. 
 
-----
-
 # Limitations
 
 Gradient-enhanced methods require responses to be continuous and smooth, 
@@ -157,11 +155,8 @@ is not excessive in the first place (e.g. adjoint methods), or if the need for a
 computing the partials. Users should therefore carefully weigh the benefit of 
 gradient-enhanced methods relative to the needs of their application. 
 
---- 
 # License
 Distributed under the terms of the MIT License.
-
-----
 
 # Acknowledgement
 

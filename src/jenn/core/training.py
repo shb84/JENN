@@ -3,19 +3,25 @@
 
 This class implements the core algorithm responsible for training the neural networks.
 """
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import numpy as np
+
+    from .data import Dataset
+    from .parameters import Parameters
 
 import functools
 from collections import defaultdict
 
-import numpy as np
-
 from .cache import Cache
 from .cost import Cost
-from .data import Dataset
 from .optimization import ADAMOptimizer
-from .parameters import Parameters
 from .propagation import model_backward, model_partials_forward
 
 
@@ -95,6 +101,11 @@ def train_model(
     is_verbose: bool = False,
 ) -> dict:
     r"""Train neural net.
+
+    .. note::
+        If training is taking too long, it can be stopped gracefully
+        by creating a local file called STOP in the running directory. Just be
+        sure to delete it before the next run.
 
     :param data: object containing training and associated metadata
     :param parameters: object that stores neural net parameters for each

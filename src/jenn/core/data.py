@@ -4,8 +4,10 @@
 This module contains convenience utilities to
 manage and handle training data.
 """
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
 
 import math
 from dataclasses import dataclass
@@ -238,7 +240,7 @@ class Dataset:
         batch_size: int | None,
         shuffle: bool = True,
         random_state: int | None = None,
-    ) -> list["Dataset"]:
+    ) -> list[Dataset]:
         """Breakup data into multiple batches and return list of Datasets.
 
         :param batch_size: mini batch size (if None, single batch with
@@ -263,7 +265,7 @@ class Dataset:
             for b in batches
         ]
 
-    def normalize(self) -> "Dataset":
+    def normalize(self) -> Dataset:
         """Return normalized Dataset."""
         X_norm = normalize(self.X, self.avg_x, self.std_x)
         Y_norm = normalize(self.Y, self.avg_y, self.std_y)

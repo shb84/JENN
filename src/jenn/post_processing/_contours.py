@@ -1,11 +1,16 @@
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
 
-from collections.abc import Callable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from matplotlib.figure import Figure, SubFigure
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.figure import Figure, SubFigure
 
 
 def plot_contours(  # noqa: C901

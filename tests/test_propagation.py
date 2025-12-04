@@ -2,8 +2,10 @@
 neural nets for which the correct value of the
 parameters is known exactly.
 """
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
 
 from copy import deepcopy
 

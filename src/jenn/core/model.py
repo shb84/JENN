@@ -14,7 +14,7 @@ functions doing computations under-the-hood.
     import jenn
 
     # Fit model
-    nn = jenn.model.NeuralNet(
+    model = jenn.NeuralNet(
         layer_sizes=[
             x_train.shape[0],  # input layer
             7, 7,              # hidden layer(s) -- user defined
@@ -25,16 +25,16 @@ functions doing computations under-the-hood.
         )
 
     # Predict response only
-    y_pred = nn.predict(x_test)
+    y_pred = model.predict(x_test)
 
     # Predict partials only
-    dydx_pred = nn.predict_partials(x_train)
+    dydx_pred = model.predict_partials(x_train)
 
     # Predict response and partials in one step (preferred)
-    y_pred, dydx_pred = nn.evaluate(x_test)
+    y_pred, dydx_pred = model(x_test)
 
 .. note::
-    The method `evaluate()` is preferred over separately
+    The `__call__()` method should be preferred over separately
     calling `predict()` followed by `predict_partials()`
     whenever both the response and its partials are needed at the same point.
     This saves computations since, in the latter approach, forward propagation
@@ -44,13 +44,18 @@ functions doing computations under-the-hood.
     for those situations where it is necessary to separate out Jacobian predictions,
     due to how some target optimization software architected for example.
 """
+
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
+from __future__ import annotations  # needed if python is 3.9
 
-from pathlib import Path
-from typing import Any, Self
+from typing import TYPE_CHECKING
 
-import numpy as np
+if TYPE_CHECKING:
+    from pathlib import Path
+    from typing import Any, Self
+
+    import numpy as np
 
 from .cache import Cache
 from .data import Dataset, denormalize, denormalize_partials, normalize
@@ -108,8 +113,13 @@ class NeuralNet:
         is_backtracking: bool = False,
         is_warmstart: bool = False,
         is_verbose: bool = False,
-    ) -> "NeuralNet":
+    ) -> Self:
         r"""Train neural network.
+
+        .. note::
+            If training is taking too long, it can be stopped gracefully
+            by creating a local file called STOP in the running directory. Just be
+            sure to delete it before the next run.
 
         :param x: training data inputs, array of shape (n_x, m)
         :param y: training data outputs, array of shape (n_y, m)
@@ -199,7 +209,7 @@ class NeuralNet:
         return y
 
     def predict_partials(self, x: np.ndarray) -> np.ndarray:
-        r"""Predict partials.
+        r"""Predict partials derivatives.
 
         :param x: vectorized inputs, array of shape (n_x, m)
         :return: predicted partial(s), array of shape (n_y, n_x, m)
@@ -211,8 +221,8 @@ class NeuralNet:
         dydx = denormalize_partials(dydx_norm, params.sigma_x, params.sigma_y)
         return dydx
 
-    def evaluate(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        r"""Predict responses and their partials.
+    def __call__(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        r"""Predict responses and their partial derivatives.
 
         :param x: vectorized inputs, array of shape (n_x, m)
         :return: predicted response(s), array of shape (n_y, m)
@@ -231,7 +241,7 @@ class NeuralNet:
         self.parameters.save(file)
 
     @classmethod
-    def load(cls, file: str | Path = "parameters.json") -> Self:
+    def load(cls, file: str | Path = "parameters.json") -> NeuralNet:
         """Load serialized parameters into a new NeuralNet instance."""
         parameters = Parameters.load(file)
         neural_net = cls(
