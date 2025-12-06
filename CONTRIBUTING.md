@@ -72,15 +72,15 @@ Push the version change to the remote:
 
 ```bash
 git add -u 
-git commit -m "changed version to v2.0.1"
+git commit -m "changed version to v2.0.0"
 git push 
 ```
 
 Tag commit for release and push to trigger release pipeline: 
 
 ```bash
-git tag v1.0.9
-git push origin v1.0.9
+git tag v2.0.0
+git push origin v2.0.0
 ```
 
 Once the pipeline has succeeded, check that there is now a new release on `pypi.org`, `GitHub Pages` and `Github Release`. 
