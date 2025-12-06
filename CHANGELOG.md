@@ -18,7 +18,11 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-## v2.0.0 (YYYY-MM-DD)
+## v2.X.X (YYYY-MM-DD)
+
+<!-- TODO -->
+
+## v2.0.0 (2025-12-06)
 
 ### Feat 
 
@@ -60,10 +64,12 @@ build: Changes to the build process or tools.
   - _Modified signature and tweaked almost all plotting functions (adjusted notebooks accordingly)_
   - _Added plotting function to display histogram of prediction error (and added it to goodness of fit summary plots)_
 - Changed name of `utils` to `utilities` and added `_sample.py` and `_finite_difference.py` modules
-- Converted `NeuralNet.load(...)` to a classmethod such that `reloaded = NeuralNet.load("save_params.json")`
-  - _Previous pattern: `reloaded = NeuralNet(layer_sizes=[1, 2, 3]).load("save_params.json")`_
-- Converted `Parameters.load(...)` to a classmethod such that `reloaded = Parameters.load("save_params.json")`
-  - _Previous pattern: `reloaded = Parameters(layer_sizes=[1, 2, 3]).load("save_params.json")`_
+- Converted `load` method of `NeuralNet` to a classmethod to make more intuitive:
+  - _Old pattern: `reloaded = NeuralNet(layer_sizes=[1, 2, 3]).load("save_params.json")`_
+  - _New pattern: `reloaded = NeuralNet.load("save_params.json")`_
+- Converted `load` method of `Parameters` to a classmethod to make more intuitive:
+  - _Old pattern: `reloaded = Parameters(layer_sizes=[1, 2, 3]).load("save_params.json")`_
+  - _New pattern: `reloaded = Parameters.load("save_params.json")`_
 - Replaced `NeuralNet.evaluate(x)` by `NeuralNet.__call__(x)`
  
 ## v1.0.8 (2024-06-26)
