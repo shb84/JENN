@@ -72,7 +72,7 @@ Push the version change to the remote:
 
 ```bash
 git add -u 
-git commit -m "changed version to v1.0.9"
+git commit -m "changed version to v2.0.1"
 git push 
 ```
 

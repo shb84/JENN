@@ -151,7 +151,7 @@ outputs = ["build/dist/*.{whl,tar.gz}"]
 [feature.dist.tasks.testpypi]
 description = "Mock release on testpypi"
 cmd = """
-python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi
+python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi_jenn
 """
 inputs = ["src/**/*.py"]
 depends-on = ["build"]
