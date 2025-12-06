@@ -85,6 +85,13 @@ git push origin v2.0.0
 
 Once the pipeline has succeeded, check that there is now a new release on `pypi.org`, `GitHub Pages` and `Github Release`. 
 
+_To delete tag if needed (e.g. deploy step failed in CI)_: 
+
+```bash
+git tag -d v2.0.0     
+git push origin --delete v2.0.0
+```
+
 ### TestPyPi
 
 - [ ] In account settings on [testpypi.org](https://test.pypi.org/), go to the API tokens section and select "Add API token" 

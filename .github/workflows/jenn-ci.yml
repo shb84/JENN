@@ -132,7 +132,7 @@ jobs:
           password: ${{ secrets.PYPI_TOKEN }}
 
       - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python
+        uses: sigstore/gh-action-sigstore-python@v3.2.0
         with:
           inputs: >-
             ./dist/*.tar.gz
