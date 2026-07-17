@@ -18,10 +18,16 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-## v2.0.2 (unreleased)
+## v2.0.1 (2026-07-17)
 
 ### Fix
 
+- Fixed off-by-one in `data.py` mini-batching that dropped the last mini-batch
+- Fixed `_safe_divide` in `data.py` mutating the caller's array (now uses `np.where`)
+- Fixed gradient-enhancement weight in `cost.py` (applied as `gamma`, not `gamma^3`)
+- Fixed backtracking line-search decay in `optimization.py` (now linear `tau`, not `tau^(2^i)`)
+- Fixed ADAM bias counter in `optimization.py` to use object identity instead of `id()`
+- Fixed invalid f-string format spec in `optimization.py` (`{y::.6f}` -> `{y:.6f}`)
 - Updated `notebooks/runtime.ipynb` to the current API (`jenn.utilities.sample`
   with `jenn.synthetic_data.rastrigin`); it still called the pre-`v2.0.0`
   `jenn.synthetic.Rastrigin.sample`, breaking the notebook test suite
@@ -45,25 +51,11 @@ build: Changes to the build process or tools.
 
 ### Test
 
+- Fixed `test_model_forward` to call `model_forward` (was erroneously calling `partials_forward`)
 - Added a finite-difference gradient check for gradient-enhanced backprop with
   `n_x >= 2` (`test_propagation.py`), guarding the vectorized `n_x` paths
 - Added `scripts/benchmark.py` and a `benchmark` pixi task to measure the
   training hot path (micro + airfoil end-to-end)
-
-## v2.0.1 (2026-07-17)
-
-### Fix
-
-- Fixed off-by-one in `data.py` mini-batching that dropped the last mini-batch
-- Fixed `_safe_divide` in `data.py` mutating the caller's array (now uses `np.where`)
-- Fixed gradient-enhancement weight in `cost.py` (applied as `gamma`, not `gamma^3`)
-- Fixed backtracking line-search decay in `optimization.py` (now linear `tau`, not `tau^(2^i)`)
-- Fixed ADAM bias counter in `optimization.py` to use object identity instead of `id()`
-- Fixed invalid f-string format spec in `optimization.py` (`{y::.6f}` -> `{y:.6f}`)
-
-### Test
-
-- Fixed `test_model_forward` to call `model_forward` (was erroneously calling `partials_forward`)
 
 ### Build
 
