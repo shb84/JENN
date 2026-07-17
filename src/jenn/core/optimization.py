@@ -1,4 +1,5 @@
-"""Optimization. ================
+"""Optimization.
+================
 
 .. ADAM: https://doi.org/10.48550/arXiv.1412.6980
 

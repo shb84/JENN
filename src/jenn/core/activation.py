@@ -1,4 +1,5 @@
-"""Activation. ==============
+"""Activation.
+==============
 
 This module implements activation functions used by the neural network.
 """

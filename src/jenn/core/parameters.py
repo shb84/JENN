@@ -1,4 +1,5 @@
-"""Parameters. ==============
+"""Parameters.
+==============
 
 This module defines a utility class to store and manage neural net
 parameters and metadata.

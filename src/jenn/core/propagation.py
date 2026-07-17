@@ -1,4 +1,5 @@
-"""Propagation. ==============
+"""Propagation.
+==============
 
 This module contains the critical functionality to propagate information
 forward and backward through the neural net.

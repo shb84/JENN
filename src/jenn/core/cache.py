@@ -1,4 +1,5 @@
-"""Cache. =========
+"""Cache.
+=========
 
 This module defines a convenience class to  all quantities computed
 during forward propagation, so they don't have to be recomputed again

@@ -1,4 +1,5 @@
-"""Data. ========
+"""Data.
+========
 
 This module contains convenience utilities to manage and handle training
 data.

@@ -1,4 +1,5 @@
-"""Cost Function. =================
+"""Cost Function.
+=================
 
 This module contains class and methods to efficiently compute the neural
 net cost function used for training. It is a modified version of the
