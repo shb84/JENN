@@ -119,3 +119,11 @@ flake8-copyright.notice-rgx = '''
 "**/*.ipynb" = ["CPY001"]
 "docs/**/*.py" = ["INP001", "A001"]
 "tests/*.py" = ["S101"]
+
+[tool.docformatter]
+# Module docstrings use an RST title + "====" underline as the summary.
+# Summary wrapping would collapse those two lines into one (e.g.
+# "Training. ============"), so disable it. Description wrapping and the
+# other normalizations still apply.
+wrap-summaries = 0
+close-quotes-on-newline = true
