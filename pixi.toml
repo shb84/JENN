@@ -35,18 +35,18 @@ depends-on = ["pip-e"]
 [feature.test.tasks.test-unit]
 description = "Run unit tests"
 cmd = """
-pytest
-  -vv
-  --failed-first
-  --html=build/reports/pytest/report.html
-  --self-contained-html
-  --cov=jenn
-  --cov-branch
-  --cov-context=test
-  --cov-report=html:build/reports/pytest
-  --cov-report=xml:build/reports/pytest/coverage.xml
-  --cov-report=term-missing:skip-covered
-  -o=junit_family=xunit2
+pytest \
+  -vv \
+  --failed-first \
+  --html=build/reports/pytest/report.html \
+  --self-contained-html \
+  --cov=jenn \
+  --cov-branch \
+  --cov-context=test \
+  --cov-report=html:build/reports/pytest \
+  --cov-report=xml:build/reports/pytest/coverage.xml \
+  --cov-report=term-missing:skip-covered \
+  -o=junit_family=xunit2 \
   --junitxml=build/reports/pytest/junit.xml
 """
 inputs = ["src/**/*.py", "tests/"]
@@ -88,12 +88,12 @@ inputs = [
 
 [feature.lint.tasks.fix-toml]
 description = "format all TOML with taplo"
-cmd = """taplo fmt
-    --option=array_auto_collapse=false
-    --option=array_auto_expand=true
-    --option=compact_inline_tables=true
-    --option=column_width=88
-    --option=indent_string="  "
+cmd = """taplo fmt \
+    --option=array_auto_collapse=false \
+    --option=array_auto_expand=true \
+    --option=compact_inline_tables=true \
+    --option=column_width=88 \
+    --option=indent_string="  " \
     *.toml"""
 inputs = ["*.toml"]
 
@@ -112,11 +112,11 @@ outputs = ["build/reports/mypy"]
 [feature.docs.tasks.sphinx]
 description = "Build documentation using sphinx"
 cmd = """
-  sphinx-build
-    -W
-    --keep-going
-    -b html
-    docs/source
+  sphinx-build \
+    -W \
+    --keep-going \
+    -b html \
+    docs/source \
     build/docs/html
 """
 inputs = ["{src,docs}/**/*.py", "docs/**/*.rst", "pyproject.toml"]
