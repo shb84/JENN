@@ -1,8 +1,8 @@
 """Data.
 ========
 
-This module contains convenience utilities to
-manage and handle training data.
+This module contains convenience utilities to manage and handle training
+data.
 """
 
 # Copyright (C) 2018 Steven H. Berguin
@@ -54,7 +54,7 @@ def mini_batches(
 
     # Handling the end case (last mini-batch < mini_batch_size)
     if m % batch_size != 0:
-        mini_batch = indices[(k + 1) * batch_size :]
+        mini_batch = indices[k * batch_size :]
         if mini_batch:
             batches.append(tuple(mini_batch))
 
@@ -84,9 +84,7 @@ def _safe_divide(
     eps: float = float(np.finfo(float).eps),
 ) -> np.ndarray:
     """Add small number to avoid dividing by zero."""
-    mask = value == 0.0
-    value[mask] += eps
-    return value
+    return np.where(np.abs(value) < eps, eps, value)
 
 
 def normalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarray:
@@ -171,7 +169,7 @@ class Dataset:
     Y_weights: np.ndarray | float = 1.0
     J_weights: np.ndarray | float = 1.0
 
-    def __post_init__(self) -> None:  # noqa: D105
+    def __post_init__(self) -> None:  # ruff:ignore[undocumented-magic-method]
         if self.X.shape[1] != self.Y.shape[1]:
             msg = "X and Y must have the same number of examples"
             raise ValueError(msg)
@@ -202,37 +200,37 @@ class Dataset:
 
     @property
     def m(self) -> int:
-        """Return number of training examples."""
+        """Number of training examples."""
         return int(self.X.shape[1])
 
     @property
     def n_x(self) -> int:
-        """Return number of inputs."""
+        """Number of inputs."""
         return int(self.X.shape[0])
 
     @property
     def n_y(self) -> int:
-        """Return number of outputs."""
+        """Number of outputs."""
         return int(self.Y.shape[0])
 
     @cached_property
     def avg_x(self) -> np.ndarray:
-        """Return mean of input data as array of shape (n_x, 1)."""
+        """Mean of input data as array of shape (n_x, 1)."""
         return avg(self.X)
 
     @cached_property
     def avg_y(self) -> np.ndarray:
-        """Return mean of output data as array of shape (n_y, 1)."""
+        """Mean of output data as array of shape (n_y, 1)."""
         return avg(self.Y)
 
     @cached_property
     def std_x(self) -> np.ndarray:
-        """Return standard dev of input data, array of shape (n_x, 1)."""
+        """Standard dev of input data, array of shape (n_x, 1)."""
         return std(self.X)
 
     @cached_property
     def std_y(self) -> np.ndarray:
-        """Return standard dev of output data, array of shape (n_y, 1)."""
+        """Standard dev of output data, array of shape (n_y, 1)."""
         return std(self.Y)
 
     def mini_batches(

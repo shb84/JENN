@@ -1,7 +1,8 @@
 """Parameters.
 ==============
 
-This module defines a utility class to store and manage neural net parameters and metadata.
+This module defines a utility class to store and manage neural net
+parameters and metadata.
 """
 
 # Copyright (C) 2018 Steven H. Berguin
@@ -87,27 +88,27 @@ class Parameters:
 
     @property
     def layers(self) -> Iterable[int]:
-        """Return iterator of index for each layer."""
+        """Iterator of index for each layer."""
         return range(self.L)
 
     @property
     def partials(self) -> Iterable[int]:
-        """Return iterator of index for each partial."""
+        """Iterator of index for each partial."""
         return range(self.n_x)
 
     @property
     def n_x(self) -> int:
-        """Return number of inputs."""
+        """Number of inputs."""
         return self.layer_sizes[0]
 
     @property
     def n_y(self) -> int:
-        """Return number of outputs."""
+        """Number of outputs."""
         return self.layer_sizes[-1]
 
     @property
-    def L(self) -> int:  # noqa: N802
-        """Return number of layers."""
+    def L(self) -> int:  # ruff:ignore[invalid-function-name]
+        """Number of layers."""
         return len(self.layer_sizes)
 
     def initialize(self, random_state: int | None = None) -> None:
@@ -299,7 +300,7 @@ class Parameters:
         if isinstance(partials, np.ndarray):  # single column
             partials = self._column_to_stacks(partials)
         for i, array in enumerate(partials):
-            n, p = self.dW[i].shape  # type: ignore [misc]
+            n, p = self.dW[i].shape
             self.dW[i][:] = array[: n * p].reshape(n, p)
             self.db[i][:] = array[n * p :].reshape(n, 1)
 
@@ -309,7 +310,7 @@ class Parameters:
         data = {key: getattr(self, key) for key in keys}
         return orjson.dumps(data, option=orjson.OPT_SERIALIZE_NUMPY)
 
-    def validate_parameters(self) -> None:  # noqa: C901
+    def validate_parameters(self) -> None:  # ruff:ignore[complex-structure]
         """Validate parameters."""
         if self.mu_x.size != self.layer_sizes[0]:
             raise ValueError("mu_x size is different than input layer size")
@@ -361,8 +362,7 @@ class Parameters:
 
     def save(self, binary_file: str | Path = "parameters.json") -> None:
         """Save parameters to specified json file."""
-        with Path(binary_file).open("wb") as file:
-            file.write(self._serialize())
+        Path(binary_file).write_bytes(self._serialize())
 
     @classmethod
     def load(cls, binary_file: str | Path = "parameters.json") -> Parameters:
@@ -373,8 +373,7 @@ class Parameters:
         :return: a new instance of Parameters
         :rtype: Parameters
         """
-        with Path(binary_file).open("rb") as file:
-            byte_stream = file.read()
+        byte_stream = Path(binary_file).read_bytes()
         attrs = cls._deserialize(byte_stream)
         obj = cls(
             layer_sizes=attrs["layer_sizes"],

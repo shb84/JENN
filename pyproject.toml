@@ -1,11 +1,9 @@
 [project]
 name = "jenn"
 dynamic = ["version"]
-authors = [
-  {name = "Steven H. Berguin", email = "stevenberguin@gmail.com"},
-]
+authors = [{ name = "Steven H. Berguin", email = "stevenberguin@gmail.com" }]
 description = "Jacobian-Enhanced Neural Nets (JENN)"
-readme = {file = "README.md", content-type = "text/markdown"}
+readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.9"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
@@ -14,13 +12,7 @@ classifiers = [
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
 ]
-dependencies = [
-  "jsonpointer",
-  "jsonschema",
-  "orjson",
-  "numpy",
-  "matplotlib",
-]
+dependencies = ["jsonpointer", "jsonschema", "orjson", "numpy", "matplotlib"]
 
 [project.urls]
 Documentation = "https://shb84.github.io/JENN/"
@@ -33,7 +25,7 @@ build-backend = "setuptools.build_meta"
 
 # setuptools ###################################################################
 [tool.setuptools.dynamic]
-version = {attr = "jenn.__version__"}
+version = { attr = "jenn.__version__" }
 
 # mypy #########################################################################
 [tool.mypy]
@@ -52,7 +44,7 @@ disable_error_code = ["arg-type"]
 
 # ruff #########################################################################
 [tool.ruff]
-target-version = "py311"
+target-version = "py39"
 cache-dir = "build/.cache/ruff"
 include = [
   "docs/**/*.py",
@@ -128,208 +120,10 @@ flake8-copyright.notice-rgx = '''
 "docs/**/*.py" = ["INP001", "A001"]
 "tests/*.py" = ["S101"]
 
-
-# [project.optional-dependencies]
-# ipynb = [
-#   "seaborn",  # to visualize raw data
-#   "pandas",
-#   "jupyterlab",
-# ]
-# lint = [
-#     "black",
-#     "docformatter",
-#     "lxml",
-#     "mypy",
-#     "ruff",
-#     "pylint",
-# ]
-# test = [
-#     "nbmake",
-#     "pytest",
-#     "pytest-cov",
-#     "pytest-html",
-# ]
-# build = [
-#     "build",
-#     "sphinx",  # to build docs 
-#     "sphinx_rtd_theme",
-#     "pip", 
-# ]
-# release = [
-#     "twine",  # if pkg to be released on pypi
-# ]
-
-# [tool.setuptools.package-data]
-# jenn = ["*.json"]
-
-# [tool.setuptools.packages.find]
-# where = ["src"]  # list of folders that contain the packages (["."] by default)
-# include = ["jenn*"]  # package names should match these glob patterns (["*"] by default)
-# exclude = ["jenn.tests*"]  # exclude packages matching these glob patterns (empty by default)
-# namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
-
-# [tool.ruff]
-# lint.select = [
-#   "ANN",  # flake8-annotations
-#   "D",  # pydocstyle
-#   "E",  # pycodestyle errors
-#   "F",  # pyflakes
-#   "I",  # isort
-#   "PL", # pylint
-#   "UP", # pyupgra
-#   "W",  # pycodestyle warnings
-#   "NPY", # NumPy-specific rules
-# ]
-# lint.ignore = [
-#   "ANN101", # Missing type annotation for `self` in method
-#   "ANN102", # Missing type annotation for `cls` in classmethod
-#   "ANN002",  # Missing type annotation for `*args`
-#   "ANN003",  # Missing type annotation for `**kwargs`
-#   "ANN204",  # Missing return type annotation for special method `__init__`
-#   "PLR0913",  # Too many arguments in function definition
-#   "E501", # if it doesn't bother black
-#   "D105",
-#   "D107",
-#   "D205",
-#   "D209",
-#   "D400",
-#   "D203",
-#   "D213", # pydocstyle opinion
-#   "D417", # FIXME Missing argument description
-#   "D413", # Missing blank line after last section ("Parameters")
-# ]
-# cache-dir = "build/.cache/ruff"
-
-# [tool.ruff.lint.per-file-ignores]
-# "src/jenn/utils/plot.py" = [
-#   "PLR0913",  # Too many arguments in function definition
-#   "PLR2004",  # Magic value used in comparison
-# ]
-# "src/jenn/synthetic.py" = [
-#   "D102",  # Missing docstring in public method
-# ]
-# "src/jenn/core/activation.py" = [
-#   "D102",  # Missing docstring in public method
-# ]
-# "src/jenn/core/model.py" = [
-#   "PLR0913",  # Too many arguments in function definition
-# ]
-# "src/jenn/core/optimization.py" = [
-#   "PLR0913",  # Too many arguments in function definition
-#   "PLR0912",  # Too many branches 
-#   "PLR0915",  # Too many statement
-# ]
-# "src/jenn/core/training.py" = [
-#   "PLR0913",  # Too many arguments in function definition
-# ]
-# "src/jenn/model.py" = [
-#   "PLR0913",  # Too many arguments in function definition
-# ]
-
-
-# [tool.mypy]
-# cache_dir = "build/.cache/mypy"
-# sqlite_cache = true
-# python_version = "3.11"
-# # settings
-# allow_redefinition = true
-# check_untyped_defs = true
-# disallow_untyped_defs = true
-# ignore_missing_imports = true
-# no_implicit_optional = true
-# show_error_codes = true
-# show_error_context = true
-# warn_return_any = false
-# warn_unused_ignores = true
-
-# [[tool.mypy.overrides]]
-# module = [
-#   "matplotlib",
-# ]
-# ignore_missing_imports = true
-
-# ########
-# # pixi #
-# ########
-
-# # pixi docs: https://pixi.sh/latest/
-# [tool.pixi.project]
-# channels = ["conda-forge"]
-# platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
-
-# # [tool.pixi.system-requirements]
-# # linux="4.18"  # optional (use if needed: https://prefix.dev/docs/pixi/configuration#the-system-requirements-table)
-
-# [tool.pixi.pypi-dependencies]
-# jenn = { path = ".", editable = true }
-
-# [tool.pixi.environments]
-# default = { features = [], solve-group = "default" }
-# lint = { features = ["lint"], solve-group = "default" }
-# test = { features = ["test"], solve-group = "default" }
-# build = { features = ["build"], solve-group = "default" }
-# release = { features = ["release"], solve-group = "default" }
-# ipynb = { features = ["ipynb"], solve-group = "default" }
-
-# [tool.pixi.dependencies]
-# numpy = "*"
-# jsonpointer = "*"
-# jsonschema = "*"
-# orjson = "*"
-
-# [tool.pixi.feature.ipynb.dependencies]
-# seaborn = "*"
-# pandas = "*"
-# jupyterlab = "*"
-
-# [tool.pixi.feature.lint.dependencies]
-# black = "*"
-# docformatter = "*"
-# lxml = "*"
-# mypy = "*"
-# ruff = "*"
-# pylint = "*"
-
-# [tool.pixi.feature.test.dependencies]
-# nbmake = "*"
-# pytest = "*"
-# pytest-cov = "*"
-# pytest-html = "*"
-
-# [tool.pixi.feature.ipynb.tasks]
-# lab = "jupyter lab --no-browser"
-
-# [tool.pixi.feature.lint.tasks]
-# black = { cmd = "black --quiet src/", inputs = ["src/**/*.py"] }
-# docformatter = { cmd = "docformatter --in-place src/**/*.py", inputs = ["src/**/*.py"] }
-# ruff = { cmd = "ruff check src/ --fix", inputs = ["src/**/*.py"] }
-# mypy = { cmd = "mypy --html-report=build/reports/mypy src/", inputs = ["src/**/*.py"] }
-# lint = { depends-on = ["docformatter", "black", "ruff", "mypy"] }
-
-# [tool.pixi.feature.test.tasks]
-# test-py = { cmd = """
-# pytest 
-# -vv 
-# --failed-first 
-# --html=build/reports/pytest/report.html  
-# --self-contained-html 
-# --cov=jenn 
-# --cov-context=test 
-# --cov-report=html:build/reports/pytest
-# --cov-report=xml:build/reports/pytest/coverage.xml  
-# --cov-report=term-missing:skip-covered 
-# -o=junit_family=xunit2 
-# --junitxml=build/reports/pytest/junit.xml 
-# """, inputs = ["src/**/*.py", "tests/"] }
-# test-nb = { cmd = "pytest --nbmake --nbmake-timeout=3000 docs/examples/*.ipynb", inputs = ["docs/examples/*.ipynb"]}
-# test = { depends-on = ["test-py", "test-nb"] }
-
-# [tool.pixi.feature.build.tasks]
-# build-dist = { cmd = "python -m build --outdir build/dist", inputs = ["src/**/*.py"] }
-# build-docs = { cmd = "sphinx-build -b html docs/source build/docs/html", inputs = ["src/**/*.py", "docs/**/*.py"] }
-# build = { depends-on = ["build-docs", "build-dist"] }
-
-# [tool.pixi.feature.release.tasks]
-# release-test = { cmd = "python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi", inputs = ["src/**/*.py"] }
-# # actual release is done via GitHub actions
-# release = { depends-on = ["release-test"] }
+[tool.docformatter]
+# Module docstrings use an RST title + "====" underline as the summary.
+# Summary wrapping would collapse those two lines into one (e.g.
+# "Training. ============"), so disable it. Description wrapping and the
+# other normalizations still apply.
+wrap-summaries = 0
+close-quotes-on-newline = true

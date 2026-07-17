@@ -1,10 +1,9 @@
 """Cache.
 =========
 
-This module defines a convenience class to  all quantities
-computed during forward propagation, so they don't have to be
-recomputed again during backward propgation. See
-`paper`_ for details and notation.
+This module defines a convenience class to  all quantities computed
+during forward propagation, so they don't have to be recomputed again
+during backward propgation. See `paper`_ for details and notation.
 """
 
 # Copyright (C) 2018 Steven H. Berguin
@@ -66,17 +65,17 @@ class Cache:
 
     @property
     def m(self) -> int:
-        """Return number of examples."""
+        """Number of examples."""
         return int(self.A[0].shape[1])
 
     @property
     def n_x(self) -> int:
-        """Return number of inputs."""
+        """Number of inputs."""
         return int(self.layer_sizes[0])
 
     @property
     def n_y(self) -> int:
-        """Return number of outputs."""
+        """Number of outputs."""
         return int(self.layer_sizes[-1])
 
     def __init__(self, layer_sizes: list[int], m: int = 1):

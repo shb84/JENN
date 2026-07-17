@@ -7,7 +7,7 @@ from __future__ import annotations  # needed if python is 3.9
 import numpy as np
 
 
-def model_backward_FD(cost, params, step=1e-6):  # noqa: N802
+def model_backward_FD(cost, params, step=1e-6):  # ruff:ignore[invalid-function-name]
     """Use finite difference to compute partials of cost function
     with respect to neural net parameters (backpropagation).
     """
@@ -71,7 +71,7 @@ def grad_check(
         denominator = np.linalg.norm(dydx[i].squeeze()) + np.linalg.norm(
             dydx_FD[i].squeeze(),
         )
-        if denominator == 0.0:
+        if np.isclose(denominator, 0.0):
             denominator += 1e-12
         difference = numerator / denominator
         if difference > tol or numerator > tol:

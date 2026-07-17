@@ -1,7 +1,8 @@
 """Training.
 ============
 
-This class implements the core algorithm responsible for training the neural networks.
+This class implements the core algorithm responsible for training the
+neural networks.
 """
 
 # Copyright (C) 2018 Steven H. Berguin

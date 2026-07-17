@@ -3,8 +3,9 @@
 # This work is licensed under the MIT License.
 
 import re
-import tomllib
 from pathlib import Path
+
+import tomllib
 
 import jenn
 

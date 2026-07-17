@@ -27,7 +27,8 @@ class Activation:
 
         :param x: input array at which to evaluate the function
         :param y: output array in which to write the results (optional)
-        :return: activation function evaluated at `x` (as new array if `y` not provided as input)
+        :return: activation function evaluated at `x` (as new array if
+            `y` not provided as input)
         """
         raise NotImplementedError
 
@@ -43,8 +44,10 @@ class Activation:
 
         :param x: input array at which to evaluate the function
         :param y: response already evaluated at x (optional)
-        :param dy: output array in which to write the 1st derivative (optional)
-        :return: 1st derivative (as new array if `dy` not provided as input)
+        :param dy: output array in which to write the 1st derivative
+            (optional)
+        :return: 1st derivative (as new array if `dy` not provided as
+            input)
         """
         raise NotImplementedError
 
@@ -62,8 +65,10 @@ class Activation:
         :param x: input array at which to evaluate the function
         :param y: response already evaluated at x (optional)
         :param y: 1st derivative already evaluated at x (optional)
-        :param ddy: output array in which to write the 2nd derivative (optional)
-        :return: 2nd derivative (as new array if `ddy` not provided as input)
+        :param ddy: output array in which to write the 2nd derivative
+            (optional)
+        :return: 2nd derivative (as new array if `ddy` not provided as
+            input)
         """
         raise NotImplementedError
 
@@ -85,7 +90,8 @@ class Tanh(Activation):
 
         :param x: input array at which to evaluate the function
         :param y: output array in which to write the results (optional)
-        :return: activation function evaluated at `x` (as new array if `y` not provided as input)
+        :return: activation function evaluated at `x` (as new array if
+            `y` not provided as input)
         """
         return np.tanh(x, out=y)  # evaluated in place if y is not None
 
@@ -100,8 +106,10 @@ class Tanh(Activation):
 
         :param x: input array at which to evaluate the function
         :param y: response already evaluated at x (optional)
-        :param dy: output array in which to write the 1st derivative (optional)
-        :return: 1st derivative (as new array if `dy` not provided as input)
+        :param dy: output array in which to write the 1st derivative
+            (optional)
+        :return: 1st derivative (as new array if `dy` not provided as
+            input)
         """
         if y is None:
             y = cls.evaluate(x)
@@ -123,8 +131,10 @@ class Tanh(Activation):
         :param x: input array at which to evaluate the function
         :param y: response already evaluated at x (optional)
         :param y: 1st derivative already evaluated at x (optional)
-        :param ddy: output array in which to write the 2nd derivative (optional)
-        :return: 2nd derivative (as new array if `ddy` not provided as input)
+        :param ddy: output array in which to write the 2nd derivative
+            (optional)
+        :return: 2nd derivative (as new array if `ddy` not provided as
+            input)
         """
         if y is None:
             y = cls.evaluate(x)
@@ -156,7 +166,8 @@ class Relu(Activation):
 
         :param x: input array at which to evaluate the function
         :param y: output array in which to write the results (optional)
-        :return: activation function evaluated at `x` (as new array if `y` not provided as input)
+        :return: activation function evaluated at `x` (as new array if
+            `y` not provided as input)
         """
         if y is None:
             y = (x > 0) * x
@@ -168,15 +179,17 @@ class Relu(Activation):
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,  # noqa: ARG003
+        y: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
         dy: np.ndarray | None = None,
     ) -> np.ndarray:
         """Evaluate 1st derivative of activation function.
 
         :param x: input array at which to evaluate the function
         :param y: response already evaluated at x (optional)
-        :param dy: output array in which to write the 1st derivative (optional)
-        :return: 1st derivative (as new array if `dy` not provided as input)
+        :param dy: output array in which to write the 1st derivative
+            (optional)
+        :return: 1st derivative (as new array if `dy` not provided as
+            input)
         """
         if dy is None:
             dy = np.asarray(x > 0, dtype=x.dtype)
@@ -188,8 +201,8 @@ class Relu(Activation):
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,  # noqa: ARG003
-        dy: np.ndarray | None = None,  # noqa: ARG003
+        y: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
+        dy: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
         ddy: np.ndarray | None = None,
     ) -> np.ndarray:
         """Evaluate 2nd derivative of activation function.
@@ -197,8 +210,10 @@ class Relu(Activation):
         :param x: input array at which to evaluate the function
         :param y: response already evaluated at x (optional)
         :param y: 1st derivative already evaluated at x (optional)
-        :param ddy: output array in which to write the 2nd derivative (optional)
-        :return: 2nd derivative (as new array if `ddy` not provided as input)
+        :param ddy: output array in which to write the 2nd derivative
+            (optional)
+        :return: 2nd derivative (as new array if `ddy` not provided as
+            input)
         """
         if ddy is None:
             return np.zeros(x.shape)
@@ -223,7 +238,8 @@ class Linear(Activation):
 
         :param x: input array at which to evaluate the function
         :param y: output array in which to write the results (optional)
-        :return: activation function evaluated at `x` (as new array if `y` not provided as input)
+        :return: activation function evaluated at `x` (as new array if
+            `y` not provided as input)
         """
         if y is None:
             y = x.copy()
@@ -235,15 +251,17 @@ class Linear(Activation):
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,  # noqa: ARG003
+        y: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
         dy: np.ndarray | None = None,
     ) -> np.ndarray:
         """Evaluate 1st derivative of activation function.
 
         :param x: input array at which to evaluate the function
         :param y: response already evaluated at x (optional)
-        :param dy: output array in which to write the 1st derivative (optional)
-        :return: 1st derivative (as new array if `dy` not provided as input)
+        :param dy: output array in which to write the 1st derivative
+            (optional)
+        :return: 1st derivative (as new array if `dy` not provided as
+            input)
         """
         if dy is None:
             dy = np.ones(x.shape)
@@ -255,8 +273,8 @@ class Linear(Activation):
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,  # noqa: ARG003
-        dy: np.ndarray | None = None,  # noqa: ARG003
+        y: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
+        dy: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
         ddy: np.ndarray | None = None,
     ) -> np.ndarray:
         """Evaluate 2nd derivative of activation function.
@@ -264,8 +282,10 @@ class Linear(Activation):
         :param x: input array at which to evaluate the function
         :param y: response already evaluated at x (optional)
         :param y: 1st derivative already evaluated at x (optional)
-        :param ddy: output array in which to write the 2nd derivative (optional)
-        :return: 2nd derivative (as new array if `ddy` not provided as input)
+        :param ddy: output array in which to write the 2nd derivative
+            (optional)
+        :return: 2nd derivative (as new array if `ddy` not provided as
+            input)
         """
         if ddy is None:
             return np.zeros(x.shape)

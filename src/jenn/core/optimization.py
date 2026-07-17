@@ -53,9 +53,8 @@ class Update(ABC):
         r"""Take a single step along search direction.
 
         :param params: parameters :math:`x` to be updated
-        :param grads: gradient :math:`\nabla_x f` of
-            objective function :math:`f` w.r.t. each parameter
-            :math:`x`
+        :param grads: gradient :math:`\nabla_x f` of objective function
+            :math:`f` w.r.t. each parameter :math:`x`
         :param alpha: learning rate :math:`\alpha`
         """
         return self._update(params, grads, alpha, **kwargs)
@@ -126,12 +125,7 @@ class ADAM(Update):
         if s is None:
             s = np.zeros(params.shape)
 
-        a: list[int] = [id(x) for x in grads]
-        b: list[int] = []
-        if self._grads is not None:
-            b = [id(x) for x in self._grads]
-
-        if a != b:
+        if self._grads is not grads:
             self._grads = grads
             t += 1  # only update for new search directions
 
@@ -224,15 +218,17 @@ class Backtracking(LineSearch):
     ) -> tuple[np.ndarray, np.ndarray]:
         r"""Take multiple "update" steps along search direction.
 
-        :param x0: initial value of parameters to be updated, array of shape (n,)
-        :param y0: initial value of cost function evaluated at x0, array of shape (n,)
+        :param x0: initial value of parameters to be updated, array of
+            shape (n,)
+        :param y0: initial value of cost function evaluated at x0, array
+            of shape (n,)
         :param cost: objective function :math:`f`
-        :param grads: gradient :math:`\nabla_x f` of
-            objective function :math:`f` w.r.t. each
-            parameter, array of shape (n,)
+        :param grads: gradient :math:`\nabla_x f` of objective function
+            :math:`f` w.r.t. each parameter, array of shape (n,)
         :param learning_rate: maximum allowed step size :math:`\alpha
             \le \alpha_{max}`
-        :return: updated parameters and cost :math:`x, y`, 2 x array of shape (n,)
+        :return: updated parameters and cost :math:`x, y`, 2 x array of
+            shape (n,)
         """
         tau = self.tau
         tol = self.tol
@@ -249,8 +245,7 @@ class Backtracking(LineSearch):
                 return x, y
             if y_prev < y:
                 return x_prev, y_prev
-            alpha = learning_rate * tau
-            tau *= tau
+            alpha *= tau
             x_prev = x
             y_prev = y
         return x, y
@@ -275,7 +270,7 @@ class Optimizer:
         self.vars_history: list[np.ndarray] | None = None
         self.cost_history: list[np.ndarray] | None = None
 
-    def minimize(  # noqa: PLR0912, PLR0915, C901
+    def minimize(  # ruff:ignore[too-many-branches, too-many-statements, complex-structure]
         self,
         x: np.ndarray,
         f: Callable,
@@ -341,9 +336,9 @@ class Optimizer:
                     print(f"epoch = {e:d}, iter = {i:d}, cost = {y:.6f}")
                 elif batch is not None:
                     b = batch
-                    print(f"batch = {b:d}, iter = {i:d}, cost = {y::.6f}")
+                    print(f"batch = {b:d}, iter = {i:d}, cost = {y:.6f}")
                 else:
-                    print(f"iter = {i:d}, cost = {y::.6f}")
+                    print(f"iter = {i:d}, cost = {y:.6f}")
 
             # Absolute convergence criterion
             if i > 1:

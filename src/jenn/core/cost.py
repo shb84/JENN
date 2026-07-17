@@ -1,12 +1,11 @@
 """Cost Function.
 =================
 
-This module contains class and methods to efficiently
-compute the neural net cost function used for training.
-It is a modified version of the Least Squared Estimator (LSE),
-augmented with a penalty function for regularization and another
-term which accounts for Jacobian prediction error. See
-`paper`_ for details and notation.
+This module contains class and methods to efficiently compute the neural
+net cost function used for training. It is a modified version of the
+Least Squared Estimator (LSE), augmented with a penalty function for
+regularization and another term which accounts for Jacobian prediction
+error. See `paper`_ for details and notation.
 """
 
 # Copyright (C) 2018 Steven H. Berguin
@@ -71,7 +70,7 @@ class GradientEnhancement:
         :param J_pred: predicted Jacobian :math:`A^{\prime[L]} \in
             \mathbb{R}^{n_y \times n_x \times m}`
         """
-        self.J_error[:, :, :] = self.J_weights * (J_pred - self.J_true)
+        self.J_error[:, :, :] = J_pred - self.J_true
         self.J_error *= np.sqrt(self.J_weights)
         cost = 0.0
         for k in range(self.n_y):

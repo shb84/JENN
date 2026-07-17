@@ -1,0 +1,107 @@
+name: Release
+run-name: ${{ github.actor }} — release ${{ github.ref_name }}
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  build-dist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          environments: dev
+          pixi-version: v0.72.1
+          cache: true
+
+      - name: Build distribution files
+        run: pixi run -e dev build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: ./build/dist
+
+  publish-testpypi:
+    needs: build-dist
+    runs-on: ubuntu-latest
+    environment: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: ./dist
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
+          skip-existing: true
+          repository-url: https://test.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.TESTPYPI_TOKEN }}
+
+  publish-pypi:
+    needs: publish-testpypi
+    runs-on: ubuntu-latest
+    environment: pypi  # requires manual approval — configure in Settings → Environments
+    permissions:
+      id-token: write
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: ./dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
+          skip-existing: true
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+
+  github-release:
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: ./dist
+
+      - name: Sign with Sigstore
+        uses: sigstore/gh-action-sigstore-python@v3.2.0
+        with:
+          inputs: >-
+            ./dist/*.tar.gz
+            ./dist/*.whl
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create
+          '${{ github.ref_name }}'
+          --repo '${{ github.repository }}'
+          --notes ""
+
+      - name: Upload signatures to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload
+          '${{ github.ref_name }}' dist/**
+          --repo '${{ github.repository }}'
