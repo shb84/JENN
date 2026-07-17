@@ -88,6 +88,7 @@ class Cache:
         self.G_prime_prime: list[np.ndarray] = []  # g'' = d/dz( da/dz )
         self.dA: list[np.ndarray] = []
         self.dA_prime: list[np.ndarray] = []
+        self.dZ: list[np.ndarray] = []  # scratch for g'(z) * dA (reused in backprop)
         for n in self.layer_sizes:
             self.Z.append(np.zeros((n, m)))
             self.Z_prime.append(np.zeros((n, self.n_x, m)))
@@ -97,3 +98,4 @@ class Cache:
             self.A_prime.append(np.zeros((n, self.n_x, m)))
             self.dA.append(np.zeros((n, m)))
             self.dA_prime.append(np.zeros((n, self.n_x, m)))
+            self.dZ.append(np.zeros((n, m)))

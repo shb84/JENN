@@ -1,0 +1,70 @@
+{
+  "runs": {
+    "baseline": {
+      "timestamp": "2026-07-17T12:45:11.853612+00:00",
+      "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+      "python": "3.14.6",
+      "numpy": "2.5.1",
+      "jenn": "2.0.1",
+      "micro": {
+        "shape": {
+          "n_x": 16,
+          "m": 5000,
+          "layer_sizes": [
+            16,
+            12,
+            12,
+            1
+          ]
+        },
+        "gradient_enhancement_ms": 7.889749977039173,
+        "next_layer_partials_ms": 2.7479580021463335
+      },
+      "e2e": {
+        "shape": {
+          "n_x": 16,
+          "m": 42039
+        },
+        "config": {
+          "epochs": 25,
+          "max_iter": 2,
+          "seed": 42
+        },
+        "train_seconds": 20.65560454101069
+      }
+    },
+    "vectorized": {
+      "timestamp": "2026-07-17T12:48:48.499200+00:00",
+      "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+      "python": "3.14.6",
+      "numpy": "2.5.1",
+      "jenn": "2.0.1",
+      "micro": {
+        "shape": {
+          "n_x": 16,
+          "m": 5000,
+          "layer_sizes": [
+            16,
+            12,
+            12,
+            1
+          ]
+        },
+        "gradient_enhancement_ms": 4.657417011912912,
+        "next_layer_partials_ms": 1.594875007867813
+      },
+      "e2e": {
+        "shape": {
+          "n_x": 16,
+          "m": 42039
+        },
+        "config": {
+          "epochs": 25,
+          "max_iter": 2,
+          "seed": 42
+        },
+        "train_seconds": 12.839697332994547
+      }
+    }
+  }
+}

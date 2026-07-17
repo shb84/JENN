@@ -115,7 +115,10 @@ class Tanh(Activation):
             y = cls.evaluate(x)
         if dy is None:
             return 1 - np.square(y)
-        dy[:] = 1 - np.square(y, out=dy)
+        # dy = 1 - y**2, fully in place (no "1 - dy" temporary).
+        np.square(y, out=dy)
+        dy *= -1
+        dy += 1
         return dy
 
     @classmethod
@@ -194,7 +197,8 @@ class Relu(Activation):
         if dy is None:
             dy = np.asarray(x > 0, dtype=x.dtype)
         else:
-            dy[:] = np.asarray(x > 0, dtype=x.dtype)
+            # Write the comparison straight into dy (no bool + float temporaries).
+            np.greater(x, 0, out=dy)
         return dy
 
     @classmethod

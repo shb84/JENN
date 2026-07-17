@@ -21,12 +21,6 @@ import numpy as np
 from .activation import ACTIVATIONS
 
 
-def eye(n: int, m: int) -> np.ndarray:
-    """Copy identify matrix of shape (n, n) m times."""
-    eye = np.eye(n, dtype=float)
-    return np.repeat(eye.reshape((n, n, 1)), m, axis=2)
-
-
 def first_layer_forward(X: np.ndarray, cache: Cache | None = None) -> None:
     """Compute input layer activations (in place).
 
@@ -50,8 +44,10 @@ def first_layer_partials(X: np.ndarray, cache: Cache | None) -> None:
     """
     X = X.astype(float, copy=False)
     if cache is not None:
-        n_x, m = X.shape
-        cache.A_prime[0][:] = eye(n_x, m)
+        n_x = X.shape[0]
+        # Broadcast the identity over the m examples straight into the
+        # pre-allocated buffer (no (n_x, n_x, m) temporary).
+        cache.A_prime[0][:] = np.eye(n_x, dtype=float)[:, :, np.newaxis]
 
 
 def next_layer_partials(layer: int, parameters: Parameters, cache: Cache) -> np.ndarray:
@@ -69,12 +65,10 @@ def next_layer_partials(layer: int, parameters: Parameters, cache: Cache) -> np.
     W = parameters.W[layer]
     g = ACTIVATIONS[parameters.a[layer]]
     cache.G_prime[s][:] = g.first_derivative(cache.Z[s], cache.A[s])
-    for j in range(parameters.n_x):
-        cache.Z_prime[s][:, j, :] = np.dot(W, cache.A_prime[r][:, j, :])
-        cache.A_prime[s][:, j, :] = cache.G_prime[s] * np.dot(
-            W,
-            cache.A_prime[r][:, j, :],
-        )
+    # Vectorized over the n_x partials: one BLAS-backed tensordot replaces the
+    # Python loop (and the redundant W @ A_prime computed twice per iteration).
+    cache.Z_prime[s][:] = np.tensordot(W, cache.A_prime[r], axes=([1], [0]))
+    cache.A_prime[s][:] = cache.G_prime[s][:, np.newaxis, :] * cache.Z_prime[s]
     return cache.A_prime[s]
 
 
@@ -187,12 +181,15 @@ def next_layer_backward(
     r = layer - 1
     g = ACTIVATIONS[parameters.a[s]]
     g.first_derivative(cache.Z[s], cache.A[s], cache.G_prime[s])
-    np.dot(cache.G_prime[s] * cache.dA[s], cache.A[r].T, out=parameters.dW[s])
+    # g'(z) * dA is reused three times below; compute it once into scratch.
+    dZ = cache.dZ[s]
+    np.multiply(cache.G_prime[s], cache.dA[s], out=dZ)
+    np.dot(dZ, cache.A[r].T, out=parameters.dW[s])
     parameters.dW[s] /= data.m
     parameters.dW[s] += lambd / data.m * parameters.W[s]
-    np.sum(cache.G_prime[s] * cache.dA[s], axis=1, keepdims=True, out=parameters.db[s])
+    np.sum(dZ, axis=1, keepdims=True, out=parameters.db[s])
     parameters.db[s] /= data.m
-    np.dot(parameters.W[s].T, cache.G_prime[s] * cache.dA[s], out=cache.dA[r])
+    np.dot(parameters.W[s].T, dZ, out=cache.dA[r])
 
 
 def gradient_enhancement(
@@ -224,36 +221,20 @@ def gradient_enhancement(
         cache.G_prime[s],
     )
     coefficient = 1 / data.m
-    for j in range(parameters.n_x):
-        parameters.dW[s] += coefficient * (
-            np.dot(
-                cache.dA_prime[s][:, j, :]
-                * cache.G_prime_prime[s]
-                * cache.Z_prime[s][:, j, :],
-                cache.A[r].T,
-            )
-            + np.dot(
-                cache.dA_prime[s][:, j, :] * cache.G_prime[s],
-                cache.A_prime[r][:, j, :].T,
-            )
-        )
-        parameters.db[s] += coefficient * np.sum(
-            cache.dA_prime[s][:, j, :]
-            * cache.G_prime_prime[s]
-            * cache.Z_prime[s][:, j, :],
-            axis=1,
-            keepdims=True,
-        )
-        cache.dA[r] += np.dot(
-            parameters.W[s].T,
-            cache.dA_prime[s][:, j, :]
-            * cache.G_prime_prime[s]
-            * cache.Z_prime[s][:, j, :],
-        )
-        cache.dA_prime[r][:, j, :] = np.dot(
-            parameters.W[s].T,
-            cache.dA_prime[s][:, j, :] * cache.G_prime[s],
-        )
+    # Vectorized over the n_x partials. The two intermediates below are the
+    # per-partial products that the original Python loop recomputed each pass;
+    # every contraction now delegates to a single BLAS-backed dot/tensordot.
+    t1 = cache.dA_prime[s] * cache.G_prime_prime[s][:, np.newaxis, :] * cache.Z_prime[s]
+    t2 = cache.dA_prime[s] * cache.G_prime[s][:, np.newaxis, :]
+    # A[r] carries no partial (j) axis, so t1 can be summed over j before the dot.
+    t1_sum_j = t1.sum(axis=1)  # (n_s, m)
+    parameters.dW[s] += coefficient * (
+        np.dot(t1_sum_j, cache.A[r].T)
+        + np.tensordot(t2, cache.A_prime[r], axes=([1, 2], [1, 2]))
+    )
+    parameters.db[s] += coefficient * t1_sum_j.sum(axis=1, keepdims=True)
+    cache.dA[r] += np.dot(parameters.W[s].T, t1_sum_j)
+    cache.dA_prime[r][:] = np.tensordot(parameters.W[s].T, t2, axes=([1], [0]))
 
 
 def model_backward(
