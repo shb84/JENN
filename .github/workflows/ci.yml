@@ -1,0 +1,50 @@
+name: CI
+run-name: ${{ github.actor }} — ci
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          environments: dev
+          pixi-version: v0.72.1
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
+
+      - name: Lint
+        run: pixi run -e dev lint
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [py39, py310, py311, py312, py313, py314]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          environments: ${{ matrix.environment }}
+          pixi-version: v0.72.1
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
+
+      - name: Run unit tests (${{ matrix.environment }})
+        run: pixi run -e ${{ matrix.environment }} test-unit
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts-${{ matrix.environment }}
+          path: ./build/reports
+          overwrite: true
