@@ -28,10 +28,34 @@ build: Changes to the build process or tools.
 - Fixed backtracking line-search decay in `optimization.py` (now linear `tau`, not `tau^(2^i)`)
 - Fixed ADAM bias counter in `optimization.py` to use object identity instead of `id()`
 - Fixed invalid f-string format spec in `optimization.py` (`{y::.6f}` -> `{y:.6f}`)
+- Updated `notebooks/runtime.ipynb` to the current API (`jenn.utilities.sample`
+  with `jenn.synthetic_data.rastrigin`); it still called the pre-`v2.0.0`
+  `jenn.synthetic.Rastrigin.sample`, breaking the notebook test suite
+
+### Perf
+
+- Vectorized the `n_x` partial-derivative loop in `next_layer_partials`
+  (`propagation.py`) with a single `np.tensordot`, also removing a matmul that
+  was computed twice per iteration
+- Vectorized the `n_x` loop in `gradient_enhancement` (`propagation.py`) into
+  BLAS-backed `dot`/`tensordot` contractions
+- Replaced the `n_y`/`n_x` Python loops in `SquaredLoss.evaluate` and
+  `GradientEnhancement.evaluate` (`cost.py`) with `np.sum(np.square(...))`
+- Write the input-layer identity partial in place via broadcasting in
+  `first_layer_partials` (`propagation.py`), removing the per-pass
+  `(n_x, n_x, m)` allocation (and the now-unused `eye` helper)
+- Compute `g'(z) * dA` once into a reused cache buffer in `next_layer_backward`
+  (`propagation.py`, `cache.py`) instead of three times
+- Made `Tanh`/`Relu` `first_derivative` fully in-place (`activation.py`),
+  removing per-call temporaries
 
 ### Test
 
 - Fixed `test_model_forward` to call `model_forward` (was erroneously calling `partials_forward`)
+- Added a finite-difference gradient check for gradient-enhanced backprop with
+  `n_x >= 2` (`test_propagation.py`), guarding the vectorized `n_x` paths
+- Added `scripts/benchmark.py` and a `benchmark` pixi task to measure the
+  training hot path (micro + airfoil end-to-end)
 
 ### Build
 

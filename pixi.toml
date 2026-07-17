@@ -59,6 +59,11 @@ cmd = "pytest --nbmake --nbmake-timeout=3000 notebooks/*.ipynb"
 inputs = ["src/**/*.py", "notebooks/*.ipynb"]
 depends-on = ["pip-e"]
 
+[feature.test.tasks.benchmark]
+description = "Benchmark training hot path (see scripts/benchmark.py)"
+cmd = "python scripts/benchmark.py"
+depends-on = ["pip-e"]
+
 [feature.lint.tasks.ruff]
 description = "Check Python code for formatting errors. "
 cmd = "ruff format --check && ruff check"

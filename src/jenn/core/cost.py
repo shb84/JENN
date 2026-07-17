@@ -44,10 +44,8 @@ class SquaredLoss:
         """
         self.Y_error[:, :] = Y_pred - self.Y_true
         self.Y_error *= np.sqrt(self.Y_weights)
-        cost = 0
-        for j in range(self.n_y):
-            cost += np.dot(self.Y_error[j], self.Y_error[j].T)
-        return np.float64(cost)
+        # sum_j dot(e_j, e_j) over rows is just the sum of squared errors.
+        return np.float64(np.sum(np.square(self.Y_error)))
 
 
 class GradientEnhancement:
@@ -72,12 +70,8 @@ class GradientEnhancement:
         """
         self.J_error[:, :, :] = J_pred - self.J_true
         self.J_error *= np.sqrt(self.J_weights)
-        cost = 0.0
-        for k in range(self.n_y):
-            for j in range(self.n_x):
-                dot_product = np.dot(self.J_error[k, j], self.J_error[k, j].T)
-                cost += np.squeeze(dot_product)
-        return np.float64(cost)
+        # sum_k sum_j dot(e_kj, e_kj) is just the sum of squared partial errors.
+        return np.float64(np.sum(np.square(self.J_error)))
 
 
 class Regularization:

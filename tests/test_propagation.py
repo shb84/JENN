@@ -171,4 +171,76 @@ class TestXOR:
         assert _grad_check(dydx, dydx_FD)
 
 
-# TODO: add test(s) for gradient-enhanced backprop and forward prop of partials
+class TestGradientEnhanced:
+    """Check gradient-enhanced backprop for a multi-input problem (n_x >= 2).
+
+    The regular finite-difference gradient check guards the standard backprop,
+    but only ever exercises n_x = 1 (the 1D sinusoid). This class covers the
+    ``for j in range(n_x)`` paths in ``next_layer_partials`` and
+    ``gradient_enhancement`` with n_x = 2, so their vectorized forms stay
+    numerically faithful.
+    """
+
+    @pytest.fixture
+    def data(self) -> jenn.core.data.Dataset:
+        """Return a small 2-input quadratic dataset with exact Jacobian.
+
+        y = x0^2 + x1^2  =>  dy/dx0 = 2 x0,  dy/dx1 = 2 x1
+        """
+        rng = np.random.default_rng(0)
+        X = rng.standard_normal((2, 5))  # (n_x, m)
+        Y = np.sum(X**2, axis=0, keepdims=True)  # (n_y, m)
+        J = np.zeros((1, 2, 5))  # (n_y, n_x, m)
+        J[0, 0, :] = 2 * X[0, :]
+        J[0, 1, :] = 2 * X[1, :]
+        return jenn.core.data.Dataset(X, Y, J)
+
+    @pytest.fixture
+    def cache(self) -> jenn.core.cache.Cache:
+        """Return cache sized to the 2-input dataset."""
+        return jenn.core.cache.Cache(layer_sizes=[2, 3, 1], m=5)
+
+    @pytest.fixture
+    def params(self) -> jenn.core.parameters.Parameters:
+        """Return randomly initialized parameters (tanh hidden layer).
+
+        A tanh hidden layer is used deliberately so the second derivative
+        (``G_prime_prime``) is non-zero and the gradient-enhancement terms
+        are fully exercised.
+        """
+        parameters = jenn.core.parameters.Parameters(
+            layer_sizes=[2, 3, 1],
+            hidden_activation="tanh",
+            output_activation="linear",
+        )
+        parameters.initialize(random_state=1)
+        return parameters
+
+    def test_gradient_enhanced_backward(
+        self,
+        data: jenn.core.data.Dataset,
+        params: jenn.core.parameters.Parameters,
+        cache: jenn.core.cache.Cache,
+    ) -> None:
+        """Check gradient-enhanced backprop against finite difference (n_x=2)."""
+        jenn.core.propagation.model_partials_forward(data.X, params, cache)
+        jenn.core.propagation.model_backward(data, params, cache)
+
+        def cost_finite_diff(x):
+            parameters = deepcopy(params)  # make copy b/c arrays updated in place
+            cost = jenn.core.cost.Cost(data, parameters)
+            parameters.unstack(x)
+            Y_pred, J_pred = jenn.core.propagation.model_partials_forward(
+                data.X,
+                parameters,
+                deepcopy(cache),
+            )
+            return cost.evaluate(Y_pred, J_pred)
+
+        dydx = params.stack_partials_per_layer()
+        dydx_FD = _finite_difference(cost_finite_diff, params.stack_per_layer())
+
+        assert _grad_check(dydx, dydx_FD)
+
+
+# TODO: add test(s) for forward prop of partials
