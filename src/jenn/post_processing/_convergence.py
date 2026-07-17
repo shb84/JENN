@@ -15,7 +15,7 @@ from ._styling import LINE_STYLES
 History = dict[str, dict[str, list[float]]]
 
 
-def plot_convergence(  # noqa: PLR0912, C901
+def plot_convergence(  # ruff:ignore[too-many-branches, complex-structure]
     histories: History | list[History],
     figsize: tuple[float, float] = (3.25, 3),
     fontsize: int = 9,

@@ -168,7 +168,7 @@ class Relu(Activation):
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,  # noqa: ARG003
+        y: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
         dy: np.ndarray | None = None,
     ) -> np.ndarray:
         """Evaluate 1st derivative of activation function.
@@ -188,8 +188,8 @@ class Relu(Activation):
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,  # noqa: ARG003
-        dy: np.ndarray | None = None,  # noqa: ARG003
+        y: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
+        dy: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
         ddy: np.ndarray | None = None,
     ) -> np.ndarray:
         """Evaluate 2nd derivative of activation function.
@@ -235,7 +235,7 @@ class Linear(Activation):
     def first_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,  # noqa: ARG003
+        y: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
         dy: np.ndarray | None = None,
     ) -> np.ndarray:
         """Evaluate 1st derivative of activation function.
@@ -255,8 +255,8 @@ class Linear(Activation):
     def second_derivative(
         cls,
         x: np.ndarray,
-        y: np.ndarray | None = None,  # noqa: ARG003
-        dy: np.ndarray | None = None,  # noqa: ARG003
+        y: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
+        dy: np.ndarray | None = None,  # ruff:ignore[unused-class-method-argument]
         ddy: np.ndarray | None = None,
     ) -> np.ndarray:
         """Evaluate 2nd derivative of activation function.

@@ -269,7 +269,7 @@ class Optimizer:
         self.vars_history: list[np.ndarray] | None = None
         self.cost_history: list[np.ndarray] | None = None
 
-    def minimize(  # noqa: PLR0912, PLR0915, C901
+    def minimize(  # ruff:ignore[too-many-branches, too-many-statements, complex-structure]
         self,
         x: np.ndarray,
         f: Callable,

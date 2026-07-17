@@ -66,17 +66,17 @@ class Cache:
 
     @property
     def m(self) -> int:
-        """Return number of examples."""
+        """Number of examples."""
         return int(self.A[0].shape[1])
 
     @property
     def n_x(self) -> int:
-        """Return number of inputs."""
+        """Number of inputs."""
         return int(self.layer_sizes[0])
 
     @property
     def n_y(self) -> int:
-        """Return number of outputs."""
+        """Number of outputs."""
         return int(self.layer_sizes[-1])
 
     def __init__(self, layer_sizes: list[int], m: int = 1):

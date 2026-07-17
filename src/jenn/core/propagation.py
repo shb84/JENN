@@ -212,7 +212,7 @@ def gradient_enhancement(
     """
     if data.J is None:
         return
-    if np.all(data.J_weights == 0.0):
+    if np.allclose(data.J_weights, 0.0):
         return
     s = layer
     r = layer - 1

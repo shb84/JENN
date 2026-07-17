@@ -76,13 +76,13 @@ class TestLineSearch:
         xbest, _ = line_search(
             x0, y0, search_direction=f_prime(x0), cost_function=f, learning_rate=0.1
         )
-        assert xbest == 0.8
+        assert xbest == pytest.approx(0.8)
         x0 = np.array([-1]).reshape((1, 1))  # approach from left
         y0 = f(x0)
         xbest, _ = line_search(
             x0, y0, search_direction=f_prime(x0), cost_function=f, learning_rate=0.1
         )
-        assert xbest == -0.8
+        assert xbest == pytest.approx(-0.8)
 
 
 class TestUpdate:

@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_contours(  # noqa: C901
+def plot_contours(  # ruff:ignore[complex-structure]
     func: Callable,
     x_min: np.ndarray,
     x_max: np.ndarray,
