@@ -1,10 +1,8 @@
-"""Cache.
-=========
+"""Cache. =========
 
-This module defines a convenience class to  all quantities
-computed during forward propagation, so they don't have to be
-recomputed again during backward propgation. See
-`paper`_ for details and notation.
+This module defines a convenience class to  all quantities computed
+during forward propagation, so they don't have to be recomputed again
+during backward propgation. See `paper`_ for details and notation.
 """
 
 # Copyright (C) 2018 Steven H. Berguin

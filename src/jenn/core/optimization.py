@@ -1,5 +1,4 @@
-"""Optimization.
-================
+"""Optimization. ================
 
 .. ADAM: https://doi.org/10.48550/arXiv.1412.6980
 
@@ -53,9 +52,8 @@ class Update(ABC):
         r"""Take a single step along search direction.
 
         :param params: parameters :math:`x` to be updated
-        :param grads: gradient :math:`\nabla_x f` of
-            objective function :math:`f` w.r.t. each parameter
-            :math:`x`
+        :param grads: gradient :math:`\nabla_x f` of objective function
+            :math:`f` w.r.t. each parameter :math:`x`
         :param alpha: learning rate :math:`\alpha`
         """
         return self._update(params, grads, alpha, **kwargs)
@@ -219,15 +217,17 @@ class Backtracking(LineSearch):
     ) -> tuple[np.ndarray, np.ndarray]:
         r"""Take multiple "update" steps along search direction.
 
-        :param x0: initial value of parameters to be updated, array of shape (n,)
-        :param y0: initial value of cost function evaluated at x0, array of shape (n,)
+        :param x0: initial value of parameters to be updated, array of
+            shape (n,)
+        :param y0: initial value of cost function evaluated at x0, array
+            of shape (n,)
         :param cost: objective function :math:`f`
-        :param grads: gradient :math:`\nabla_x f` of
-            objective function :math:`f` w.r.t. each
-            parameter, array of shape (n,)
+        :param grads: gradient :math:`\nabla_x f` of objective function
+            :math:`f` w.r.t. each parameter, array of shape (n,)
         :param learning_rate: maximum allowed step size :math:`\alpha
             \le \alpha_{max}`
-        :return: updated parameters and cost :math:`x, y`, 2 x array of shape (n,)
+        :return: updated parameters and cost :math:`x, y`, 2 x array of
+            shape (n,)
         """
         tau = self.tau
         tol = self.tol

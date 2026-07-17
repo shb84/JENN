@@ -1,8 +1,7 @@
-"""Data.
-========
+"""Data. ========
 
-This module contains convenience utilities to
-manage and handle training data.
+This module contains convenience utilities to manage and handle training
+data.
 """
 
 # Copyright (C) 2018 Steven H. Berguin

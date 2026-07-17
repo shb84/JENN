@@ -22,22 +22,23 @@ def plot_residual_by_predicted(
     percent: bool = False,
     ax: plt.Axes | None = None,
 ) -> Figure | SubFigure | None:
-    """Plot prediction error vs. predicted value.
+    """Plot prediction error vs.
 
-    .. note::
-        This method uses ravel(). A NumPy array with shape :math:`(n_y, m)` will become :math:`(n_y m,)`.
-        This is useful to merge all responses in one plot. Use indexing to handle responses separately,
-        e.g. :code:`jenn.plot_actual_by_predicted(y_pred=model.predict(x=x_test[2]), y_true=y_test[2])`.
+    predicted value.
+        .. note::
+            This method uses ravel(). A NumPy array with shape :math:`(n_y, m)` will become :math:`(n_y m,)`.
+            This is useful to merge all responses in one plot. Use indexing to handle responses separately,
+            e.g. :code:`jenn.plot_actual_by_predicted(y_pred=model.predict(x=x_test[2]), y_true=y_test[2])`.
 
-    :param y_pred: predicted values for each dataset, list of arrays of shape (m,)
-    :param y_true: true values for each dataset, list of arrays of shape (m,)
-    :param figsize: figure size
-    :param fontsize: text size to use for axis labels
-    :param fontsize: text size to use for legend labels
-    :param alpha: transparency of dots (between 0 and 1)
-    :param percent: show residuals as percentages
-    :param ax: the matplotlib axes on which to plot the data
-    :return: matplotlib Figure instance
+        :param y_pred: predicted values for each dataset, list of arrays of shape (m,)
+        :param y_true: true values for each dataset, list of arrays of shape (m,)
+        :param figsize: figure size
+        :param fontsize: text size to use for axis labels
+        :param fontsize: text size to use for legend labels
+        :param alpha: transparency of dots (between 0 and 1)
+        :param percent: show residuals as percentages
+        :param ax: the matplotlib axes on which to plot the data
+        :return: matplotlib Figure instance
     """
     if ax:
         fig = ax.get_figure()

@@ -1,7 +1,7 @@
-"""Propagation.
-==============
+"""Propagation. ==============
 
-This module contains the critical functionality to propagate information forward and backward through the neural net.
+This module contains the critical functionality to propagate information
+forward and backward through the neural net.
 """
 
 # Copyright (C) 2018 Steven H. Berguin

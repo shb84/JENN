@@ -1,11 +1,9 @@
 [project]
 name = "jenn"
 dynamic = ["version"]
-authors = [
-  {name = "Steven H. Berguin", email = "stevenberguin@gmail.com"},
-]
+authors = [{ name = "Steven H. Berguin", email = "stevenberguin@gmail.com" }]
 description = "Jacobian-Enhanced Neural Nets (JENN)"
-readme = {file = "README.md", content-type = "text/markdown"}
+readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.9"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
@@ -14,13 +12,7 @@ classifiers = [
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
 ]
-dependencies = [
-  "jsonpointer",
-  "jsonschema",
-  "orjson",
-  "numpy",
-  "matplotlib",
-]
+dependencies = ["jsonpointer", "jsonschema", "orjson", "numpy", "matplotlib"]
 
 [project.urls]
 Documentation = "https://shb84.github.io/JENN/"
@@ -33,7 +25,7 @@ build-backend = "setuptools.build_meta"
 
 # setuptools ###################################################################
 [tool.setuptools.dynamic]
-version = {attr = "jenn.__version__"}
+version = { attr = "jenn.__version__" }
 
 # mypy #########################################################################
 [tool.mypy]
@@ -127,4 +119,3 @@ flake8-copyright.notice-rgx = '''
 "**/*.ipynb" = ["CPY001"]
 "docs/**/*.py" = ["INP001", "A001"]
 "tests/*.py" = ["S101"]
-

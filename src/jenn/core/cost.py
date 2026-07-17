@@ -1,12 +1,10 @@
-"""Cost Function.
-=================
+"""Cost Function. =================
 
-This module contains class and methods to efficiently
-compute the neural net cost function used for training.
-It is a modified version of the Least Squared Estimator (LSE),
-augmented with a penalty function for regularization and another
-term which accounts for Jacobian prediction error. See
-`paper`_ for details and notation.
+This module contains class and methods to efficiently compute the neural
+net cost function used for training. It is a modified version of the
+Least Squared Estimator (LSE), augmented with a penalty function for
+regularization and another term which accounts for Jacobian prediction
+error. See `paper`_ for details and notation.
 """
 
 # Copyright (C) 2018 Steven H. Berguin
