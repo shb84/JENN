@@ -71,7 +71,7 @@ class GradientEnhancement:
         :param J_pred: predicted Jacobian :math:`A^{\prime[L]} \in
             \mathbb{R}^{n_y \times n_x \times m}`
         """
-        self.J_error[:, :, :] = self.J_weights * (J_pred - self.J_true)
+        self.J_error[:, :, :] = J_pred - self.J_true
         self.J_error *= np.sqrt(self.J_weights)
         cost = 0.0
         for k in range(self.n_y):

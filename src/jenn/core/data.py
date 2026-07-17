@@ -54,7 +54,7 @@ def mini_batches(
 
     # Handling the end case (last mini-batch < mini_batch_size)
     if m % batch_size != 0:
-        mini_batch = indices[(k + 1) * batch_size :]
+        mini_batch = indices[k * batch_size :]
         if mini_batch:
             batches.append(tuple(mini_batch))
 
@@ -84,9 +84,7 @@ def _safe_divide(
     eps: float = float(np.finfo(float).eps),
 ) -> np.ndarray:
     """Add small number to avoid dividing by zero."""
-    mask = value == 0.0
-    value[mask] += eps
-    return value
+    return np.where(value == 0.0, eps, value)
 
 
 def normalize(data: np.ndarray, mu: np.ndarray, sigma: np.ndarray) -> np.ndarray:

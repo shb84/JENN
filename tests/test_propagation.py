@@ -103,7 +103,7 @@ class TestXOR:
         cache: jenn.core.cache.Cache,
     ) -> None:
         """Test forward propagation using XOR."""
-        computed = jenn.core.propagation.partials_forward(data.X, params, cache)
+        computed = jenn.core.propagation.model_forward(data.X, params, cache)
         expected = data.Y
         msg = f"computed = {computed} vs. expected = {expected}"
         assert np.all(computed == expected), msg

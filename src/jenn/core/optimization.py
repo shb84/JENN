@@ -126,12 +126,7 @@ class ADAM(Update):
         if s is None:
             s = np.zeros(params.shape)
 
-        a: list[int] = [id(x) for x in grads]
-        b: list[int] = []
-        if self._grads is not None:
-            b = [id(x) for x in self._grads]
-
-        if a != b:
+        if self._grads is not grads:
             self._grads = grads
             t += 1  # only update for new search directions
 
@@ -249,8 +244,7 @@ class Backtracking(LineSearch):
                 return x, y
             if y_prev < y:
                 return x_prev, y_prev
-            alpha = learning_rate * tau
-            tau *= tau
+            alpha *= tau
             x_prev = x
             y_prev = y
         return x, y
@@ -341,9 +335,9 @@ class Optimizer:
                     print(f"epoch = {e:d}, iter = {i:d}, cost = {y:.6f}")
                 elif batch is not None:
                     b = batch
-                    print(f"batch = {b:d}, iter = {i:d}, cost = {y::.6f}")
+                    print(f"batch = {b:d}, iter = {i:d}, cost = {y:.6f}")
                 else:
-                    print(f"iter = {i:d}, cost = {y::.6f}")
+                    print(f"iter = {i:d}, cost = {y:.6f}")
 
             # Absolute convergence criterion
             if i > 1:
