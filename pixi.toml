@@ -1,4 +1,4 @@
-"$schema" = "https://pixi.sh/v0.54.1/schema/manifest/schema.json"
+"$schema" = "https://pixi.sh/v0.71.1/schema/manifest/schema.json"
 
 [workspace]
 name = "jenn"
@@ -26,7 +26,7 @@ lint = {depends-on = [
   "mypy",
   "docformatter",
 ]}
-test = {depends-on = ["test", "test-nb"]}
+test = {depends-on = ["test-unit", "test-nb"]}
 docs = {depends-on = ["sphinx"]}
 
 #########
@@ -36,9 +36,9 @@ docs = {depends-on = ["sphinx"]}
 [feature.src.tasks.pip-e]
 description = "Prepare for local development"
 cmd = """
-python -m pip uninstall -y jenn
-  && python -m pip install -e . --no-deps --no-build-isolation --disable-pip-version-check
-  && python -m pip check
+python -m pip uninstall -y jenn &&
+  python -m pip install -e . --no-deps --no-build-isolation --disable-pip-version-check &&
+  python -m pip check
 """
 inputs = ["pyproject.toml"]
 
@@ -47,7 +47,7 @@ description = "Open Jupyter Lab in a browser"
 cmd = "jupyter lab --ContentsManager.allow_hidden=True"
 depends-on = ["pip-e"]
 
-[feature.test.tasks.test]
+[feature.test.tasks.test-unit]
 description = "Run unit tests"
 cmd = """
 pytest
@@ -141,18 +141,16 @@ depends-on = ["pip-e"]
 [feature.dist.tasks.build]
 description = "Build distribution files *.whl and *.tar.gz"
 cmd = """
-  rm -rf build/dist
-  && pyproject-build --outdir build/dist --no-isolation
-  && twine check build/dist/*
+  rm -rf build/dist &&
+  pyproject-build --outdir build/dist --no-isolation &&
+  twine check build/dist/*
   """
 inputs = ["{pyproject.toml,README.md,LICENSE.txt}", "src/jenn/**/*.py"]
 outputs = ["build/dist/*.{whl,tar.gz}"]
 
 [feature.dist.tasks.testpypi]
 description = "Mock release on testpypi"
-cmd = """
-python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi_jenn
-"""
+cmd = "python -m twine upload build/dist/* --verbose --skip-existing --repository testpypi_jenn"
 inputs = ["src/**/*.py"]
 depends-on = ["build"]
 
@@ -192,21 +190,21 @@ jsonpointer = "*"
 jsonschema = "*"
 orjson = "*"
 numpy = "*"
-matplotlib-base = "*"
+matplotlib = "*"
 
 [feature.notebooks.dependencies]
-matplotlib-base = "*"
+matplotlib = "*"
 
 [feature.lint.dependencies]
 lxml = "*"
 mypy = "*"
-nbmake = "*"
 nbstripout = "*"
 ruff = "*"
 taplo = "*"
 docformatter = "*"
 
 [feature.test.dependencies]
+nbmake = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-html = "*"
