@@ -18,9 +18,27 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-## v2.X.X (YYYY-MM-DD)
+## v2.0.1 (2026-07-17)
 
-<!-- TODO -->
+### Fix
+
+- Fixed off-by-one in `data.py` mini-batching that dropped the last mini-batch
+- Fixed `_safe_divide` in `data.py` mutating the caller's array (now uses `np.where`)
+- Fixed gradient-enhancement weight in `cost.py` (applied as `gamma`, not `gamma^3`)
+- Fixed backtracking line-search decay in `optimization.py` (now linear `tau`, not `tau^(2^i)`)
+- Fixed ADAM bias counter in `optimization.py` to use object identity instead of `id()`
+- Fixed invalid f-string format spec in `optimization.py` (`{y::.6f}` -> `{y:.6f}`)
+
+### Test
+
+- Fixed `test_model_forward` to call `model_forward` (was erroneously calling `partials_forward`)
+
+### Build
+
+- Split monolithic GitHub Actions workflow into separate `ci`, `docs`, and `release` workflows
+- Resolved CI lint failures from `ruff` 0.15 rule changes
+- Added `[tool.docformatter]` config (`wrap-summaries = 0`) to stop RST module-docstring headers from being collapsed into the summary line
+- Fixed multi-line `pixi` task commands (`test-unit`, `sphinx`, `fix-toml`) whose arguments were being split into separate shell commands by newlines
 
 ## v2.0.0 (2025-12-06)
 
