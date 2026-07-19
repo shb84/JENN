@@ -5,6 +5,7 @@ on:
   push:
     branches: ['*']
   pull_request:
+  workflow_call:  # allow release.yml to reuse these jobs as a gate
 
 jobs:
   lint:

@@ -6,7 +6,25 @@ on:
     tags: ['v*']
 
 jobs:
+  # Gate: run the full lint + test matrix (py39–py314) on the tagged commit.
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  # Gate: the pushed tag must match src/jenn/__init__.py's __version__.
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assert tag matches __version__
+        run: |
+          VERSION=$(grep -oP '__version__ = "\K[^"]+' src/jenn/__init__.py)
+          TAG=${GITHUB_REF_NAME#v}
+          echo "tag=$TAG __version__=$VERSION"
+          [ "$VERSION" = "$TAG" ] || { echo "::error::tag $TAG != __version__ $VERSION"; exit 1; }
+
   build-dist:
+    needs: [ci, check-version]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +38,13 @@ jobs:
       - name: Build distribution files
         run: pixi run -e dev build
 
+      - name: Smoke-test the built wheel
+        run: |
+          VER=${GITHUB_REF_NAME#v}
+          python3 -m venv /tmp/smoke
+          /tmp/smoke/bin/pip install ./build/dist/*.whl
+          /tmp/smoke/bin/python -c "import jenn; assert jenn.__version__ == '$VER', jenn.__version__; print('ok', jenn.__version__)"
+
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
@@ -31,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: testpypi
     permissions:
-      id-token: write
+      id-token: write  # Trusted Publishing (OIDC) — no API token
     steps:
       - name: Download dist artifact
         uses: actions/download-artifact@v4
@@ -45,15 +70,35 @@ jobs:
           verbose: true
           skip-existing: true
           repository-url: https://test.pypi.org/legacy/
-          user: __token__
-          password: ${{ secrets.TESTPYPI_TOKEN }}
+
+  # Gate: install the just-published package from TestPyPI and import it,
+  # before it can reach real PyPI. Runtime deps come from real PyPI; retry to
+  # absorb TestPyPI index-propagation lag.
+  smoke-testpypi:
+    needs: publish-testpypi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install from TestPyPI and import
+        run: |
+          VER=${GITHUB_REF_NAME#v}
+          for i in 1 2 3 4 5; do
+            pip install --index-url https://test.pypi.org/simple/ \
+                        --extra-index-url https://pypi.org/simple/ "jenn==$VER" && break
+            echo "attempt $i failed, retrying in 15s (TestPyPI index lag)…"
+            sleep 15
+          done
+          python -c "import jenn; assert jenn.__version__ == '$VER', jenn.__version__; print('ok', jenn.__version__)"
 
   publish-pypi:
-    needs: publish-testpypi
+    needs: smoke-testpypi
     runs-on: ubuntu-latest
     environment: pypi  # requires manual approval — configure in Settings → Environments
     permissions:
-      id-token: write
+      id-token: write  # Trusted Publishing (OIDC) — no API token
     steps:
       - name: Download dist artifact
         uses: actions/download-artifact@v4
@@ -66,8 +111,6 @@ jobs:
         with:
           verbose: true
           skip-existing: true
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
 
   github-release:
     needs: publish-pypi
@@ -76,6 +119,8 @@ jobs:
       contents: write
       id-token: write
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
@@ -89,6 +134,13 @@ jobs:
             ./dist/*.tar.gz
             ./dist/*.whl
 
+      - name: Extract release notes from CHANGELOG
+        run: |
+          awk -v ver="${GITHUB_REF_NAME#v}" '
+            $0 ~ "^## v"ver {flag=1; next} flag && /^## / {exit} flag {print}
+          ' CHANGELOG.md > release-notes.md
+          echo "--- release notes ---"; cat release-notes.md
+
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -96,7 +148,7 @@ jobs:
           gh release create
           '${{ github.ref_name }}'
           --repo '${{ github.repository }}'
-          --notes ""
+          --notes-file release-notes.md
 
       - name: Upload signatures to GitHub Release
         env:

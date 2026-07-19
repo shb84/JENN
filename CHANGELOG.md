@@ -63,6 +63,14 @@ build: Changes to the build process or tools.
 - Resolved CI lint failures from `ruff` 0.15 rule changes
 - Added `[tool.docformatter]` config (`wrap-summaries = 0`) to stop RST module-docstring headers from being collapsed into the summary line
 - Fixed multi-line `pixi` task commands (`test-unit`, `sphinx`, `fix-toml`) whose arguments were being split into separate shell commands by newlines
+- Hardened the `release` workflow: gate on the full CI matrix (via `ci.yml`
+  `workflow_call`) and a tag/`__version__` consistency check before any publish
+- Added a local-wheel smoke test (install + import in a clean venv) in `build-dist`,
+  plus a TestPyPI round-trip install/import gate before the PyPI publish
+- Switched PyPI/TestPyPI publishing to Trusted Publishing (OIDC), removing stored
+  API tokens
+- Release notes are now populated automatically from `CHANGELOG.md` instead of
+  being empty
 
 ## v2.0.0 (2025-12-06)
 

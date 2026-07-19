@@ -47,9 +47,25 @@ pixi run lab
 
 A new release is created by pushing a new tag to the remote (e.g. `v1.0.9`). This triggers a __test-build-deploy__ workflow that publishes to `pypi.org`, `GitHub Pages` and `Github Release`. Tag pattern must be `v*`.
 
+Before anything is published, the release pipeline runs two gates on the tagged commit:
+
+- the **full CI matrix** (lint + unit tests on py39–py314, reused from `ci.yml`), and
+- a **tag/version check** — the tag (minus its `v`) must equal `__version__` in
+  `src/jenn/__init__.py`, or the release fails fast.
+
+It then publishes to TestPyPI and **smoke-installs the package from TestPyPI and imports it**
+before the real PyPI publish. The PyPI publish sits behind the `pypi` GitHub Environment's
+manual-approval gate. GitHub Release notes are filled automatically from the matching
+`## v<version>` section of `CHANGELOG.md`.
+
 ### Prerequisites
 
-Either [pypi](https://pypi.org/) and [testpypi](https://test.pypi.org/) need to be setup for [trusted publishing](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/) or Github must be provided an [API token](https://pypi.org/help/#apitoken) to enable communication between these servers. Currently, the latter is used.
+Both [pypi](https://pypi.org/) and [testpypi](https://test.pypi.org/) are configured for
+[trusted publishing](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
+(OIDC) — no API tokens are stored. Each trusted publisher is bound to this repo, the
+`release.yml` workflow, and the matching GitHub Environment (`pypi` / `testpypi`); the
+environment name in the publisher config must exactly match the `environment:` on the
+corresponding job.
 
 ### Mock Release
 
