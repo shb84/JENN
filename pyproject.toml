@@ -14,6 +14,12 @@ classifiers = [
 ]
 dependencies = ["jsonpointer", "jsonschema", "orjson", "numpy", "matplotlib"]
 
+[project.optional-dependencies]
+mcp = ["mcp>=1.2"]
+
+[project.scripts]
+jenn-mcp = "jenn.mcp.server:main"
+
 [project.urls]
 Documentation = "https://shb84.github.io/JENN/"
 Homepage = "https://github.com/shb84/JENN"
