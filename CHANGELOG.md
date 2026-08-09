@@ -18,6 +18,21 @@ build: Changes to the build process or tools.
 
 # Changelog
 
+## Unreleased
+
+### Feat
+
+- Added an optional MCP server (`pip install "jenn[mcp]"`, Python >= 3.10)
+  exposing `train`, `evaluate`, `export`, and `list_models` tools plus a
+  `surrogate_workflow` prompt over stdio, so an agent can build and validate a
+  JENN surrogate end-to-end. Launch with `jenn-mcp` or `python -m jenn.mcp`.
+
+### Fix
+
+- Fixed `rsquare` in `post_processing/metrics.py` to handle multi-output
+  (`n_y > 1`) and 3-D Jacobian arrays via `keepdims` on the mean; it previously
+  raised a broadcasting `ValueError` for both.
+
 ## v2.0.1 (2026-07-17)
 
 ### Fix
