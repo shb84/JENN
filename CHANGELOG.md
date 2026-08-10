@@ -33,6 +33,13 @@ build: Changes to the build process or tools.
   (`n_y > 1`) and 3-D Jacobian arrays via `keepdims` on the mean; it previously
   raised a broadcasting `ValueError` for both.
 
+### Docs
+
+- Added a version-controlled `CLAUDE.md` capturing repo conventions and
+  architecture for AI-assisted development.
+- Added a README note on the project's history and its approach to AI-assisted
+  development.
+
 ## v2.0.1 (2026-07-17)
 
 ### Fix

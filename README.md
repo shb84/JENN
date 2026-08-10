@@ -199,6 +199,15 @@ is not excessive in the first place (e.g. adjoint methods), or if the need for a
 computing the partials. Users should therefore carefully weigh the benefit of 
 gradient-enhanced methods relative to the needs of their application. 
 
+# A Note on AI-Assisted Development
+
+JENN began in 2018, well before today's generation of AI coding tools, and its
+foundation is hand-derived neural-network mathematics rather than generated code.
+We recognize how capable AI has since become, and we leverage it judiciously and
+under human oversight — applying it where it genuinely improves the project, not
+as a substitute for understanding it. Every change, whatever its source, is held
+to the same standard of review.
+
 # License
 Distributed under the terms of the MIT License.
 
