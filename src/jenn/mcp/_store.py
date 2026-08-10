@@ -1,9 +1,10 @@
 """Model registry.
 ==================
 
-In-memory store mapping opaque handles to trained models plus the metadata
-needed to evaluate and export them. The stdio server is a single long-lived
-process, so a module-level registry persists across tool calls.
+In-memory store mapping opaque handles to trained models plus the
+metadata needed to evaluate and export them. The stdio server is a
+single long-lived process, so a module-level registry persists across
+tool calls.
 """
 
 # Copyright (C) 2018 Steven H. Berguin

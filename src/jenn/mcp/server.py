@@ -199,8 +199,9 @@ def evaluate(
 ) -> dict[str, Any]:
     """Score a trained model on held-out data, or on its training data.
 
-    Pass both x and y (row-per-sample) for held-out metrics; pass neither to
-    score the data the model was trained on. dydx is optional in both cases.
+    Pass both x and y (row-per-sample) for held-out metrics; pass
+    neither to score the data the model was trained on. dydx is optional
+    in both cases.
     """
     record = _REGISTRY.get(model_id)  # raises KeyError on unknown id
 
@@ -240,8 +241,8 @@ def evaluate(
 def export(model_id: str, path: str | None = None) -> dict[str, Any]:
     """Save a trained model to JENN's native parameters JSON, reloadable via load.
 
-    Returns the absolute file path and the JSON contents. Reload later with
-    jenn.NeuralNet.load(path).
+    Returns the absolute file path and the JSON contents. Reload later
+    with jenn.NeuralNet.load(path).
     """
     record = _REGISTRY.get(model_id)  # raises KeyError on unknown id
     target = Path(path) if path else Path(f"jenn_{model_id}.json")
@@ -261,9 +262,9 @@ def export(model_id: str, path: str | None = None) -> dict[str, Any]:
 def list_models() -> dict[str, Any]:
     """List the trained models currently held in this server session.
 
-    Returns lightweight metadata only (no training data or weights) so the
-    agent can pick and compare runs cheaply; the heavy arrays stay server-side,
-    referenced by model_id.
+    Returns lightweight metadata only (no training data or weights) so
+    the agent can pick and compare runs cheaply; the heavy arrays stay
+    server-side, referenced by model_id.
     """
     models = [
         {
