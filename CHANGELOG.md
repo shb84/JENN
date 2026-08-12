@@ -71,6 +71,7 @@ build: Changes to the build process or tools.
 - Added a `notebooks.yml` workflow that runs the (slow) notebook tests only on
   push to `master`, so they gate merges into main without running on every
   branch commit or pull request.
+- Ignore editor-local `.vscode/` (alongside the existing `.idea/` entry).
 
 ## v2.0.1 (2026-07-17)
 
