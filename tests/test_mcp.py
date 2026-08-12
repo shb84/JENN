@@ -191,3 +191,62 @@ def test_ingest_npz_roundtrip(tmp_path):
 
     out = server.train(dataset_id=ing["dataset_id"], max_iter=20, random_state=0)
     assert np.isfinite(out["training_metrics"]["partials"]["r2_min"])
+
+
+def test_jenn_root_env(tmp_path, monkeypatch):
+    """`_jenn_root` honors $JENN_DIR and falls back to the CWD."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path))
+    assert server._jenn_root() == tmp_path.resolve()  # ruff:ignore[private-member-access]
+    monkeypatch.delenv("JENN_DIR", raising=False)
+    assert server._jenn_root() == Path.cwd().resolve()  # ruff:ignore[private-member-access]
+
+
+def test_scan_files_discovers_data_and_models(tmp_path):
+    """_scan_files lists CSV/NPZ data + exported models, skipping other files."""
+    # comma CSV at the root
+    (tmp_path / "a.csv").write_text("u,v,w\n1,2,3\n4,5,6\n")
+    # ;-delimited CSV nested in a subdirectory (recursion + delimiter sniff)
+    nested = tmp_path / "sub"
+    nested.mkdir()
+    (nested / "b.csv").write_text("p;q\n1;2\n3;4\n")
+    # NPZ with named arrays
+    np.savez(
+        tmp_path / "c.npz",
+        x=np.zeros((2, 3)),
+        y=np.zeros((1, 3)),
+        dydx=np.zeros((1, 2, 3)),
+    )
+    # a real exported JENN model, plus files that must be ignored
+    rows, _ = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[8], max_iter=5, random_state=0)[
+        "model_id"
+    ]
+    server.export(mid, path=str(tmp_path / "model.json"))
+    (tmp_path / "other.json").write_text('{"hello": 1}')  # not a JENN model
+    (tmp_path / "notes.txt").write_text("ignore me")
+
+    result = server._scan_files(tmp_path)  # ruff:ignore[private-member-access]
+    by_name = {entry["name"]: entry for entry in result["files"]}
+
+    # The non-JENN JSON and the .txt are excluded.
+    assert result["count"] == 4
+    assert "other.json" not in by_name
+    assert "notes.txt" not in by_name
+
+    # CSV: columns + correctly sniffed delimiter; nested file found via recursion.
+    assert by_name["a.csv"]["columns"] == ["u", "v", "w"]
+    assert by_name["a.csv"]["delimiter"] == ","
+    nested_name = str(Path("sub") / "b.csv")
+    assert by_name[nested_name]["delimiter"] == ";"
+
+    # NPZ lists its array names; model reports its architecture.
+    assert by_name["c.npz"]["arrays"] == ["x", "y", "dydx"]
+    assert by_name["model.json"]["kind"] == "model"
+    assert by_name["model.json"]["layer_sizes"]
+
+
+def test_scan_files_reads_fixture_columns():
+    """The committed CSV fixture surfaces its column names for discovery."""
+    result = server._scan_files(DATA)  # ruff:ignore[private-member-access]
+    fixture = next(f for f in result["files"] if f["name"] == "rastrigin.csv")
+    assert fixture["columns"] == ["x1", "x2", "y", "slope_wrt_x1"]

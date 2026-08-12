@@ -8,7 +8,9 @@ FastMCP server exposing JENN surrogate-modeling tools over stdio.
 # This work is licensed under the MIT License.
 from __future__ import annotations
 
+import csv
 import json
+import os
 import time
 from pathlib import Path
 from typing import Any
@@ -580,11 +582,107 @@ def list_datasets() -> dict[str, Any]:
     return {"count": len(datasets), "datasets": datasets}
 
 
+def _jenn_root() -> Path:
+    """Directory scanned for JENN files: ``$JENN_DIR``, else the CWD."""
+    return Path(os.environ.get("JENN_DIR", ".")).expanduser().resolve()
+
+
+def _jenn_model_info(path: Path) -> dict[str, Any] | None:
+    """Return ``{'layer_sizes': ...}`` if ``path`` is a JENN model JSON, else None."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return None
+    if isinstance(data, dict) and {"layer_sizes", "W", "b"} <= data.keys():
+        return {"layer_sizes": data.get("layer_sizes")}
+    return None
+
+
+def _csv_header(path: Path) -> tuple[list[str], str]:
+    """Read a CSV's header names and guess its delimiter (for discovery only)."""
+    with path.open(newline="", encoding="utf-8", errors="replace") as file:
+        first = file.readline()
+    try:
+        delimiter = csv.Sniffer().sniff(first, delimiters=",;\t").delimiter
+    except csv.Error:
+        delimiter = ","
+    header = next(csv.reader([first], delimiter=delimiter), [])
+    return [name.strip() for name in header], delimiter
+
+
+def _file_details(path: Path, suffix: str) -> dict[str, Any] | None:
+    """Format-specific metadata for a file, or None if it is not JENN-relevant."""
+    if suffix == ".csv":
+        columns, delimiter = _csv_header(path)
+        return {
+            "kind": "data",
+            "format": "csv",
+            "columns": columns,
+            "delimiter": delimiter,
+        }
+    if suffix == ".npz":
+        with np.load(path) as archive:  # lazy: reads the zip index, not the arrays
+            arrays = list(archive.files)
+        return {"kind": "data", "format": "npz", "arrays": arrays}
+    if suffix == ".json":
+        info = _jenn_model_info(path)  # None for non-JENN JSON -> skipped
+        return (
+            None if info is None else {"kind": "model", "format": "jenn-model", **info}
+        )
+    return None
+
+
+def _file_entry(path: Path, root: Path) -> dict[str, Any] | None:
+    """Describe one discoverable file, or None if it is not JENN-relevant."""
+    suffix = path.suffix.lower()
+    if suffix not in {".csv", ".npz", ".json"}:
+        return None
+    entry: dict[str, Any] = {
+        "path": str(path),
+        "name": str(path.relative_to(root)),
+        "size_bytes": path.stat().st_size,
+    }
+    try:
+        details = _file_details(path, suffix)
+    except (ValueError, OSError) as err:  # one bad file must not sink the listing
+        return {**entry, "format": suffix.lstrip("."), "error": str(err)}
+    if details is None:
+        return None
+    return {**entry, **details}
+
+
+def _scan_files(root: Path) -> dict[str, Any]:
+    """List JENN-relevant files (CSV/NPZ data + exported model JSON) under root."""
+    files: list[dict[str, Any]] = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
+            continue
+        entry = _file_entry(path, root)
+        if entry is not None:
+            files.append(entry)
+    return {"root": str(root), "count": len(files), "files": files}
+
+
+@mcp.resource(
+    "jenn://files",
+    name="jenn-files",
+    description=(
+        "Local JENN files under $JENN_DIR (or the server CWD): CSV/NPZ data files "
+        "to ingest, and exported model JSONs to load."
+    ),
+    mime_type="application/json",
+)
+def files() -> dict[str, Any]:
+    """List local JENN data and model files to reference by path."""
+    return _scan_files(_jenn_root())
+
+
 WORKFLOW = """\
 Build a validated JENN surrogate:
-0. If the data is in a file, call `ingest` (map input/output columns and any
-   available derivative columns) and train from the returned `dataset_id`; note
-   which partials it reports as missing (they are gamma-masked to 0).
+0. Discover local files with the `jenn://files` resource (CSV/NPZ data + exported
+   models). If the data is in a file, call `ingest` (map input/output columns and
+   any available derivative columns) and train from the returned `dataset_id`;
+   note which partials it reports as missing (they are gamma-masked to 0).
 1. Infer a modest architecture from the data (few samples -> small net).
 2. Call `train`; read `training_metrics` (value vs. per-partial R²).
 3. GUARD: one run is stochastic. Re-run `train` with a different `random_state`

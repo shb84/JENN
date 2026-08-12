@@ -38,6 +38,11 @@ build: Changes to the build process or tools.
   large arrays off the agent's context, and `train`'s `gamma` accepts per-partial
   overrides (e.g. `[{"output": "Cd", "input": "alpha", "weight": 3.0}]`) on a
   named dataset.
+- Added a `jenn://files` MCP resource that lists local JENN files under
+  `$JENN_DIR` (or the server's working directory): CSV/NPZ data files (with
+  columns / array names) to `ingest`, and exported model JSONs (with
+  `layer_sizes`) to load — so a user can discover files by reference instead of
+  pasting paths.
 
 ### Fix
 
