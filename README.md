@@ -45,6 +45,10 @@ If you use JENN in a scientific publication, please consider citing it:
 
     pip install jenn 
 
+For the optional agent integration (MCP server), which requires Python >= 3.10:  
+
+    pip install "jenn[mcp]"
+
 # Example Usage
 
 _See [demo](./docs/examples/) notebooks for more details_
@@ -132,6 +136,46 @@ Show sensitivity profiles:
         ylabels=['y'],
     )
 
+# MCP Server
+
+JENN ships an optional [Model Context Protocol](https://modelcontextprotocol.io)
+server so an AI agent (e.g. Claude Code) can build and validate a surrogate model
+end-to-end — from data (with optional partials) to a portable artifact — without
+writing a training script by hand.
+
+Install the extra (Python >= 3.10) and register the local stdio server:
+
+    pip install "jenn[mcp]"
+    claude mcp add --transport stdio jenn -- jenn-mcp
+
+Add `--scope user` to make it available across all your projects; you can also
+launch it directly with `jenn-mcp` or `python -m jenn.mcp`. Contributors working
+from a clone get the server automatically via the checked-in `.mcp.json` (approve
+it once when prompted).
+
+The server exposes four tools and one prompt:
+
+| Tool | Purpose |
+|---|---|
+| `train` | Fit a surrogate from `x`, `y`, and optional partials `dydx`; returns a `model_id` and training metrics. |
+| `evaluate` | Score a model on held-out data (or its training data): response and partials R², RMSE, and max error. |
+| `export` | Save a model to JENN's native JSON, reloadable with `jenn.NeuralNet.load`. |
+| `list_models` | List the models held in the current session. |
+
+The `surrogate_workflow` prompt walks an agent through the full recipe. The tools
+are thin wrappers over `NeuralNet.fit`, so the agent owns architecture and
+hyperparameter search. Because a single training run is stochastic, the tools
+advise re-running with a different seed and evaluating on held-out data before
+acting on a diagnosis.
+
+Data is passed **row-per-sample** (one row per training point): `x` has shape
+`(m, n_x)`, `y` has shape `(m, n_y)`, and `dydx` has shape `(m, n_y, n_x)`. This
+is a deliberate departure from JENN's core API, which is feature-first (samples
+along the last axis, e.g. `x` of shape `(n_x, m)`): the MCP boundary adopts the
+row-is-a-sample convention that agents and tabular data most naturally produce,
+and transposes internally — so the difference is intentional, not an
+inconsistency.
+
 # Use Case
 
 JENN is intended for the field of computer aided design, where there is often 
@@ -154,6 +198,15 @@ but they are only beneficial if the cost of obtaining partials
 is not excessive in the first place (e.g. adjoint methods), or if the need for accuracy outweighs the cost of 
 computing the partials. Users should therefore carefully weigh the benefit of 
 gradient-enhanced methods relative to the needs of their application. 
+
+# A Note on AI-Assisted Development
+
+JENN began in 2018, well before today's generation of AI coding tools, and its
+foundation is hand-derived neural-network mathematics rather than generated code.
+We recognize how capable AI has since become, and we leverage it judiciously and
+under human oversight — applying it where it genuinely improves the project, not
+as a substitute for understanding it. Every change, whatever its source, is held
+to the same standard of review.
 
 # License
 Distributed under the terms of the MIT License.

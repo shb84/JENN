@@ -182,6 +182,9 @@ orjson = "*"
 numpy = "*"
 matplotlib = "*"
 
+[feature.mcp.pypi-dependencies]
+mcp = ">=1.2"
+
 [feature.notebooks.dependencies]
 matplotlib = "*"
 
@@ -211,6 +214,7 @@ twine = "*"
 setuptools = "*"
 pip = "*"
 
+
 ################
 # Environments #
 ################
@@ -224,6 +228,7 @@ dev = { solve-group = "jenn", features = [
   "test",
   "docs",
   "dist",
+  "mcp",
   "python",
 ] }
 

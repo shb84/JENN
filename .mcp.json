@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "jenn": {
+      "command": "pixi",
+      "args": ["run", "-e", "dev", "jenn-mcp"]
+    }
+  }
+}
