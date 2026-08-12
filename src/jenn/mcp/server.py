@@ -34,6 +34,11 @@ except ModuleNotFoundError as err:  # pragma: no cover
     raise ModuleNotFoundError(msg) from err
 
 
+# ----------------------------------------------------------
+# --- SERVER SETUP -----------------------------------------
+# ----------------------------------------------------------
+
+
 _MODELS: Registry[ModelRecord] = Registry()
 _DATASETS: Registry[DatasetRecord] = Registry()
 
@@ -56,6 +61,11 @@ def ping() -> str:
 def main() -> None:
     """Run the server over stdio (blocks until the client disconnects)."""
     mcp.run()
+
+
+# ----------------------------------------------------------
+# --- SHARED HELPERS ---------------------------------------
+# ----------------------------------------------------------
 
 
 def _label(names: list[str] | None, index: int) -> str | int:
@@ -225,6 +235,11 @@ def _effective_gamma(
     if mask is None:
         return float(gamma)  # inline dense data -> unchanged scalar behavior
     return (mask * float(gamma))[:, :, None]
+
+
+# ----------------------------------------------------------
+# --- TRAINING AND EVALUATION ------------------------------
+# ----------------------------------------------------------
 
 
 GUIDANCE_TRAIN = (
@@ -467,6 +482,11 @@ def list_models() -> dict[str, Any]:
     return {"count": len(models), "models": models}
 
 
+# ----------------------------------------------------------
+# --- DATA INGESTION ---------------------------------------
+# ----------------------------------------------------------
+
+
 @mcp.tool()
 def ingest(
     path: str,
@@ -582,6 +602,11 @@ def list_datasets() -> dict[str, Any]:
     return {"count": len(datasets), "datasets": datasets}
 
 
+# ----------------------------------------------------------
+# --- RESOURCES --------------------------------------------
+# ----------------------------------------------------------
+
+
 def _jenn_root() -> Path:
     """Directory scanned for JENN files: ``$JENN_DIR``, else the CWD."""
     return Path(os.environ.get("JENN_DIR", ".")).expanduser().resolve()
@@ -675,6 +700,11 @@ def _scan_files(root: Path) -> dict[str, Any]:
 def files() -> dict[str, Any]:
     """List local JENN data and model files to reference by path."""
     return _scan_files(_jenn_root())
+
+
+# ----------------------------------------------------------
+# --- PROMPTS ----------------------------------------------
+# ----------------------------------------------------------
 
 
 WORKFLOW = """\
