@@ -26,6 +26,18 @@ build: Changes to the build process or tools.
   exposing `train`, `evaluate`, `export`, and `list_models` tools plus a
   `surrogate_workflow` prompt over stdio, so an agent can build and validate a
   JENN surrogate end-to-end. Launch with `jenn-mcp` or `python -m jenn.mcp`.
+- Added `jenn.utilities.load_csv` and `jenn.utilities.load_npz` to read training
+  data (inputs, outputs, and optionally partial derivatives) from a file into
+  the feature-first arrays JENN expects. CSV uses an explicit column-role
+  mapping; both build the Jacobian *availability* mask, so an incomplete
+  Jacobian (only some partials present) is handled by weighting the missing ones
+  with `gamma = 0` — no hand-assembly of arrays or masks.
+- Extended the MCP server with an `ingest` tool (load a CSV/NPZ file into a
+  server-side dataset and report which partials are present vs. missing) and a
+  `list_datasets` tool. `train`/`evaluate` now accept a `dataset_id`, keeping
+  large arrays off the agent's context, and `train`'s `gamma` accepts per-partial
+  overrides (e.g. `[{"output": "Cd", "input": "alpha", "weight": 3.0}]`) on a
+  named dataset.
 
 ### Fix
 
