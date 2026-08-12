@@ -56,6 +56,21 @@ build: Changes to the build process or tools.
   architecture for AI-assisted development.
 - Added a README note on the project's history and its approach to AI-assisted
   development.
+- Example notebooks now load their data with `jenn.utilities.load_csv`, and the
+  airfoil demo's two data files (`cd_x_y.csv` + `cd_dy.csv`) are combined into a
+  single `cd.csv`.
+- Modernized `jmp.ipynb` and `quickstart.ipynb` to the current API (they still
+  used the pre-`v2.0.0` `jenn.utils` / `.evaluate` / `r_square`), so they run
+  again. Fixed `demo_4_rosenbrock.ipynb` to pass scalar coordinates to
+  matplotlib's `annotate` (size-1 arrays now raise under current NumPy).
+
+### Build
+
+- Notebook tests (`test-nb`) now also cover the `docs/examples/*.ipynb`
+  notebooks, previously only `notebooks/*.ipynb`.
+- Added a `notebooks.yml` workflow that runs the (slow) notebook tests only on
+  push to `master`, so they gate merges into main without running on every
+  branch commit or pull request.
 
 ## v2.0.1 (2026-07-17)
 
