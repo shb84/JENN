@@ -26,6 +26,23 @@ build: Changes to the build process or tools.
   exposing `train`, `evaluate`, `export`, and `list_models` tools plus a
   `surrogate_workflow` prompt over stdio, so an agent can build and validate a
   JENN surrogate end-to-end. Launch with `jenn-mcp` or `python -m jenn.mcp`.
+- Added `jenn.utilities.load_csv` and `jenn.utilities.load_npz` to read training
+  data (inputs, outputs, and optionally partial derivatives) from a file into
+  the feature-first arrays JENN expects. CSV uses an explicit column-role
+  mapping; both build the Jacobian *availability* mask, so an incomplete
+  Jacobian (only some partials present) is handled by weighting the missing ones
+  with `gamma = 0` — no hand-assembly of arrays or masks.
+- Extended the MCP server with an `ingest` tool (load a CSV/NPZ file into a
+  server-side dataset and report which partials are present vs. missing) and a
+  `list_datasets` tool. `train`/`evaluate` now accept a `dataset_id`, keeping
+  large arrays off the agent's context, and `train`'s `gamma` accepts per-partial
+  overrides (e.g. `[{"output": "Cd", "input": "alpha", "weight": 3.0}]`) on a
+  named dataset.
+- Added a `jenn://files` MCP resource that lists local JENN files under
+  `$JENN_DIR` (or the server's working directory): CSV/NPZ data files (with
+  columns / array names) to `ingest`, and exported model JSONs (with
+  `layer_sizes`) to load — so a user can discover files by reference instead of
+  pasting paths.
 
 ### Fix
 
@@ -39,6 +56,22 @@ build: Changes to the build process or tools.
   architecture for AI-assisted development.
 - Added a README note on the project's history and its approach to AI-assisted
   development.
+- Example notebooks now load their data with `jenn.utilities.load_csv`, and the
+  airfoil demo's two data files (`cd_x_y.csv` + `cd_dy.csv`) are combined into a
+  single `cd.csv`.
+- Modernized `jmp.ipynb` and `quickstart.ipynb` to the current API (they still
+  used the pre-`v2.0.0` `jenn.utils` / `.evaluate` / `r_square`), so they run
+  again. Fixed `demo_4_rosenbrock.ipynb` to pass scalar coordinates to
+  matplotlib's `annotate` (size-1 arrays now raise under current NumPy).
+
+### Build
+
+- Notebook tests (`test-nb`) now also cover the `docs/examples/*.ipynb`
+  notebooks, previously only `notebooks/*.ipynb`.
+- Added a `notebooks.yml` workflow that runs the (slow) notebook tests only on
+  push to `master`, so they gate merges into main without running on every
+  branch commit or pull request.
+- Ignore editor-local `.vscode/` (alongside the existing `.idea/` entry).
 
 ## v2.0.1 (2026-07-17)
 

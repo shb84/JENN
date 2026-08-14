@@ -4,6 +4,8 @@
 # This work is licensed under the MIT License.
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -13,6 +15,8 @@ from jenn.synthetic_data import rastrigin
 pytest.importorskip("mcp")  # skip this whole module if the mcp extra isn't installed
 
 from jenn.mcp import server  # import after the importorskip guard above
+
+DATA = Path(__file__).parent / "data"
 
 
 def _rastrigin_rows(m_levels: int = 10):
@@ -54,7 +58,7 @@ def test_train_evaluate_export_roundtrip(
     res = server.export(out["model_id"], path=str(path))
     assert path.exists()
     reloaded = jenn.NeuralNet.load(res["path"])
-    original = server._REGISTRY.get(out["model_id"]).model  # ruff:ignore[private-member-access]
+    original = server._MODELS.get(out["model_id"]).model  # ruff:ignore[private-member-access]
     assert np.allclose(reloaded.predict(x), original.predict(x))
 
 
@@ -86,3 +90,163 @@ def test_convert_error_paths():
     # Jacobian says n_x=3 but x has n_x=2 -> shape mismatch.
     with pytest.raises(ValueError, match="does not match"):
         server.prepare_training_data([[0.0, 0.0]], [[0.0]], [[[0.0, 0.0, 0.0]]])
+
+
+def _ingest_rastrigin():
+    """Ingest the CSV fixture with only d(y)/d(x1) present (x2 partial absent)."""
+    return server.ingest(
+        str(DATA / "rastrigin.csv"),
+        inputs=["x1", "x2"],
+        outputs=["y"],
+        derivatives=[{"output": "y", "input": "x1", "column": "slope_wrt_x1"}],
+    )
+
+
+def test_ingest_partial_mask_and_train():
+    """Ingest reports the missing partial; train masks it without NaNs."""
+    ing = _ingest_rastrigin()
+    assert ing["partials_available"] == [["y", "x1"]]
+    assert ing["partials_missing"] == [["y", "x2"]]
+    assert ing["n_samples"] == 100
+
+    out = server.train(
+        dataset_id=ing["dataset_id"],
+        hidden_layers=[12],
+        max_iter=100,
+        random_state=0,
+    )
+    assert out["dataset_id"] == ing["dataset_id"]
+    partials = out["training_metrics"]["partials"]
+    # The absent partial is reported as ignored, never scored.
+    assert partials["ignored"] == [{"output": "y", "input": "x2"}]
+    assert len(partials["available"]) == 1
+    # The mask nullifies the placeholder without poisoning the loss (no NaN).
+    assert np.isfinite(partials["available"][0]["r2"])
+    assert partials["r2_min"] is not None
+    assert np.isfinite(partials["r2_min"])
+
+
+def test_dataset_id_round_trip_and_mutual_exclusivity():
+    """train/evaluate by dataset_id; passing both id and inline arrays errors."""
+    ing = _ingest_rastrigin()
+    out = server.train(dataset_id=ing["dataset_id"], hidden_layers=[12], max_iter=50)
+
+    ev = server.evaluate(out["model_id"], dataset_id=ing["dataset_id"])
+    assert ev["dataset"] == f"dataset:{ing['dataset_id']}"
+    assert ev["metrics"]["partials"]["ignored"] == [{"output": "y", "input": "x2"}]
+
+    # dataset_id + inline arrays together is ambiguous -> error.
+    with pytest.raises(ValueError, match="not both"):
+        server.train(x=[[0.0, 0.0]], y=[[0.0]], dataset_id=ing["dataset_id"])
+
+    # list_datasets exposes the ingested dataset's metadata.
+    listed = server.list_datasets()
+    ids = [d["dataset_id"] for d in listed["datasets"]]
+    assert ing["dataset_id"] in ids
+    entry = next(d for d in listed["datasets"] if d["dataset_id"] == ing["dataset_id"])
+    assert entry["has_partials"] is True
+    assert entry["partials_missing"] == [["y", "x2"]]
+
+
+def test_named_gamma_override():
+    """Per-partial gamma overrides need a named dataset; inline data is rejected."""
+    ing = _ingest_rastrigin()
+    # Valid: boost the one available partial on a named dataset.
+    out = server.train(
+        dataset_id=ing["dataset_id"],
+        hidden_layers=[12],
+        max_iter=50,
+        random_state=0,
+        gamma=[{"output": "y", "input": "x1", "weight": 3.0}],
+    )
+    assert out["hyperparameters"]["gamma"] == [
+        {"output": "y", "input": "x1", "weight": 3.0},
+    ]
+
+    # Same override on inline (nameless) data -> error.
+    with pytest.raises(ValueError, match="require a dataset ingested with"):
+        server.train(
+            x=[[0.0, 0.0]],
+            y=[[0.0]],
+            dydx=[[[0.1, 0.2]]],
+            gamma=[{"output": "y", "input": "x1", "weight": 3.0}],
+        )
+
+
+def test_ingest_npz_roundtrip(tmp_path):
+    """NPZ ingest with an all-NaN partial layer -> masked, finite, trainable."""
+    rng = np.random.default_rng(0)
+    x = rng.random((2, 20))
+    y = rng.random((1, 20))
+    dydx = rng.random((1, 2, 20))
+    dydx[0, 1, :] = np.nan  # d(y)/d(x2) absent
+    path = tmp_path / "data.npz"
+    np.savez(path, x=x, y=y, dydx=dydx)
+
+    ing = server.ingest(str(path))
+    assert ing["source"].startswith("npz:")
+    # No column names for NPZ -> partials are labelled positionally.
+    assert ing["partials_available"] == [[0, 0]]
+    assert ing["partials_missing"] == [[0, 1]]
+
+    out = server.train(dataset_id=ing["dataset_id"], max_iter=20, random_state=0)
+    assert np.isfinite(out["training_metrics"]["partials"]["r2_min"])
+
+
+def test_jenn_root_env(tmp_path, monkeypatch):
+    """`_jenn_root` honors $JENN_DIR and falls back to the CWD."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path))
+    assert server._jenn_root() == tmp_path.resolve()  # ruff:ignore[private-member-access]
+    monkeypatch.delenv("JENN_DIR", raising=False)
+    assert server._jenn_root() == Path.cwd().resolve()  # ruff:ignore[private-member-access]
+
+
+def test_scan_files_discovers_data_and_models(tmp_path):
+    """_scan_files lists CSV/NPZ data + exported models, skipping other files."""
+    # comma CSV at the root
+    (tmp_path / "a.csv").write_text("u,v,w\n1,2,3\n4,5,6\n")
+    # ;-delimited CSV nested in a subdirectory (recursion + delimiter sniff)
+    nested = tmp_path / "sub"
+    nested.mkdir()
+    (nested / "b.csv").write_text("p;q\n1;2\n3;4\n")
+    # NPZ with named arrays
+    np.savez(
+        tmp_path / "c.npz",
+        x=np.zeros((2, 3)),
+        y=np.zeros((1, 3)),
+        dydx=np.zeros((1, 2, 3)),
+    )
+    # a real exported JENN model, plus files that must be ignored
+    rows, _ = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[8], max_iter=5, random_state=0)[
+        "model_id"
+    ]
+    server.export(mid, path=str(tmp_path / "model.json"))
+    (tmp_path / "other.json").write_text('{"hello": 1}')  # not a JENN model
+    (tmp_path / "notes.txt").write_text("ignore me")
+
+    result = server._scan_files(tmp_path)  # ruff:ignore[private-member-access]
+    by_name = {entry["name"]: entry for entry in result["files"]}
+
+    # The non-JENN JSON and the .txt are excluded.
+    assert result["count"] == 4
+    assert "other.json" not in by_name
+    assert "notes.txt" not in by_name
+
+    # CSV: columns + correctly sniffed delimiter; nested file found via recursion.
+    assert by_name["a.csv"]["columns"] == ["u", "v", "w"]
+    assert by_name["a.csv"]["delimiter"] == ","
+    nested_name = str(Path("sub") / "b.csv")
+    assert by_name[nested_name]["delimiter"] == ";"
+
+    # NPZ lists its array names; model reports its architecture.
+    assert by_name["c.npz"]["arrays"] == ["x", "y", "dydx"]
+    assert by_name["model.json"]["kind"] == "model"
+    assert by_name["model.json"]["layer_sizes"]
+
+
+def test_scan_files_reads_fixture_columns():
+    """The committed CSV fixture surfaces its column names for discovery."""
+    result = server._scan_files(DATA)  # ruff:ignore[private-member-access]
+    fixture = next(f for f in result["files"] if f["name"] == "rastrigin.csv")
+    assert fixture["columns"] == ["x1", "x2", "y", "slope_wrt_x1"]
