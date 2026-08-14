@@ -167,8 +167,8 @@ def _resolve_dataset(
 ]:
     """Resolve either a ``dataset_id`` or inline arrays to feature-first data.
 
-    :return: ``(x, y, dydx, mask, input_names, output_names)``. ``mask`` and the
-        names are ``None`` for inline (positional) data.
+    :return:``(x, y, dydx, mask, input_names, output_names)``. ``mask``
+        and the names are ``None`` for inline (positional) data.
     """
     if dataset_id is not None:
         if x is not None or y is not None or dydx is not None:
@@ -201,9 +201,10 @@ def _effective_gamma(
     """Combine the availability mask with the requested per-partial scale.
 
     Scalar ``gamma`` on inline data passes straight through (backward
-    compatible). With an availability ``mask``, the result is
-    ``(mask * scale)`` shaped ``(n_y, n_x, 1)`` so it broadcasts over samples;
-    availability always wins (a scale can never resurrect an absent partial).
+    compatible). With an availability ``mask``, the result is ``(mask *
+    scale)`` shaped ``(n_y, n_x, 1)`` so it broadcasts over samples;
+    availability always wins (a scale can never resurrect an absent
+    partial).
     """
     if isinstance(gamma, list):
         if mask is None or input_names is None or output_names is None:
@@ -271,12 +272,13 @@ def train(
     """Train a JENN surrogate and return a model_id plus training-set metrics.
 
     Supply data either inline (row-per-sample: x=(m, n_x), y=(m, n_y),
-    dydx=(m, n_y, n_x)) or by `dataset_id` from a prior `ingest` (mutually
-    exclusive). With an ingested dataset, `gamma` may be a scalar OR a list of
-    per-partial overrides, e.g. `[{"output":"Cd","input":"alpha","weight":3.0}]`;
-    partials absent from the data are always weighted 0 (they cannot be
-    resurrected by an override). The agent owns architecture/hyperparameters;
-    this tool is a thin wrapper over jenn.NeuralNet.fit. See the returned
+    dydx=(m, n_y, n_x)) or by `dataset_id` from a prior `ingest`
+    (mutually exclusive). With an ingested dataset, `gamma` may be a
+    scalar OR a list of per-partial overrides, e.g.
+    `[{"output":"Cd","input":"alpha","weight":3.0}]`; partials absent
+    from the data are always weighted 0 (they cannot be resurrected by
+    an override). The agent owns architecture/hyperparameters; this tool
+    is a thin wrapper over jenn.NeuralNet.fit. See the returned
     `guidance` and re-run before acting on a single result.
     """
     inputs, outputs, partials, mask, input_names, output_names = _resolve_dataset(
@@ -373,9 +375,9 @@ def evaluate(
 ) -> dict[str, Any]:
     """Score a trained model on held-out data, or on its training data.
 
-    Pass a `dataset_id` (from `ingest`) or both x and y (row-per-sample) for
-    held-out metrics; pass none of them to score the data the model was trained
-    on. dydx is optional in every case.
+    Pass a `dataset_id` (from `ingest`) or both x and y (row-per-sample)
+    for held-out metrics; pass none of them to score the data the model
+    was trained on. dydx is optional in every case.
     """
     record = _MODELS.get(model_id)  # raises KeyError on unknown id
     # Reuse the model's own availability mask/names for labelling by default;
@@ -572,9 +574,9 @@ def ingest(
 def list_datasets() -> dict[str, Any]:
     """List the ingested datasets currently held in this server session.
 
-    Returns lightweight metadata only (shapes, column names, and which partials
-    are available vs. missing); the arrays stay server-side, referenced by
-    dataset_id.
+    Returns lightweight metadata only (shapes, column names, and which
+    partials are available vs. missing); the arrays stay server-side,
+    referenced by dataset_id.
     """
     datasets = [
         {

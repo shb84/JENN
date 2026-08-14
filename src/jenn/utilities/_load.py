@@ -36,7 +36,8 @@ def _read_columns(path: Path, delimiter: str) -> dict[str, np.ndarray]:
 
     :param path: path to the CSV file
     :param delimiter: field separator (e.g. ``","`` or ``";"``)
-    :return: dict mapping each header name to its column as a float array
+    :return: dict mapping each header name to its column as a float
+        array
     """
     with path.open(newline="", encoding="utf-8") as file:
         reader = csv.reader(file, delimiter=delimiter)
@@ -156,20 +157,22 @@ def load_npz(
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray | None, np.ndarray | None]:
     r"""Load feature-first training data from a ``.npz`` file.
 
-    The archive must hold arrays named ``x`` ``(n_x, m)`` and ``y`` ``(n_y, m)``,
-    and may hold ``dydx`` ``(n_y, n_x, m)``. This is the native escape hatch: the
-    arrays are consumed as-is, with no column mapping.
+    The archive must hold arrays named ``x`` ``(n_x, m)`` and ``y``
+    ``(n_y, m)``, and may hold ``dydx`` ``(n_y, n_x, m)``. This is the
+    native escape hatch: the arrays are consumed as-is, with no column
+    mapping.
 
-    Partial *availability* is read from ``NaN`` markers: a ``(output, input)``
-    layer that is entirely ``NaN`` is treated as absent (``mask`` ``0``, values
-    replaced with ``0``). A partial must be either fully present or fully absent;
-    a layer with only some ``NaN`` samples raises (per-sample availability is not
-    supported).
+    Partial *availability* is read from ``NaN`` markers: a ``(output,
+    input)`` layer that is entirely ``NaN`` is treated as absent
+    (``mask`` ``0``, values replaced with ``0``). A partial must be
+    either fully present or fully absent; a layer with only some ``NaN``
+    samples raises (per-sample availability is not supported).
 
     :param path: path to the ``.npz`` file
-    :return: tuple ``(x, y, dydx, mask)`` with feature-first shapes ``(n_x, m)``,
-        ``(n_y, m)``, ``(n_y, n_x, m)`` and ``(n_y, n_x)``. ``dydx`` and ``mask``
-        are ``None`` when the archive has no ``dydx``.
+    :return: tuple ``(x, y, dydx, mask)`` with feature-first shapes
+        ``(n_x, m)``, ``(n_y, m)``, ``(n_y, n_x, m)`` and ``(n_y,
+        n_x)``. ``dydx`` and ``mask`` are ``None`` when the archive has
+        no ``dydx``.
     """
     path = Path(path).expanduser()
     with np.load(path) as archive:

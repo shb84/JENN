@@ -1,10 +1,10 @@
 """Registries.
 ==============
 
-In-memory stores mapping opaque handles to trained models and to ingested
-datasets, plus the metadata needed to evaluate, export, and train from them.
-The stdio server is a single long-lived process, so module-level registries
-persist across tool calls.
+In-memory stores mapping opaque handles to trained models and to
+ingested datasets, plus the metadata needed to evaluate, export, and
+train from them. The stdio server is a single long-lived process, so
+module-level registries persist across tool calls.
 """
 
 # Copyright (C) 2018 Steven H. Berguin
