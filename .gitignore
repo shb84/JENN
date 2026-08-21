@@ -66,10 +66,13 @@ todo.txt
 *.doit.db.db
 *.doit.db
 
-# Local environments 
+# Local plans / scratch (never committed)
+.tmp/
+
+# Local environments
 .envs
-.env 
-.venv 
+.env
+.venv
 
 # Specific files 
 docs/examples/parameters.json 

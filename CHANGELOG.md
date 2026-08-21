@@ -43,6 +43,14 @@ build: Changes to the build process or tools.
   columns / array names) to `ingest`, and exported model JSONs (with
   `layer_sizes`) to load — so a user can discover files by reference instead of
   pasting paths.
+- Extended the MCP server with `load_model` and `predict` tools, closing the
+  reuse loop: in a fresh session an agent can `load_model` a previously
+  `export`ed JSON and `predict` on new inputs (inline, or from a CSV/NPZ file
+  via `path`), optionally returning the Jacobian and optionally writing results
+  to a file (`output_path`) for large runs. Added
+  `jenn.utilities.load_csv_inputs` and `jenn.utilities.load_npz_inputs`, the
+  inputs-only counterparts of `load_csv`/`load_npz`, so new prediction inputs
+  never have to be hand-assembled or pasted into context.
 
 ### Fix
 
@@ -63,6 +71,11 @@ build: Changes to the build process or tools.
   used the pre-`v2.0.0` `jenn.utils` / `.evaluate` / `r_square`), so they run
   again. Fixed `demo_4_rosenbrock.ipynb` to pass scalar coordinates to
   matplotlib's `annotate` (size-1 arrays now raise under current NumPy).
+- Documented the MCP file-orientation convention in the README and `predict`
+  docstring: on disk a `.csv` is a row-per-sample table while a `.npz` is
+  feature-first (`(n_x, m)`, the core axis order), the transpose of the inline
+  row-per-sample MCP arrays — each channel matching the format its producer
+  naturally emits.
 
 ### Build
 

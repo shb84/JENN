@@ -221,3 +221,49 @@ def load_npz(
     mask = (~missing).astype(float)
     dydx = np.where(is_nan, 0.0, dydx)  # finite placeholder for absent partials
     return x, y, dydx, mask
+
+
+def load_csv_inputs(
+    path: str | Path,
+    inputs: list[str],
+    delimiter: str = ",",
+) -> np.ndarray:
+    r"""Load inputs-only data from a wide, one-row-per-sample CSV file.
+
+    The inputs-only counterpart of :func:`load_csv`, for running a
+    trained model on new data (which has no outputs or derivatives).
+    ``inputs`` names the value columns to read, in the desired order;
+    roles are set by explicit mapping, never by a naming convention.
+
+    :param path: path to the CSV file
+    :param inputs: column names mapped to ``x``, in order
+    :param delimiter: field separator (e.g. ``","`` or ``";"``)
+    :return: feature-first array ``x`` of shape ``(n_x, m)``
+    """
+    path = Path(path).expanduser()
+    columns = _read_columns(path, delimiter)
+    return _stack(columns, inputs, "input", path)  # (n_x, m)
+
+
+def load_npz_inputs(path: str | Path) -> np.ndarray:
+    r"""Load inputs-only data from a ``.npz`` file.
+
+    The inputs-only counterpart of :func:`load_npz`, for running a
+    trained model on new data. The archive must hold an array named
+    ``x`` ``(n_x, m)``, consumed as-is; any ``y`` or ``dydx`` present is
+    ignored.
+
+    :param path: path to the ``.npz`` file
+    :return: feature-first array ``x`` of shape ``(n_x, m)``
+    """
+    path = Path(path).expanduser()
+    with np.load(path) as archive:
+        key = "x"
+        if key not in archive:
+            msg = f"`{path}` has no array named '{key}'."
+            raise ValueError(msg)
+        x = np.asarray(archive["x"], dtype=float)
+        if x.ndim != 2:
+            msg = f"`x` in `{path}` must be a 2-D feature-first array; got x.ndim={x.ndim}."
+            raise ValueError(msg)
+        return x

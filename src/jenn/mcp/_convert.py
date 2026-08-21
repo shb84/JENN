@@ -98,3 +98,34 @@ def prepare_training_data(
             msg = f"`dydx` has {partials.shape[2]} samples but `x` has {m}."
             raise ValueError(msg)
     return inputs, outputs, partials
+
+
+def to_row_per_sample(values: np.ndarray) -> list[list[float]]:
+    r"""Convert a feature-first array back to a row-per-sample matrix.
+
+    The inverse of :func:`to_feature_first`, used to return model output
+    over the MCP boundary. Consumes trusted feature-first arrays
+    produced by :mod:`jenn` (unlike the inbound helpers, no validation
+    is needed).
+
+    :param values: shape ``(n, m)`` -- ``n`` features over ``m`` samples
+        (e.g. ``y`` as ``(n_y, m)``)
+    :return: nested list of shape ``(m, n)`` -- ``m`` samples of ``n``
+        features
+    """
+    return values.T.tolist()
+
+
+def to_row_per_sample_partials(values: np.ndarray) -> list[list[list[float]]]:
+    r"""Convert feature-first Jacobians back to row-per-sample form.
+
+    The inverse of :func:`to_feature_first_partials`, used to return model
+    partials over the MCP boundary. Consumes trusted feature-first arrays
+    produced by :mod:`jenn` (unlike the inbound helpers, no validation is
+    needed).
+
+    :param values: shape ``(n_y, n_x, m)`` -- feature-first Jacobians
+    :return: nested list of shape ``(m, n_y, n_x)`` -- one Jacobian per
+        sample (rows = outputs, cols = inputs)
+    """
+    return np.transpose(values, (2, 0, 1)).tolist()

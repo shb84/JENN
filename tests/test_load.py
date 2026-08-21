@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from jenn.utilities import load_csv, load_npz
+from jenn.utilities import load_csv, load_csv_inputs, load_npz, load_npz_inputs
 
 DATA = Path(__file__).parent / "data"
 
@@ -94,3 +94,52 @@ def test_load_npz_rejects_partial_nan(tmp_path):
     np.savez(path, x=np.zeros((2, 4)), y=np.zeros((1, 4)), dydx=dydx)
     with pytest.raises(ValueError, match="only some samples"):
         load_npz(path)
+
+
+def test_load_csv_inputs_matches_load_csv():
+    """Inputs-only CSV read returns the same feature-first x as load_csv."""
+    x = load_csv_inputs(DATA / "rastrigin.csv", inputs=["x1", "x2"])
+    assert x.shape == (2, 100)  # feature-first (n_x, m)
+    x_full, *_ = load_csv(DATA / "rastrigin.csv", inputs=["x1", "x2"], outputs=["y"])
+    assert np.allclose(x, x_full)  # identical array, not a transpose
+
+
+def test_load_csv_inputs_unknown_column():
+    """An input column absent from the file raises ValueError."""
+    with pytest.raises(ValueError, match="not found"):
+        load_csv_inputs(DATA / "rastrigin.csv", inputs=["nope"])
+
+
+def test_load_npz_inputs_roundtrip(tmp_path):
+    """An archive's x array is read back unchanged, feature-first."""
+    rng = np.random.default_rng(0)
+    x = rng.random((3, 5))
+    path = tmp_path / "in.npz"
+    np.savez(path, x=x)
+    loaded = load_npz_inputs(path)
+    assert loaded.shape == (3, 5)
+    assert np.allclose(loaded, x)
+
+
+def test_load_npz_inputs_ignores_outputs_and_partials(tmp_path):
+    """Only x is returned; any y/dydx in the archive are ignored."""
+    x = np.arange(6.0).reshape((2, 3))
+    path = tmp_path / "full.npz"
+    np.savez(path, x=x, y=np.zeros((1, 3)), dydx=np.zeros((1, 2, 3)))
+    assert np.allclose(load_npz_inputs(path), x)
+
+
+def test_load_npz_inputs_missing_x(tmp_path):
+    """An archive without an x array raises ValueError."""
+    path = tmp_path / "no_x.npz"
+    np.savez(path, y=np.zeros((1, 3)))
+    with pytest.raises(ValueError, match="no array named"):
+        load_npz_inputs(path)
+
+
+def test_load_npz_inputs_rejects_non_2d(tmp_path):
+    """A 1-D x array is not feature-first -> ValueError."""
+    path = tmp_path / "flat.npz"
+    np.savez(path, x=np.zeros(5))
+    with pytest.raises(ValueError, match="2-D"):
+        load_npz_inputs(path)
