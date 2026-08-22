@@ -43,6 +43,12 @@ build: Changes to the build process or tools.
   columns / array names) to `ingest`, and exported model JSONs (with
   `layer_sizes`) to load — so a user can discover files by reference instead of
   pasting paths.
+- MCP file tools (`ingest`, `load_model`, `export`, `predict`) now resolve a
+  relative/bare path against `$JENN_DIR` — the same directory the `jenn://files`
+  resource scans — so an agent can name a file the way it discovered it (e.g.
+  `load_model("rastrigin_model.json")`) instead of searching for it or pasting a
+  full path. Absolute paths are used as-is, and with `$JENN_DIR` unset the
+  behavior is unchanged (relative to the server's working directory).
 - Extended the MCP server with `load_model` and `predict` tools, closing the
   reuse loop: in a fresh session an agent can `load_model` a previously
   `export`ed JSON and `predict` on new inputs (inline, or from a CSV/NPZ file

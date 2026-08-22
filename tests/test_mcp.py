@@ -410,3 +410,60 @@ def test_list_models_surfaces_loaded_model(tmp_path):
     )
     assert entry["n_samples"] is None
     assert entry["source"] == loaded["source"]
+
+
+def test_resolve_path_anchors_relative_to_jenn_dir(tmp_path, monkeypatch):
+    """A bare/relative path resolves under $JENN_DIR; absolute paths pass through."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path))
+    # relative -> under JENN_DIR
+    assert (
+        server._resolve_path("model.json")  # ruff:ignore[private-member-access]
+        == (tmp_path / "model.json").resolve()
+    )
+    # absolute -> unchanged
+    absolute = tmp_path / "sub" / "other.json"
+    assert (
+        server._resolve_path(str(absolute))  # ruff:ignore[private-member-access]
+        == absolute.resolve()
+    )
+    # unset -> falls back to the CWD (backward compatible)
+    monkeypatch.delenv("JENN_DIR", raising=False)
+    assert (
+        server._resolve_path("model.json")  # ruff:ignore[private-member-access]
+        == (Path.cwd() / "model.json").resolve()
+    )
+
+
+def test_export_and_load_bare_name_under_jenn_dir(tmp_path, monkeypatch):
+    """A bare filename is written and reloaded under $JENN_DIR (export/load_model)."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path))
+    rows, x = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[8], max_iter=50, random_state=0)[
+        "model_id"
+    ]
+
+    # a bare name lands in JENN_DIR (not the process CWD)
+    res = server.export(mid, path="mymodel.json")
+    assert res["path"] == str((tmp_path / "mymodel.json").resolve())
+    assert (tmp_path / "mymodel.json").is_file()
+
+    # and load_model finds it there by the same bare name
+    loaded = server.load_model("mymodel.json")
+    reloaded = server._MODELS.get(loaded["model_id"]).model  # ruff:ignore[private-member-access]
+    original = server._MODELS.get(mid).model  # ruff:ignore[private-member-access]
+    assert np.allclose(reloaded.predict(x), original.predict(x))
+
+
+def test_ingest_bare_name_under_jenn_dir(tmp_path, monkeypatch):
+    """A bare filename discovered under $JENN_DIR can be ingested."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path))
+    (tmp_path / "rastrigin.csv").write_text((DATA / "rastrigin.csv").read_text())
+    out = server.ingest(
+        "rastrigin.csv",
+        inputs=["x1", "x2"],
+        outputs=["y"],
+        derivatives=[{"output": "y", "input": "x1", "column": "slope_wrt_x1"}],
+    )
+    assert out["n_inputs"] == 2
+    assert out["n_outputs"] == 1
+    assert out["n_samples"] == 100
