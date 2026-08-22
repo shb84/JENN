@@ -66,6 +66,12 @@ build: Changes to the build process or tools.
 
 ### Docs
 
+- Added a dedicated **MCP Server** docs page (`sections/mcp.rst`): install,
+  launch, `JENN_DIR` setup, the full tool/resource/prompt reference, and a
+  hands-on end-to-end tutorial (ingest → train → evaluate → export → load_model
+  → predict) with copy-paste example prompts and shipped practice data
+  (`docs/examples/data/rastrigin.csv`). Trimmed the README MCP section to a
+  short blurb linking to it (it had gone stale, still advertising four tools).
 - Added a version-controlled `CLAUDE.md` capturing repo conventions and
   architecture for AI-assisted development.
 - Added a README note on the project's history and its approach to AI-assisted

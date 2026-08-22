@@ -101,6 +101,13 @@ subject and explained it in simple terms that even an aerospace engineer could u
 
 .. toctree::
     :numbered:
+    :caption: MCP Server
+    :hidden:
+
+    sections/mcp
+
+.. toctree::
+    :numbered:
     :caption: API Docs
     :hidden:
 
