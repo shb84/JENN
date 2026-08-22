@@ -7,12 +7,12 @@ platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 requires-pixi = ">=0.54.1"
 
 [tasks]
-all = { depends-on = ["setup", "fix", "lint", "build", "test", "docs"] }
-setup = { depends-on = ["pip-e"] }
-fix = { depends-on = ["fix-toml", "fix-nbstripout", "fix-ruff"] }
-lint = { depends-on = ["ruff", "mypy", "docformatter"] }
-test = { depends-on = ["test-unit", "test-nb"] }
-docs = { depends-on = ["sphinx"] }
+all = {depends-on = ["setup", "fix", "lint", "build", "test", "docs"]}
+setup = {depends-on = ["pip-e"]}
+fix = {depends-on = ["fix-toml", "fix-nbstripout", "fix-ruff"]}
+lint = {depends-on = ["ruff", "mypy", "docformatter"]}
+test = {depends-on = ["test-unit", "test-nb"]}
+docs = {depends-on = ["sphinx"]}
 
 #########
 # Tasks #
@@ -183,7 +183,8 @@ numpy = "*"
 matplotlib = "*"
 
 [feature.mcp.pypi-dependencies]
-mcp = ">=1.2"
+# Pin below 2.0: mcp 2.x removed `mcp.server.fastmcp`, which server.py imports.
+mcp = ">=1.2,<2"
 
 [feature.notebooks.dependencies]
 matplotlib = "*"
@@ -220,7 +221,7 @@ pip = "*"
 ################
 
 [environments]
-dev = { solve-group = "jenn", features = [
+dev = {solve-group = "jenn", features = [
   "src",
   "notebooks",
   "labextensions",
@@ -230,46 +231,46 @@ dev = { solve-group = "jenn", features = [
   "dist",
   "mcp",
   "python",
-] }
+]}
 
-py39 = { solve-group = "jenn-py39", features = [
+py39 = {solve-group = "jenn-py39", features = [
   "src",
   "test",
   "dist",
   "python39",
-] }
+]}
 
-py310 = { solve-group = "jenn-py310", features = [
+py310 = {solve-group = "jenn-py310", features = [
   "src",
   "test",
   "dist",
   "python310",
-] }
+]}
 
-py311 = { solve-group = "jenn-py311", features = [
+py311 = {solve-group = "jenn-py311", features = [
   "src",
   "test",
   "dist",
   "python311",
-] }
+]}
 
-py312 = { solve-group = "jenn-py312", features = [
+py312 = {solve-group = "jenn-py312", features = [
   "src",
   "test",
   "dist",
   "python312",
-] }
+]}
 
-py313 = { solve-group = "jenn-py313", features = [
+py313 = {solve-group = "jenn-py313", features = [
   "src",
   "test",
   "dist",
   "python313",
-] }
+]}
 
-py314 = { solve-group = "jenn-py314", features = [
+py314 = {solve-group = "jenn-py314", features = [
   "src",
   "test",
   "dist",
   "python314",
-] }
+]}

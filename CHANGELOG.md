@@ -43,6 +43,12 @@ build: Changes to the build process or tools.
   columns / array names) to `ingest`, and exported model JSONs (with
   `layer_sizes`) to load — so a user can discover files by reference instead of
   pasting paths.
+- MCP file tools (`ingest`, `load_model`, `export`, `predict`) now resolve a
+  relative/bare path against `$JENN_DIR` — the same directory the `jenn://files`
+  resource scans — so an agent can name a file the way it discovered it (e.g.
+  `load_model("rastrigin_model.json")`) instead of searching for it or pasting a
+  full path. Absolute paths are used as-is, and with `$JENN_DIR` unset the
+  behavior is unchanged (relative to the server's working directory).
 - Extended the MCP server with `load_model` and `predict` tools, closing the
   reuse loop: in a fresh session an agent can `load_model` a previously
   `export`ed JSON and `predict` on new inputs (inline, or from a CSV/NPZ file
@@ -57,9 +63,20 @@ build: Changes to the build process or tools.
 - Fixed `rsquare` in `post_processing/metrics.py` to handle multi-output
   (`n_y > 1`) and 3-D Jacobian arrays via `keepdims` on the mean; it previously
   raised a broadcasting `ValueError` for both.
+- Capped the optional `mcp` dependency to `>=1.2,<2`. `mcp` 2.0 removed
+  `mcp.server.fastmcp` (which `server.py` imports), so a fresh
+  `pip install "jenn[mcp]"` pulled the incompatible 2.x SDK and the MCP server
+  failed to start with `ModuleNotFoundError`. The dev env was unaffected only
+  because `pixi.lock` had frozen `mcp` at a 1.x release.
 
 ### Docs
 
+- Added a dedicated **MCP Server** docs page (`sections/mcp.rst`): install,
+  launch, `JENN_DIR` setup, the full tool/resource/prompt reference, and a
+  hands-on end-to-end tutorial (ingest → train → evaluate → export → load_model
+  → predict) with copy-paste example prompts and shipped practice data
+  (`docs/examples/data/rastrigin.csv`). Trimmed the README MCP section to a
+  short blurb linking to it (it had gone stale, still advertising four tools).
 - Added a version-controlled `CLAUDE.md` capturing repo conventions and
   architecture for AI-assisted development.
 - Added a README note on the project's history and its approach to AI-assisted

@@ -143,48 +143,15 @@ server so an AI agent (e.g. Claude Code) can build and validate a surrogate mode
 end-to-end — from data (with optional partials) to a portable artifact — without
 writing a training script by hand.
 
-Install the extra (Python >= 3.10) and register the local stdio server:
-
     pip install "jenn[mcp]"
     claude mcp add --transport stdio jenn -- jenn-mcp
 
-Add `--scope user` to make it available across all your projects; you can also
-launch it directly with `jenn-mcp` or `python -m jenn.mcp`. Contributors working
-from a clone get the server automatically via the checked-in `.mcp.json` (approve
-it once when prompted).
-
-The server exposes four tools and one prompt:
-
-| Tool | Purpose |
-|---|---|
-| `train` | Fit a surrogate from `x`, `y`, and optional partials `dydx`; returns a `model_id` and training metrics. |
-| `evaluate` | Score a model on held-out data (or its training data): response and partials R², RMSE, and max error. |
-| `export` | Save a model to JENN's native JSON, reloadable with `jenn.NeuralNet.load`. |
-| `list_models` | List the models held in the current session. |
-
-The `surrogate_workflow` prompt walks an agent through the full recipe. The tools
-are thin wrappers over `NeuralNet.fit`, so the agent owns architecture and
-hyperparameter search. Because a single training run is stochastic, the tools
-advise re-running with a different seed and evaluating on held-out data before
-acting on a diagnosis.
-
-Data is passed **row-per-sample** (one row per training point): `x` has shape
-`(m, n_x)`, `y` has shape `(m, n_y)`, and `dydx` has shape `(m, n_y, n_x)`. This
-is a deliberate departure from JENN's core API, which is feature-first (samples
-along the last axis, e.g. `x` of shape `(n_x, m)`): the MCP boundary adopts the
-row-is-a-sample convention that agents and tabular data most naturally produce,
-and transposes internally — so the difference is intentional, not an
-inconsistency.
-
-Files, however, keep each format's **native** orientation, not the inline
-row-per-sample one. A `.csv` is a row-per-sample table (what a spreadsheet
-exports, and what `ingest`/`load_csv` read); a `.npz` is feature-first — `x` of
-shape `(n_x, m)` — matching `jenn.utilities.load_npz` and the core arrays. So an
-`.npz` you hand to `predict`, or receive from it via `output_path`, uses the core
-axis order (`(n_x, m)`), the transpose of the inline MCP arrays. Each channel
-matches the convention its producer most naturally emits — hand-authored
-JSON is row-per-sample, machine-written array files are feature-first — which
-avoids forcing either side to reshape.
+It exposes tools for the full lifecycle (`ingest`, `train`, `evaluate`,
+`export`, `load_model`, `predict`, and listing helpers), a `jenn://files`
+resource for discovering local data/model files, and a `surrogate_workflow`
+prompt. See the **MCP Server** section of the
+[documentation](https://shb84.github.io/JENN/) for the full tool reference, a
+hands-on tutorial with practice data, and `JENN_DIR` setup.
 
 # Use Case
 

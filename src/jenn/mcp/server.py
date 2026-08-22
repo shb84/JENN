@@ -73,6 +73,27 @@ def main() -> None:
 # ----------------------------------------------------------
 
 
+def _jenn_root() -> Path:
+    """Directory scanned for JENN files: ``$JENN_DIR``, else the CWD."""
+    return Path(os.environ.get("JENN_DIR", ".")).expanduser().resolve()
+
+
+def _resolve_path(path: str) -> Path:
+    """Resolve a user-supplied file path against ``JENN_DIR``.
+
+    Absolute paths (and ``~`` paths) are used as-is; a bare or relative
+    path is taken relative to ``JENN_DIR`` -- the same directory the
+    ``jenn://files`` resource scans -- so an agent can name a file the
+    way it discovered it. When ``JENN_DIR`` is unset, ``_jenn_root`` is
+    the server's working directory, so this is identical to a plain
+    ``Path(path).resolve()`` and stays backward compatible.
+    """
+    p = Path(path).expanduser()
+    if not p.is_absolute():
+        p = _jenn_root() / p
+    return p.resolve()
+
+
 def _label(names: list[str] | None, index: int) -> str | int:
     """Column name if known, else the positional index."""
     return names[index] if names else index
@@ -457,11 +478,13 @@ def export(model_id: str, path: str | None = None) -> dict[str, Any]:
     """Save a trained model to JENN's native parameters JSON, reloadable via load.
 
     Returns the absolute file path and the JSON contents. Reload later
-    with jenn.NeuralNet.load(path).
+    with jenn.NeuralNet.load(path). A relative `path` (or the default
+    name) resolves under `$JENN_DIR` (the server's working directory if
+    unset), so the file lands where `jenn://files` will find it; an
+    absolute path is used as-is.
     """
     record = _MODELS.get(model_id)  # raises KeyError on unknown id
-    target = Path(path) if path else Path(f"jenn_{model_id}.json")
-    target = target.expanduser().resolve()
+    target = _resolve_path(path or f"jenn_{model_id}.json")
     record.model.save(target)  # reuse NeuralNet.save
     contents = json.loads(target.read_text())
     return {
@@ -523,8 +546,11 @@ def ingest(
     automatically from which partials are listed; absent partials are reported
     and will be weighted 0 at train time. Returns a `dataset_id` to pass to
     `train`/`evaluate`, keeping the data server-side (not re-sent per call).
+
+    A relative `path` resolves under `$JENN_DIR` (the server's working
+    directory if unset); an absolute path is used as-is.
     """
-    target = Path(path).expanduser().resolve()
+    target = _resolve_path(path)
     if not target.is_file():
         msg = f"No such file: {target}"
         raise ValueError(msg)
@@ -633,8 +659,12 @@ def load_model(path: str) -> dict[str, Any]:
     it needs holdout data or a `dataset_id`. Returns the `model_id` plus
     lightweight metadata (`source`, `layer_sizes`, `n_inputs`,
     `n_outputs`).
+
+    A relative `path` resolves under `$JENN_DIR` (the server's working
+    directory if unset), so a model named the way `jenn://files` reports
+    it is found without a full path; an absolute path is used as-is.
     """
-    target = Path(path).expanduser().resolve()
+    target = _resolve_path(path)
     if not target.is_file():
         msg = f"No such file: {target}"
         raise ValueError(msg)
@@ -687,7 +717,7 @@ def _resolve_predict_inputs(
     if path is None:
         msg = "Provide inline x or a file path."
         raise ValueError(msg)
-    target = Path(path).expanduser().resolve()
+    target = _resolve_path(path)
     if not target.is_file():
         msg = f"No such file: {target}"
         raise ValueError(msg)
@@ -718,7 +748,7 @@ def _write_predictions(
 
     :return:``{"path": ..., "n_samples": ...}``
     """
-    out = Path(output_path).expanduser().resolve()
+    out = _resolve_path(output_path)
     kind = out.suffix.lstrip(".").lower()
     if kind == "npz":
         arrays = {"x": inputs_ff, "y": y_ff}
@@ -764,6 +794,8 @@ def predict(
     (for large runs) -- the inline arrays are then omitted. A `.csv`
     output is a row-per-sample table of the response columns only; a
     `.npz` is feature-first (`x`/`y`/`dydx`) and persists partials.
+    Relative `path`/`output_path` values resolve under `$JENN_DIR` (the
+    server's working directory if unset); absolute paths are used as-is.
     """
     record = _MODELS.get(model_id)  # raises KeyError on unknown id
     inputs_ff = _resolve_predict_inputs(x, path, inputs, delimiter)
@@ -792,11 +824,6 @@ def predict(
 # ----------------------------------------------------------
 # --- RESOURCES --------------------------------------------
 # ----------------------------------------------------------
-
-
-def _jenn_root() -> Path:
-    """Directory scanned for JENN files: ``$JENN_DIR``, else the CWD."""
-    return Path(os.environ.get("JENN_DIR", ".")).expanduser().resolve()
 
 
 def _jenn_model_info(path: Path) -> dict[str, Any] | None:
