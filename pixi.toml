@@ -183,7 +183,8 @@ numpy = "*"
 matplotlib = "*"
 
 [feature.mcp.pypi-dependencies]
-mcp = ">=1.2"
+# Pin below 2.0: mcp 2.x removed `mcp.server.fastmcp`, which server.py imports.
+mcp = ">=1.2,<2"
 
 [feature.notebooks.dependencies]
 matplotlib = "*"

@@ -63,6 +63,11 @@ build: Changes to the build process or tools.
 - Fixed `rsquare` in `post_processing/metrics.py` to handle multi-output
   (`n_y > 1`) and 3-D Jacobian arrays via `keepdims` on the mean; it previously
   raised a broadcasting `ValueError` for both.
+- Capped the optional `mcp` dependency to `>=1.2,<2`. `mcp` 2.0 removed
+  `mcp.server.fastmcp` (which `server.py` imports), so a fresh
+  `pip install "jenn[mcp]"` pulled the incompatible 2.x SDK and the MCP server
+  failed to start with `ModuleNotFoundError`. The dev env was unaffected only
+  because `pixi.lock` had frozen `mcp` at a 1.x release.
 
 ### Docs
 

@@ -15,7 +15,8 @@ classifiers = [
 dependencies = ["jsonpointer", "jsonschema", "orjson", "numpy", "matplotlib"]
 
 [project.optional-dependencies]
-mcp = ["mcp>=1.2"]
+# Pin below 2.0: mcp 2.x removed `mcp.server.fastmcp`, which server.py imports.
+mcp = ["mcp>=1.2,<2"]
 
 [project.scripts]
 jenn-mcp = "jenn.mcp.server:main"
