@@ -19,9 +19,14 @@ import numpy as np
 
 from jenn.core.model import NeuralNet
 from jenn.post_processing.metrics import rsquare
-from jenn.utilities import load_csv, load_npz
+from jenn.utilities import load_csv, load_csv_inputs, load_npz, load_npz_inputs
 
-from ._convert import prepare_training_data
+from ._convert import (
+    prepare_training_data,
+    to_feature_first,
+    to_row_per_sample,
+    to_row_per_sample_partials,
+)
 from ._store import DatasetRecord, ModelRecord, Registry
 
 try:
@@ -405,16 +410,22 @@ def evaluate(
         mask = None  # inline partials are all present as given
         dataset = "holdout"
         if (inputs.shape[0], outputs.shape[0]) != (
-            record.x.shape[0],
-            record.y.shape[0],
+            record.layer_sizes[0],
+            record.layer_sizes[-1],
         ):
             msg = (
                 "Data shape mismatch: model expects (n_inputs, n_outputs) = "
-                f"({record.x.shape[0]}, {record.y.shape[0]}), got "
+                f"({record.layer_sizes[0]}, {record.layer_sizes[-1]}), got "
                 f"({inputs.shape[0]}, {outputs.shape[0]})."
             )
             raise ValueError(msg)
     elif x is None and y is None:
+        if record.x is None or record.y is None:
+            msg = (
+                "This model was loaded from disk and carries no training data to "
+                "score. Provide holdout x and y, or a dataset_id."
+            )
+            raise ValueError(msg)
         inputs, outputs, partials = record.x, record.y, record.dydx
         dataset = "training"
     else:
@@ -474,10 +485,11 @@ def list_models() -> dict[str, Any]:
         {
             "model_id": handle,
             "layer_sizes": record.layer_sizes,
-            "n_samples": int(record.x.shape[1]),
+            "n_samples": None if record.x is None else int(record.x.shape[1]),
             "random_state": record.random_state,
             "training_seconds": round(record.training_seconds, 4),
             "hyperparameters": record.hyperparameters,
+            "source": record.source,
         }
         for handle, record in _MODELS.items()
     ]
@@ -602,6 +614,179 @@ def list_datasets() -> dict[str, Any]:
         for handle, record in _DATASETS.items()
     ]
     return {"count": len(datasets), "datasets": datasets}
+
+
+# ----------------------------------------------------------
+# --- MODEL REUSE (LOAD & PREDICT) -------------------------
+# ----------------------------------------------------------
+
+
+@mcp.tool()
+def load_model(path: str) -> dict[str, Any]:
+    """Load a saved JENN model from disk and register it for reuse.
+
+    The disk->registry direction (mirrors `ingest` for datasets): wraps
+    `jenn.NeuralNet.load`, so a model trained and `export`ed in an
+    earlier session can be reloaded in a fresh one and run with
+    `predict`. The returned model is data-less (a saved model carries
+    only weights and normalization, no training data), so `evaluate` on
+    it needs holdout data or a `dataset_id`. Returns the `model_id` plus
+    lightweight metadata (`source`, `layer_sizes`, `n_inputs`,
+    `n_outputs`).
+    """
+    target = Path(path).expanduser().resolve()
+    if not target.is_file():
+        msg = f"No such file: {target}"
+        raise ValueError(msg)
+    data = json.loads(target.read_text(encoding="utf-8"))
+    if not (isinstance(data, dict) and {"layer_sizes", "W", "b"} <= data.keys()):
+        msg = f"`{target}` is not a valid JENN model file."
+        raise ValueError(msg)
+    model = NeuralNet.load(target)
+    layer_sizes = model.parameters.layer_sizes
+    handle = _MODELS.add(
+        ModelRecord(
+            model=model,
+            layer_sizes=layer_sizes,
+            training_seconds=0.0,
+            source=str(target),
+        ),
+    )
+    return {
+        "model_id": handle,
+        "source": str(target),
+        "layer_sizes": layer_sizes,
+        "n_inputs": layer_sizes[0],
+        "n_outputs": layer_sizes[-1],
+        "note": (
+            "Data-less model (weights + normalization only). Run it with "
+            "`predict`; to `evaluate` it, supply holdout x/y or a dataset_id."
+        ),
+    }
+
+
+def _resolve_predict_inputs(
+    x: list[list[float]] | None,
+    path: str | None,
+    inputs: list[str] | None,
+    delimiter: str,
+) -> np.ndarray:
+    """Resolve inline ``x`` or a CSV/NPZ ``path`` to feature-first inputs.
+
+    ``x`` and ``path`` are mutually exclusive. A ``.csv`` path needs an
+    ``inputs`` column list; a ``.npz`` path reads its feature-first
+    ``x`` array.
+
+    :return: feature-first inputs of shape ``(n_x, m)``
+    """
+    if x is not None and path is not None:
+        msg = "Provide either inline x or a file path, not both."
+        raise ValueError(msg)
+    if x is not None:
+        return to_feature_first(x, "x")
+    if path is None:
+        msg = "Provide inline x or a file path."
+        raise ValueError(msg)
+    target = Path(path).expanduser().resolve()
+    if not target.is_file():
+        msg = f"No such file: {target}"
+        raise ValueError(msg)
+    kind = target.suffix.lstrip(".").lower()
+    if kind == "csv":
+        if not inputs:
+            msg = "CSV input requires an `inputs` column list."
+            raise ValueError(msg)
+        return load_csv_inputs(target, inputs, delimiter)
+    if kind == "npz":
+        return load_npz_inputs(target)
+    msg = f"Unsupported input format '{kind}'; expected 'csv' or 'npz'."
+    raise ValueError(msg)
+
+
+def _write_predictions(
+    output_path: str,
+    inputs_ff: np.ndarray,  # feature-first (n_x, m)
+    y_ff: np.ndarray,  # feature-first (n_y, m)
+    dydx_ff: np.ndarray | None,  # feature-first (n_y, n_x, m) or None
+    delimiter: str,
+) -> dict[str, Any]:
+    """Write predictions to a file, feature-first (matching the loaders).
+
+    ``.npz`` holds ``x``/``y`` (plus ``dydx`` when partials were
+    requested); ``.csv`` holds the response columns only (partials
+    require ``.npz``).
+
+    :return:``{"path": ..., "n_samples": ...}``
+    """
+    out = Path(output_path).expanduser().resolve()
+    kind = out.suffix.lstrip(".").lower()
+    if kind == "npz":
+        arrays = {"x": inputs_ff, "y": y_ff}
+        if dydx_ff is not None:
+            arrays["dydx"] = dydx_ff
+        np.savez(out, **arrays)
+    elif kind == "csv":
+        if dydx_ff is not None:
+            msg = "CSV output holds response columns only; use .npz to write partials."
+            raise ValueError(msg)
+        rows = to_row_per_sample(y_ff)  # (m, n_y)
+        header = [f"y{i}" for i in range(y_ff.shape[0])]
+        with out.open("w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file, delimiter=delimiter)
+            writer.writerow(header)
+            writer.writerows(rows)
+    else:
+        msg = f"Unsupported output format '{kind}'; expected 'csv' or 'npz'."
+        raise ValueError(msg)
+    return {"path": str(out), "n_samples": int(inputs_ff.shape[1])}
+
+
+@mcp.tool()
+def predict(
+    model_id: str,
+    x: list[list[float]] | None = None,
+    path: str | None = None,
+    inputs: list[str] | None = None,
+    delimiter: str = ",",
+    with_partials: bool = False,
+    output_path: str | None = None,
+) -> dict[str, Any]:
+    """Run a trained model on new inputs, optionally returning the Jacobian.
+
+    Supply inputs either inline (row-per-sample `x`=(m, n_x)) OR by file
+    `path` (mutually exclusive): a `.csv` (a row-per-sample table, with
+    an `inputs` column list) or a `.npz` holding a feature-first array
+    `x` of shape `(n_x, m)` -- the core axis order, the transpose of the
+    inline arrays. The input width must match the model's `n_inputs`.
+    With `with_partials`, the response also includes `dydx` (row-per-
+    sample (m, n_y, n_x)). By default results are returned inline; give
+    `output_path` (`.csv` or `.npz`) to write them to a file instead
+    (for large runs) -- the inline arrays are then omitted. A `.csv`
+    output is a row-per-sample table of the response columns only; a
+    `.npz` is feature-first (`x`/`y`/`dydx`) and persists partials.
+    """
+    record = _MODELS.get(model_id)  # raises KeyError on unknown id
+    inputs_ff = _resolve_predict_inputs(x, path, inputs, delimiter)
+
+    n_x = record.layer_sizes[0]
+    if inputs_ff.shape[0] != n_x:
+        msg = f"Input width {inputs_ff.shape[0]} does not match model n_inputs {n_x}."
+        raise ValueError(msg)
+
+    if with_partials:
+        y_ff, dydx_ff = record.model(inputs_ff)  # (n_y, m), (n_y, n_x, m)
+    else:
+        y_ff = record.model.predict(inputs_ff)  # (n_y, m)
+        dydx_ff = None
+
+    if output_path is not None:
+        written = _write_predictions(output_path, inputs_ff, y_ff, dydx_ff, delimiter)
+        return {"model_id": model_id, **written}
+
+    result: dict[str, Any] = {"model_id": model_id, "y": to_row_per_sample(y_ff)}
+    if dydx_ff is not None:
+        result["dydx"] = to_row_per_sample_partials(dydx_ff)
+    return result
 
 
 # ----------------------------------------------------------

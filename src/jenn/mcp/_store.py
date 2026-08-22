@@ -34,15 +34,18 @@ class ModelRecord(Record):
 
     model: NeuralNet
     layer_sizes: list[int]
-    hyperparameters: dict[str, Any]
-    random_state: int | None
-    x: np.ndarray  # feature-first training inputs  (n_x, m)
-    y: np.ndarray  # feature-first training outputs (n_y, m)
-    dydx: np.ndarray | None  # feature-first Jacobians (n_y, n_x, m) or None
+    hyperparameters: dict[str, Any] = field(default_factory=dict)
+    random_state: int | None = None
+    x: np.ndarray | None = None  # feature-first training inputs  (n_x, m)
+    y: np.ndarray | None = None  # feature-first training outputs (n_y, m)
+    dydx: np.ndarray | None = None  # feature-first Jacobians (n_y, n_x, m) or None
     training_seconds: float  # wall-clock time spent in NeuralNet.fit
     partial_mask: np.ndarray | None = None  # (n_y, n_x) availability mask or None
     input_names: list[str] | None = None  # column names for inputs, if known
     output_names: list[str] | None = None  # column names for outputs, if known
+    source: str | None = (
+        None  # provenance, e.g. the ingested file path (if model reloaded)
+    )
 
 
 @dataclass(kw_only=True)

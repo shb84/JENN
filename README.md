@@ -176,6 +176,16 @@ row-is-a-sample convention that agents and tabular data most naturally produce,
 and transposes internally — so the difference is intentional, not an
 inconsistency.
 
+Files, however, keep each format's **native** orientation, not the inline
+row-per-sample one. A `.csv` is a row-per-sample table (what a spreadsheet
+exports, and what `ingest`/`load_csv` read); a `.npz` is feature-first — `x` of
+shape `(n_x, m)` — matching `jenn.utilities.load_npz` and the core arrays. So an
+`.npz` you hand to `predict`, or receive from it via `output_path`, uses the core
+axis order (`(n_x, m)`), the transpose of the inline MCP arrays. Each channel
+matches the convention its producer most naturally emits — hand-authored
+JSON is row-per-sample, machine-written array files are feature-first — which
+avoids forcing either side to reshape.
+
 # Use Case
 
 JENN is intended for the field of computer aided design, where there is often 

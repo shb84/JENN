@@ -250,3 +250,163 @@ def test_scan_files_reads_fixture_columns():
     result = server._scan_files(DATA)  # ruff:ignore[private-member-access]
     fixture = next(f for f in result["files"] if f["name"] == "rastrigin.csv")
     assert fixture["columns"] == ["x1", "x2", "y", "slope_wrt_x1"]
+
+
+def _export_and_load(tmp_path, **train_kwargs):
+    """Train -> export -> load_model; return (loaded_dict, original_model, x)."""
+    rows, x = _rastrigin_rows()
+    trained = server.train(**rows, **train_kwargs)
+    path = tmp_path / "surrogate.json"
+    server.export(trained["model_id"], path=str(path))
+    loaded = server.load_model(str(path))
+    original = server._MODELS.get(trained["model_id"]).model  # ruff:ignore[private-member-access]
+    return loaded, original, x
+
+
+def test_load_model_and_predict_roundtrip(tmp_path):
+    """A reloaded model predicts identically to the original in-registry one."""
+    loaded, original, x = _export_and_load(
+        tmp_path,
+        hidden_layers=[12, 12],
+        max_iter=200,
+        random_state=0,
+    )
+    assert loaded["n_inputs"] == 2
+    assert loaded["n_outputs"] == 1
+    assert loaded["source"].endswith("surrogate.json")
+
+    # Inline row-per-sample x -> row-per-sample y that matches the original model.
+    pred = server.predict(loaded["model_id"], x=x.T.tolist())
+    assert np.allclose(np.array(pred["y"]), original.predict(x).T)
+
+
+def test_predict_inline_with_partials():
+    """Inline predict returns row-per-sample y, and dydx when requested."""
+    rows, _ = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[12], max_iter=100, random_state=0)[
+        "model_id"
+    ]
+    m = len(rows["x"])
+
+    res = server.predict(mid, x=rows["x"])
+    assert np.array(res["y"]).shape == (m, 1)  # (m, n_y)
+    assert "dydx" not in res
+
+    res = server.predict(mid, x=rows["x"], with_partials=True)
+    assert np.array(res["y"]).shape == (m, 1)
+    assert np.array(res["dydx"]).shape == (m, 1, 2)  # (m, n_y, n_x)
+
+
+def test_predict_from_csv_and_npz_paths(tmp_path):
+    """A CSV and an NPZ inputs file give the same result as inline arrays."""
+    rows, x = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[12], max_iter=100, random_state=0)[
+        "model_id"
+    ]
+
+    # CSV path: compare against inline on the identical fixture inputs.
+    x_csv = jenn.utilities.load_csv_inputs(DATA / "rastrigin.csv", inputs=["x1", "x2"])
+    from_csv = server.predict(
+        mid, path=str(DATA / "rastrigin.csv"), inputs=["x1", "x2"]
+    )
+    inline_csv = server.predict(mid, x=x_csv.T.tolist())
+    assert np.allclose(np.array(from_csv["y"]), np.array(inline_csv["y"]))
+
+    # NPZ path: feature-first x on disk -> same as inline row-per-sample.
+    npz = tmp_path / "inputs.npz"
+    np.savez(npz, x=x)  # feature-first (n_x, m)
+    from_npz = server.predict(mid, path=str(npz))
+    inline_x = server.predict(mid, x=x.T.tolist())
+    assert np.allclose(np.array(from_npz["y"]), np.array(inline_x["y"]))
+
+
+def test_predict_output_path_writes_file(tmp_path):
+    """output_path writes a file (feature-first NPZ / table CSV) and omits inline arrays."""
+    rows, _ = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[12], max_iter=50, random_state=0)[
+        "model_id"
+    ]
+    m = len(rows["x"])
+
+    # CSV: response-only table; inline arrays omitted.
+    csv_out = tmp_path / "pred.csv"
+    res = server.predict(mid, x=rows["x"], output_path=str(csv_out))
+    assert csv_out.exists()
+    assert "y" not in res
+    assert "dydx" not in res
+    assert res["n_samples"] == m
+
+    # NPZ with partials: feature-first x/y/dydx on disk.
+    npz_out = tmp_path / "pred.npz"
+    res = server.predict(mid, x=rows["x"], with_partials=True, output_path=str(npz_out))
+    assert "y" not in res
+    with np.load(npz_out) as arch:
+        assert set(arch.files) == {"x", "y", "dydx"}
+        assert arch["x"].shape == (2, m)  # feature-first
+        assert arch["dydx"].shape == (1, 2, m)
+
+    # CSV cannot hold 3-D partials -> steer to NPZ.
+    with pytest.raises(ValueError, match=r"use \.npz to write partials"):
+        server.predict(
+            mid,
+            x=rows["x"],
+            with_partials=True,
+            output_path=str(tmp_path / "bad.csv"),
+        )
+
+
+def test_predict_width_mismatch():
+    """Inputs whose width != model n_inputs raise a clear error."""
+    rows, _ = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[12], max_iter=20, random_state=0)[
+        "model_id"
+    ]
+    with pytest.raises(ValueError, match="does not match model n_inputs"):
+        server.predict(mid, x=[[0.1]])  # 1 feature, model expects 2
+
+
+def test_load_model_error_paths(tmp_path):
+    """Missing files and non-JENN JSON raise clear errors."""
+    with pytest.raises(ValueError, match="No such file"):
+        server.load_model(str(tmp_path / "nope.json"))
+
+    bad = tmp_path / "bad.json"
+    bad.write_text('{"hello": 1}')  # valid JSON, not a JENN model
+    with pytest.raises(ValueError, match="not a valid JENN model file"):
+        server.load_model(str(bad))
+
+
+def test_evaluate_on_loaded_model(tmp_path):
+    """A data-less loaded model errors on the training-data path, scores on holdout."""
+    loaded, _, _ = _export_and_load(
+        tmp_path,
+        hidden_layers=[12],
+        max_iter=100,
+        random_state=0,
+    )
+    mid = loaded["model_id"]
+
+    # No x/y: nothing to score against -> the new guard.
+    with pytest.raises(ValueError, match="no training data"):
+        server.evaluate(mid)
+
+    # Holdout data -> scores normally (dimension check now uses layer_sizes).
+    holdout, _ = _rastrigin_rows(m_levels=11)
+    ev = server.evaluate(mid, **holdout)
+    assert ev["dataset"] == "holdout"
+    assert ev["metrics"]["response"]["r2_per_output"][0] > 0.5
+
+
+def test_list_models_surfaces_loaded_model(tmp_path):
+    """list_models tolerates data-less records (n_samples None) and shows source."""
+    loaded, _, _ = _export_and_load(
+        tmp_path,
+        hidden_layers=[12],
+        max_iter=20,
+        random_state=0,
+    )
+    entry = next(
+        m for m in server.list_models()["models"] if m["model_id"] == loaded["model_id"]
+    )
+    assert entry["n_samples"] is None
+    assert entry["source"] == loaded["source"]
