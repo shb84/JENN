@@ -83,9 +83,9 @@ def _resolve_path(path: str) -> Path:
 
     Absolute paths (and ``~`` paths) are used as-is; a bare or relative
     path is taken relative to ``JENN_DIR`` -- the same directory the
-    ``jenn://files`` resource scans -- so an agent can name a file the way
-    it discovered it. When ``JENN_DIR`` is unset, ``_jenn_root`` is the
-    server's working directory, so this is identical to a plain
+    ``jenn://files`` resource scans -- so an agent can name a file the
+    way it discovered it. When ``JENN_DIR`` is unset, ``_jenn_root`` is
+    the server's working directory, so this is identical to a plain
     ``Path(path).resolve()`` and stays backward compatible.
     """
     p = Path(path).expanduser()
