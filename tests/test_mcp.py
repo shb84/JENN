@@ -4,6 +4,7 @@
 # This work is licensed under the MIT License.
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import numpy as np
@@ -13,6 +14,9 @@ import jenn
 from jenn.synthetic_data import rastrigin
 
 pytest.importorskip("mcp")  # skip this whole module if the mcp extra isn't installed
+
+import anyio  # a hard dependency of mcp, so it is present past the guard above
+from mcp.server.mcpserver.exceptions import ResourceNotFoundError
 
 from jenn.mcp import server  # import after the importorskip guard above
 
@@ -194,11 +198,23 @@ def test_ingest_npz_roundtrip(tmp_path):
 
 
 def test_jenn_root_env(tmp_path, monkeypatch):
-    """`_jenn_root` honors $JENN_DIR and falls back to the CWD."""
+    """`_jenn_root` honors $JENN_DIR, and otherwise owns `./.jenn_dir`."""
     monkeypatch.setenv("JENN_DIR", str(tmp_path))
     assert server._jenn_root() == tmp_path.resolve()  # ruff:ignore[private-member-access]
+
+    # An explicit JENN_DIR is taken as given -- a typo is not materialized.
+    missing = tmp_path / "typo"
+    monkeypatch.setenv("JENN_DIR", str(missing))
+    assert server._jenn_root() == missing.resolve()  # ruff:ignore[private-member-access]
+    assert not missing.exists()
+
+    # Unset: a dedicated folder under the CWD, created on demand so that
+    # discovery and exports never mix with whatever else is there.
     monkeypatch.delenv("JENN_DIR", raising=False)
-    assert server._jenn_root() == Path.cwd().resolve()  # ruff:ignore[private-member-access]
+    monkeypatch.chdir(tmp_path)
+    root = server._jenn_root()  # ruff:ignore[private-member-access]
+    assert root == (tmp_path / ".jenn_dir").resolve()
+    assert root.is_dir()
 
 
 def test_scan_files_discovers_data_and_models(tmp_path):
@@ -426,11 +442,12 @@ def test_resolve_path_anchors_relative_to_jenn_dir(tmp_path, monkeypatch):
         server._resolve_path(str(absolute))  # ruff:ignore[private-member-access]
         == absolute.resolve()
     )
-    # unset -> falls back to the CWD (backward compatible)
+    # unset -> under the default folder, not loose in the working directory
     monkeypatch.delenv("JENN_DIR", raising=False)
+    monkeypatch.chdir(tmp_path)
     assert (
         server._resolve_path("model.json")  # ruff:ignore[private-member-access]
-        == (Path.cwd() / "model.json").resolve()
+        == (tmp_path / ".jenn_dir" / "model.json").resolve()
     )
 
 
@@ -467,3 +484,138 @@ def test_ingest_bare_name_under_jenn_dir(tmp_path, monkeypatch):
     assert out["n_inputs"] == 2
     assert out["n_outputs"] == 1
     assert out["n_samples"] == 100
+
+
+# ----------------------------------------------------------
+# --- ONE RESOURCE PER FILE (`@` BROWSING) -----------------
+# ----------------------------------------------------------
+
+
+def _resource_uris():
+    """`resources/list` as the agent's `@` menu sees it: URI -> description."""
+    listed = anyio.run(server.mcp.list_resources)
+    return {str(resource.uri): resource.description for resource in listed}
+
+
+def _read_card(uri):
+    """Read one `jenn://files/...` resource and parse its JSON card."""
+    contents = list(anyio.run(server.mcp.read_resource, uri))
+    return json.loads(contents[0].content)
+
+
+def _populate(root):
+    """Write one of every discoverable kind, plus two files to be ignored."""
+    (root / "a.csv").write_text("u,v\n1,2\n3,4\n")
+    (root / "my data.csv").write_text("p,q\n5,6\n")  # name needs URI-quoting
+    np.savez(root / "c.npz", x=np.zeros((2, 3)), y=np.zeros((1, 3)))
+    nested = root / "sub"
+    nested.mkdir()
+    (nested / "b.csv").write_text("p;q\n1;2\n")
+    rows, _ = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[8], max_iter=5, random_state=0)
+    server.export(mid["model_id"], path=str(root / "model.json"))
+    (root / "notes.txt").write_text("ignore me")
+    (root / "other.json").write_text('{"hello": 1}')  # not a JENN model
+
+
+def test_list_resources_includes_one_entry_per_file(tmp_path, monkeypatch):
+    """Each discoverable file is its own resource, so `@` can browse them."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path))
+    _populate(tmp_path)
+
+    uris = _resource_uris()
+
+    # The static whole-folder listing still exists, alongside one entry per file.
+    assert "jenn://files" in uris
+    assert set(uris) - {"jenn://files"} == {
+        "jenn://files/a.csv",
+        "jenn://files/my%20data.csv",  # quoted, and nested keeps its "/"
+        "jenn://files/c.npz",
+        "jenn://files/model.json",
+        "jenn://files/sub/b.csv",
+    }
+
+    # Each row is self-describing in the picker.
+    assert uris["jenn://files/a.csv"] == "CSV data - columns: u, v"
+    assert uris["jenn://files/c.npz"] == "NPZ data - arrays: x, y"
+    assert uris["jenn://files/model.json"].startswith("JENN model - layers")
+
+
+def test_read_file_resource_returns_metadata_and_preview(tmp_path, monkeypatch):
+    """Reading one file yields its metadata card -- not its rows -- plus a preview."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path))
+    _populate(tmp_path)
+
+    card = _read_card("jenn://files/my%20data.csv")  # percent-decoded by the SDK
+    assert card["name"] == "my data.csv"
+    assert card["path"] == str((tmp_path / "my data.csv").resolve())
+    assert card["columns"] == ["p", "q"]
+    assert card["delimiter"] == ","
+    assert card["preview"] == ["p,q", "5,6"]
+    assert "ingest" in card["hint"]
+
+    model_card = _read_card("jenn://files/model.json")
+    assert model_card["kind"] == "model"
+    assert model_card["layer_sizes"]
+    assert "load_model" in model_card["hint"]
+    assert "preview" not in model_card  # previews are a CSV convenience only
+
+
+def test_read_nested_file_resource(tmp_path, monkeypatch):
+    """A file in a sub-folder is readable: the `{+path}` template spans "/"."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path))
+    _populate(tmp_path)
+
+    card = _read_card("jenn://files/sub/b.csv")
+    assert card["name"] == str(Path("sub") / "b.csv")
+    assert card["delimiter"] == ";"
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "..%2F..%2Fetc%2Fpasswd",  # traversal, percent-hidden
+        "nope.csv",  # does not exist
+        "notes.txt",  # exists, but is not a JENN data/model file
+        "other.json",  # exists and is JSON, but is not a JENN model
+    ],
+)
+def test_read_file_resource_rejects_unknown(tmp_path, monkeypatch, name):
+    """Anything outside the root, absent, or not JENN-relevant is not a resource."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path))
+    _populate(tmp_path)
+
+    with pytest.raises(ResourceNotFoundError):
+        _read_card(f"jenn://files/{name}")
+
+
+def test_read_file_resource_rejects_symlink_escape(tmp_path, monkeypatch):
+    """A symlink pointing out of the root is refused (what `safe_join` adds)."""
+    root = tmp_path / "root"
+    root.mkdir()
+    outside = tmp_path / "outside.csv"
+    outside.write_text("secret,data\n1,2\n")
+    try:
+        (root / "link.csv").symlink_to(outside)
+    except OSError:  # pragma: no cover -- Windows without symlink privilege
+        pytest.skip("symlinks not permitted here")
+    monkeypatch.setenv("JENN_DIR", str(root))
+
+    with pytest.raises(ResourceNotFoundError):
+        _read_card("jenn://files/link.csv")
+
+
+def test_list_resources_survives_a_missing_root(tmp_path, monkeypatch):
+    """A bad JENN_DIR must not blank the resource list."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path / "does_not_exist"))
+    assert set(_resource_uris()) == {"jenn://files"}
+
+
+def test_list_resources_is_capped(tmp_path, monkeypatch):
+    """A large JENN_DIR is truncated rather than flooding the picker."""
+    monkeypatch.setenv("JENN_DIR", str(tmp_path))
+    for i in range(server._MAX_FILE_RESOURCES + 10):  # ruff:ignore[private-member-access]
+        (tmp_path / f"f{i:04d}.csv").write_text("u,v\n1,2\n")
+
+    per_file = set(_resource_uris()) - {"jenn://files"}
+    assert len(per_file) == server._MAX_FILE_RESOURCES  # ruff:ignore[private-member-access]

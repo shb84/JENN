@@ -79,15 +79,21 @@ Setting ``JENN_DIR``
 
 The server can discover data and model files on disk and read or write files by
 path. It scans a single **root directory**, chosen as ``$JENN_DIR`` if set,
-otherwise the directory the server was launched from. Point it at the folder
-holding your data and models *before* launching::
+otherwise a ``.jenn_dir`` folder in the directory the server was launched from
+(created on first use). That default is deliberately a folder JENN owns: it
+keeps discovery focused on your data instead of everything else a project
+contains, and keeps exported models from scattering among your sources.
+
+Point it at the folder holding your data and models *before* launching::
 
     JENN_DIR=/path/to/my/project jenn-mcp
 
-or set ``JENN_DIR`` in the ``env`` block of your MCP client configuration. The
-root governs the ``jenn://files`` resource (below) and is the base the file
-tools resolve relative paths against, so setting it well is what makes "just
-find my data" work.
+or set ``JENN_DIR`` in the ``env`` block of your MCP client configuration. An
+explicit ``JENN_DIR`` is taken as given and is *not* created for you, so a
+mistyped path surfaces as an error rather than as an empty folder. The root
+governs the ``jenn://files`` resources (below) and is the base the file tools
+resolve relative paths against, so setting it well is what makes "just find my
+data" work.
 
 A convenient convention is a dedicated ``~/.jenn`` folder, set once in your
 shell profile so every session and every server you launch sees it::
@@ -140,8 +146,14 @@ Tools, resource, and prompt
 
 The ``jenn://files`` **resource** lists JENN-relevant files under ``JENN_DIR`` —
 CSV/NPZ data files (with their columns / array names) and exported model JSONs —
-so you can ``@``-mention it to discover files instead of pasting paths. The
-``surrogate_workflow`` **prompt** walks an agent through the full recipe.
+so you can ``@``-mention it to discover files instead of pasting paths. Every one
+of those files is *also* advertised individually as ``jenn://files/<name>``
+(sub-folders included), so an agent's ``@`` menu lists them one by one and you
+can pick the file you want rather than typing its path. Reading one attaches a
+short metadata card — format, columns or array names, a model's architecture, the
+absolute path, and a few preview lines for a CSV — not the file's rows: the data
+itself stays server-side behind ``ingest``. The ``surrogate_workflow`` **prompt**
+walks an agent through the full recipe.
 
 Because a single training run is stochastic, the tools advise re-running with a
 different seed and evaluating on held-out data before acting on a diagnosis.
@@ -216,11 +228,18 @@ The mention syntax is ``@<server>:<uri>`` — here ``@jenn:jenn://files``:
     List @jenn:jenn://files
 
 That attaches the listing, which shows ``rastrigin.csv`` (with its columns) under
-``JENN_DIR``. In Claude Code you can also type ``@`` and pick the resource from
-the picker. Without the ``@`` mention — e.g. a plain *"List the JENN files you
-can see"* — the agent has no resource to read and will just search the
-filesystem instead. (Discovery is optional: you can skip straight to ingesting
-the file by name in step 2, since the tools read the file for you.)
+``JENN_DIR``. In Claude Code you can also type ``@`` and pick from the menu: the
+files under ``JENN_DIR`` appear there individually, so mentioning one directly
+works too and attaches just that file's card —
+
+.. code-block:: text
+
+    What columns does @jenn:jenn://files/rastrigin.csv have?
+
+Without an ``@`` mention — e.g. a plain *"List the JENN files you can see"* — the
+agent has no resource to read and will just search the filesystem instead.
+(Discovery is optional: you can skip straight to ingesting the file by name in
+step 2, since the tools read the file for you.)
 
 **2. Ingest it as a dataset.**
 

@@ -74,6 +74,9 @@ todo.txt
 .env
 .venv
 
-# Specific files 
-docs/examples/parameters.json 
+# Default JENN_DIR of an MCP server launched from the repo root
+.jenn_dir/
+
+# Specific files
+docs/examples/parameters.json
 notebooks/*.pdf

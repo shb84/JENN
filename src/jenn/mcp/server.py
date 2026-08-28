@@ -1,19 +1,22 @@
 """MCP server.
 ==============
 
-FastMCP server exposing JENN surrogate-modeling tools over stdio.
+MCPServer exposing JENN surrogate-modeling tools over stdio.
 """
 
 # Copyright (C) 2018 Steven H. Berguin
 # This work is licensed under the MIT License.
 from __future__ import annotations
 
+import contextlib
 import csv
+import itertools
 import json
 import os
 import time
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Any
+from urllib.parse import quote
 
 import numpy as np
 
@@ -30,10 +33,15 @@ from ._convert import (
 from ._store import DatasetRecord, ModelRecord, Registry
 
 try:
-    from mcp.server.fastmcp import FastMCP
+    import anyio
+    from mcp.server.mcpserver import MCPServer
+    from mcp.server.mcpserver.exceptions import ResourceNotFoundError
+    from mcp.shared.path_security import PathEscapeError, safe_join
+    from mcp_types import Resource as MCPResource
 except ModuleNotFoundError as err:  # pragma: no cover
     msg = (
-        "The JENN MCP server needs the optional 'mcp' dependency. "
+        "The JENN MCP server needs the optional 'mcp' dependency, version 2 or "
+        "later (mcp 1.x named this class FastMCP and is no longer supported). "
         "Install it with: pip install 'jenn[mcp]'"
     )
     raise ModuleNotFoundError(msg) from err
@@ -54,7 +62,27 @@ Providing partials is optional, but improve the fit when available.
 GUARD: don't act on one stochastic run; re-run with a new seed and compare.
 """
 
-mcp = FastMCP("jenn", instructions=INSTRUCTIONS)
+
+class _JennMCP(MCPServer):
+    """An :class:`MCPServer` with one live resource per file in ``$JENN_DIR``.
+
+    The SDK only serves the resources registered up front, so a directory
+    whose contents change between calls has no supported hook: overriding
+    ``list_resources`` is the seam. Each file is advertised as its own
+    ``jenn://files/<name>`` entry (that is what makes them individually
+    pickable in an agent's ``@`` menu); reads go through the
+    ``jenn://files/{+path}`` template below, which the SDK resolves and
+    path-checks natively.
+    """
+
+    async def list_resources(self) -> list[MCPResource]:
+        """Registered resources, plus one per discoverable file."""
+        static = await super().list_resources()
+        dynamic = await anyio.to_thread.run_sync(_file_resources)
+        return [*static, *dynamic]
+
+
+mcp = _JennMCP("jenn", instructions=INSTRUCTIONS)
 
 
 @mcp.tool()
@@ -73,9 +101,31 @@ def main() -> None:
 # ----------------------------------------------------------
 
 
+_DEFAULT_DIR_NAME = ".jenn_dir"
+
+
 def _jenn_root() -> Path:
-    """Directory scanned for JENN files: ``$JENN_DIR``, else the CWD."""
-    return Path(os.environ.get("JENN_DIR", ".")).expanduser().resolve()
+    """Directory scanned for JENN files: ``$JENN_DIR``, else ``./.jenn_dir``.
+
+    The default is a folder JENN owns rather than the working directory
+    itself, which is usually a project root: scanning that would bury
+    the user's two data files under everything a checkout contains
+    (``.pixi``, ``build``, ``node_modules``, ...), and writing to it
+    would scatter exported models among their sources. A dedicated
+    folder needs no exclusion list to stay clean -- there is nothing
+    foreign in it. Only this default is created on demand; an explicit
+    ``JENN_DIR`` is taken as given, so a typo surfaces instead of being
+    materialized.
+    """
+    env = os.environ.get("JENN_DIR")
+    if env:
+        return Path(env).expanduser().resolve()
+    root = (Path.cwd() / _DEFAULT_DIR_NAME).resolve()
+    # A read-only working directory means no default root, not a crash:
+    # the scan below simply finds nothing.
+    with contextlib.suppress(OSError):
+        root.mkdir(exist_ok=True)
+    return root
 
 
 def _resolve_path(path: str) -> Path:
@@ -84,9 +134,8 @@ def _resolve_path(path: str) -> Path:
     Absolute paths (and ``~`` paths) are used as-is; a bare or relative
     path is taken relative to ``JENN_DIR`` -- the same directory the
     ``jenn://files`` resource scans -- so an agent can name a file the
-    way it discovered it. When ``JENN_DIR`` is unset, ``_jenn_root`` is
-    the server's working directory, so this is identical to a plain
-    ``Path(path).resolve()`` and stays backward compatible.
+    way it discovered it, and so written files land where they will be
+    discovered next time.
     """
     p = Path(path).expanduser()
     if not p.is_absolute():
@@ -479,9 +528,9 @@ def export(model_id: str, path: str | None = None) -> dict[str, Any]:
 
     Returns the absolute file path and the JSON contents. Reload later
     with jenn.NeuralNet.load(path). A relative `path` (or the default
-    name) resolves under `$JENN_DIR` (the server's working directory if
-    unset), so the file lands where `jenn://files` will find it; an
-    absolute path is used as-is.
+    name) resolves under `$JENN_DIR` (`./.jenn_dir` if unset), so the
+    file lands where `jenn://files` will find it; an absolute path is
+    used as-is.
     """
     record = _MODELS.get(model_id)  # raises KeyError on unknown id
     target = _resolve_path(path or f"jenn_{model_id}.json")
@@ -547,8 +596,8 @@ def ingest(
     and will be weighted 0 at train time. Returns a `dataset_id` to pass to
     `train`/`evaluate`, keeping the data server-side (not re-sent per call).
 
-    A relative `path` resolves under `$JENN_DIR` (the server's working
-    directory if unset); an absolute path is used as-is.
+    A relative `path` resolves under `$JENN_DIR` (`./.jenn_dir` if
+    unset); an absolute path is used as-is.
     """
     target = _resolve_path(path)
     if not target.is_file():
@@ -660,9 +709,9 @@ def load_model(path: str) -> dict[str, Any]:
     lightweight metadata (`source`, `layer_sizes`, `n_inputs`,
     `n_outputs`).
 
-    A relative `path` resolves under `$JENN_DIR` (the server's working
-    directory if unset), so a model named the way `jenn://files` reports
-    it is found without a full path; an absolute path is used as-is.
+    A relative `path` resolves under `$JENN_DIR` (`./.jenn_dir` if
+    unset), so a model named the way `jenn://files` reports it is found
+    without a full path; an absolute path is used as-is.
     """
     target = _resolve_path(path)
     if not target.is_file():
@@ -794,8 +843,8 @@ def predict(
     (for large runs) -- the inline arrays are then omitted. A `.csv`
     output is a row-per-sample table of the response columns only; a
     `.npz` is feature-first (`x`/`y`/`dydx`) and persists partials.
-    Relative `path`/`output_path` values resolve under `$JENN_DIR` (the
-    server's working directory if unset); absolute paths are used as-is.
+    Relative `path`/`output_path` values resolve under `$JENN_DIR`
+    (`./.jenn_dir` if unset); absolute paths are used as-is.
     """
     record = _MODELS.get(model_id)  # raises KeyError on unknown id
     inputs_ff = _resolve_predict_inputs(x, path, inputs, delimiter)
@@ -906,7 +955,7 @@ def _scan_files(root: Path) -> dict[str, Any]:
     "jenn://files",
     name="jenn-files",
     description=(
-        "Local JENN files under $JENN_DIR (or the server CWD): CSV/NPZ data files "
+        "Local JENN files under $JENN_DIR (or ./.jenn_dir): CSV/NPZ data files "
         "to ingest, and exported model JSONs to load."
     ),
     mime_type="application/json",
@@ -914,6 +963,108 @@ def _scan_files(root: Path) -> dict[str, Any]:
 def files() -> dict[str, Any]:
     """List local JENN data and model files to reference by path."""
     return _scan_files(_jenn_root())
+
+
+# --- one resource per file (so an agent's `@` menu can browse them) ---
+
+_MAX_FILE_RESOURCES = 200  # a big JENN_DIR must not flood the picker
+_PREVIEW_LINES = 6
+_PREVIEW_CHARS = 200
+
+
+def _entry_summary(entry: dict[str, Any]) -> str:
+    """One-line description of a file, for the ``@`` menu row."""
+    fmt = entry.get("format", "")
+    if "error" in entry:
+        return f"{fmt} file (unreadable: {entry['error']})"
+    if entry.get("kind") == "model":
+        return f"JENN model - layers {entry.get('layer_sizes')}"
+    if fmt == "csv":
+        return "CSV data - columns: " + ", ".join(entry.get("columns", []))
+    if fmt == "npz":
+        return "NPZ data - arrays: " + ", ".join(entry.get("arrays", []))
+    return f"{fmt} file"  # pragma: no cover -- _file_details covers every suffix
+
+
+def _file_resources() -> list[MCPResource]:
+    """One :class:`MCPResource` per discoverable file under ``JENN_DIR``.
+
+    Blocking (it stats and sniffs files), so callers run it in a thread.
+    It must never raise: an exception here would blank the *entire*
+    resource list, taking the static ``jenn://files`` down with it.
+    """
+    try:
+        listing = _scan_files(_jenn_root())
+    except (
+        OSError
+    ):  # pragma: no cover -- unreadable root; a listing is not worth a crash
+        return []
+    resources: list[MCPResource] = []
+    for entry in listing["files"][:_MAX_FILE_RESOURCES]:
+        # A URI is posix-shaped whatever the platform, and safe="/" keeps a
+        # nested name's separators as path structure -- which is what the
+        # `{+path}` template matches on.
+        name = PurePath(entry["name"]).as_posix()
+        resources.append(
+            MCPResource(
+                uri=f"jenn://files/{quote(name, safe='/')}",
+                name=name,
+                title=name,
+                description=_entry_summary(entry),
+                mime_type="application/json",
+            ),
+        )
+    return resources
+
+
+def _csv_preview(path: Path) -> list[str]:
+    """The first few physical lines of a CSV, each length-capped."""
+    with path.open(newline="", encoding="utf-8", errors="replace") as file:
+        return [
+            line.rstrip("\r\n")[:_PREVIEW_CHARS]
+            for line in itertools.islice(file, _PREVIEW_LINES)
+        ]
+
+
+@mcp.resource(
+    "jenn://files/{+path}",
+    name="jenn-file",
+    description=(
+        "One JENN file under $JENN_DIR: its format, columns or arrays (or a "
+        "model's architecture), and the path to hand to `ingest`/`load_model`."
+    ),
+    mime_type="application/json",
+)
+def file(path: str) -> dict[str, Any]:
+    """Describe one local JENN file, so it can be picked instead of typed.
+
+    Returns metadata -- not the file's contents: the whole point of
+    `ingest` is to keep sample arrays server-side, so an `@` mention
+    attaches what the agent needs to *choose* a file (columns, arrays,
+    architecture, path) plus a short CSV preview.
+
+    `path` arrives already percent-decoded and screened for traversal,
+    absolute paths, and null bytes by the SDK's resource security;
+    `safe_join` re-checks against the resolved root, which additionally
+    catches symlinks pointing out of the tree.
+    """
+    root = _jenn_root()
+    unknown = f"Unknown resource: jenn://files/{path}"
+    try:
+        target = safe_join(root, path)
+    except (PathEscapeError, ValueError) as err:
+        raise ResourceNotFoundError(unknown) from err
+    entry = _file_entry(target, root) if target.is_file() else None
+    if entry is None:  # missing, or present but not a JENN data/model file
+        raise ResourceNotFoundError(unknown)
+    if entry.get("format") == "csv" and "error" not in entry:
+        entry["preview"] = _csv_preview(target)
+    entry["hint"] = (
+        "Pass this path to `load_model`."
+        if entry.get("kind") == "model"
+        else "Pass this path to `ingest` (map inputs/outputs/derivatives to columns)."
+    )
+    return entry
 
 
 # ----------------------------------------------------------
