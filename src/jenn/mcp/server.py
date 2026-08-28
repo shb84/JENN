@@ -108,13 +108,14 @@ def _jenn_root() -> Path:
     """Directory scanned for JENN files: ``$JENN_DIR``, else ``./.jenn_dir``.
 
     The default is a folder JENN owns rather than the working directory
-    itself, which is usually a project root: scanning that would bury the
-    user's two data files under everything a checkout contains
-    (``.pixi``, ``build``, ``node_modules``, ...), and writing to it would
-    scatter exported models among their sources. A dedicated folder needs
-    no exclusion list to stay clean -- there is nothing foreign in it.
-    Only this default is created on demand; an explicit ``JENN_DIR`` is
-    taken as given, so a typo surfaces instead of being materialized.
+    itself, which is usually a project root: scanning that would bury
+    the user's two data files under everything a checkout contains
+    (``.pixi``, ``build``, ``node_modules``, ...), and writing to it
+    would scatter exported models among their sources. A dedicated
+    folder needs no exclusion list to stay clean -- there is nothing
+    foreign in it. Only this default is created on demand; an explicit
+    ``JENN_DIR`` is taken as given, so a typo surfaces instead of being
+    materialized.
     """
     env = os.environ.get("JENN_DIR")
     if env:
