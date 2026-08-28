@@ -81,22 +81,22 @@ _Check that the package appears on `testpypi` and try manually installing it in 
 Assuming `master` is locally up-to-date, update version number in `src/jenn/__init__.py`: 
 
 ```bash
-__version__ = "2.1.0"
+__version__ = "2.1.1"
 ```
 
 Push the version change to the remote: 
 
 ```bash
 git add -u 
-git commit -m "changed version to v2.1.0"
+git commit -m "changed version to v2.1.1"
 git push 
 ```
 
 Tag commit for release and push to trigger release pipeline: 
 
 ```bash
-git tag v2.1.0
-git push origin v2.1.0
+git tag v2.1.1
+git push origin v2.1.1
 ```
 
 Once the pipeline has succeeded, check that there is now a new release on `pypi.org`, `GitHub Pages` and `Github Release`. 
@@ -104,8 +104,8 @@ Once the pipeline has succeeded, check that there is now a new release on `pypi.
 _To delete tag if needed (e.g. deploy step failed in CI)_: 
 
 ```bash
-git tag -d v2.1.0    
-git push origin --delete v2.1.0
+git tag -d v2.1.1    
+git push origin --delete v2.1.1
 ```
 
 ### TestPyPi

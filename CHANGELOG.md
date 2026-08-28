@@ -18,6 +18,33 @@ build: Changes to the build process or tools.
 
 # Changelog
 
+## v2.1.1 (Unreleased)
+
+### Feat
+
+- The MCP server now advertises every file under `JENN_DIR` as its own
+  `jenn://files/<name>` resource (sub-folders included), so an agent's `@` menu
+  lists them individually and a file can be picked instead of typed. Reading one
+  returns a metadata card — format, columns or array names, a model's
+  architecture, the absolute path, and a short CSV preview — rather than the
+  file's rows, which stay server-side behind `ingest`. The whole-folder
+  `jenn://files` listing is unchanged.
+
+- **Changed (MCP server):** with `JENN_DIR` unset, the server's root is now a
+  `.jenn_dir` folder under its working directory (created on first use) instead
+  of the working directory itself. Discovery then shows your data files rather
+  than everything else a project checkout contains, and `export`/`predict`
+  written by bare name no longer land among your sources. Setting `JENN_DIR`
+  explicitly is unchanged — and an explicit path is never auto-created, so a
+  typo still surfaces as an error.
+
+### Build
+
+- **Breaking (MCP extra only):** `jenn[mcp]` now requires `mcp>=2,<3`; mcp 2.0
+  removed `mcp.server.fastmcp`, and the server has moved to the renamed
+  `MCPServer` API. Users pinned to mcp 1.x must upgrade. The JENN API itself is
+  unaffected, as is the Python floor (>= 3.10) for the extra.
+
 ## v2.1.0 (2026-08-22)
 
 ### Feat

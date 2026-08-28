@@ -147,9 +147,10 @@ writing a training script by hand.
     claude mcp add --transport stdio jenn -- jenn-mcp
 
 It exposes tools for the full lifecycle (`ingest`, `train`, `evaluate`,
-`export`, `load_model`, `predict`, and listing helpers), a `jenn://files`
-resource for discovering local data/model files, and a `surrogate_workflow`
-prompt. See the **MCP Server** section of the
+`export`, `load_model`, `predict`, and listing helpers), `jenn://files`
+resources for discovering local data/model files — the whole folder, plus each
+file individually so an agent's `@` menu can browse them — and a
+`surrogate_workflow` prompt. See the **MCP Server** section of the
 [documentation](https://shb84.github.io/JENN/) for the full tool reference, a
 hands-on tutorial with practice data, and `JENN_DIR` setup.
 
