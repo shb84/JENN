@@ -18,7 +18,7 @@ build: Changes to the build process or tools.
 
 # Changelog
 
-## v2.1.1 (Unreleased)
+## v2.1.1 (2026-09-20)
 
 ### Feat
 
