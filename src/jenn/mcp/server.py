@@ -66,9 +66,9 @@ GUARD: don't act on one stochastic run; re-run with a new seed and compare.
 class _JennMCP(MCPServer):
     """An :class:`MCPServer` with one live resource per file in ``$JENN_DIR``.
 
-    Each file is advertised as its own ``jenn://files/<name>`` entry, which
-    is what makes it individually pickable in an agent's ``@`` menu; reads
-    go through the ``jenn://files/{+path}`` template below.
+    Each file is advertised as its own ``jenn://files/<name>`` entry,
+    which is what makes it individually pickable in an agent's ``@``
+    menu; reads go through the ``jenn://files/{+path}`` template below.
     """
 
     # Overridden because the SDK only serves statically registered resources,
@@ -240,9 +240,9 @@ def _bounds_report(
     """Report how far ``inputs_ff`` falls outside the training bounding box.
 
     :param inputs_ff: feature-first inputs of shape ``(n_x, m)``
-    :return: ``None`` if every sample is inside the box,
-        :data:`BOUNDS_UNAVAILABLE` if the model has no stored bounds, else
-        a report listing only the inputs that were exceeded.
+    :return:``None`` if every sample is inside the box,
+        :data:`BOUNDS_UNAVAILABLE` if the model has no stored bounds,
+        else a report listing only the inputs that were exceeded.
     """
     if record.x_min is None or record.x_max is None:
         return BOUNDS_UNAVAILABLE
@@ -287,8 +287,8 @@ def _fit_metrics(
 ) -> dict[str, Any]:
     """Structured goodness-of-fit metrics for values and (optionally) partials.
 
-    Partials masked out by ``mask == 0`` hold placeholder values, so they are
-    listed under ``ignored`` rather than scored.
+    Partials masked out by ``mask == 0`` hold placeholder values, so
+    they are listed under ``ignored`` rather than scored.
     """
     # Keep the derivative work inside a single `dydx is not None` block: it
     # narrows the Optional for the type checker and reuses the one forward pass.
@@ -384,9 +384,9 @@ def _effective_gamma(
 ) -> np.ndarray | float:
     """Combine the availability mask with the requested per-partial scale.
 
-    :return: a scalar when there is no ``mask``, else ``mask * scale`` shaped
-        ``(n_y, n_x, 1)`` to broadcast over samples. Availability wins: no
-        scale can resurrect an absent partial.
+    :return: a scalar when there is no ``mask``, else ``mask * scale``
+        shaped ``(n_y, n_x, 1)`` to broadcast over samples. Availability
+        wins: no scale can resurrect an absent partial.
     """
     if isinstance(gamma, list):
         if mask is None or input_names is None or output_names is None:
@@ -780,9 +780,9 @@ def ingest(
 def list_datasets() -> dict[str, Any]:
     """List the ingested datasets currently held in this server session.
 
-    Returns metadata only -- shapes, column names, and which partials are
-    available vs. missing; the arrays stay server-side, referenced by
-    dataset_id.
+    Returns metadata only -- shapes, column names, and which partials
+    are available vs. missing; the arrays stay server-side, referenced
+    by dataset_id.
     """
     datasets = [
         {
