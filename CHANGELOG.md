@@ -22,6 +22,16 @@ build: Changes to the build process or tools.
 
 ### Feat
 
+- Exported models now carry the bounds of the data they were trained on, so a
+  model reloaded in a later session still knows where it is valid even though the
+  training data itself does not persist. `export` writes the input bounding box
+  alongside the weights (keys `jenn.NeuralNet.load` ignores, so the file stays a
+  plain JENN model file), `load_model` reports it as `training_bounds`, and
+  `predict` adds an `extrapolation` block when a query leaves the box, naming the
+  inputs exceeded and by what fraction of their trained span. Being inside the box
+  is necessary but not sufficient for interpolation: a point can sit within every
+  per-input range and still be far from any training sample.
+
 - The MCP server now advertises every file under `JENN_DIR` as its own
   `jenn://files/<name>` resource (sub-folders included), so an agent's `@` menu
   lists them individually and a file can be picked instead of typed. Reading one
