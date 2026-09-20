@@ -12,10 +12,11 @@ Environments and tasks are managed by `pixi`; the development env is `dev`.
 
 - Full unit tests: `pixi run -e dev test-unit` · notebook tests: `pixi run -e dev test-nb`
 - A single test (runs the `pytest` binary directly): `pixi run -e dev pytest tests/test_mcp.py::test_train_evaluate_export_roundtrip -q`
-- Lint/type/docs (the release gates): `pixi run -e dev ruff`, `pixi run -e dev mypy`, `pixi run -e dev docs` · everything: `pixi run -e dev all`
+- **The CI gate is `pixi run -e dev lint`** = `ruff` + `mypy` + **`docformatter`** (that last one is easy to forget — see the gotcha below). Other CI jobs: `test-unit` (Python 3.9–3.14), `test-nb`, `docs`. Everything at once: `pixi run -e dev all`.
 - Editable install (also regenerates console scripts after `pyproject.toml` changes): `pixi run -e dev pip-e`
 
 Gotchas:
+- **`docformatter` rewrites docstrings in place and exits 3 if it changed anything**, so a hand-wrapped docstring fails CI even when ruff and mypy pass. It wraps *descriptions* at 72 cols (narrower than ruff's 88) and wants no space after `:return:`; summary wrapping is off (`wrap-summaries = 0`) so the RST-title module docstrings survive. Don't hand-wrap a docstring and call it done — run `pixi run -e dev lint` and commit what docformatter produces.
 - `pixi run -e dev ruff` / `mypy` run the *tasks* (e.g. ruff = `format --check && check` over the whole repo). For ad-hoc, path-scoped linting/formatting use `pixi run -e dev python -m ruff format|check <paths>`.
 - Type-check via the `mypy` task, **not** `mypy src/` directly — the latter trips a mypy "Duplicate module named jenn" quirk.
 
