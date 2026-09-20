@@ -41,6 +41,11 @@ class ModelRecord(Record):
     dydx: np.ndarray | None = None  # feature-first Jacobians (n_y, n_x, m) or None
     training_seconds: float  # wall-clock time spent in NeuralNet.fit
     partial_mask: np.ndarray | None = None  # (n_y, n_x) availability mask or None
+    # Training-input bounding box, kept independently of `x` so a model reloaded
+    # from disk (which has no training data) reports extrapolation the same way a
+    # freshly trained one does. None means the bounds are unknown.
+    x_min: np.ndarray | None = None  # (n_x,) per-input training minimum
+    x_max: np.ndarray | None = None  # (n_x,) per-input training maximum
     input_names: list[str] | None = None  # column names for inputs, if known
     output_names: list[str] | None = None  # column names for outputs, if known
     source: str | None = (

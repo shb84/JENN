@@ -381,6 +381,203 @@ def test_predict_width_mismatch():
         server.predict(mid, x=[[0.1]])  # 1 feature, model expects 2
 
 
+def test_predict_inside_bounds_reports_nothing():
+    """A query inside the trained box carries no extrapolation key at all."""
+    rows, x = _rastrigin_rows()  # trained over [-1, 1]^2
+    mid = server.train(**rows, hidden_layers=[12], max_iter=20, random_state=0)[
+        "model_id"
+    ]
+    res = server.predict(mid, x=[[0.0, 0.0], [0.5, -0.5]])
+    assert "extrapolation" not in res
+
+
+def test_predict_outside_bounds_reports_offending_input_only():
+    """Only the exceeded input is listed, with a span-relative overshoot."""
+    rows, _ = _rastrigin_rows()  # trained over [-1, 1]^2, so each span is 2.0
+    mid = server.train(**rows, hidden_layers=[12], max_iter=20, random_state=0)[
+        "model_id"
+    ]
+    # x1 = 1.5 is 0.5 past the upper edge of a span of 2.0 -> overshoot 0.25.
+    res = server.predict(mid, x=[[0.0, 0.0], [1.5, 0.0]])
+    report = res["extrapolation"]
+
+    assert report["n_samples"] == 2
+    assert report["n_samples_outside"] == 1  # the in-bounds row is not counted
+    assert report["worst_overshoot"] == pytest.approx(0.25)
+    assert len(report["inputs"]) == 1  # x2 stayed inside, so it is absent
+    (entry,) = report["inputs"]
+    assert entry["input"] == 0  # positional: inline arrays carry no column names
+    assert entry["trained"] == pytest.approx([-1.0, 1.0])
+    assert entry["query"] == pytest.approx([0.0, 1.5])
+    assert entry["overshoot"] == pytest.approx(0.25)
+    assert entry["n_outside"] == 1
+
+
+def test_predict_below_lower_bound_is_flagged():
+    """Undershooting the box is caught as well as overshooting it."""
+    rows, _ = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[12], max_iter=20, random_state=0)[
+        "model_id"
+    ]
+    report = server.predict(mid, x=[[-2.0, 0.0]])["extrapolation"]
+    assert report["worst_overshoot"] == pytest.approx(0.5)  # 1.0 past a span of 2.0
+    assert report["inputs"][0]["query"] == pytest.approx([-2.0, -2.0])
+
+
+def test_bounds_survive_export_and_reload(tmp_path):
+    """The training box persists through the file and drives predict after reload."""
+    loaded, _, x = _export_and_load(
+        tmp_path,
+        hidden_layers=[12],
+        max_iter=20,
+        random_state=0,
+    )
+    bounds = loaded["training_bounds"]
+    assert [b["min"] for b in bounds] == pytest.approx(x.min(axis=1))
+    assert [b["max"] for b in bounds] == pytest.approx(x.max(axis=1))
+
+    # The sidecar keys are really on disk, not just in the registry.
+    saved = json.loads((tmp_path / "surrogate.json").read_text())
+    assert saved["x_min"] == pytest.approx(x.min(axis=1))
+    assert saved["x_max"] == pytest.approx(x.max(axis=1))
+
+    # And the reloaded model flags extrapolation the same way a fresh one does.
+    assert "extrapolation" not in server.predict(loaded["model_id"], x=[[0.0, 0.0]])
+    report = server.predict(loaded["model_id"], x=[[3.0, 3.0]])["extrapolation"]
+    assert len(report["inputs"]) == 2  # both inputs exceeded
+    assert report["worst_overshoot"] == pytest.approx(1.0)  # 2.0 past a span of 2.0
+
+
+def test_ingested_bounds_report_uses_column_names(tmp_path):
+    """Input names ride along with the bounds so the report stays readable."""
+    ds = server.ingest(
+        str(DATA / "rastrigin.csv"),
+        inputs=["x1", "x2"],
+        outputs=["y"],
+    )
+    trained = server.train(
+        dataset_id=ds["dataset_id"],
+        hidden_layers=[12],
+        max_iter=20,
+        random_state=0,
+    )
+    path = tmp_path / "named.json"
+    server.export(trained["model_id"], path=str(path))
+    loaded = server.load_model(str(path))
+
+    assert [b["input"] for b in loaded["training_bounds"]] == ["x1", "x2"]
+    report = server.predict(loaded["model_id"], x=[[99.0, 0.0]])["extrapolation"]
+    assert report["inputs"][0]["input"] == "x1"  # named, not positional
+
+
+def test_predict_to_file_still_reports_extrapolation(tmp_path):
+    """A file-bound run reports bounds too -- more predictions, not fewer."""
+    rows, _ = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[12], max_iter=20, random_state=0)[
+        "model_id"
+    ]
+    res = server.predict(
+        mid,
+        x=[[5.0, 0.0]],
+        output_path=str(tmp_path / "out.csv"),
+    )
+    assert "y" not in res  # inline arrays still omitted for a file run
+    assert res["extrapolation"]["worst_overshoot"] == pytest.approx(2.0)
+
+
+def test_core_saved_model_reports_bounds_unavailable(tmp_path):
+    """A model saved through the core API has no bounds, and says so plainly.
+
+    Not a legacy concern: `jenn.core` is deliberately untouched, so
+    `NeuralNet.save` writes no bounds today and never will. Loading such
+    a file must still work, and predict must admit it cannot check.
+    """
+    rows, x = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[12], max_iter=20, random_state=0)[
+        "model_id"
+    ]
+    path = tmp_path / "core_saved.json"
+    server._MODELS.get(mid).model.save(path)  # ruff:ignore[private-member-access]
+    assert "x_min" not in json.loads(path.read_text())
+
+    loaded = server.load_model(str(path))
+    assert loaded["training_bounds"] is None
+    pred = server.predict(loaded["model_id"], x=x.T.tolist())
+    assert np.array(pred["y"]).shape == (x.shape[1], 1)  # predictions unaffected
+    assert pred["extrapolation"] == server.BOUNDS_UNAVAILABLE
+
+
+def test_malformed_bounds_are_ignored_not_fatal(tmp_path):
+    """A corrupt sidecar must not stop good weights from loading."""
+    rows, _ = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[12], max_iter=20, random_state=0)[
+        "model_id"
+    ]
+    path = tmp_path / "corrupt.json"
+    server.export(mid, path=str(path))
+
+    data = json.loads(path.read_text())
+    data["x_min"] = [0.0]  # wrong length for a 2-input model
+    path.write_text(json.dumps(data))
+
+    loaded = server.load_model(str(path))
+    assert loaded["training_bounds"] is None  # discarded, not raised
+    assert loaded["n_inputs"] == 2
+
+
+@pytest.mark.parametrize(
+    "corruption",
+    [
+        {"x_min": [0.0]},  # wrong length
+        {"x_min": ["a", "b"]},  # non-numeric
+        {"x_min": [None, None]},  # null
+        {"x_min": [1.0, 1.0], "x_max": [-1.0, -1.0]},  # inverted
+    ],
+    ids=["short", "text", "null", "inverted"],
+)
+def test_bad_sidecar_reports_unknown_rather_than_firing_wrongly(tmp_path, corruption):
+    """Every flavour of bad bounds degrades to 'unknown', never a silent pass."""
+    rows, _ = _rastrigin_rows()
+    mid = server.train(**rows, hidden_layers=[12], max_iter=20, random_state=0)[
+        "model_id"
+    ]
+    path = tmp_path / "corrupt.json"
+    server.export(mid, path=str(path))
+
+    data = json.loads(path.read_text())
+    data.update(corruption)
+    # NaN is not valid JSON, but json.dumps emits it and json.loads accepts it,
+    # which is exactly how such a file would arrive in practice.
+    path.write_text(json.dumps(data))
+
+    loaded = server.load_model(str(path))
+    assert loaded["training_bounds"] is None
+    # The honest answer is "unknown", not an unflagged out-of-bounds prediction.
+    assert server.predict(loaded["model_id"], x=[[99.0, 99.0]])["extrapolation"] == (
+        server.BOUNDS_UNAVAILABLE
+    )
+
+
+def test_constant_input_column_does_not_divide_by_zero():
+    """A zero-span input yields a finite overshoot rather than inf/NaN."""
+    m = 20
+    rng = np.random.default_rng(0)
+    x = np.vstack([rng.uniform(-1, 1, m), np.full(m, 3.0)])  # x2 is constant
+    y = x[:1] ** 2
+    trained = server.train(
+        x=x.T.tolist(),
+        y=y.T.tolist(),
+        hidden_layers=[6],
+        max_iter=20,
+        random_state=0,
+    )
+    report = server.predict(trained["model_id"], x=[[0.0, 6.0]])["extrapolation"]
+    (entry,) = report["inputs"]
+    assert entry["trained"] == pytest.approx([3.0, 3.0])
+    assert np.isfinite(entry["overshoot"])
+    assert entry["overshoot"] == pytest.approx(1.0)  # 3.0 past a scale of max(|3|, 1)
+
+
 def test_load_model_error_paths(tmp_path):
     """Missing files and non-JENN JSON raise clear errors."""
     with pytest.raises(ValueError, match="No such file"):
